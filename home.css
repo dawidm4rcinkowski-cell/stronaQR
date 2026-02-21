@@ -1,60 +1,46 @@
-/* PODSTAWY */
-* { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+* { box-sizing: border-box; margin: 0; padding: 0; font-family: Arial, sans-serif; }
 body { background: #000; color: white; text-align: center; overflow-x: hidden; }
 
-/* HEADER */
-header { background: #ffe800; height: 60px; display: flex; align-items: center; justify-content: center; position: sticky; top: 0; z-index: 2000; box-shadow: 0 4px 15px rgba(255, 232, 0, 0.2); }
-.logo { color: #000; font-size: 1.6rem; font-weight: 900; letter-spacing: -1px; }
-.logo span { background: #000; color: #ffe800; padding: 2px 6px; border-radius: 4px; margin-left: 4px; }
-.menu-btn { position: absolute; left: 20px; cursor: pointer; font-size: 1.8rem; color: #000; transition: transform 0.2s; }
-.menu-btn:hover { transform: scale(1.1); }
+/* Header & Sidebar */
+header { background: #ffe800; height: 50px; display: flex; align-items: center; justify-content: center; position: sticky; top: 0; z-index: 1000; }
+.logo { color: #000; font-weight: 900; font-size: 1.4rem; text-transform: uppercase; }
+.logo span { background: #000; color: #ffe800; padding: 0 4px; border-radius: 3px; }
+.menu-btn { position: absolute; left: 15px; cursor: pointer; color: #000; font-size: 1.5rem; }
 
-/* SIDEBAR */
-.sidebar { position: fixed; left: -280px; top: 0; width: 260px; height: 100%; background: #0a0a0a; z-index: 3000; transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1); padding-top: 80px; border-right: 2px solid #ffe800; text-align: left; }
+.sidebar { position: fixed; left: -260px; top: 0; width: 250px; height: 100%; background: #0a0a0a; border-right: 2px solid #ffe800; transition: 0.3s; z-index: 2000; text-align: left; padding-top: 60px; }
 .sidebar.active { left: 0; }
-.sidebar-link { display: block; color: white; padding: 20px 25px; text-decoration: none; font-weight: bold; border-bottom: 1px solid #1a1a1a; transition: 0.3s; }
-.sidebar-link:hover { background: #1a1a1a; color: #ffe800; padding-left: 35px; }
-.overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.85); display: none; z-index: 2500; backdrop-filter: blur(5px); }
+.sidebar-header { color: #ffe800; padding: 20px; font-weight: bold; border-bottom: 1px solid #1a1a1a; }
+.sidebar-link { display: block; color: white; padding: 15px 20px; text-decoration: none; border-bottom: 1px solid #111; transition: 0.2s; }
+.sidebar-link:hover { background: #1a1a1a; padding-left: 25px; color: #ffe800; }
+.overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.8); display: none; z-index: 1500; }
 .overlay.active { display: block; }
 
-/* ANIMOWANY ZEGAR FLIP */
-.clock-container { display: flex; justify-content: center; align-items: center; gap: 10px; margin: 40px 0; perspective: 1000px; }
-.flip-card { background: #111; width: 80px; height: 100px; position: relative; border-radius: 10px; border: 1px solid #222; font-size: 3rem; font-weight: 900; color: #ffe800; line-height: 100px; box-shadow: 0 10px 20px rgba(0,0,0,0.5); }
-.clock-separator { font-size: 2.5rem; color: #333; font-weight: 900; animation: blink 1s infinite; }
-@keyframes blink { 50% { opacity: 0.3; } }
+/* Zegar Flip Animacja */
+.clock-container { display: flex; justify-content: center; align-items: center; gap: 10px; margin: 30px 0; }
+.clock-sep { font-size: 2rem; color: #333; font-weight: bold; animation: blink 1s infinite; }
+@keyframes blink { 50% { opacity: 0; } }
 
-/* EFEKT PRZERZUCANIA (Triggerowany przez JS) */
-.flip-animate { animation: flipDown 0.6s ease-in; }
-@keyframes flipDown {
-    0% { transform: rotateX(0deg); }
-    50% { transform: rotateX(-90deg); background: #222; }
-    100% { transform: rotateX(0deg); }
-}
+.flip-card { width: 70px; height: 90px; perspective: 1000px; }
+.flip-inner { position: relative; width: 100%; height: 100%; transition: transform 0.6s; transform-style: preserve-3d; }
+.flip-card.animate .flip-inner { transform: rotateX(-180deg); }
+.flip-front, .flip-back { position: absolute; width: 100%; height: 100%; backface-visibility: hidden; display: flex; align-items: center; justify-content: center; background: #111; border: 1px solid #222; border-radius: 8px; font-size: 2.5rem; color: #ffe800; font-weight: bold; }
+.flip-back { transform: rotateX(-180deg); }
 
-/* KARTY DASHBOARDU */
-.dashboard-grid { display: flex; justify-content: center; gap: 15px; margin: 20px auto; max-width: 1000px; padding: 0 20px; }
-.dash-card { background: #111; border-radius: 16px; padding: 20px; display: flex; align-items: center; gap: 15px; text-decoration: none; color: white; border: 1px solid #222; flex: 1; transition: 0.3s; position: relative; overflow: hidden; }
-.dash-card::before { content: ""; position: absolute; top: 0; left: -100%; width: 100%; height: 100%; background: linear-gradient(90deg, transparent, rgba(255,232,0,0.05), transparent); transition: 0.5s; }
-.dash-card:hover { border-color: #ffe800; transform: translateY(-5px); box-shadow: 0 10px 20px rgba(255,232,0,0.1); }
-.dash-card:hover::before { left: 100%; }
-.icon-box { width: 50px; height: 50px; background: #1a1a1a; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; border: 1px solid #333; }
-.card-info h3 { color: #ffe800; font-size: 1rem; margin-bottom: 4px; }
-.card-info p { color: #888; font-size: 0.75rem; }
+/* Dashboard Buttons */
+.dashboard-grid { display: flex; justify-content: center; gap: 10px; padding: 0 10px; max-width: 900px; margin: 0 auto; }
+.dash-card { background: #111; border: 1px solid #222; border-radius: 12px; padding: 15px; flex: 1; display: flex; align-items: center; gap: 10px; text-decoration: none; color: white; text-align: left; transition: 0.3s; }
+.dash-card:hover { transform: translateY(-5px); border-color: #ffe800; box-shadow: 0 5px 15px rgba(255,232,0,0.1); }
+.icon-box { background: #1a1a1a; padding: 10px; border-radius: 8px; border: 1px solid #333; }
+.card-info h3 { color: #ffe800; font-size: 0.85rem; }
+.card-info p { color: #666; font-size: 0.7rem; }
 
-/* SEKCJA EKIPY */
-.team-wrapper { max-width: 1100px; margin: 40px auto; padding: 0 20px; }
-.team-title { font-size: 1.2rem; letter-spacing: 2px; margin-bottom: 30px; text-transform: uppercase; border-bottom: 2px solid #111; padding-bottom: 10px; display: inline-block; }
-.team-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 15px; justify-content: center; }
-.member-card { background: #0a0a0a; border: 1px solid #1a1a1a; border-radius: 12px; padding: 15px; display: flex; align-items: center; gap: 15px; transition: 0.3s; cursor: default; }
+/* Team Containers */
+.team-wrapper { max-width: 1000px; margin: 30px auto; padding: 0 15px; }
+.team-title { font-size: 1rem; margin-bottom: 20px; letter-spacing: 1px; }
+.team-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; }
+.member-card { background: #0a0a0a; border: 1px solid #1a1a1a; border-radius: 12px; padding: 15px; display: flex; align-items: center; gap: 12px; transition: 0.3s; }
 .member-card:hover { background: #111; border-color: #ffe800; transform: scale(1.03); }
-.member-card i { color: #6e448a; font-size: 1.4rem; filter: drop-shadow(0 0 5px rgba(110, 68, 138, 0.3)); }
-.member-info { text-align: left; }
-.member-info strong { display: block; font-size: 1rem; color: #fff; }
-.member-info span { font-size: 0.75rem; color: #666; font-weight: bold; text-transform: uppercase; }
-
-/* Responsywność na telefon */
-@media (max-width: 768px) {
-    .dashboard-grid { flex-direction: column; }
-    .clock-container { transform: scale(0.8); }
-    .team-container { grid-template-columns: 1fr 1fr; }
-}
+.member-card i { color: #6e448a; font-size: 1.2rem; }
+.m-info { text-align: left; }
+.m-info strong { display: block; font-size: 0.95rem; }
+.m-info span { font-size: 0.75rem; color: #666; font-weight: bold; }

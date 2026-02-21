@@ -2,40 +2,28 @@
 <html lang="pl">
 <head>
     <meta charset="UTF-8">
-    <link rel="stylesheet" href="main.css">
+    <link rel="stylesheet" href="qr.css">
 </head>
 <body>
     <header>
         <div class="menu-btn" onclick="toggleMenu()">☰</div>
         <div class="logo">MEDIA <span>EXPERT</span></div>
     </header>
-    <div class="overlay" id="overlay" onclick="toggleMenu()"></div>
-    <nav class="sidebar" id="sidebar">
+    <div class="sidebar" id="sidebar">
         <a href="index.html" class="sidebar-link">🏠 STRONA GŁÓWNA</a>
         <a href="plan.html" class="sidebar-link">📅 PLAN PRACY</a>
         <a href="qr.html" class="sidebar-link">🖼️ KOD QR</a>
-    </nav>
-
-    <main style="padding-top: 50px;">
-        <h1 style="font-size: 2.2rem; margin-bottom: 30px; font-weight: 900;">GENERATOR KODU <span style="color: #ffe800;">QR</span></h1>
-        
+    </div>
+    <main>
+        <h1>GENERATOR KODU <span style="color:#ffe800">QR</span></h1>
         <div class="qr-box">
             { "type" : "npws_order_received_qr_code" , "order_number" : " 
-            <input type="tel" id="ord_input" class="qr-input" placeholder="123123" style="width: 150px;"> " , "pin" : " 
-            <input type="tel" id="pin_input" class="qr-input" placeholder="23" style="width: 70px;"> " }
+            <input type="tel" id="o" class="q-in" placeholder="123456"> " , "pin" : " 
+            <input type="tel" id="p" class="q-in" style="width:70px" placeholder="12"> " }
         </div>
-
-        <button class="btn-copy" onclick="copyQR()">KOPIUJ KOD</button>
-
-        <div style="max-width: 800px; margin: 40px auto; border-top: 1px solid #222; padding-top: 20px;">
-            <div style="display: flex; justify-content: space-between; color: #444; font-size: 0.7rem; font-weight: bold; padding: 0 10px;">
-                <span>OSTATNIO SKOPIOWANE</span>
-                <span>GODZINA</span>
-                <span>HISTORIA</span>
-            </div>
-            <div id="history-list" style="margin-top: 15px;"></div>
-        </div>
+        <button class="btn" onclick="cp()">KOPIUJ KOD</button>
+        <div id="h-list" style="margin-top:30px"></div>
     </main>
-    <script src="java.js"></script>
+    <script src="qr.js"></script>
 </body>
 </html>

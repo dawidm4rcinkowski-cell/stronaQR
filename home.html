@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Media Expert - Dashboard</title>
+    <link rel="stylesheet" href="home.css">
+</head>
+<body>
+    <header>
+        <div class="menu-btn" onclick="toggleMenu()">☰</div>
+        <div class="logo">MEDIA <span>EXPERT</span></div>
+    </header>
+
+    <div class="overlay" id="overlay" onclick="toggleMenu()"></div>
+
+    <nav class="sidebar" id="sidebar">
+        <a href="index.html" class="sidebar-link">🏠 STRONA GŁÓWNA</a>
+        <a href="plan.html" class="sidebar-link">📅 PLAN PRACY</a>
+        <a href="qr.html" class="sidebar-link">🖼️ KOD QR</a>
+    </nav>
+
+    <main>
+        <div class="clock-container">
+            <div class="flip-card" id="hours-card">
+                <div class="top" id="hours">00</div>
+                <div class="bottom">00</div>
+            </div>
+            <div class="clock-separator">:</div>
+            <div class="flip-card" id="minutes-card">
+                <div class="top" id="minutes">00</div>
+                <div class="bottom">00</div>
+            </div>
+            <div class="clock-separator">:</div>
+            <div class="flip-card" id="seconds-card">
+                <div class="top" id="seconds">00</div>
+                <div class="bottom">00</div>
+            </div>
+        </div>
+
+        <div class="dashboard-grid">
+            <a href="plan.html" class="dash-card">
+                <div class="icon-box">📅</div>
+                <div class="card-info">
+                    <h3>Plan Pracy</h3>
+                    <p>Sprawdź grafik i zadania</p>
+                </div>
+            </a>
+            <a href="qr.html" class="dash-card">
+                <div class="icon-box">🖼️</div>
+                <div class="card-info">
+                    <h3>Twój Kod QR</h3>
+                    <p>Szybki dostęp do identyfikacji</p>
+                </div>
+            </a>
+            <div class="dash-card" id="shift-card">
+                <div class="icon-box">🕒</div>
+                <div class="card-info">
+                    <h3>Twoja zmiana</h3>
+                    <p id="shift-time">10:00 - 18:00</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="team-wrapper">
+            <h2 class="team-title">NASZA <span style="color:#ffe800">EXPERTOWA</span> EKIPA</h2>
+            <div class="team-container">
+                <div class="member-card"><i>👤</i><div class="member-info"><strong>Paweł</strong><span>KE / KSS</span></div></div>
+                <div class="member-card"><i>👤</i><div class="member-info"><strong>Michał</strong><span>KE / KSS</span></div></div>
+                <div class="member-card"><i>👤</i><div class="member-info"><strong>Natalia</strong><span>POK</span></div></div>
+                <div class="member-card"><i>👤</i><div class="member-info"><strong>Magda</strong><span>POK</span></div></div>
+                <div class="member-card"><i>👤</i><div class="member-info"><strong>Jakub</strong><span>IT</span></div></div>
+                <div class="member-card"><i>👤</i><div class="member-info"><strong>Adrian</strong><span>IT</span></div></div>
+                <div class="member-card"><i>👤</i><div class="member-info"><strong>Dawid</strong><span>IT</span></div></div>
+                <div class="member-card"><i>👤</i><div class="member-info"><strong>Darek</strong><span>IT</span></div></div>
+                <div class="member-card"><i>👤</i><div class="member-info"><strong>Łukasz</strong><span>AGD</span></div></div>
+                <div class="member-card"><i>👤</i><div class="member-info"><strong>Ilona</strong><span>AGD</span></div></div>
+                <div class="member-card"><i>👤</i><div class="member-info"><strong>Ariel</strong><span>RTV</span></div></div>
+            </div>
+        </div>
+    </main>
+
+    <script src="home.js"></script>
+</body>
+</html>

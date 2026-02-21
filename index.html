@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Media Expert - Inwentura</title>
+    <title>Media Expert - Panel Pracownika</title>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="inwa.css">
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <header>
@@ -17,35 +17,41 @@
 
     <nav class="sidebar" id="sidebar">
         <div class="sidebar-header">NAWIGACJA</div>
-        <a href="index.html" class="sidebar-link">🏠 STRONA GŁÓWNA</a>
+        <a href="index.html" class="sidebar-link active">🏠 STRONA GŁÓWNA</a>
         <a href="plan.html" class="sidebar-link">📅 PLAN PRACY</a>
-        <a href="inwa.html" class="sidebar-link">📝 INWENTURA</a>
         <a href="qr.html" class="sidebar-link">🖼️ KOD QR</a>
+        <a href="inwa.html" class="sidebar-link">📝 INWENTURA</a>
     </nav>
 
-    <main>
-        <h1 class="page-title">HARMONOGRAM <span>INWENTUR</span></h1>
-
-        <div class="month-selector-wrapper">
-            <label for="monthSelect">ARCHIWUM:</label>
-            <select id="monthSelect" onchange="changeMonth()">
-                <option value="current">LUTY 2026 (BIEŻĄCY)</option>
-                <option value="2026-01">STYCZEŃ 2026</option>
-                <option value="2025-12">GRUDZIEŃ 2025</option>
-            </select>
+    <main class="home-container">
+        <div class="welcome-box">
+            <h1 id="greeting" class="main-title">Witaj!</h1>
+            <p class="subtitle">CO DZISIAJ DZIAŁAMY?</p>
         </div>
 
-        <div class="filter-bar">
-            <button class="filter-btn active" onclick="filterInwa('all', this)">WSZYSTKO</button>
-            <button class="filter-btn" onclick="filterInwa('week', this)">TYDZIEŃ</button>
-            <button class="filter-btn" onclick="filterInwa('2month', this)">2x MIESIĄC</button>
-            <button class="filter-btn" onclick="filterInwa('month', this)">MIESIĄC</button>
+        <div class="quick-grid">
+            <a href="plan.html" class="quick-card">
+                <span class="icon">📅</span>
+                <h3>PLAN PRACY</h3>
+                <p>Sprawdź grafik</p>
+            </a>
+            
+            <a href="qr.html" class="quick-card">
+                <span class="icon">🖼️</span>
+                <h3>KOD QR</h3>
+                <p>Generuj JSON</p>
+            </a>
+
+            <a href="inwa.html" class="quick-card">
+                <span class="icon">📝</span>
+                <h3>INWENTURA</h3>
+                <p>Zatwierdź stany</p>
+            </a>
         </div>
 
-        <div id="inwaList" class="inwa-grid">
-            </div>
+        <div id="alertZone"></div>
     </main>
 
-    <script src="inwa.js"></script>
+    <script src="home.js"></script>
 </body>
 </html>

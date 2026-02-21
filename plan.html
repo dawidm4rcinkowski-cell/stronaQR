@@ -2,6 +2,7 @@
 <html lang="pl">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="main.css">
 </head>
 <body>
@@ -11,9 +12,9 @@
     </header>
     <div class="overlay" id="overlay" onclick="toggleMenu()"></div>
     <nav class="sidebar" id="sidebar">
-        <a href="index.html" class="sidebar-link">STRONA GŁÓWNA</a>
-        <a href="plan.html" class="sidebar-link">PLAN PRACY</a>
-        <a href="qr.html" class="sidebar-link">KOD QR</a>
+        <a href="index.html" class="sidebar-link">🏠 STRONA GŁÓWNA</a>
+        <a href="plan.html" class="sidebar-link">📅 PLAN PRACY</a>
+        <a href="qr.html" class="sidebar-link">🖼️ KOD QR</a>
     </nav>
 
     <main>
@@ -21,9 +22,12 @@
             <select id="monthSelect" onchange="generateTable()" style="background:none; border: 1px solid #ffe800; color:#ffe800; border-radius:15px; padding:5px 15px; outline:none;"></select>
         </div>
 
-        <div style="display: flex; justify-content: center; gap: 20px; font-size: 0.7rem; font-weight: bold; margin-bottom: 15px;">
-            <span>SOCJAL</span> <span>KLUCZE</span> <span>DOSTAWA</span>
+        <div style="display: flex; justify-content: center; gap: 20px; font-size: 0.7rem; font-weight: bold; margin-bottom: 15px; text-transform: uppercase;">
+            <div style="display:flex; align-items:center; gap:5px;"><div style="width:10px; height:10px; background:#007bff;"></div> SOCJAL</div>
+            <div style="display:flex; align-items:center; gap:5px;"><div style="width:10px; height:10px; background:#fd7e14;"></div> KLUCZE</div>
+            <div style="display:flex; align-items:center; gap:5px;"><div style="width:10px; height:10px; background:#ffe800;"></div> DOSTAWA</div>
         </div>
+        <p style="font-size: 0.6rem; color: #666; margin-bottom: 10px;">* KLIKNIJ W KOMÓRKĘ, ABY ZMIENIĆ ZADANIE</p>
 
         <div class="table-container">
             <table id="scheduleTable">
@@ -41,5 +45,6 @@
         </div>
     </main>
     <script src="java.js"></script>
+    <script>window.onload = () => { initMonths(); generateTable(); }</script>
 </body>
 </html>

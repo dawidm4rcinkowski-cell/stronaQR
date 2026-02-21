@@ -1,82 +1,300 @@
-* { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Montserrat', sans-serif; }
-body { background: #000; color: white; overflow-x: hidden; }
+/* --- RESET I PODSTAWY --- */
+* { 
+    box-sizing: border-box; 
+    margin: 0; 
+    padding: 0; 
+    font-family: 'Montserrat', sans-serif; 
+}
 
-/* HEADER & SIDEBAR BEZ ZMIAN */
-header { background: #ffe800; height: 60px; display: flex; align-items: center; justify-content: center; position: sticky; top: 0; z-index: 2000; }
-.logo { color: #000; font-weight: 900; font-size: 1.6rem; text-transform: uppercase; }
-.logo span { background: #000; color: #ffe800; padding: 0 6px; border-radius: 4px; }
-.menu-btn { position: absolute; left: 20px; cursor: pointer; color: #000; font-size: 1.8rem; }
+body { 
+    background: #000; 
+    color: white; 
+    overflow-x: hidden; 
+}
 
-.sidebar { position: fixed; left: -280px; top: 0; width: 260px; height: 100%; background: #0a0a0a; border-right: 3px solid #ffe800; transition: 0.3s; z-index: 3000; padding-top: 70px; }
-.sidebar.active { left: 0; }
-.sidebar-link { display: block; color: white; padding: 18px 25px; text-decoration: none; font-weight: 700; border-bottom: 1px solid #1a1a1a; }
-.sidebar-link.active { background: #ffe800; color: #000; }
-.overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.85); display: none; z-index: 2500; backdrop-filter: blur(4px); }
-.overlay.active { display: block; }
-
-/* POWIĘKSZONY CONTENT */
-main { padding: 30px 20px; max-width: 1200px; margin: 0 auto; }
-.page-title { text-align: center; font-weight: 900; font-size: 2.2rem; margin-bottom: 30px; letter-spacing: -1px; }
-.page-title span { color: #ffe800; }
-
-/* POWIĘKSZONE FILTRY */
-.filter-bar { display: flex; gap: 15px; justify-content: center; margin-bottom: 25px; }
-.filter-btn { background: #111; border: 2px solid #222; color: #777; padding: 15px; border-radius: 15px; font-weight: 900; cursor: pointer; transition: 0.3s; flex: 1; max-width: 180px; font-size: 1rem; }
-.filter-btn.active { background: #ffe800; color: #000; border-color: #ffe800; box-shadow: 0 0 15px rgba(255, 232, 0, 0.3); }
-
-/* SELEKTOR MIESIĄCA */
-.month-selector-wrapper { text-align: center; margin-bottom: 35px; color: #666; font-weight: 900; font-size: 0.9rem; }
-#monthSelect { background: #000; color: #fff; border: 2px solid #222; padding: 10px 20px; border-radius: 10px; font-weight: 900; margin-left: 10px; font-size: 0.9rem; cursor: pointer; }
-
-/* POWIĘKSZONE NAGŁÓWKI GRUP */
-.time-group-header { background: #111; color: #ffe800; padding: 15px 25px; border-radius: 12px; font-weight: 900; font-size: 0.9rem; margin: 40px 0 20px 0; text-transform: uppercase; letter-spacing: 2px; border-left: 6px solid #ffe800; }
-
-/* SIATKA KAFELKÓW */
-.inwa-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); gap: 15px; }
-
-/* POWIĘKSZONE KARTY (KAFELKI) */
-.inwa-card { 
-    background: #0a0a0a; 
-    border-radius: 18px; 
-    border: 2px solid #1a1a1a; 
-    padding: 20px 25px; 
+/* --- GÓRNY BAR (HEADER) --- */
+header { 
+    background: #ffe800; 
+    height: 60px; 
     display: flex; 
-    flex-direction: row; 
+    align-items: center; 
+    justify-content: center; 
+    position: sticky; 
+    top: 0; 
+    z-index: 2000; 
+    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+}
+
+.logo { 
+    color: #000; 
+    font-weight: 900; 
+    font-size: 1.6rem; 
+    text-transform: uppercase; 
+}
+
+.logo span { 
+    background: #000; 
+    color: #ffe800; 
+    padding: 0 6px; 
+    border-radius: 4px; 
+}
+
+.menu-btn { 
+    position: absolute; 
+    left: 20px; 
+    cursor: pointer; 
+    color: #000; 
+    font-size: 1.8rem; 
+}
+
+/* --- NAWIGACJA BOCZNA (SIDEBAR) --- */
+.sidebar { 
+    position: fixed; 
+    left: -280px; 
+    top: 0; 
+    width: 260px; 
+    height: 100%; 
+    background: #0a0a0a; 
+    border-right: 3px solid #ffe800; 
+    transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
+    z-index: 3000; 
+    padding-top: 70px; 
+}
+
+.sidebar.active { 
+    left: 0; 
+}
+
+.sidebar-header {
+    color: #444;
+    font-size: 0.7rem;
+    font-weight: 900;
+    padding: 10px 25px;
+    letter-spacing: 2px;
+}
+
+.sidebar-link { 
+    display: block; 
+    color: white; 
+    padding: 18px 25px; 
+    text-decoration: none; 
+    font-weight: 700; 
+    border-bottom: 1px solid #1a1a1a; 
+    transition: 0.2s;
+}
+
+.sidebar-link:hover {
+    background: #111;
+    color: #ffe800;
+}
+
+.sidebar-link.active { 
+    background: #ffe800; 
+    color: #000; 
+}
+
+.overlay { 
+    position: fixed; 
+    inset: 0; 
+    background: rgba(0,0,0,0.85); 
+    display: none; 
+    z-index: 2500; 
+    backdrop-filter: blur(4px); 
+}
+
+.overlay.active { 
+    display: block; 
+}
+
+/* --- GŁÓWNA TREŚĆ --- */
+main { 
+    padding: 40px 20px; 
+    max-width: 1400px; 
+    margin: 0 auto; 
+}
+
+.page-title { 
+    text-align: center; 
+    font-weight: 900; 
+    font-size: 2.8rem; 
+    margin-bottom: 40px; 
+    text-transform: uppercase;
+}
+
+.page-title span { 
+    color: #ffe800; 
+}
+
+/* --- FILTRY DZIAŁÓW --- */
+.filter-bar { 
+    display: flex; 
+    gap: 15px; 
+    justify-content: center; 
+    margin-bottom: 25px; 
+}
+
+.filter-btn { 
+    background: #111; 
+    border: 2px solid #222; 
+    color: #777; 
+    padding: 18px; 
+    border-radius: 15px; 
+    font-weight: 900; 
+    cursor: pointer; 
+    transition: 0.3s; 
+    flex: 1; 
+    max-width: 200px; 
+    font-size: 1.1rem; 
+    text-transform: uppercase;
+}
+
+.filter-btn.active { 
+    background: #ffe800; 
+    color: #000; 
+    border-color: #ffe800; 
+    box-shadow: 0 0 20px rgba(255, 232, 0, 0.2);
+}
+
+/* --- SELEKTOR MIESIĄCA --- */
+.month-selector-wrapper { 
+    text-align: center; 
+    margin-bottom: 40px; 
+    color: #555; 
+    font-weight: 900; 
+    font-size: 0.9rem; 
+}
+
+#monthSelect { 
+    background: #000; 
+    color: #fff; 
+    border: 2px solid #222; 
+    padding: 12px 20px; 
+    border-radius: 10px; 
+    font-weight: 900; 
+    margin-left: 10px; 
+    font-size: 0.9rem; 
+    cursor: pointer; 
+    outline: none;
+}
+
+#monthSelect:focus {
+    border-color: #ffe800;
+}
+
+/* --- NAGŁÓWKI SEKCJI CZASOWYCH --- */
+.time-group-header { 
+    background: #151515; 
+    color: #ffe800; 
+    padding: 20px 30px; 
+    border-radius: 15px; 
+    font-weight: 900; 
+    font-size: 1.1rem; 
+    margin: 50px 0 25px 0; 
+    text-transform: uppercase; 
+    border-left: 8px solid #ffe800;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+}
+
+/* --- SIATKA KAFELKÓW --- */
+.inwa-grid { 
+    display: grid; 
+    grid-template-columns: repeat(auto-fill, minmax(420px, 1fr)); 
+    gap: 20px; 
+}
+
+/* --- KAFELEK (INWA-CARD) --- */
+.inwa-card { 
+    background: #111; 
+    border-radius: 20px; 
+    border: 3px solid #222; 
+    padding: 30px; 
+    display: flex; 
     align-items: center; 
     justify-content: space-between; 
-    gap: 15px; 
-    transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
+    gap: 20px;
+    transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.inwa-info { flex: 1; }
-.inwa-info h3 { font-weight: 900; font-size: 1.1rem; text-transform: uppercase; color: #fff; line-height: 1.2; }
-.inwa-info p { color: #555; font-size: 0.75rem; font-weight: 800; margin-top: 5px; letter-spacing: 0.5px; }
+.inwa-info {
+    flex: 1;
+}
 
-/* POWIĘKSZONY PRZYCISK */
-.done-btn { 
-    min-width: 120px; 
-    background: transparent; 
-    border: 2px solid #ffe800; 
-    color: #ffe800; 
-    padding: 12px 15px; 
-    border-radius: 12px; 
+.inwa-info h3 { 
     font-weight: 900; 
-    font-size: 0.8rem; 
-    cursor: pointer; 
+    font-size: 1.35rem; 
+    color: #fff; 
+    letter-spacing: 0.5px;
     text-transform: uppercase;
-    transition: 0.3s;
 }
 
-.done-btn:hover { background: rgba(255, 232, 0, 0.1); transform: scale(1.05); }
+.inwa-info p { 
+    color: #666; 
+    font-size: 0.95rem; 
+    font-weight: 700; 
+    margin-top: 8px;
+    text-transform: uppercase;
+}
 
-/* STATUS PENDING (PO KLIKNIĘCIU) */
-.inwa-card.pending { border-color: #ffe800; background: rgba(255, 232, 0, 0.08); box-shadow: inset 0 0 20px rgba(255, 232, 0, 0.05); }
-.inwa-card.pending .done-btn { background: #ffe800; color: #000; box-shadow: 0 4px 15px rgba(255, 232, 0, 0.4); }
-.inwa-card.pending .inwa-info p { color: #ffe800; text-shadow: 0 0 5px rgba(255, 232, 0, 0.5); }
+/* --- PRZYCISK --- */
+.done-btn { 
+    min-width: 160px; 
+    height: 65px;
+    background: transparent; 
+    border: 3px solid #ffe800; 
+    color: #ffe800; 
+    border-radius: 15px; 
+    font-weight: 900; 
+    font-size: 1rem; 
+    cursor: pointer; 
+    transition: 0.3s;
+    text-transform: uppercase;
+}
 
-/* RWD */
-@media (max-width: 450px) {
-    .inwa-grid { grid-template-columns: 1fr; }
-    .inwa-card { padding: 15px; }
-    .inwa-info h3 { font-size: 0.9rem; }
+.done-btn:hover { 
+    background: rgba(255, 232, 0, 0.15); 
+    transform: translateY(-3px); 
+}
+
+/* --- STAN ZATWIERDZONY (PENDING) --- */
+.inwa-card.pending { 
+    border-color: #ffe800; 
+    background: #1a1a00; 
+}
+
+.inwa-card.pending .done-btn { 
+    background: #ffe800; 
+    color: #000; 
+    box-shadow: 0 5px 20px rgba(255, 232, 0, 0.3);
+}
+
+.inwa-card.pending .inwa-info p { 
+    color: #ffe800; 
+    font-weight: 900;
+}
+
+/* --- RESPONSYWNOŚĆ (MOBILE) --- */
+@media (max-width: 600px) {
+    .inwa-grid { 
+        grid-template-columns: 1fr; 
+    }
+    
+    .inwa-card { 
+        padding: 25px; 
+        flex-direction: column; 
+        text-align: center; 
+    }
+    
+    .done-btn { 
+        width: 100%; 
+        margin-top: 20px; 
+    }
+    
+    .page-title { 
+        font-size: 2rem; 
+    }
+    
+    .filter-btn {
+        padding: 12px;
+        font-size: 0.9rem;
+    }
 }

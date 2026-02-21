@@ -1,66 +1,31 @@
-<!DOCTYPE html>
-<html lang="pl">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Media Expert - Panel Główny</title>
-    <link rel="stylesheet" href="main.css">
-</head>
-<body>
-    <header>
-        <div class="menu-btn" onclick="toggleMenu()">
-            <div></div><div></div><div></div>
-        </div>
-        <div class="logo">MEDIA <span>EXPERT</span></div>
-    </header>
+function toggleMenu() {
+    const sidebar = document.getElementById('sidebar');
+    const overlay = document.getElementById('overlay');
+    
+    sidebar.classList.toggle('active');
+    overlay.classList.toggle('active');
+}
 
-    <div class="overlay" id="overlay" onclick="toggleMenu()"></div>
+// Funkcja ustawiająca powitanie w zależności od pory dnia
+function setGreeting() {
+    const greetingElement = document.getElementById('greeting');
+    if (!greetingElement) return;
 
-    <nav class="sidebar" id="sidebar">
-        <div class="sidebar-header">MENU</div>
-        <a href="index.html" class="sidebar-link"><i>🏠</i> STRONA GŁÓWNA</a>
-        <a href="plan.html" class="sidebar-link"><i>📅</i> PLAN PRACY</a>
-        <a href="qr.html" class="sidebar-link"><i>🖼️</i> KOD QR</a>
-        <a href="inwentura.html" class="sidebar-link"><i>📋</i> INWENTARYZACJA</a>
-    </nav>
+    const hour = new Date().getHours();
+    let message = "";
 
-    <main class="main-dashboard">
-        <div class="welcome-section">
-            <p id="currentDateDisplay" class="date-top-label"></p>
-            
-            <div class="flip-clock" id="clock">
-                <div class="flip-unit" id="hours">00</div>
-                <div class="flip-sep">:</div>
-                <div class="flip-unit" id="minutes">00</div>
-                <div class="flip-sep">:</div>
-                <div class="flip-unit" id="seconds">00</div>
-            </div>
-        </div>
+    if (hour >= 5 && hour < 12) {
+        message = "Dzień dobry!";
+    } else if (hour >= 12 && hour < 18) {
+        message = "Cześć!";
+    } else {
+        message = "Dobry wieczór!";
+    }
 
-        <div class="dashboard-grid">
-            <a href="plan.html" class="dash-card">
-                <div class="icon-circle">📅</div>
-                <div class="card-info">
-                    <h3>Plan Pracy</h3>
-                    <p>Sprawdź grafik i zadania</p>
-                </div>
-            </a>
-            <a href="qr.html" class="dash-card">
-                <div class="icon-circle">🖼️</div>
-                <div class="card-info">
-                    <h3>Twój Kod QR</h3>
-                    <p>Szybki dostęp do identyfikacji</p>
-                </div>
-            </a>
-            <div class="dash-card info-card">
-                <div class="icon-circle">🕒</div>
-                <div class="card-info">
-                    <h3>Twoja zmiana</h3>
-                    <p id="nextShiftInfo">Ładowanie danych...</p>
-                </div>
-            </div>
-        </div>
+    greetingElement.innerText = message;
+}
 
-        <section class="team-section">
-            <h2 class="section-title">Nasza EXPERTOWA Ekipa</h2>
-            <div class="team-grid
+// Inicjalizacja po załadowaniu strony
+window.onload = function() {
+    setGreeting();
+};

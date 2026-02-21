@@ -1,48 +1,48 @@
-/* PODSTAWY */
+/* STYL BAZOWY - ZGODNY ZE SCREENAMI */
 * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Arial', sans-serif; }
-body { background: #000; color: white; overflow-x: hidden; }
+body { background: #000; color: white; overflow-x: hidden; text-align: center; }
 
-/* NAGŁÓWEK I MENU */
-header { background: #ffe800; height: 50px; display: flex; align-items: center; justify-content: center; position: sticky; top: 0; z-index: 2001; }
+/* NAGŁÓWEK */
+header { background: #ffe800; height: 50px; display: flex; align-items: center; justify-content: center; position: sticky; top: 0; z-index: 1000; }
 .logo { color: #000; font-size: 1.4rem; font-weight: 900; text-transform: uppercase; }
 .logo span { background: #000; color: #ffe800; padding: 0 4px; border-radius: 3px; margin-left: 3px; }
-.menu-btn { position: absolute; left: 15px; cursor: pointer; font-size: 1.5rem; color: #000; font-weight: bold; }
+.menu-btn { position: absolute; left: 15px; cursor: pointer; font-size: 1.5rem; color: #000; }
 
-/* SIDEBAR Z IKONKAMI (Zgodnie z image_785bef) */
-.sidebar { position: fixed; left: -260px; top: 0; width: 250px; height: 100%; background: #0a0a0a; z-index: 3000; transition: 0.3s; padding-top: 60px; border-right: 1px solid #ffe800; }
+/* SIDEBAR - Ciemny z żółtą linią (image_785bef) */
+.sidebar { position: fixed; left: -260px; top: 0; width: 250px; height: 100%; background: #0a0a0a; z-index: 2000; transition: 0.3s; padding-top: 60px; border-right: 2px solid #ffe800; text-align: left; }
 .sidebar.active { left: 0; }
-.sidebar-link { display: flex; align-items: center; color: white; padding: 15px 20px; text-decoration: none; font-weight: bold; font-size: 0.9rem; border-bottom: 1px solid #1a1a1a; text-transform: uppercase; }
-.sidebar-link i { margin-right: 12px; font-style: normal; font-size: 1.1rem; }
+.sidebar-link { display: block; color: white; padding: 15px 20px; text-decoration: none; font-weight: bold; border-bottom: 1px solid #1a1a1a; text-transform: uppercase; font-size: 0.9rem; }
 .sidebar-link:hover { background: #1a1a1a; }
-.overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.8); display: none; z-index: 2500; }
+.overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.8); display: none; z-index: 1500; }
 .overlay.active { display: block; }
 
-/* STRONA GŁÓWNA - KARTY I ZEGAR (Zgodnie z image_785547) */
-.main-dashboard { padding: 20px; max-width: 1000px; margin: 0 auto; }
-.flip-clock { display: flex; justify-content: center; gap: 8px; margin: 20px 0; }
-.flip-unit { background: #111; padding: 15px; border-radius: 8px; font-size: 2.2rem; color: #ffe800; font-weight: bold; border: 1px solid #222; min-width: 65px; text-align: center; }
+/* ZEGAR (image_94dda2) */
+.flip-clock { display: flex; justify-content: center; gap: 10px; margin: 30px 0; }
+.flip-unit { background: #111; padding: 15px; border-radius: 8px; font-size: 2.5rem; color: #ffe800; font-weight: bold; border: 1px solid #222; min-width: 75px; }
 
-.dashboard-grid { display: flex; justify-content: center; gap: 15px; margin-bottom: 30px; }
-.dash-card { background: #111; border-radius: 12px; padding: 15px; display: flex; align-items: center; gap: 12px; text-decoration: none; color: white; border: 1px solid #222; flex: 1; max-width: 300px; }
-.icon-circle { width: 35px; height: 35px; background: #1a1a1a; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; }
-.card-info h3 { color: #ffe800; font-size: 0.9rem; margin-bottom: 2px; }
+/* KARTY NA STRONIE GŁÓWNEJ (image_94dda2) */
+.dashboard-grid { display: flex; justify-content: center; gap: 15px; margin: 20px auto; max-width: 900px; }
+.dash-card { background: #111; border-radius: 12px; padding: 15px; display: flex; align-items: center; gap: 12px; text-decoration: none; color: white; border: 1px solid #222; flex: 1; text-align: left; }
+.icon-circle { width: 35px; height: 35px; background: #222; border-radius: 8px; display: flex; align-items: center; justify-content: center; }
+.card-info h3 { color: #ffe800; font-size: 0.9rem; }
 .card-info p { color: #666; font-size: 0.75rem; }
 
-.team-container { background: #080808; border: 1px solid #1a1a1a; border-radius: 12px; padding: 25px; }
-.team-title { color: #ffe800; font-weight: bold; margin-bottom: 15px; font-size: 1.1rem; }
+/* EKIPA (image_94dda2) */
+.team-container { background: #080808; border: 1px solid #1a1a1a; border-radius: 12px; padding: 25px; max-width: 900px; margin: 0 auto; text-align: left; }
+.team-title { color: #ffe800; font-weight: bold; margin-bottom: 15px; text-transform: uppercase; }
 .team-list { display: flex; flex-direction: column; gap: 8px; }
-.team-item { font-size: 0.85rem; color: #ccc; display: flex; align-items: center; gap: 10px; }
-.team-item i { color: #6e448a; }
+.team-item { font-size: 0.85rem; color: #ccc; }
+.team-item i { color: #6e448a; margin-right: 8px; }
 
-/* GENERATOR QR - NAPRAWA RAMKI (Zgodnie z image_7858eb) */
-.qr-pill-box { background: #0d0d0d; border: 1px solid #222; padding: 40px 20px; border-radius: 15px; margin: 20px auto; max-width: 700px; }
-.json-text { font-family: monospace; color: #555; font-size: 0.95rem; line-height: 1.5; white-space: normal; word-break: break-all; }
-.qr-input-pill { background: #000; border: 1px solid #ffe800; color: #ffe800; padding: 5px 15px; border-radius: 20px; font-weight: bold; font-size: 1.1rem; text-align: center; outline: none; margin: 0 5px; }
-.copy-btn-large { background: #ffe800; color: #000; border: none; padding: 15px 50px; border-radius: 30px; font-size: 1.2rem; font-weight: 900; cursor: pointer; margin-top: 20px; }
+/* GENERATOR QR (image_94dde4) */
+.qr-pill-box { background: #0d0d0d; border: 1px solid #222; padding: 50px 20px; border-radius: 15px; margin: 20px auto; max-width: 700px; }
+.json-text { font-family: monospace; color: #555; font-size: 0.9rem; }
+.qr-input-pill { background: #000; border: 1px solid #ffe800; color: #ffe800; padding: 4px 12px; border-radius: 20px; font-weight: bold; text-align: center; outline: none; }
+.copy-btn-large { background: #ffe800; color: #000; border: none; padding: 15px 60px; border-radius: 30px; font-size: 1.2rem; font-weight: 900; cursor: pointer; margin-top: 20px; }
 
-/* PLAN PRACY - NAPRAWA WIDOCZNOŚCI (Zgodnie z image_7850ea) */
-.table-container { width: 100%; overflow-x: auto; margin-top: 15px; }
-table { width: 100%; border-collapse: collapse; background: #000; color: white; min-width: 900px; }
-th, td { border: 1px solid #1a1a1a; padding: 10px 5px; text-align: center; font-size: 0.8rem; }
-th { color: #ffe800; background: #000; font-weight: bold; }
-.date-col { text-align: left; padding-left: 10px; color: #ff4444; } /* Niedziele na czerwono */
+/* PLAN PRACY / TABELA (image_94dda9) */
+.table-container { width: 95%; margin: 20px auto; overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; background: #000; color: white; }
+th, td { border: 1px solid #1a1a1a; padding: 8px 4px; font-size: 0.75rem; text-align: center; }
+th { color: #ffe800; font-weight: bold; text-transform: uppercase; }
+.date-col { color: #ff4444; font-weight: bold; }

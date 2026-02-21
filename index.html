@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="main.css">
+    <link rel="stylesheet" href="home.css">
 </head>
 <body>
     <header>
@@ -16,36 +16,43 @@
         <a href="plan.html" class="sidebar-link">📅 PLAN PRACY</a>
         <a href="qr.html" class="sidebar-link">🖼️ KOD QR</a>
     </nav>
-
-    <main style="padding: 20px;">
-        <div id="currentDate" style="color: #888; font-size: 0.8rem; margin-bottom: 5px;"></div>
+    <main>
         <div class="flip-clock">
             <div class="flip-unit" id="hours">00</div>
             <div class="flip-unit" id="minutes">00</div>
             <div class="flip-unit" id="seconds">00</div>
         </div>
-
         <div class="dashboard-grid">
             <a href="plan.html" class="dash-card">
-                <i>📅</i>
-                <div class="card-info"><h3>Plan Pracy</h3><p>Sprawdź grafik i zadania</p></div>
+                <div class="icon-box">📅</div>
+                <div class="card-info"><h3>Plan Pracy</h3><p>Sprawdź grafik</p></div>
             </a>
             <a href="qr.html" class="dash-card">
-                <i>🖼️</i>
-                <div class="card-info"><h3>Twój Kod QR</h3><p>Szybki dostęp do identyfikacji</p></div>
+                <div class="icon-box">🖼️</div>
+                <div class="card-info"><h3>Twój Kod QR</h3><p>Szybki dostęp</p></div>
             </a>
             <div class="dash-card">
-                <i>🕒</i>
-                <div class="card-info"><h3>Twoja zmiana</h3><p id="shift-info">Ładowanie...</p></div>
+                <div class="icon-box">🕒</div>
+                <div class="card-info"><h3>Twoja zmiana</h3><p>10:00 - 18:00</p></div>
             </div>
         </div>
-
-        <div class="team-container">
-            <h2 style="color: #ffe800; font-size: 1.1rem; margin-bottom: 15px;">NASZA EXPERTOWA EKIPA</h2>
-            <div id="team-list" style="display: flex; flex-direction: column; gap: 8px; font-size: 0.85rem; color: #ccc;">
-                </div>
+        <div class="team-section">
+            <h2 class="team-title">NASZA EXPERTOWA EKIPA</h2>
+            <div class="team-grid">
+                <div class="member-card"><i>👤</i><div><span>Paweł</span> - KE / KSS</div></div>
+                <div class="member-card"><i>👤</i><div><span>Michał</span> - KE / KSS</div></div>
+                <div class="member-card"><i>👤</i><div><span>Natalia</span> - POK</div></div>
+                <div class="member-card"><i>👤</i><div><span>Magda</span> - POK</div></div>
+                <div class="member-card"><i>👤</i><div><span>Jakub</span> - IT</div></div>
+                <div class="member-card"><i>👤</i><div><span>Adrian</span> - IT</div></div>
+                <div class="member-card"><i>👤</i><div><span>Dawid</span> - IT</div></div>
+                <div class="member-card"><i>👤</i><div><span>Darek</span> - IT</div></div>
+                <div class="member-card"><i>👤</i><div><span>Łukasz</span> - AGD</div></div>
+                <div class="member-card"><i>👤</i><div><span>Ilona</span> - AGD</div></div>
+                <div class="member-card"><i>👤</i><div><span>Ariel</span> - RTV</div></div>
+            </div>
         </div>
     </main>
-    <script src="java.js"></script>
+    <script src="home.js"></script>
 </body>
 </html>

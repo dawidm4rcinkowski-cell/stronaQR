@@ -1,31 +1,39 @@
+let lastH, lastM, lastS;
+
 function toggleMenu() {
-    const sidebar = document.getElementById('sidebar');
-    const overlay = document.getElementById('overlay');
-    
-    sidebar.classList.toggle('active');
-    overlay.classList.toggle('active');
+    document.getElementById('sidebar').classList.toggle('active');
+    document.getElementById('overlay').classList.toggle('active');
 }
 
-// Funkcja ustawiająca powitanie w zależności od pory dnia
-function setGreeting() {
-    const greetingElement = document.getElementById('greeting');
-    if (!greetingElement) return;
+function updateClock() {
+    const now = new Date();
+    const h = String(now.getHours()).padStart(2, '0');
+    const m = String(now.getMinutes()).padStart(2, '0');
+    const s = String(now.getSeconds()).padStart(2, '0');
 
-    const hour = new Date().getHours();
-    let message = "";
+    handleFlip('hours-card', 'hours', h, lastH);
+    handleFlip('minutes-card', 'minutes', m, lastM);
+    handleFlip('seconds-card', 'seconds', s, lastS);
 
-    if (hour >= 5 && hour < 12) {
-        message = "Dzień dobry!";
-    } else if (hour >= 12 && hour < 18) {
-        message = "Cześć!";
-    } else {
-        message = "Dobry wieczór!";
+    lastH = h; lastM = m; lastS = s;
+}
+
+function handleFlip(cardId, textId, newValue, oldValue) {
+    if (newValue !== oldValue) {
+        const card = document.getElementById(cardId);
+        if (!card) return;
+        const front = card.querySelector('.flip-front');
+        const back = card.querySelector('.flip-back');
+
+        back.innerText = newValue;
+        card.classList.add('animate');
+
+        setTimeout(() => {
+            front.innerText = newValue;
+            card.classList.remove('animate');
+        }, 600);
     }
-
-    greetingElement.innerText = message;
 }
 
-// Inicjalizacja po załadowaniu strony
-window.onload = function() {
-    setGreeting();
-};
+setInterval(updateClock, 1000);
+updateClock();

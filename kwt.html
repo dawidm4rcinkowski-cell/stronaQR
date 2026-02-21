@@ -1,1 +1,40 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Media Expert - KWT</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="inwa.css"> </head>
+<body>
+    <header>
+        <div class="menu-btn" onclick="toggleMenu()">☰</div>
+        <div class="logo">MEDIA <span>EXPERT</span></div>
+    </header>
 
+    <div class="overlay" id="overlay" onclick="toggleMenu()"></div>
+
+    <nav class="sidebar" id="sidebar">
+        <div class="sidebar-header">NAWIGACJA</div>
+        <a href="index.html" class="sidebar-link">🏠 STRONA GŁÓWNA</a>
+        <a href="plan.html" class="sidebar-link">📅 PLAN PRACY</a>
+        <a href="inwa.html" class="sidebar-link">📝 INWENTURY</a>
+        <a href="kwt.html" class="sidebar-link active">🔍 KWT</a>
+        <a href="qr.html" class="sidebar-link">🖼️ KOD QR</a>
+    </nav>
+
+    <main>
+        <h1 class="page-title">KONTROLA <span>TOWARÓW (KWT)</span></h1>
+        
+        <div class="filter-bar">
+            <button class="filter-btn active" onclick="filterKwtDept('it', this)">IT</button>
+            <button class="filter-btn" onclick="filterKwtDept('rtv', this)">RTV</button>
+            <button class="filter-btn" onclick="filterKwtDept('agd', this)">AGD</button>
+        </div>
+
+        <div id="kwtList" class="inwa-grid"></div>
+    </main>
+
+    <script src="kwt.js"></script>
+</body>
+</html>

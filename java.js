@@ -32,13 +32,11 @@ const scheduleData = {
     28: ["", "10-20", "", "10-20", "10-20", "", "10-20", "", "10-20", "", "10-20"]
 };
 
-// MENU
 function toggleMenu() {
     const s = document.getElementById('sidebar'), o = document.getElementById('overlay');
     if(s && o) { s.classList.toggle('active'); o.classList.toggle('active'); }
 }
 
-// DASHBOARD
 function initDashboard() {
     const now = new Date();
     const options = { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' };
@@ -46,23 +44,17 @@ function initDashboard() {
     const dateEl = document.getElementById('currentDateDisplay');
     if(dateEl) dateEl.innerText = dateStr;
     startClock();
-    updateDashboardInfo(10); // Ariel
+    updateDashboardInfo(10);
 }
 
 function startClock() {
     setInterval(() => {
         const now = new Date();
-        updateFlipUnit("hours", now.getHours());
-        updateFlipUnit("minutes", now.getMinutes());
-        updateFlipUnit("seconds", now.getSeconds());
+        const h = document.getElementById('hours'), m = document.getElementById('minutes'), s = document.getElementById('seconds');
+        if(h) h.innerText = now.getHours().toString().padStart(2, '0');
+        if(m) m.innerText = now.getMinutes().toString().padStart(2, '0');
+        if(s) s.innerText = now.getSeconds().toString().padStart(2, '0');
     }, 1000);
-}
-
-function updateFlipUnit(id, value) {
-    const unit = document.getElementById(id);
-    if(!unit) return;
-    const formattedValue = value.toString().padStart(2, '0');
-    unit.innerText = formattedValue;
 }
 
 function updateDashboardInfo(personIndex) {
@@ -79,7 +71,6 @@ function updateDashboardInfo(personIndex) {
     }
 }
 
-// PLAN PRACY
 function initMonths() {
     const sel = document.getElementById('monthSelect');
     if(!sel) return;

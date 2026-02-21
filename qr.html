@@ -1,1 +1,47 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Media Expert - Twój Kod QR</title>
+    <link rel="stylesheet" href="main.css">
+</head>
+<body>
+    <header>
+        <div class="menu-btn" onclick="toggleMenu()">
+            <div></div><div></div><div></div>
+        </div>
+        <div class="logo">MEDIA <span>EXPERT</span></div>
+    </header>
 
+    <div class="overlay" id="overlay" onclick="toggleMenu()"></div>
+
+    <nav class="sidebar" id="sidebar">
+        <div class="sidebar-header">MENU</div>
+        <a href="index.html" class="sidebar-link"><i>🏠</i> STRONA GŁÓWNA</a>
+        <a href="plan.html" class="sidebar-link"><i>📅</i> PLAN PRACY</a>
+        <a href="qr.html" class="sidebar-link"><i>🖼️</i> KOD QR</a>
+        <a href="inwentura.html" class="sidebar-link"><i>📋</i> INWENTARYZACJA</a>
+    </nav>
+
+    <main class="main-dashboard">
+        <section class="qr-container">
+            <div class="qr-card">
+                <h2 class="qr-title">TWÓJ IDENTYFIKATOR</h2>
+                <p class="qr-subtitle">Ariel - RTV</p>
+                
+                <div class="qr-wrapper">
+                    <img src="https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=ARIEL_ME_2026" alt="Kod QR" id="qrImage">
+                </div>
+
+                <div class="qr-footer">
+                    <p>Zeskanuj kod przy wejściu do strefy</p>
+                    <button class="print-btn" onclick="window.print()">WYDRUKUJ KOD</button>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script src="java.js"></script>
+</body>
+</html>

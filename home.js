@@ -1,74 +1,66 @@
-const inwaData = [
-    { id: 1, name: "Myszki gamingowe", freq: "week" },
-    { id: 2, name: "Słuchawki Truewireless", freq: "week" },
-    { id: 3, name: "Smartfony", freq: "week" },
-    { id: 4, name: "Słuchawki nauszne", freq: "2month" },
-    { id: 5, name: "Konsole", freq: "2month" },
-    { id: 6, name: "Android TV", freq: "2month" },
-    { id: 7, name: "Tusze", freq: "month" },
-    { id: 8, name: "Papier", freq: "month" },
-    { id: 9, name: "Akcesoria do konsol", freq: "month" },
-    { id: 10, name: "Akcesoria do golarek", freq: "month" }
-];
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Media Expert - Panel Główny</title>
+    <link rel="stylesheet" href="main.css">
+</head>
+<body>
+    <header>
+        <div class="menu-btn" onclick="toggleMenu()">
+            <div></div><div></div><div></div>
+        </div>
+        <div class="logo">MEDIA <span>EXPERT</span></div>
+    </header>
 
-let currentFilter = 'all';
+    <div class="overlay" id="overlay" onclick="toggleMenu()"></div>
 
-function toggleMenu() {
-    document.getElementById('sidebar').classList.toggle('active');
-    document.getElementById('overlay').classList.toggle('active');
-}
+    <nav class="sidebar" id="sidebar">
+        <div class="sidebar-header">MENU</div>
+        <a href="index.html" class="sidebar-link"><i>🏠</i> STRONA GŁÓWNA</a>
+        <a href="plan.html" class="sidebar-link"><i>📅</i> PLAN PRACY</a>
+        <a href="qr.html" class="sidebar-link"><i>🖼️</i> KOD QR</a>
+        <a href="inwentura.html" class="sidebar-link"><i>📋</i> INWENTARYZACJA</a>
+    </nav>
 
-function filterInwa(filter, btn) {
-    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-    currentFilter = filter;
-    renderList(filter);
-}
-
-function renderList(filter = 'all') {
-    const container = document.getElementById('inwaList');
-    if (!container) return;
-    container.innerHTML = '';
-
-    const filtered = inwaData.filter(item => filter === 'all' || item.freq === filter);
-
-    filtered.forEach(item => {
-        const saved = JSON.parse(localStorage.getItem(`inwa_v2_${item.id}`)) || { status: 'none', time: '' };
-        
-        const card = document.createElement('div');
-        card.className = `inwa-card ${saved.status === 'pending' ? 'pending' : ''}`;
-
-        card.innerHTML = `
-            <div class="inwa-info">
-                <h3>${item.name}</h3>
-                <p>${item.freq === '2month' ? 'DWA RAZY W MIESIĄCU' : item.freq.toUpperCase()} ${saved.time ? '| ' + saved.time : ''}</p>
+    <main class="main-dashboard">
+        <div class="welcome-section">
+            <p id="currentDateDisplay" class="date-top-label"></p>
+            
+            <div class="flip-clock" id="clock">
+                <div class="flip-unit" id="hours">00</div>
+                <div class="flip-sep">:</div>
+                <div class="flip-unit" id="minutes">00</div>
+                <div class="flip-sep">:</div>
+                <div class="flip-unit" id="seconds">00</div>
             </div>
-            <button class="done-btn" onclick="submitInwa(${item.id})">
-                ${saved.status === 'pending' ? 'OCZEKUJE NA ZATWIERDZENIE' : 'WYKONAŁEM'}
-            </button>
-        `;
-        container.appendChild(card);
-    });
-}
+        </div>
 
-function submitInwa(id) {
-    const saved = JSON.parse(localStorage.getItem(`inwa_v2_${id}`)) || { status: 'none', time: '' };
-    if (saved.status === 'pending') return;
+        <div class="dashboard-grid">
+            <a href="plan.html" class="dash-card">
+                <div class="icon-circle">📅</div>
+                <div class="card-info">
+                    <h3>Plan Pracy</h3>
+                    <p>Sprawdź grafik i zadania</p>
+                </div>
+            </a>
+            <a href="qr.html" class="dash-card">
+                <div class="icon-circle">🖼️</div>
+                <div class="card-info">
+                    <h3>Twój Kod QR</h3>
+                    <p>Szybki dostęp do identyfikacji</p>
+                </div>
+            </a>
+            <div class="dash-card info-card">
+                <div class="icon-circle">🕒</div>
+                <div class="card-info">
+                    <h3>Twoja zmiana</h3>
+                    <p id="nextShiftInfo">Ładowanie danych...</p>
+                </div>
+            </div>
+        </div>
 
-    const now = new Date();
-    const timeStr = now.toLocaleDateString('pl-PL') + ' ' + now.toLocaleTimeString('pl-PL', {hour: '2-digit', minute:'2-digit'});
-
-    const newData = { status: 'pending', time: timeStr };
-    localStorage.setItem(`inwa_v2_${id}`, JSON.stringify(newData));
-    
-    renderList(currentFilter);
-}
-
-function changeMonth() {
-    const val = document.getElementById('monthSelect').value;
-    alert("Przełączono na widok: " + val + ". (Logika archiwum zostanie podpięta pod bazę danych)");
-    // Tutaj w przyszłości dodamy pobieranie danych z konkretnego miesiąca z serwera
-}
-
-// Inicjalizacja
-window.onload = () => renderList('all');
+        <section class="team-section">
+            <h2 class="section-title">Nasza EXPERTOWA Ekipa</h2>
+            <div class="team-grid

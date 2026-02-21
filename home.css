@@ -1,70 +1,70 @@
-let lastH, lastM, lastS;
+/* Czcionka Montserrat */
+* { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Montserrat', sans-serif; }
+body { background: #000; color: white; text-align: center; overflow-x: hidden; }
 
-function toggleMenu() {
-document.getElementById('sidebar').classList.toggle('active');
-document.getElementById('overlay').classList.toggle('active');
+/* Header & Sidebar */
+header { background: #ffe800; height: 60px; display: flex; align-items: center; justify-content: center; position: sticky; top: 0; z-index: 1000; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
+.logo { color: #000; font-weight: 900; font-size: 1.6rem; text-transform: uppercase; letter-spacing: -1px; }
+.logo span { background: #000; color: #ffe800; padding: 0 6px; border-radius: 4px; margin-left: 2px; }
+.menu-btn { position: absolute; left: 20px; cursor: pointer; color: #000; font-size: 1.8rem; }
+
+.sidebar { position: fixed; left: -280px; top: 0; width: 260px; height: 100%; background: #0a0a0a; border-right: 3px solid #ffe800; transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); z-index: 2000; text-align: left; padding-top: 70px; }
+.sidebar.active { left: 0; }
+.sidebar-header { color: #ffe800; padding: 20px; font-weight: 900; font-size: 0.8rem; letter-spacing: 2px; text-transform: uppercase; opacity: 0.6; }
+.sidebar-link { display: block; color: white; padding: 18px 25px; text-decoration: none; font-weight: 700; border-bottom: 1px solid #1a1a1a; transition: 0.3s; }
+.sidebar-link:hover { background: #1a1a1a; padding-left: 35px; color: #ffe800; }
+.overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.85); display: none; z-index: 1500; backdrop-filter: blur(4px); }
+.overlay.active { display: block; }
+
+/* Zegar Flip - Gruba czcionka 900 */
+.clock-container { display: flex; justify-content: center; align-items: center; gap: 12px; margin: 40px 0; }
+.clock-sep { font-size: 2.5rem; color: #222; font-weight: 900; animation: blink 1s infinite; }
+@keyframes blink { 50% { opacity: 0; } }
+
+.flip-card { width: 85px; height: 110px; perspective: 1000px; }
+.flip-inner { position: relative; width: 100%; height: 100%; transition: transform 0.6s; transform-style: preserve-3d; }
+.flip-card.animate .flip-inner { transform: rotateX(-180deg); }
+.flip-front, .flip-back { position: absolute; width: 100%; height: 100%; backface-visibility: hidden; display: flex; align-items: center; justify-content: center; background: #111; border: 2px solid #222; border-radius: 12px; font-size: 3.5rem; color: #ffe800; font-weight: 900; }
+.flip-back { transform: rotateX(-180deg); }
+
+/* Dashboard Cards */
+.dashboard-grid { display: flex; justify-content: center; gap: 15px; padding: 0 15px; max-width: 1000px; margin: 0 auto; }
+.dash-card { background: #111; border: 2px solid #222; border-radius: 16px; padding: 20px; flex: 1; display: flex; align-items: center; gap: 15px; text-decoration: none; color: white; text-align: left; transition: 0.3s; }
+.dash-card:hover { transform: translateY(-8px); border-color: #ffe800; box-shadow: 0 10px 20px rgba(255,232,0,0.15); }
+.icon-box { background: #1a1a1a; padding: 12px; border-radius: 12px; border: 1px solid #333; font-size: 1.4rem; }
+.card-info h3 { color: #ffe800; font-size: 0.9rem; font-weight: 900; }
+.card-info p { color: #888; font-size: 0.7rem; font-weight: 700; }
+
+/* Sekcja Ekipy i Awatary */
+.team-wrapper { max-width: 1100px; margin: 50px auto; padding: 0 20px; }
+.team-title { font-size: 1.2rem; font-weight: 900; margin-bottom: 30px; letter-spacing: 2px; }
+.yellow-highlight { color: #ffe800; }
+.team-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px; }
+.member-card { background: #0a0a0a; border: 1px solid #1a1a1a; border-radius: 20px; padding: 20px; display: flex; align-items: center; gap: 15px; transition: 0.3s; }
+.member-card:hover { border-color: #ffe800; background: #111; transform: translateY(-5px); }
+
+/* Styl Awatara */
+.avatar-placeholder { 
+    width: 50px; 
+    height: 50px; 
+    background: #1a1a1a; 
+    border: 2px solid #333; 
+    border-radius: 50%; 
+    display: flex; 
+    align-items: center; 
+    justify-content: center; 
+    font-weight: 900; 
+    color: #ffe800; 
+    font-size: 1.2rem;
+    overflow: hidden;
 }
+/* Aby w przyszłości dodać zdjęcie, wystarczy w HTML zmienić zawartość diva na <img src="..."> */
+.avatar-placeholder img { width: 100%; height: 100%; object-fit: cover; }
 
-// Globalne zmienne do śledzenia czasu
-let lastH, lastM, lastS;
+.m-info { text-align: left; }
+.m-info strong { display: block; font-size: 1.1rem; font-weight: 900; color: #fff; }
+.m-info span { font-size: 0.75rem; color: #555; font-weight: 900; text-transform: uppercase; }
 
-function updateClock() {
-const now = new Date();
-const h = String(now.getHours()).padStart(2, '0');
-const m = String(now.getMinutes()).padStart(2, '0');
-const s = String(now.getSeconds()).padStart(2, '0');
-
-    const hEl = document.getElementById('hours');
-    const mEl = document.getElementById('minutes');
-    const sEl = document.getElementById('seconds');
-    handleFlip('hours-card', 'hours', h, lastH);
-    handleFlip('minutes-card', 'minutes', m, lastM);
-    handleFlip('seconds-card', 'seconds', s, lastS);
-
-    // Animacja Godzin
-    if (h !== lastH) {
-        animateFlip('hours-card');
-        hEl.innerText = h;
-        lastH = h;
-    }
-    // Animacja Minut
-    if (m !== lastM) {
-        animateFlip('minutes-card');
-        mEl.innerText = m;
-        lastM = m;
-    }
-    // Animacja Sekund
-    if (s !== lastS) {
-        animateFlip('seconds-card');
-        sEl.innerText = s;
-        lastS = s;
-    }
-    lastH = h; lastM = m; lastS = s;
+@media (max-width: 768px) {
+    .team-grid { grid-template-columns: 1fr 1fr; }
 }
-
-function animateFlip(cardId) {
-    const card = document.getElementById(cardId);
-    card.classList.remove('flip-animate');
-    void card.offsetWidth; // Trigger reflow
-    card.classList.add('flip-animate');
-function handleFlip(cardId, textId, newValue, oldValue) {
-    if (newValue !== oldValue) {
-        const card = document.getElementById(cardId);
-        const front = card.querySelector('.flip-front');
-        const back = card.querySelector('.flip-back');
-        
-        back.innerText = newValue;
-        card.classList.add('animate');
-        
-        setTimeout(() => {
-            front.innerText = newValue;
-            card.classList.remove('animate');
-        }, 600);
-    }
-}
-
-setInterval(updateClock, 1000);
-updateClock();
-
-// Dodatkowy bajer: Powitanie w konsoli
-console.log("%c MEDIA EXPERT DASHBOARD ", "background: #ffe800; color: #000; font-weight: bold; padding: 5px;");

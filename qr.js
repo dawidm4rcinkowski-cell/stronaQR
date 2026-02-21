@@ -1,87 +1,105 @@
-let isCooldown = false;
+let cooldownActive = false;
 
+// Funkcja menu bocznego
 function toggleMenu() {
     document.getElementById('sidebar').classList.toggle('active');
     document.getElementById('overlay').classList.toggle('active');
 }
 
+// Funkcja aktualizacji podglądu (opcjonalna)
 function updatePreview() {
-    // Funkcja może być użyta do walidacji w czasie rzeczywistym
+    // Można tu dodać logikę walidacji pól
 }
 
+// Główna funkcja kopiowania
 function copyCode() {
-    if (isCooldown) return;
+    if (cooldownActive) return;
 
-    const order = document.getElementById('orderNum').value || "123456";
-    const pin = document.getElementById('pinNum').value || "123";
-    const fullCode = `{ "type" : "npws_order_received_qr_code" , "order_number" : "${order}" , "pin" : "${pin}" }`;
+    const orderNum = document.getElementById('orderNum').value || "123456";
+    const pinNum = document.getElementById('pinNum').value || "123";
+    
+    // Budowanie pełnego kodu JSON
+    const fullJson = `{ "type" : "npws_order_received_qr_code" , "order_number" : "${orderNum}" , "pin" : "${pinNum}" }`;
 
     // Kopiowanie do schowka
-    navigator.clipboard.writeText(fullCode).then(() => {
-        addToHistory(fullCode);
-        startCooldown();
+    navigator.clipboard.writeText(fullJson).then(() => {
+        saveToLocalStorage(fullJson);
+        runCooldown();
+    }).catch(err => {
+        alert("Błąd kopiowania: " + err);
     });
 }
 
-function startCooldown() {
-    isCooldown = true;
+// Obsługa cooldownu 3s
+function runCooldown() {
+    cooldownActive = true;
     const btn = document.getElementById('copyBtn');
     let timeLeft = 3;
 
-    btn.classList.add('cooldown');
-    btn.innerText = `SKOPIOWANO! (${timeLeft}s)`;
+    btn.classList.add('wait');
+    btn.innerText = `SKOPIOWANO! (${timeLeft}S)`;
 
-    const timer = setInterval(() => {
+    const countdown = setInterval(() => {
         timeLeft--;
-        if (timeLeft <= 0) {
-            clearInterval(timer);
-            btn.classList.remove('cooldown');
-            btn.innerText = "KOPIUJ KOD";
-            isCooldown = false;
+        if (timeLeft > 0) {
+            btn.innerText = `SKOPIOWANO! (${timeLeft}S)`;
         } else {
-            btn.innerText = `SKOPIOWANO! (${timeLeft}s)`;
+            clearInterval(countdown);
+            btn.classList.remove('wait');
+            btn.innerText = "KOPIUJ KOD";
+            cooldownActive = false;
         }
     }, 1000);
 }
 
-function addToHistory(code) {
+// Zapis do historii (LocalStorage)
+function saveToLocalStorage(code) {
     const now = new Date();
-    const timeStr = now.toLocaleTimeString('pl-PL', { hour: '2-digit', minute: '2-digit' });
-    const dateStr = now.toLocaleDateString('pl-PL', { day: '2-digit', month: '2-digit' });
-    const fullTime = `${dateStr} ${timeStr}`;
-
-    const historyEntry = {
+    const timeString = now.toLocaleTimeString('pl-PL', { hour: '2-digit', minute: '2-digit' });
+    const dateString = now.toLocaleDateString('pl-PL', { day: '2-digit', month: '2-digit' });
+    
+    const newEntry = {
         id: Date.now(),
         code: code,
-        time: fullTime
+        timestamp: `${dateString} | ${timeString}`
     };
 
-    let history = JSON.parse(localStorage.getItem('qr_history')) || [];
-    history.unshift(historyEntry); // Dodaj na początek
-    localStorage.setItem('qr_history', JSON.stringify(history.slice(0, 10))); // Max 10 wpisów
+    let history = JSON.parse(localStorage.getItem('qr_history_expert')) || [];
+    history.unshift(newEntry); // Dodaj na samą górę
+    
+    // Ograniczamy historię do 15 wpisów
+    if (history.length > 15) history.pop();
 
+    localStorage.setItem('qr_history_expert', JSON.stringify(history));
     renderHistory();
 }
 
+// Renderowanie listy historii
 function renderHistory() {
-    const container = document.getElementById('historyList');
-    const history = JSON.parse(localStorage.getItem('qr_history')) || [];
+    const listContainer = document.getElementById('historyList');
+    const history = JSON.parse(localStorage.getItem('qr_history_expert')) || [];
 
-    container.innerHTML = history.map(item => `
+    if (history.length === 0) {
+        listContainer.innerHTML = '<div style="padding: 30px; color: #333; font-weight: 900; font-size: 0.7rem;">BRAK HISTORII</div>';
+        return;
+    }
+
+    listContainer.innerHTML = history.map(item => `
         <div class="history-item">
             <div class="hist-code">${item.code}</div>
-            <div class="hist-time">${item.time}</div>
-            <button class="del-btn" onclick="deleteHistory(${item.id})">USUŃ</button>
+            <div class="hist-time">${item.timestamp}</div>
+            <button class="btn-delete" onclick="deleteEntry(${item.id})">USUŃ</button>
         </div>
     `).join('');
 }
 
-function deleteHistory(id) {
-    let history = JSON.parse(localStorage.getItem('qr_history')) || [];
+// Usuwanie pojedynczego wpisu
+function deleteEntry(id) {
+    let history = JSON.parse(localStorage.getItem('qr_history_expert')) || [];
     history = history.filter(item => item.id !== id);
-    localStorage.setItem('qr_history', JSON.stringify(history));
+    localStorage.setItem('qr_history_expert', JSON.stringify(history));
     renderHistory();
 }
 
-// Inicjalizacja historii przy starcie
+// Odpalenie historii przy załadowaniu strony
 window.onload = renderHistory;

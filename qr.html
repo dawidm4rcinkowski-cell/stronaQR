@@ -6,36 +6,36 @@
 </head>
 <body>
     <header>
-        <div class="menu-btn" onclick="toggleMenu()"><div></div><div></div><div></div></div>
+        <div class="menu-btn" onclick="toggleMenu()">☰</div>
         <div class="logo">MEDIA <span>EXPERT</span></div>
     </header>
     <div class="overlay" id="overlay" onclick="toggleMenu()"></div>
     <nav class="sidebar" id="sidebar">
-        <a href="index.html" class="sidebar-link">STRONA GŁÓWNA</a>
-        <a href="plan.html" class="sidebar-link">PLAN PRACY</a>
-        <a href="qr.html" class="sidebar-link">KOD QR</a>
+        <a href="index.html" class="sidebar-link"><i>🏠</i> STRONA GŁÓWNA</a>
+        <a href="plan.html" class="sidebar-link"><i>📅</i> PLAN PRACY</a>
+        <a href="qr.html" class="sidebar-link"><i>🖼️</i> KOD QR</a>
     </nav>
 
-    <main class="qr-wrapper">
-        <h1 style="font-size: 3rem; font-weight: 900; margin-bottom: 40px;">GENERATOR KODU <span style="color: #ffe800;">QR</span></h1>
+    <main style="text-align:center; padding-top: 50px;">
+        <h1 style="font-weight: 900; font-size: 2.2rem; margin-bottom: 30px;">GENERATOR KODU <span style="color:#ffe800">QR</span></h1>
         
         <div class="qr-pill-box">
             <div class="json-text">
                 { "type" : "npws_order_received_qr_code" , "order_number" : " 
                 <input type="tel" id="ord_input" class="qr-input-pill" placeholder="123123"> " , "pin" : " 
-                <input type="tel" id="pin_input" class="qr-input-pill" style="width: 100px;" placeholder="23"> " }
+                <input type="tel" id="pin_input" class="qr-input-pill" style="width: 80px;" placeholder="23"> " }
             </div>
         </div>
 
         <button id="copyBtn" class="copy-btn-large" onclick="copyQR()">KOPIUJ KOD</button>
 
-        <div class="history-container">
-            <div class="history-header">
-                <span>OSTATNIO SKOPIOWANE</span>
-                <span>GODZINA</span>
-                <span>HISTORIA</span>
-            </div>
-            <div id="history-list"></div>
+        <div style="max-width: 800px; margin: 40px auto; border-top: 1px solid #ffe800; padding-top: 20px;">
+             <div style="display: flex; justify-content: space-between; color: #444; font-size: 0.7rem; font-weight: bold; margin-bottom: 10px;">
+                 <span>OSTATNIO SKOPIOWANE</span>
+                 <span>GODZINA</span>
+                 <span>HISTORIA</span>
+             </div>
+             <div id="history-list"></div>
         </div>
     </main>
     <script src="java.js"></script>

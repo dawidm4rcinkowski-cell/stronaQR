@@ -15,34 +15,32 @@
 
     <div class="overlay" id="overlay" onclick="toggleMenu()"></div>
 
-<nav class="sidebar" id="sidebar">
-    <div class="sidebar-header">NAWIGACJA</div>
-    <a href="index.html" class="sidebar-link">🏠 STRONA GŁÓWNA</a>
-    <a href="plan.html" class="sidebar-link">📅 PLAN PRACY</a>
-    <a href="inwa.html" class="sidebar-link">📝 INWENTURA</a>
-    <a href="qr.html" class="sidebar-link">🖼️ KOD QR</a>
-</nav>
+    <nav class="sidebar" id="sidebar">
+        <div class="sidebar-header">NAWIGACJA</div>
+        <a href="index.html" class="sidebar-link">🏠 STRONA GŁÓWNA</a>
+        <a href="plan.html" class="sidebar-link">📅 PLAN PRACY</a>
+        <a href="inwa.html" class="sidebar-link active">📝 INWENTURA</a>
+        <a href="qr.html" class="sidebar-link">🖼️ KOD QR</a>
+    </nav>
 
     <main>
         <h1 class="page-title">HARMONOGRAM <span>INWENTUR</span></h1>
 
+        <div class="filter-bar">
+            <button class="filter-btn active" onclick="filterDept('it', this)">DZIAŁ IT</button>
+            <button class="filter-btn" onclick="filterDept('rtv', this)">DZIAŁ RTV</button>
+            <button class="filter-btn" onclick="filterDept('agd', this)">DZIAŁ AGD</button>
+        </div>
+
         <div class="month-selector-wrapper">
-            <label for="monthSelect">ARCHIWUM:</label>
+            <label>WIDOK DLA:</label>
             <select id="monthSelect" onchange="changeMonth()">
                 <option value="current">LUTY 2026 (BIEŻĄCY)</option>
-                <option value="2026-01">STYCZEŃ 2026</option>
-                <option value="2025-12">GRUDZIEŃ 2025</option>
+                <option value="prev">STYCZEŃ 2026</option>
             </select>
         </div>
 
-        <div class="filter-bar">
-            <button class="filter-btn active" onclick="filterInwa('all', this)">WSZYSTKO</button>
-            <button class="filter-btn" onclick="filterInwa('week', this)">TYDZIEŃ</button>
-            <button class="filter-btn" onclick="filterInwa('2month', this)">2x MIESIĄC</button>
-            <button class="filter-btn" onclick="filterInwa('month', this)">MIESIĄC</button>
-        </div>
-
-        <div id="inwaList" class="inwa-grid">
+        <div id="inwaList" class="inwa-content">
             </div>
     </main>
 

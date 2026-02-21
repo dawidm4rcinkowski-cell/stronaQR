@@ -10,49 +10,40 @@ header { background: #ffe800; height: 60px; display: flex; align-items: center; 
 .sidebar { position: fixed; left: -280px; top: 0; width: 260px; height: 100%; background: #0a0a0a; border-right: 3px solid #ffe800; transition: 0.3s; z-index: 3000; padding-top: 70px; }
 .sidebar.active { left: 0; }
 .sidebar-link { display: block; color: white; padding: 18px 25px; text-decoration: none; font-weight: 700; border-bottom: 1px solid #1a1a1a; }
+.sidebar-link.active { background: #ffe800; color: #000; }
 .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.85); display: none; z-index: 2500; backdrop-filter: blur(4px); }
 .overlay.active { display: block; }
 
 /* MAIN CONTENT */
 main { padding: 30px 15px; max-width: 1100px; margin: 0 auto; }
-.page-title { text-align: center; font-weight: 900; font-size: 2rem; margin-bottom: 20px; }
+.page-title { text-align: center; font-weight: 900; font-size: 2rem; margin-bottom: 25px; }
 .page-title span { color: #ffe800; }
 
-/* MONTH SELECTOR */
-.month-selector-wrapper { text-align: center; margin-bottom: 25px; display: flex; align-items: center; justify-content: center; gap: 10px; }
-.month-selector-wrapper label { font-weight: 900; font-size: 0.7rem; color: #444; letter-spacing: 1px; }
-#monthSelect {
-    background: #111; border: 2px solid #222; color: #fff; padding: 8px 15px; border-radius: 10px;
-    font-weight: 900; font-size: 0.8rem; cursor: pointer; outline: none; transition: 0.3s;
-}
-#monthSelect:focus { border-color: #ffe800; }
-
-/* FILTRY */
-.filter-bar { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 15px; margin-bottom: 25px; scrollbar-width: none; }
-.filter-btn { background: #111; border: 2px solid #222; color: #555; padding: 12px 25px; border-radius: 30px; font-weight: 900; font-size: 0.75rem; cursor: pointer; white-space: nowrap; transition: 0.3s; }
+/* FILTRY DZIAŁÓW */
+.filter-bar { display: flex; gap: 10px; justify-content: center; margin-bottom: 20px; }
+.filter-btn { background: #111; border: 2px solid #222; color: #666; padding: 12px 20px; border-radius: 12px; font-weight: 900; cursor: pointer; transition: 0.3s; flex: 1; max-width: 150px; font-size: 0.7rem; }
 .filter-btn.active { background: #ffe800; color: #000; border-color: #ffe800; }
 
-/* KARTY INWENTURY */
-.inwa-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 20px; }
-.inwa-card {
-    background: #0a0a0a; border-radius: 20px; border: 2px solid #1a1a1a;
-    padding: 25px; display: flex; flex-direction: column; gap: 20px; transition: 0.3s;
-}
+/* ARCHIWUM SELECT */
+.month-selector-wrapper { text-align: center; margin-bottom: 30px; font-size: 0.7rem; font-weight: 900; color: #444; }
+#monthSelect { background: #000; color: #fff; border: 1px solid #222; padding: 5px 10px; border-radius: 5px; font-weight: 900; margin-left: 10px; }
 
-.inwa-info h3 { font-weight: 900; font-size: 1.1rem; text-transform: uppercase; color: #fff; }
-.inwa-info p { color: #444; font-size: 0.7rem; font-weight: 900; margin-top: 5px; text-transform: uppercase; }
+/* GRUPOWANIE CZASOWE */
+.time-group-header { background: #111; color: #ffe800; padding: 12px 20px; border-radius: 10px; font-weight: 900; font-size: 0.8rem; margin: 30px 0 15px 0; text-transform: uppercase; letter-spacing: 1px; border-left: 4px solid #ffe800; }
 
-/* PRZYCISK WYKONAŁEM */
-.done-btn {
-    width: 100%; background: transparent; border: 2px solid #ffe800; color: #ffe800;
-    padding: 15px; border-radius: 15px; font-weight: 900; font-size: 0.85rem;
-    cursor: pointer; transition: 0.3s; text-transform: uppercase; letter-spacing: 1px;
-}
+.inwa-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 15px; }
+
+/* KARTY */
+.inwa-card { background: #0a0a0a; border-radius: 20px; border: 2px solid #1a1a1a; padding: 20px; display: flex; flex-direction: column; gap: 15px; transition: 0.3s; }
+.inwa-info h3 { font-weight: 900; font-size: 1rem; text-transform: uppercase; }
+.inwa-info p { color: #444; font-size: 0.65rem; font-weight: 900; margin-top: 5px; }
+
+.done-btn { width: 100%; background: transparent; border: 2px solid #ffe800; color: #ffe800; padding: 12px; border-radius: 12px; font-weight: 900; font-size: 0.75rem; cursor: pointer; transition: 0.3s; text-transform: uppercase; }
 .done-btn:hover { background: rgba(255, 232, 0, 0.1); }
 
-/* STAN OCZEKIWANIA */
-.inwa-card.pending { border-color: #ffe800; background: rgba(255, 232, 0, 0.03); }
-.inwa-card.pending .done-btn { background: #ffe800; color: #000; cursor: default; }
+/* PENDING STATE */
+.inwa-card.pending { border-color: #ffe800; background: rgba(255, 232, 0, 0.02); }
+.inwa-card.pending .done-btn { background: #ffe800; color: #000; }
 .inwa-card.pending .inwa-info p { color: #ffe800; }
 
-@media (max-width: 600px) { .inwa-grid { grid-template-columns: 1fr; } }
+@media (max-width: 600px) { .filter-bar { gap: 5px; } .filter-btn { padding: 10px 5px; font-size: 0.6rem; } }

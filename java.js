@@ -155,3 +155,33 @@ function highlightCross(idx) {
 function clearHighlight() {
     document.querySelectorAll('.highlight-col').forEach(c => c.classList.remove('highlight-col'));
 }
+function copyQR() {
+    const ord = document.getElementById('ord_input').value;
+    const pin = document.getElementById('pin_input').value;
+    const status = document.getElementById('copy-status');
+    const historyList = document.getElementById('qr-history');
+
+    if (!ord || !pin) {
+        alert("Wpisz numer zamówienia i PIN!");
+        return;
+    }
+
+    const finalJson = `{"type":"npws_order_received_qr_code","order_number":"${ord}","pin":"${pin}"}`;
+
+    navigator.clipboard.writeText(finalJson).then(() => {
+        // Powiadomienie wizualne
+        status.innerText = "SKOPIOWANO DO SCHOWKA!";
+        setTimeout(() => status.innerText = "", 2000);
+
+        // Dodanie do historii
+        const li = document.createElement('li');
+        li.innerText = `${new Date().toLocaleTimeString()} -> ${finalJson}`;
+        historyList.prepend(li);
+
+        // Wyczyszczenie pól po skopiowaniu (opcjonalnie)
+        // document.getElementById('ord_input').value = "";
+        // document.getElementById('pin_input').value = "";
+    }).catch(err => {
+        console.error('Błąd kopiowania: ', err);
+    });
+}

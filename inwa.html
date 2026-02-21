@@ -24,19 +24,20 @@
     </nav>
 
     <main>
-        <h1 class="page-title">HARMONOGRAM <span>INWENTUR</span></h1>
+        <h1 class="page-title">SYSTEM <span>INWENTURY</span></h1>
 
         <div class="filter-bar">
-            <button class="filter-btn active" onclick="filterDept('it', this)">DZIAŁ IT</button>
-            <button class="filter-btn" onclick="filterDept('rtv', this)">DZIAŁ RTV</button>
-            <button class="filter-btn" onclick="filterDept('agd', this)">DZIAŁ AGD</button>
+            <button class="filter-btn active" onclick="filterDept('it', this)">IT</button>
+            <button class="filter-btn" onclick="filterDept('rtv', this)">RTV</button>
+            <button class="filter-btn" onclick="filterDept('agd', this)">AGD</button>
         </div>
 
         <div class="month-selector-wrapper">
-            <label>WIDOK DLA:</label>
+            <label>OKRES:</label>
             <select id="monthSelect" onchange="changeMonth()">
-                <option value="current">LUTY 2026 (BIEŻĄCY)</option>
-                <option value="prev">STYCZEŃ 2026</option>
+                <option value="2026-02">LUTY 2026</option>
+                <option value="2026-03">MARZEC 2026</option>
+                <option value="2026-04">KWIECIEŃ 2026</option>
             </select>
         </div>
 

@@ -1,8 +1,7 @@
-/* PODSTAWY */
+/* PODSTAWY I NAGŁÓWEK */
 * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Arial', sans-serif; }
 body { background: #0a0a0a; color: white; overflow-x: hidden; }
 
-/* NAGŁÓWEK */
 header { background-color: #ffe800; height: 70px; display: flex; align-items: center; justify-content: center; border-bottom: 4px solid #000; position: sticky; top: 0; z-index: 1001; }
 .logo { color: #000; font-size: 1.8rem; font-weight: 900; text-transform: uppercase; letter-spacing: -1px; }
 .logo span { background: #000; color: #ffe800; padding: 2px 8px; border-radius: 4px; margin-left: 5px; }
@@ -19,79 +18,48 @@ header { background-color: #ffe800; height: 70px; display: flex; align-items: ce
 .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.85); display: none; z-index: 1500; backdrop-filter: blur(5px); }
 .overlay.active { display: block; }
 
-/* STRONA GŁÓWNA - UKŁAD KART (NAPRAWIONE) */
+/* STRONA GŁÓWNA I DASHBOARD */
 .main-dashboard { padding: 15px; max-width: 1400px; margin: 0 auto; }
-.welcome-section { text-align: center; margin-bottom: 20px; }
-.date-top-label { color: #888; font-size: 0.9rem; margin-bottom: 5px; font-weight: bold; text-transform: lowercase; }
-
 .dashboard-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 15px; margin-bottom: 30px; }
 .dash-card { background: #161616; border: 1px solid #222; border-radius: 12px; padding: 20px; display: flex; align-items: center; gap: 15px; text-decoration: none; color: white; transition: 0.3s; }
 .dash-card:hover { border-color: #ffe800; background: #1a1a1a; transform: translateY(-3px); }
 .icon-circle { width: 50px; height: 50px; background: #222; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1.8rem; }
-.card-info h3 { color: #ffe800; font-size: 1.1rem; margin-bottom: 2px; }
-.card-info p { color: #777; font-size: 0.8rem; }
+.card-info h3 { color: #ffe800; font-size: 1.1rem; }
 
-/* EKIPA - SIATKA (NAPRAWIONE) */
-.team-section { background: #111; border-radius: 15px; padding: 20px; border: 1px solid #222; }
-.section-title { color: #ffe800; text-align: center; margin-bottom: 20px; font-size: 1.3rem; text-transform: uppercase; letter-spacing: 1px; }
-.team-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px; }
-.team-card { background: #000; border: 1px solid #222; padding: 15px; border-radius: 10px; display: flex; align-items: center; gap: 12px; }
-.avatar-circle { width: 40px; height: 40px; background: #1a1a1a; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #ffe800; border: 1px solid #333; }
-.member-info { display: flex; flex-direction: column; }
-.member-name { font-weight: 900; font-size: 1rem; }
-.member-dept { color: #ffe800; font-size: 0.7rem; font-weight: bold; text-transform: uppercase; }
+/* GENERATOR QR - NOWE STYLE */
+.qr-wrapper { max-width: 800px; margin: 40px auto; padding: 20px; text-align: center; }
+.qr-title { font-size: 2rem; font-weight: 900; margin-bottom: 30px; color: #fff; }
+.qr-title span { color: #ffe800; }
 
-/* ZEGAR */
-.flip-clock { display: flex; justify-content: center; gap: 8px; align-items: center; margin-bottom: 30px; }
-.flip-unit { background: #1a1a1a; border-radius: 8px; width: 60px; height: 70px; display: flex; align-items: center; justify-content: center; font-size: 2.5rem; color: #ffe800; border: 1px solid #333; font-weight: 900; }
-.flip-sep { font-size: 2rem; color: #ffe800; font-weight: bold; }
+.qr-pill-box { background: #1a1a1a; border: 2px solid #333; padding: 25px; border-radius: 15px; margin-bottom: 25px; position: relative; }
+.json-text { font-family: 'Courier New', monospace; font-size: 1.1rem; color: #888; line-height: 1.6; word-break: break-all; }
 
-/* PLAN PRACY - ELEMENTY STERUJĄCE */
-.selector-bar { margin: 20px 0; text-align: center; }
-#monthSelect { background: #000; color: #ffe800; border: 2px solid #ffe800; padding: 10px 30px; border-radius: 25px; font-weight: 900; cursor: pointer; font-size: 1rem; }
+.qr-input-pill { background: #000; border: 1px solid #ffe800; color: #ffe800; padding: 5px 12px; border-radius: 20px; font-weight: bold; font-size: 1rem; text-align: center; outline: none; transition: 0.3s; }
+.qr-input-pill:focus { box-shadow: 0 0 10px rgba(255, 232, 0, 0.3); }
+.qr-input-pill::placeholder { color: #444; }
 
-.legend-container { background: rgba(255,255,255,0.03); padding: 15px; border-radius: 10px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border: 1px solid #222; }
-.legend-group { display: flex; gap: 20px; }
-.legend-item { display: flex; align-items: center; gap: 8px; font-size: 0.8rem; font-weight: bold; }
-.dot { width: 14px; height: 14px; border-radius: 3px; }
+.copy-btn-large { background: #ffe800; color: #000; border: none; padding: 18px 50px; border-radius: 40px; font-size: 1.2rem; font-weight: 900; cursor: pointer; transition: 0.3s; margin-bottom: 15px; text-transform: uppercase; }
+.copy-btn-large:hover { background: #fff; transform: scale(1.05); }
+.copy-btn-large:active { transform: scale(0.95); }
 
-/* TABELA I CELOWNIK (NAPRAWIONE) */
-.table-container { width: 100%; overflow-x: auto; background: #000; border: 1px solid #222; border-radius: 8px; }
-table { width: 100%; border-collapse: collapse; table-layout: fixed; min-width: 1100px; }
-th, td { border: 1px solid #222; padding: 10px 2px; text-align: center; position: relative; }
+.status-msg-green { color: #00ff00; font-weight: bold; height: 20px; margin-bottom: 20px; font-size: 0.9rem; }
 
-/* Półprzezroczyste podświetlenie wiersza (nie zakrywa koloru zadania) */
-#tableBody tr:hover { 
-    background-color: rgba(255, 232, 0, 0.08) !important; 
-}
+/* HISTORIA W GENERATORZE */
+.history-table-container { background: #111; border-radius: 15px; border: 1px solid #222; overflow: hidden; margin-top: 40px; }
+.history-header { background: #1a1a1a; padding: 15px; display: flex; border-bottom: 2px solid #ffe800; font-weight: 900; font-size: 0.8rem; color: #777; text-transform: uppercase; }
+.h-col-code { flex: 2; text-align: left; }
+.h-col-time { flex: 1; text-align: center; }
+.h-col-action { flex: 1; text-align: right; }
 
-/* Półprzezroczyste podświetlenie kolumny (celownik) */
-.highlight-col::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background-color: rgba(255, 232, 0, 0.1);
-    pointer-events: none;
-    z-index: 1;
-}
+.history-row { padding: 15px; display: flex; align-items: center; border-bottom: 1px solid #222; animation: slideIn 0.3s ease-out; }
+@keyframes slideIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
 
-.date-col { background: #0a0a0a; color: #ffe800; font-size: 0.85rem; font-weight: bold; width: 120px; }
-.dept-header { background: #1a1a1a; color: #ffe800; font-size: 0.7rem; font-weight: 900; }
-.name-header { background: #ffe800; color: #000; font-size: 0.8rem; font-weight: 900; padding: 15px 0; }
-.sep-left { border-left: 2px solid #ffe800 !important; }
+.h-val-code { flex: 2; text-align: left; color: #ffe800; font-family: monospace; font-weight: bold; }
+.h-val-time { flex: 1; text-align: center; color: #555; font-size: 0.85rem; }
+.h-val-action { flex: 1; text-align: right; }
+.h-val-action button { background: #333; color: #fff; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer; font-size: 0.7rem; }
 
-.cell-data { width: 100%; background: transparent; border: none; color: inherit; text-align: center; font-size: 0.95rem; font-weight: 900; outline: none; cursor: pointer; position: relative; z-index: 2; }
-
-/* ZADANIA */
-.task-social { background-color: #007bff !important; color: #fff !important; }
-.task-klucze { background-color: #fd7e14 !important; color: #fff !important; }
-.task-dostawa { background-color: #ffe800 !important; color: #000 !important; }
-
-/* DNI SPECJALNE */
-.today-row .date-col { background-color: #ffe800 !important; color: #000 !important; }
-.is-weekend { background: #121212; color: #666; }
-.is-sunday { background: #1a0a0a !important; }
-.is-sunday .date-col { color: #ff4444 !important; }
-
-.total-row td { background: #000 !important; border-top: 3px solid #ffe800 !important; padding: 15px 0; }
-.total-cell { color: #ffe800 !important; font-size: 1.1rem !important; }
+/* CELOWNIK W TABELI (Dla plan.html) */
+#tableBody tr:hover { background-color: rgba(255, 232, 0, 0.08) !important; }
+.highlight-col::after { content: ''; position: absolute; inset: 0; background-color: rgba(255, 232, 0, 0.1); pointer-events: none; z-index: 1; }
+.cell-data { position: relative; z-index: 2; }

@@ -1,1 +1,23 @@
-
+* { box-sizing: border-box; margin: 0; padding: 0; font-family: Arial; }
+body { background: #000; color: white; text-align: center; }
+header { background: #ffe800; height: 50px; display: flex; align-items: center; justify-content: center; position: sticky; top: 0; z-index: 100; }
+.logo { color: #000; font-weight: 900; font-size: 1.4rem; }
+.logo span { background: #000; color: #ffe800; padding: 0 4px; border-radius: 3px; }
+.menu-btn { position: absolute; left: 15px; cursor: pointer; color: #000; font-size: 1.5rem; }
+.sidebar { position: fixed; left: -260px; top: 0; width: 250px; height: 100%; background: #0a0a0a; border-right: 2px solid #ffe800; transition: 0.3s; z-index: 200; text-align: left; padding-top: 60px; }
+.sidebar.active { left: 0; }
+.sidebar-link { display: block; color: white; padding: 15px 20px; text-decoration: none; font-weight: bold; border-bottom: 1px solid #111; }
+.overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.8); display: none; z-index: 150; }
+.overlay.active { display: block; }
+.flip-clock { display: flex; justify-content: center; gap: 10px; margin: 30px 0; }
+.flip-unit { background: #111; padding: 15px; border-radius: 8px; font-size: 2.2rem; color: #ffe800; font-weight: bold; border: 1px solid #222; min-width: 65px; }
+.dashboard-grid { display: flex; justify-content: center; gap: 10px; padding: 0 10px; }
+.dash-card { background: #111; border: 1px solid #222; border-radius: 12px; padding: 15px; flex: 1; display: flex; align-items: center; gap: 10px; text-decoration: none; color: white; text-align: left; }
+.icon-box { background: #222; padding: 8px; border-radius: 8px; }
+.card-info h3 { color: #ffe800; font-size: 0.8rem; }
+.card-info p { color: #666; font-size: 0.7rem; }
+.team-section { background: #0a0a0a; border: 1px solid #1a1a1a; border-radius: 12px; margin: 20px; padding: 20px; text-align: left; }
+.team-title { color: #ffe800; margin-bottom: 15px; font-size: 0.9rem; }
+.member-card { display: flex; align-items: center; gap: 10px; padding: 8px 0; border-bottom: 1px solid #111; font-size: 0.85rem; color: #ccc; }
+.member-card i { color: #6e448a; }
+.member-card span { color: white; font-weight: bold; }

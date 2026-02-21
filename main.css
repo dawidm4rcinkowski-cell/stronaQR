@@ -1,7 +1,8 @@
-/* PODSTAWY I NAGŁÓWEK */
+/* RESET I PODSTAWY */
 * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Arial', sans-serif; }
 body { background: #0a0a0a; color: white; overflow-x: hidden; }
 
+/* NAGŁÓWEK */
 header { background-color: #ffe800; height: 70px; display: flex; align-items: center; justify-content: center; border-bottom: 4px solid #000; position: sticky; top: 0; z-index: 1001; }
 .logo { color: #000; font-size: 1.8rem; font-weight: 900; text-transform: uppercase; letter-spacing: -1px; }
 .logo span { background: #000; color: #ffe800; padding: 2px 8px; border-radius: 4px; margin-left: 5px; }
@@ -13,53 +14,51 @@ header { background-color: #ffe800; height: 70px; display: flex; align-items: ce
 .sidebar.active { left: 0; }
 .sidebar-header { color: #ffe800; padding: 20px 25px; font-size: 1.5rem; font-weight: bold; border-bottom: 1px solid #222; }
 .sidebar-link { display: flex; align-items: center; color: #fff; padding: 15px 25px; cursor: pointer; text-decoration: none; font-size: 1.1rem; }
-.sidebar-link i { margin-right: 15px; font-style: normal; width: 25px; text-align: center; }
 .sidebar-link:hover { background: #ffe800; color: #000; font-weight: bold; }
 .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.85); display: none; z-index: 1500; backdrop-filter: blur(5px); }
 .overlay.active { display: block; }
 
-/* STRONA GŁÓWNA I DASHBOARD */
+/* DASHBOARD - STRONA GŁÓWNA */
 .main-dashboard { padding: 15px; max-width: 1400px; margin: 0 auto; }
 .dashboard-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 15px; margin-bottom: 30px; }
 .dash-card { background: #161616; border: 1px solid #222; border-radius: 12px; padding: 20px; display: flex; align-items: center; gap: 15px; text-decoration: none; color: white; transition: 0.3s; }
 .dash-card:hover { border-color: #ffe800; background: #1a1a1a; transform: translateY(-3px); }
 .icon-circle { width: 50px; height: 50px; background: #222; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1.8rem; }
-.card-info h3 { color: #ffe800; font-size: 1.1rem; }
+.card-info h3 { color: #ffe800; font-size: 1.1rem; margin-bottom: 2px; }
+.card-info p { color: #888; font-size: 0.8rem; }
 
-/* GENERATOR QR - NOWE STYLE */
-.qr-wrapper { max-width: 800px; margin: 40px auto; padding: 20px; text-align: center; }
-.qr-title { font-size: 2rem; font-weight: 900; margin-bottom: 30px; color: #fff; }
-.qr-title span { color: #ffe800; }
+/* ZEGAR */
+.flip-clock { display: flex; justify-content: center; gap: 10px; margin: 20px 0; }
+.flip-unit { background: #1a1a1a; padding: 15px; border-radius: 8px; font-size: 2.5rem; color: #ffe800; font-weight: 900; border: 1px solid #333; min-width: 70px; text-align: center; }
 
-.qr-pill-box { background: #1a1a1a; border: 2px solid #333; padding: 25px; border-radius: 15px; margin-bottom: 25px; position: relative; }
-.json-text { font-family: 'Courier New', monospace; font-size: 1.1rem; color: #888; line-height: 1.6; word-break: break-all; }
+/* PLAN PRACY - TABELA */
+.table-container { width: 100%; overflow-x: auto; background: #000; border: 1px solid #222; border-radius: 8px; }
+table { width: 100%; border-collapse: collapse; min-width: 1100px; }
+th, td { border: 1px solid #222; padding: 10px 2px; text-align: center; position: relative; }
 
-.qr-input-pill { background: #000; border: 1px solid #ffe800; color: #ffe800; padding: 5px 12px; border-radius: 20px; font-weight: bold; font-size: 1rem; text-align: center; outline: none; transition: 0.3s; }
-.qr-input-pill:focus { box-shadow: 0 0 10px rgba(255, 232, 0, 0.3); }
-.qr-input-pill::placeholder { color: #444; }
-
-.copy-btn-large { background: #ffe800; color: #000; border: none; padding: 18px 50px; border-radius: 40px; font-size: 1.2rem; font-weight: 900; cursor: pointer; transition: 0.3s; margin-bottom: 15px; text-transform: uppercase; }
-.copy-btn-large:hover { background: #fff; transform: scale(1.05); }
-.copy-btn-large:active { transform: scale(0.95); }
-
-.status-msg-green { color: #00ff00; font-weight: bold; height: 20px; margin-bottom: 20px; font-size: 0.9rem; }
-
-/* HISTORIA W GENERATORZE */
-.history-table-container { background: #111; border-radius: 15px; border: 1px solid #222; overflow: hidden; margin-top: 40px; }
-.history-header { background: #1a1a1a; padding: 15px; display: flex; border-bottom: 2px solid #ffe800; font-weight: 900; font-size: 0.8rem; color: #777; text-transform: uppercase; }
-.h-col-code { flex: 2; text-align: left; }
-.h-col-time { flex: 1; text-align: center; }
-.h-col-action { flex: 1; text-align: right; }
-
-.history-row { padding: 15px; display: flex; align-items: center; border-bottom: 1px solid #222; animation: slideIn 0.3s ease-out; }
-@keyframes slideIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
-
-.h-val-code { flex: 2; text-align: left; color: #ffe800; font-family: monospace; font-weight: bold; }
-.h-val-time { flex: 1; text-align: center; color: #555; font-size: 0.85rem; }
-.h-val-action { flex: 1; text-align: right; }
-.h-val-action button { background: #333; color: #fff; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer; font-size: 0.7rem; }
-
-/* CELOWNIK W TABELI (Dla plan.html) */
+/* Naprawione podświetlanie (Celownik) */
 #tableBody tr:hover { background-color: rgba(255, 232, 0, 0.08) !important; }
-.highlight-col::after { content: ''; position: absolute; inset: 0; background-color: rgba(255, 232, 0, 0.1); pointer-events: none; z-index: 1; }
-.cell-data { position: relative; z-index: 2; }
+.highlight-col::after { content: ''; position: absolute; inset: 0; background-color: rgba(255, 232, 0, 0.12); pointer-events: none; z-index: 1; }
+
+.cell-data { width: 100%; background: transparent; border: none; color: inherit; text-align: center; font-size: 0.95rem; font-weight: 900; outline: none; position: relative; z-index: 2; cursor: pointer; }
+
+/* KOLORY ZADAŃ */
+.task-social { background-color: #007bff !important; color: white !important; }
+.task-klucze { background-color: #fd7e14 !important; color: white !important; }
+.task-dostawa { background-color: #ffe800 !important; color: black !important; }
+
+/* GENERATOR QR */
+.qr-wrapper { max-width: 900px; margin: 40px auto; padding: 0 20px; text-align: center; }
+.qr-pill-box { background: #161616; border: 1px solid #333; padding: 30px; border-radius: 20px; margin-bottom: 30px; overflow-x: auto; }
+.json-text { font-family: 'Courier New', monospace; font-size: 0.95rem; color: #aaa; white-space: nowrap; display: flex; align-items: center; justify-content: center; gap: 5px; }
+.qr-input-pill { background: #000; border: 2px solid #ffe800; color: #ffe800; padding: 8px 15px; border-radius: 25px; font-weight: 900; font-size: 1.1rem; text-align: center; outline: none; }
+.copy-btn-large { background: #ffe800; color: #000; border: none; padding: 20px 60px; border-radius: 50px; font-size: 1.3rem; font-weight: 900; cursor: pointer; transition: 0.3s; text-transform: uppercase; }
+.copy-btn-large:disabled { background: #444; color: #888; cursor: not-allowed; }
+
+/* HISTORIA QR */
+.history-table-container { background: #111; border-radius: 15px; border: 1px solid #222; margin-top: 50px; text-align: left; overflow: hidden; }
+.history-header { background: #1a1a1a; padding: 15px; display: grid; grid-template-columns: 3fr 1fr 0.5fr; border-bottom: 2px solid #ffe800; font-weight: bold; color: #777; font-size: 0.75rem; }
+.history-row { display: grid; grid-template-columns: 3fr 1fr 0.5fr; padding: 15px; border-bottom: 1px solid #222; align-items: center; }
+.h-val-code { color: #ffe800; font-family: monospace; font-size: 0.8rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.h-val-time { color: #555; text-align: center; font-size: 0.9rem; }
+.h-val-action button { background: transparent; color: #ff4444; border: 1px solid #ff4444; padding: 4px 8px; border-radius: 4px; cursor: pointer; font-size: 0.7rem; }

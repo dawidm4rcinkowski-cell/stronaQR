@@ -21,6 +21,7 @@ function updateClock() {
 function handleFlip(cardId, textId, newValue, oldValue) {
     if (newValue !== oldValue) {
         const card = document.getElementById(cardId);
+        if (!card) return;
         const front = card.querySelector('.flip-front');
         const back = card.querySelector('.flip-back');
         

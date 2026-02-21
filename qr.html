@@ -1,21 +1,52 @@
-<section id="qr-generator" class="content-section">
-    <div class="qr-container">
-        <h2 class="qr-title">GENERATOR KODU <span>QR</span></h2>
-        
-        <div class="json-box">
-            <span class="bracket">{</span>
-            <span class="key">"type"</span>: <span class="val">"npws_qr"</span>,
-            <span class="key">"order"</span>: "<input type="tel" id="ord_input" class="qr-input" placeholder="numer">",
-            <span class="key">"pin"</span>: "<input type="tel" id="pin_input" class="qr-input" placeholder="pin">"
-            <span class="bracket">}</span>
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Media Expert - Generator QR</title>
+    <link rel="stylesheet" href="main.css">
+</head>
+<body>
+    <header>
+        <div class="menu-btn" onclick="toggleMenu()">
+            <div></div><div></div><div></div>
         </div>
+        <div class="logo">MEDIA <span>EXPERT</span></div>
+    </header>
 
-        <button class="copy-btn" onclick="copyQR()">KOPIUJ CAŁOŚĆ</button>
-        <div id="copy-status" class="status-msg"></div>
+    <div class="overlay" id="overlay" onclick="toggleMenu()"></div>
 
-        <div class="history-box">
-            <h3>HISTORIA KOPIOWANIA:</h3>
-            <ul id="qr-history"></ul>
-        </div>
-    </div>
-</section>
+    <nav class="sidebar" id="sidebar">
+        <div class="sidebar-header">MENU</div>
+        <a href="index.html" class="sidebar-link"><i>🏠</i> STRONA GŁÓWNA</a>
+        <a href="plan.html" class="sidebar-link"><i>📅</i> PLAN PRACY</a>
+        <a href="qr.html" class="sidebar-link"><i>🖼️</i> KOD QR</a>
+    </nav>
+
+    <main>
+        <section class="content-section active">
+            <div class="qr-wrapper">
+                <h2 class="qr-title">GENERATOR KODU <span>QR</span></h2>
+                <div class="qr-pill-box">
+                    <span class="json-text">
+                        { "type" : "npws_order_received_qr_code" , "order_number" : " <input type="tel" id="ord_input" class="qr-input-pill" placeholder="02412312312"> " , "pin" : " <input type="tel" id="pin_input" class="qr-input-pill" style="width: 80px;" placeholder="213"> " }
+                    </span>
+                </div>
+                <button id="copyBtn" class="copy-btn-large" onclick="copyQR()">KOPIUJ KOD</button>
+                <div id="copy-status" class="status-msg-green"></div>
+
+                <div class="history-table-container">
+                    <div class="history-header">
+                        <span class="h-col-code">OSTATNIO SKOPIOWANE</span>
+                        <span class="h-col-time">GODZINA</span>
+                        <span class="h-col-action">HISTORIA</span>
+                    </div>
+                    <div id="qr-history-list"></div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script src="java.js"></script>
+</body>
+</html>

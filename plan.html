@@ -8,38 +8,42 @@
 </head>
 <body>
     <header>
-        <div class="menu-btn" onclick="toggleMenu()">
-            <div></div><div></div><div></div>
-        </div>
+        <div class="menu-btn" onclick="toggleMenu()">☰</div>
         <div class="logo">MEDIA <span>EXPERT</span></div>
     </header>
 
     <div class="overlay" id="overlay" onclick="toggleMenu()"></div>
 
     <nav class="sidebar" id="sidebar">
-        <div class="sidebar-header">MENU</div>
-        <a href="index.html" class="sidebar-link">STRONA GŁÓWNA</a>
-        <a href="plan.html" class="sidebar-link">PLAN PRACY</a>
-        <a href="qr.html" class="sidebar-link">KOD QR</a>
+        <div class="sidebar-header" style="color: #ffe800; padding: 20px; font-weight: bold; border-bottom: 1px solid #1a1a1a;">MENU</div>
+        <a href="index.html" class="sidebar-link"><i>🏠</i> STRONA GŁÓWNA</a>
+        <a href="plan.html" class="sidebar-link"><i>📅</i> PLAN PRACY</a>
+        <a href="qr.html" class="sidebar-link"><i>🖼️</i> KOD QR</a>
     </nav>
 
     <main class="main-dashboard">
         <div style="text-align: center; margin-bottom: 20px;">
-            <select id="monthSelect" onchange="generateTable()" style="background: #000; color: #ffe800; border: 2px solid #ffe800; padding: 10px 25px; border-radius: 20px; font-weight: bold; cursor: pointer;">
+            <select id="monthSelect" onchange="generateTable()" style="background: #000; color: #ffe800; border: 2px solid #ffe800; padding: 10px 20px; border-radius: 20px; font-weight: bold; cursor: pointer; outline: none;">
                 </select>
         </div>
 
-        <div class="legend-container">
-            <div class="legend-item"><div class="dot dot-socjal"></div> SOCJAL</div>
-            <div class="legend-item"><div class="dot dot-klucze"></div> KLUCZE</div>
-            <div class="legend-item"><div class="dot dot-dostawa"></div> DOSTAWA</div>
+        <div class="legend-container" style="display: flex; justify-content: center; gap: 20px; margin-bottom: 15px;">
+            <div class="legend-item" style="display: flex; align-items: center; font-size: 0.8rem; font-weight: bold;">
+                <div class="dot task-social" style="width: 12px; height: 12px; border-radius: 2px; margin-right: 6px;"></div> SOCJAL
+            </div>
+            <div class="legend-item" style="display: flex; align-items: center; font-size: 0.8rem; font-weight: bold;">
+                <div class="dot task-klucze" style="width: 12px; height: 12px; border-radius: 2px; margin-right: 6px;"></div> KLUCZE
+            </div>
+            <div class="legend-item" style="display: flex; align-items: center; font-size: 0.8rem; font-weight: bold;">
+                <div class="dot task-dostawa" style="width: 12px; height: 12px; border-radius: 2px; margin-right: 6px;"></div> DOSTAWA
+            </div>
         </div>
 
         <div class="table-container">
             <table id="scheduleTable">
                 <thead>
                     <tr>
-                        <th rowspan="2" class="date-col" style="width: 140px;">DATA</th>
+                        <th rowspan="2" class="date-col" style="min-width: 130px;">DATA</th>
                         <th colspan="1">KE</th>
                         <th colspan="1">KSS</th>
                         <th colspan="2">POK</th>
@@ -48,17 +52,17 @@
                         <th colspan="1">RTV</th>
                     </tr>
                     <tr>
-                        <th>PAWEŁ</th>
-                        <th>MICHAŁ</th>
-                        <th>NATALIA</th>
-                        <th>MAGDA</th>
-                        <th>JAKUB</th>
-                        <th>ADRIAN</th>
-                        <th>DAWID</th>
-                        <th>DAREK</th>
-                        <th>ŁUKASZ</th>
-                        <th>ILONA</th>
-                        <th>ARIEL</th>
+                        <th style="font-size: 0.7rem;">PAWEŁ</th>
+                        <th style="font-size: 0.7rem;">MICHAŁ</th>
+                        <th style="font-size: 0.7rem;">NATALIA</th>
+                        <th style="font-size: 0.7rem;">MAGDA</th>
+                        <th style="font-size: 0.7rem;">JAKUB</th>
+                        <th style="font-size: 0.7rem;">ADRIAN</th>
+                        <th style="font-size: 0.7rem;">DAWID</th>
+                        <th style="font-size: 0.7rem;">DAREK</th>
+                        <th style="font-size: 0.7rem;">ŁUKASZ</th>
+                        <th style="font-size: 0.7rem;">ILONA</th>
+                        <th style="font-size: 0.7rem;">ARIEL</th>
                     </tr>
                 </thead>
                 <tbody id="tableBody">
@@ -69,10 +73,11 @@
 
     <script src="java.js"></script>
     <script>
-        window.onload = () => { 
-            startClock(); 
-            if(typeof initMonths === 'function') initMonths(); 
-            if(typeof generateTable === 'function') generateTable(); 
+        // Startowanie funkcji po załadowaniu
+        window.onload = () => {
+            if (typeof startClock === 'function') startClock();
+            if (typeof initMonths === 'function') initMonths();
+            if (typeof generateTable === 'function') generateTable();
         };
     </script>
 </body>

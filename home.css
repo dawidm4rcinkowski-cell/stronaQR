@@ -1,58 +1,83 @@
+/* Zastosowanie Montserrat dla całej strony */
+/* Czcionka Montserrat */
 * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Montserrat', sans-serif; }
-body { background: #000; color: white; overflow-x: hidden; }
+body { background: #000; color: white; text-align: center; overflow-x: hidden; }
 
-/* HEADER & SIDEBAR */
-header { background: #ffe800; height: 60px; display: flex; align-items: center; justify-content: center; position: sticky; top: 0; z-index: 2000; }
-.logo { color: #000; font-weight: 900; font-size: 1.6rem; text-transform: uppercase; }
-.logo span { background: #000; color: #ffe800; padding: 0 6px; border-radius: 4px; }
+/* Header */
+/* Header & Sidebar */
+header { background: #ffe800; height: 60px; display: flex; align-items: center; justify-content: center; position: sticky; top: 0; z-index: 1000; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
+.logo { color: #000; font-weight: 900; font-size: 1.6rem; text-transform: uppercase; letter-spacing: -1px; }
+.logo span { background: #000; color: #ffe800; padding: 0 6px; border-radius: 4px; margin-left: 2px; }
 .menu-btn { position: absolute; left: 20px; cursor: pointer; color: #000; font-size: 1.8rem; }
 
-.sidebar { position: fixed; left: -280px; top: 0; width: 260px; height: 100%; background: #0a0a0a; border-right: 3px solid #ffe800; transition: 0.3s; z-index: 3000; padding-top: 70px; }
+/* Sidebar */
+.sidebar { position: fixed; left: -280px; top: 0; width: 260px; height: 100%; background: #0a0a0a; border-right: 3px solid #ffe800; transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); z-index: 2000; text-align: left; padding-top: 70px; }
 .sidebar.active { left: 0; }
-.sidebar-link { display: block; color: white; padding: 18px 25px; text-decoration: none; font-weight: 700; border-bottom: 1px solid #1a1a1a; }
-.overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.85); display: none; z-index: 2500; backdrop-filter: blur(4px); }
+.sidebar-header { color: #ffe800; padding: 20px; font-weight: 900; font-size: 0.8rem; letter-spacing: 2px; text-transform: uppercase; opacity: 0.6; }
+@@ -17,7 +16,7 @@ header { background: #ffe800; height: 60px; display: flex; align-items: center;
+.overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.85); display: none; z-index: 1500; backdrop-filter: blur(4px); }
 .overlay.active { display: block; }
 
-/* MAIN CONTENT */
-main { padding: 30px 15px; max-width: 1100px; margin: 0 auto; }
-.page-title { text-align: center; font-weight: 900; font-size: 2rem; margin-bottom: 20px; }
-.page-title span { color: #ffe800; }
+/* Zegar Flip - Grubsze cyfry */
+/* Zegar Flip - Gruba czcionka 900 */
+.clock-container { display: flex; justify-content: center; align-items: center; gap: 12px; margin: 40px 0; }
+.clock-sep { font-size: 2.5rem; color: #222; font-weight: 900; animation: blink 1s infinite; }
+@keyframes blink { 50% { opacity: 0; } }
+@@ -28,30 +27,44 @@ header { background: #ffe800; height: 60px; display: flex; align-items: center;
+.flip-front, .flip-back { position: absolute; width: 100%; height: 100%; backface-visibility: hidden; display: flex; align-items: center; justify-content: center; background: #111; border: 2px solid #222; border-radius: 12px; font-size: 3.5rem; color: #ffe800; font-weight: 900; }
+.flip-back { transform: rotateX(-180deg); }
 
-/* MONTH SELECTOR */
-.month-selector-wrapper { text-align: center; margin-bottom: 25px; display: flex; align-items: center; justify-content: center; gap: 10px; }
-.month-selector-wrapper label { font-weight: 900; font-size: 0.7rem; color: #444; letter-spacing: 1px; }
-#monthSelect {
-    background: #111; border: 2px solid #222; color: #fff; padding: 8px 15px; border-radius: 10px;
-    font-weight: 900; font-size: 0.8rem; cursor: pointer; outline: none; transition: 0.3s;
+/* Dashboard Buttons - Pogrubione teksty */
+/* Dashboard Cards */
+.dashboard-grid { display: flex; justify-content: center; gap: 15px; padding: 0 15px; max-width: 1000px; margin: 0 auto; }
+.dash-card { background: #111; border: 2px solid #222; border-radius: 16px; padding: 20px; flex: 1; display: flex; align-items: center; gap: 15px; text-decoration: none; color: white; text-align: left; transition: 0.3s; }
+.dash-card:hover { transform: translateY(-8px); border-color: #ffe800; box-shadow: 0 10px 20px rgba(255,232,0,0.15); }
+.icon-box { background: #1a1a1a; padding: 12px; border-radius: 12px; border: 1px solid #333; font-size: 1.4rem; }
+.card-info h3 { color: #ffe800; font-size: 0.9rem; font-weight: 900; letter-spacing: 0.5px; }
+.card-info p { color: #888; font-size: 0.7rem; font-weight: 700; margin-top: 2px; }
+.card-info h3 { color: #ffe800; font-size: 0.9rem; font-weight: 900; }
+.card-info p { color: #888; font-size: 0.7rem; font-weight: 700; }
+
+/* Team Containers */
+/* Sekcja Ekipy i Awatary */
+.team-wrapper { max-width: 1100px; margin: 50px auto; padding: 0 20px; }
+.team-title { font-size: 1.2rem; font-weight: 900; margin-bottom: 30px; letter-spacing: 2px; }
+.yellow-highlight { color: #ffe800; }
+.team-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 18px; }
+.member-card { background: #0a0a0a; border: 1px solid #1a1a1a; border-radius: 15px; padding: 20px; display: flex; align-items: center; gap: 15px; transition: 0.3s; }
+.member-card:hover { background: #111; border-color: #ffe800; transform: translateY(-5px); box-shadow: 0 5px 15px rgba(0,0,0,0.5); }
+.member-card i { color: #6e448a; font-size: 1.5rem; }
+.team-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px; }
+.member-card { background: #0a0a0a; border: 1px solid #1a1a1a; border-radius: 20px; padding: 20px; display: flex; align-items: center; gap: 15px; transition: 0.3s; }
+.member-card:hover { border-color: #ffe800; background: #111; transform: translateY(-5px); }
+
+/* Styl Awatara */
+.avatar-placeholder { 
+    width: 50px; 
+    height: 50px; 
+    background: #1a1a1a; 
+    border: 2px solid #333; 
+    border-radius: 50%; 
+    display: flex; 
+    align-items: center; 
+    justify-content: center; 
+    font-weight: 900; 
+    color: #ffe800; 
+    font-size: 1.2rem;
+    overflow: hidden;
 }
-#monthSelect:focus { border-color: #ffe800; }
+/* Aby w przyszłości dodać zdjęcie, wystarczy w HTML zmienić zawartość diva na <img src="..."> */
+.avatar-placeholder img { width: 100%; height: 100%; object-fit: cover; }
 
-/* FILTRY */
-.filter-bar { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 15px; margin-bottom: 25px; scrollbar-width: none; }
-.filter-btn { background: #111; border: 2px solid #222; color: #555; padding: 12px 25px; border-radius: 30px; font-weight: 900; font-size: 0.75rem; cursor: pointer; white-space: nowrap; transition: 0.3s; }
-.filter-btn.active { background: #ffe800; color: #000; border-color: #ffe800; }
+.m-info { text-align: left; }
+.m-info strong { display: block; font-size: 1.1rem; font-weight: 900; color: #fff; }
+.m-info span { font-size: 0.75rem; color: #555; font-weight: 900; text-transform: uppercase; letter-spacing: 1px; }
+.m-info span { font-size: 0.75rem; color: #555; font-weight: 900; text-transform: uppercase; }
 
-/* KARTY INWENTURY */
-.inwa-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 20px; }
-.inwa-card {
-    background: #0a0a0a; border-radius: 20px; border: 2px solid #1a1a1a;
-    padding: 25px; display: flex; flex-direction: column; gap: 20px; transition: 0.3s;
+/* Responsywność */
+@media (max-width: 768px) {
+    .dashboard-grid { flex-direction: column; }
+.team-grid { grid-template-columns: 1fr 1fr; }
+    .flip-card { width: 70px; height: 90px; }
+    .flip-front, .flip-back { font-size: 2.8rem; }
 }
-
-.inwa-info h3 { font-weight: 900; font-size: 1.1rem; text-transform: uppercase; color: #fff; }
-.inwa-info p { color: #444; font-size: 0.7rem; font-weight: 900; margin-top: 5px; text-transform: uppercase; }
-
-/* PRZYCISK WYKONAŁEM */
-.done-btn {
-    width: 100%; background: transparent; border: 2px solid #ffe800; color: #ffe800;
-    padding: 15px; border-radius: 15px; font-weight: 900; font-size: 0.85rem;
-    cursor: pointer; transition: 0.3s; text-transform: uppercase; letter-spacing: 1px;
-}
-.done-btn:hover { background: rgba(255, 232, 0, 0.1); }
-
-/* STAN OCZEKIWANIA */
-.inwa-card.pending { border-color: #ffe800; background: rgba(255, 232, 0, 0.03); }
-.inwa-card.pending .done-btn { background: #ffe800; color: #000; cursor: default; }
-.inwa-card.pending .inwa-info p { color: #ffe800; }
-
-@media (max-width: 600px) { .inwa-grid { grid-template-columns: 1fr; } }

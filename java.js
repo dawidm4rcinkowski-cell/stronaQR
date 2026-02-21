@@ -32,20 +32,19 @@ const scheduleData = {
     28: ["", "10-20", "", "10-20", "10-20", "", "10-20", "", "10-20", "", "10-20"]
 };
 
-// --- WSPÓLNE FUNKCJE ---
+// MENU
 function toggleMenu() {
     const s = document.getElementById('sidebar'), o = document.getElementById('overlay');
     if(s && o) { s.classList.toggle('active'); o.classList.toggle('active'); }
 }
 
-// --- FUNKCJE DASHBOARDU ---
+// DASHBOARD
 function initDashboard() {
     const now = new Date();
-    const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+    const options = { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' };
     const dateStr = now.toLocaleDateString('pl-PL', options);
     const dateEl = document.getElementById('currentDateDisplay');
-    if(dateEl) dateEl.innerText = dateStr.charAt(0).toUpperCase() + dateStr.slice(1);
-    
+    if(dateEl) dateEl.innerText = dateStr;
     startClock();
     updateDashboardInfo(10); // Ariel
 }
@@ -63,12 +62,7 @@ function updateFlipUnit(id, value) {
     const unit = document.getElementById(id);
     if(!unit) return;
     const formattedValue = value.toString().padStart(2, '0');
-    if (unit.innerText !== formattedValue) {
-        unit.classList.remove('animate-flip');
-        void unit.offsetWidth; 
-        unit.classList.add('animate-flip');
-        unit.innerText = formattedValue;
-    }
+    unit.innerText = formattedValue;
 }
 
 function updateDashboardInfo(personIndex) {
@@ -77,16 +71,15 @@ function updateDashboardInfo(personIndex) {
     const now = new Date();
     const day = now.getDate();
     const month = now.getMonth();
-    // Sprawdzamy luty (indeks 1)
     if (month === 1 && scheduleData[day]) {
         const shift = scheduleData[day][personIndex];
         nextShiftEl.innerText = shift ? `Dziś pracujesz: ${shift}` : "Dziś masz wolne!";
     } else {
-        nextShiftEl.innerText = "Brak grafiku na dziś";
+        nextShiftEl.innerText = "Brak grafiku";
     }
 }
 
-// --- FUNKCJE PLANU PRACY ---
+// PLAN PRACY
 function initMonths() {
     const sel = document.getElementById('monthSelect');
     if(!sel) return;
@@ -102,8 +95,7 @@ function initMonths() {
 function parseHours(val) {
     if (!val || val === "U" || val === "szk.") return 0;
     const parts = val.split('-');
-    if (parts.length === 2) return parseInt(parts[1]) - parseInt(parts[0]);
-    return 0;
+    return parts.length === 2 ? (parseInt(parts[1]) - parseInt(parts[0])) : 0;
 }
 
 function changeTask(el, day, col) {
@@ -121,7 +113,6 @@ function generateTable() {
     const tbody = document.getElementById('tableBody');
     const sel = document.getElementById('monthSelect');
     if(!tbody || !sel) return;
-
     tbody.innerHTML = '';
     const m = parseInt(sel.value);
     const days = new Date(2026, m + 1, 0).getDate();
@@ -140,31 +131,28 @@ function generateTable() {
         if(isSunday) tr.classList.add('is-sunday');
         
         let html = `<td class="date-col ${isWeekend ? 'is-weekend' : ''}">${d} ${months[m].substring(0,3)} (${dayNames[dt.getDay()]})</td>`;
-        
         dayData.forEach((v, i) => {
             totalHours[i] += parseHours(v);
-            const colIndex = i + 1;
+            const colIdx = i + 1;
+            const savedTask = localStorage.getItem(`task_${m}_${d}_${colIdx}`) || "";
             const isSep = [0, 1, 2, 4, 8, 10].includes(i);
-            const savedTask = localStorage.getItem(`task_${m}_${d}_${colIndex}`) || "";
-
             html += `<td class="${isSep ? 'sep-left' : ''} ${savedTask}" 
-                        onclick="changeTask(this, ${d}, ${colIndex})"
-                        onmouseover="highlightCross(${colIndex})" onmouseout="clearHighlight()">
+                        onclick="changeTask(this, ${d}, ${colIdx})"
+                        onmouseover="highlightCross(${colIdx})" onmouseout="clearHighlight()">
                         <input type="text" class="cell-data" value="${v}" readonly>
                      </td>`;
         });
         tr.innerHTML = html;
         tbody.appendChild(tr);
     }
-
-    let footerTr = document.createElement('tr');
-    footerTr.classList.add('total-row');
-    let footerHtml = `<td class="date-col">SUMA</td>`;
+    const fTr = document.createElement('tr');
+    fTr.classList.add('total-row');
+    let fHtml = `<td class="date-col">SUMA</td>`;
     totalHours.forEach((sum, i) => {
-        footerHtml += `<td class="${[0,1,2,4,8,10].includes(i) ? 'sep-left' : ''}"><input type="text" class="cell-data total-cell" value="${sum}h" readonly></td>`;
+        fHtml += `<td class="${[0,1,2,4,8,10].includes(i) ? 'sep-left' : ''}"><input type="text" class="cell-data total-cell" value="${sum}h" readonly></td>`;
     });
-    footerTr.innerHTML = footerHtml;
-    tbody.appendChild(footerTr);
+    fTr.innerHTML = fHtml;
+    tbody.appendChild(fTr);
 }
 
 function highlightCross(idx) {

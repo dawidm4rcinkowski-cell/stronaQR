@@ -2,6 +2,9 @@
 <html lang="pl">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Media Expert - Generator QR</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="qr.css">
 </head>
 <body>
@@ -9,21 +12,45 @@
         <div class="menu-btn" onclick="toggleMenu()">☰</div>
         <div class="logo">MEDIA <span>EXPERT</span></div>
     </header>
-    <div class="sidebar" id="sidebar">
+
+    <div class="overlay" id="overlay" onclick="toggleMenu()"></div>
+
+    <nav class="sidebar" id="sidebar">
+        <div class="sidebar-header">NAWIGACJA</div>
         <a href="index.html" class="sidebar-link">🏠 STRONA GŁÓWNA</a>
         <a href="plan.html" class="sidebar-link">📅 PLAN PRACY</a>
         <a href="qr.html" class="sidebar-link">🖼️ KOD QR</a>
-    </div>
+    </nav>
+
     <main>
-        <h1>GENERATOR KODU <span style="color:#ffe800">QR</span></h1>
-        <div class="qr-box">
-            { "type" : "npws_order_received_qr_code" , "order_number" : " 
-            <input type="tel" id="o" class="q-in" placeholder="123456"> " , "pin" : " 
-            <input type="tel" id="p" class="q-in" style="width:70px" placeholder="12"> " }
+        <div class="qr-container">
+            <h1 class="page-title">GENERATOR KODU <span>QR</span></h1>
+            
+            <div class="input-box">
+                <div class="json-preview">
+                    { "type" : "npws_order_received_qr_code" , "order_number" : "
+                    <input type="number" id="orderNum" placeholder="123456" oninput="updatePreview()"> 
+                    " , "pin" : "
+                    <input type="number" id="pinNum" placeholder="123" oninput="updatePreview()"> 
+                    " }
+                </div>
+            </div>
+
+            <button id="copyBtn" class="main-btn" onclick="copyCode()">KOPIUJ KOD</button>
         </div>
-        <button class="btn" onclick="cp()">KOPIUJ KOD</button>
-        <div id="h-list" style="margin-top:30px"></div>
+
+        <div class="history-section">
+            <h2 class="section-title">HISTORIA GENEROWANIA</h2>
+            <div class="history-table-header">
+                <span>KOD / TREŚĆ</span>
+                <span>GODZINA</span>
+                <span>AKCJA</span>
+            </div>
+            <div id="historyList" class="history-list">
+                </div>
+        </div>
     </main>
+
     <script src="qr.js"></script>
 </body>
 </html>

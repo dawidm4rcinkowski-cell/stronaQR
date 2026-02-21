@@ -3,48 +3,35 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="main.css">
+    <link rel="stylesheet" href="plan.css">
 </head>
 <body>
     <header>
         <div class="menu-btn" onclick="toggleMenu()">☰</div>
         <div class="logo">MEDIA <span>EXPERT</span></div>
     </header>
-    <div class="overlay" id="overlay" onclick="toggleMenu()"></div>
-    <nav class="sidebar" id="sidebar">
+    <div class="sidebar" id="sidebar">
         <a href="index.html" class="sidebar-link">🏠 STRONA GŁÓWNA</a>
         <a href="plan.html" class="sidebar-link">📅 PLAN PRACY</a>
         <a href="qr.html" class="sidebar-link">🖼️ KOD QR</a>
-    </nav>
-
+    </div>
     <main>
-        <div style="margin: 15px 0;">
-            <select id="monthSelect" onchange="generateTable()" style="background:none; border: 1px solid #ffe800; color:#ffe800; border-radius:15px; padding:5px 15px; outline:none;"></select>
+        <select id="monthSelect" onchange="generateTable()"></select>
+        <div class="legend">
+            <div class="l-item"><div class="dot socjal"></div> SOCJAL</div>
+            <div class="l-item"><div class="dot klucze"></div> KLUCZE</div>
+            <div class="l-item"><div class="dot dostawa"></div> DOSTAWA</div>
         </div>
-
-        <div style="display: flex; justify-content: center; gap: 20px; font-size: 0.7rem; font-weight: bold; margin-bottom: 15px; text-transform: uppercase;">
-            <div style="display:flex; align-items:center; gap:5px;"><div style="width:10px; height:10px; background:#007bff;"></div> SOCJAL</div>
-            <div style="display:flex; align-items:center; gap:5px;"><div style="width:10px; height:10px; background:#fd7e14;"></div> KLUCZE</div>
-            <div style="display:flex; align-items:center; gap:5px;"><div style="width:10px; height:10px; background:#ffe800;"></div> DOSTAWA</div>
-        </div>
-        <p style="font-size: 0.6rem; color: #666; margin-bottom: 10px;">* KLIKNIJ W KOMÓRKĘ, ABY ZMIENIĆ ZADANIE</p>
-
         <div class="table-container">
             <table id="scheduleTable">
                 <thead>
-                    <tr>
-                        <th rowspan="2" class="date-col">DATA</th>
-                        <th>KE</th><th>KSS</th><th colspan="2">POK</th><th colspan="4">IT</th><th colspan="2">AGD</th><th>RTV</th>
-                    </tr>
-                    <tr>
-                        <th>PAWEŁ</th><th>MICHAŁ</th><th>NATALIA</th><th>MAGDA</th><th>JAKUB</th><th>ADRIAN</th><th>DAWID</th><th>DAREK</th><th>ŁUKASZ</th><th>ILONA</th><th>ARIEL</th>
-                    </tr>
+                    <tr><th rowspan="2">DATA</th><th>KE</th><th>KSS</th><th colspan="2">POK</th><th colspan="4">IT</th><th colspan="2">AGD</th><th>RTV</th></tr>
+                    <tr><th>PAWEŁ</th><th>MICHAŁ</th><th>NATALIA</th><th>MAGDA</th><th>JAKUB</th><th>ADRIAN</th><th>DAWID</th><th>DAREK</th><th>ŁUKASZ</th><th>ILONA</th><th>ARIEL</th></tr>
                 </thead>
                 <tbody id="tableBody"></tbody>
             </table>
         </div>
     </main>
-    <script src="java.js"></script>
-    <script>window.onload = () => { initMonths(); generateTable(); }</script>
+    <script src="plan.js"></script>
 </body>
 </html>

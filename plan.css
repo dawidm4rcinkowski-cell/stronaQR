@@ -1,74 +1,359 @@
-* { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Montserrat', sans-serif; }
-body { background: #000; color: white; overflow-x: hidden; }
+/* --- FUNDAMENT --- */
+* { 
+    box-sizing: border-box; 
+    margin: 0; 
+    padding: 0; 
+    font-family: 'Montserrat', sans-serif; 
+}
 
-/* HEADER & SIDEBAR (Spójne ze Stroną Główną) */
-header { background: #ffe800; height: 60px; display: flex; align-items: center; justify-content: center; position: sticky; top: 0; z-index: 2000; }
-.logo { color: #000; font-weight: 900; font-size: 1.6rem; text-transform: uppercase; }
-.logo span { background: #000; color: #ffe800; padding: 0 6px; border-radius: 4px; }
-.menu-btn { position: absolute; left: 20px; cursor: pointer; color: #000; font-size: 1.8rem; }
+body { 
+    background: #000; 
+    color: white; 
+    overflow-x: hidden; 
+}
 
-.sidebar { position: fixed; left: -280px; top: 0; width: 260px; height: 100%; background: #0a0a0a; border-right: 3px solid #ffe800; transition: 0.3s; z-index: 3000; padding-top: 70px; }
+/* --- HEADER (Spójny z Home) --- */
+header { 
+    background: #ffe800; 
+    height: 60px; 
+    display: flex; 
+    align-items: center; 
+    justify-content: center; 
+    position: sticky; 
+    top: 0; 
+    z-index: 2000; 
+    box-shadow: 0 4px 15px rgba(0,0,0,0.4);
+}
+
+.logo { 
+    color: #000; 
+    font-weight: 900; 
+    font-size: 1.6rem; 
+    text-transform: uppercase; 
+    letter-spacing: -1px;
+}
+
+.logo span { 
+    background: #000; 
+    color: #ffe800; 
+    padding: 0 6px; 
+    border-radius: 4px; 
+}
+
+.menu-btn { 
+    position: absolute; 
+    left: 20px; 
+    cursor: pointer; 
+    color: #000; 
+    font-size: 1.8rem; 
+}
+
+/* --- SIDEBAR & OVERLAY --- */
+.sidebar { 
+    position: fixed; 
+    left: -280px; 
+    top: 0; 
+    width: 260px; 
+    height: 100%; 
+    background: #0a0a0a; 
+    border-right: 3px solid #ffe800; 
+    transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
+    z-index: 3000; 
+    padding-top: 70px; 
+}
+
 .sidebar.active { left: 0; }
-.sidebar-link { display: block; color: white; padding: 18px 25px; text-decoration: none; font-weight: 700; border-bottom: 1px solid #1a1a1a; }
-.overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.85); display: none; z-index: 2500; backdrop-filter: blur(4px); }
+
+.sidebar-link { 
+    display: block; 
+    color: white; 
+    padding: 18px 25px; 
+    text-decoration: none; 
+    font-weight: 700; 
+    border-bottom: 1px solid #1a1a1a; 
+}
+
+.sidebar-link:hover { 
+    background: #1a1a1a; 
+    color: #ffe800; 
+    padding-left: 35px; 
+}
+
+.overlay { 
+    position: fixed; 
+    inset: 0; 
+    background: rgba(0,0,0,0.85); 
+    display: none; 
+    z-index: 2500; 
+    backdrop-filter: blur(4px); 
+}
+
 .overlay.active { display: block; }
 
-/* WYBÓR MIESIĄCA (Segmented Control) */
-.month-selector-wrapper { padding: 20px; background: #0a0a0a; border-bottom: 1px solid #1a1a1a; }
-.month-tabs { display: flex; justify-content: center; gap: 10px; overflow-x: auto; padding-bottom: 5px; }
-.month-tab { padding: 10px 20px; border-radius: 25px; border: 1px solid #333; cursor: pointer; font-weight: 900; font-size: 0.7rem; white-space: nowrap; transition: 0.3s; color: #666; }
-.month-tab.active { background: #ffe800; color: #000; border-color: #ffe800; }
-
-/* LEGENDA */
-.legend-bar { display: flex; justify-content: center; gap: 20px; padding: 15px; font-size: 0.65rem; font-weight: 900; letter-spacing: 1px; }
-.leg-item { display: flex; align-items: center; gap: 5px; }
-.badge { width: 10px; height: 10px; border-radius: 50%; }
-.socjal-dot { background: #007bff; box-shadow: 0 0 10px #007bff; }
-.klucze-dot { background: #fd7e14; box-shadow: 0 0 10px #fd7e14; }
-.dostawa-dot { background: #ffe800; box-shadow: 0 0 10px #ffe800; }
-
-/* TABELA */
-.table-scroll-container { width: 100%; overflow-x: auto; max-height: calc(100vh - 250px); }
-table { width: 100%; border-collapse: separate; border-spacing: 0; min-width: 1200px; }
-
-/* Sticky Header */
-thead { position: sticky; top: 0; z-index: 100; }
-.main-header th { background: #000; color: #555; font-size: 0.6rem; padding: 10px; text-transform: uppercase; }
-.names-header th { background: rgba(10, 10, 10, 0.95); backdrop-filter: blur(10px); border-bottom: 2px solid #ffe800; padding: 10px 5px; }
-
-/* Avatary w nagłówku tabeli */
-.header-avatar { 
-    width: 35px; height: 35px; background: #1a1a1a; border: 1px solid #333; 
-    border-radius: 50%; margin: 0 auto 5px; display: flex; align-items: center; 
-    justify-content: center; color: #ffe800; font-size: 0.8rem; font-weight: 900; 
+/* --- WYBÓR MIESIĄCA (Pełny Rok) --- */
+.month-selector-wrapper { 
+    background: #0a0a0a; 
+    border-bottom: 1px solid #1a1a1a; 
+    position: sticky;
+    top: 60px;
+    z-index: 1500;
 }
-.name-label { font-size: 0.7rem; font-weight: 900; color: #fff; text-transform: uppercase; }
 
-/* Komórki */
-td { border-bottom: 1px solid #111; border-right: 1px solid #111; padding: 15px 5px; text-align: center; font-weight: 900; font-size: 0.85rem; transition: 0.2s; cursor: pointer; }
-.sticky-col { position: sticky; left: 0; background: #0a0a0a !important; z-index: 50; border-right: 2px solid #ffe800; font-size: 0.65rem; min-width: 120px; }
+.month-tabs { 
+    display: flex; 
+    justify-content: flex-start; 
+    gap: 12px; 
+    overflow-x: auto; 
+    padding: 15px 20px; 
+    scrollbar-width: none; /* Firefox */
+}
 
-/* Hover efekt wiersza */
-tr:hover td { background: #0d0d0d; color: #ffe800; }
+.month-tabs::-webkit-scrollbar { display: none; /* Chrome/Safari */ }
+
+.month-tab { 
+    padding: 12px 25px; 
+    border-radius: 30px; 
+    border: 2px solid #222; 
+    cursor: pointer; 
+    font-weight: 900; 
+    font-size: 0.75rem; 
+    white-space: nowrap; 
+    transition: 0.3s; 
+    color: #555; 
+}
+
+.month-tab.active { 
+    background: #ffe800; 
+    color: #000; 
+    border-color: #ffe800; 
+    box-shadow: 0 0 15px rgba(255, 232, 0, 0.2);
+}
+
+/* --- LEGENDA --- */
+.legend-bar { 
+    display: flex; 
+    justify-content: center; 
+    flex-wrap: wrap;
+    gap: 20px; 
+    padding: 15px; 
+    font-size: 0.7rem; 
+    font-weight: 900; 
+    letter-spacing: 1px; 
+    background: #050505;
+}
+
+.leg-item { display: flex; align-items: center; gap: 8px; }
+.badge { width: 12px; height: 12px; border-radius: 50%; }
+.socjal-dot { background: #007bff; box-shadow: 0 0 8px #007bff; }
+.klucze-dot { background: #fd7e14; box-shadow: 0 0 8px #fd7e14; }
+.dostawa-dot { background: #ffe800; box-shadow: 0 0 8px #ffe800; }
+
+/* --- TABELA I KONTENER --- */
+.table-scroll-container { 
+    width: 100%; 
+    overflow: auto; 
+    max-height: calc(100vh - 220px); 
+}
+
+table { 
+    width: 100%; 
+    border-collapse: separate; 
+    border-spacing: 0; 
+    min-width: 1300px; 
+}
+
+/* Szklany Header Tabeli */
+thead { 
+    position: sticky; 
+    top: 0; 
+    z-index: 1000; 
+}
+
+.main-header th { 
+    background: #000; 
+    color: #444; 
+    font-size: 0.6rem; 
+    padding: 8px; 
+    text-transform: uppercase; 
+    letter-spacing: 1px;
+}
+
+.names-header th { 
+    background: rgba(10, 10, 10, 0.9); 
+    backdrop-filter: blur(12px); 
+    border-bottom: 3px solid #ffe800; 
+    padding: 12px 5px; 
+}
+
+/* Avatary w Tabeli */
+.header-avatar { 
+    width: 38px; 
+    height: 38px; 
+    background: #1a1a1a; 
+    border: 2px solid #333; 
+    border-radius: 50%; 
+    margin: 0 auto 6px; 
+    display: flex; 
+    align-items: center; 
+    justify-content: center; 
+    color: #ffe800; 
+    font-size: 0.9rem; 
+    font-weight: 900; 
+}
+
+.name-label { 
+    font-size: 0.7rem; 
+    font-weight: 900; 
+    color: #fff; 
+    text-transform: uppercase; 
+}
+
+/* Komórki Dni i Godzin */
+td { 
+    border-bottom: 1px solid #111; 
+    border-right: 1px solid #111; 
+    padding: 18px 8px; 
+    text-align: center; 
+    font-weight: 900; 
+    font-size: 0.9rem; 
+    transition: 0.2s; 
+    cursor: pointer; 
+}
+
+.sticky-col { 
+    position: sticky; 
+    left: 0; 
+    background: #0a0a0a !important; 
+    z-index: 500; 
+    border-right: 3px solid #ffe800; 
+    font-size: 0.7rem; 
+    min-width: 130px; 
+    color: #888;
+}
+
+/* Efekty Wierszy */
+tr:hover td { 
+    background: #111; 
+    color: #ffe800; 
+}
+
 .sun-row { background: #1a0505; }
 .sun-row .sticky-col { color: #ff4444 !important; }
 
-/* STYLE ZMIAN */
-.socjal { color: #007bff; position: relative; }
-.socjal::after { content: '●'; position: absolute; top: 2px; right: 2px; font-size: 8px; }
+/* --- STYLE ZMIAN (BADGES) --- */
+.socjal { 
+    color: #007bff; 
+    text-shadow: 0 0 10px rgba(0, 123, 255, 0.3);
+}
 
-.klucze { color: #fd7e14; }
-.klucze::after { content: '🔑'; position: absolute; top: 2px; right: 2px; font-size: 10px; }
+.klucze { 
+    color: #fd7e14; 
+}
+.klucze::after { 
+    content: '🔑'; 
+    font-size: 10px; 
+    margin-left: 4px; 
+    vertical-align: middle;
+}
 
-.dostawa { background: #ffe800 !important; color: #000 !important; border-radius: 4px; }
+.dostawa { 
+    background: #ffe800 !important; 
+    color: #000 !important; 
+    border-radius: 4px; 
+    transform: scale(0.95);
+    box-shadow: 0 0 10px rgba(255, 232, 0, 0.2);
+}
 
-/* MODAL */
-.modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 5000; align-items: center; justify-content: center; }
-.modal-content { background: #111; padding: 30px; border-radius: 20px; border: 2px solid #ffe800; width: 90%; max-width: 400px; }
-#shiftInput { width: 100%; background: #000; border: 1px solid #333; padding: 15px; border-radius: 10px; color: #ffe800; font-size: 1.5rem; text-align: center; font-weight: 900; margin: 20px 0; }
-.type-selector { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }
-.type-selector button { padding: 10px; border-radius: 8px; border: 1px solid #222; background: #1a1a1a; color: white; font-weight: 900; font-size: 0.7rem; cursor: pointer; }
-.modal-actions { display: flex; gap: 10px; }
-.modal-actions button { flex: 1; padding: 15px; border-radius: 10px; font-weight: 900; cursor: pointer; border: none; }
+/* --- CUSTOM MODAL (EDYCJA) --- */
+.modal { 
+    display: none; 
+    position: fixed; 
+    inset: 0; 
+    background: rgba(0,0,0,0.95); 
+    z-index: 5000; 
+    align-items: center; 
+    justify-content: center; 
+    backdrop-filter: blur(8px);
+}
+
+.modal-content { 
+    background: #0a0a0a; 
+    padding: 40px; 
+    border-radius: 30px; 
+    border: 2px solid #ffe800; 
+    width: 90%; 
+    max-width: 450px; 
+    text-align: center;
+}
+
+#modalTitle { 
+    font-weight: 900; 
+    font-size: 1.2rem; 
+    margin-bottom: 20px; 
+    text-transform: uppercase; 
+}
+
+#shiftInput { 
+    width: 100%; 
+    background: #000; 
+    border: 2px solid #222; 
+    padding: 20px; 
+    border-radius: 15px; 
+    color: #ffe800; 
+    font-size: 2rem; 
+    text-align: center; 
+    font-weight: 900; 
+    margin-bottom: 25px; 
+}
+
+.type-selector { 
+    display: grid; 
+    grid-template-columns: 1fr 1fr; 
+    gap: 12px; 
+    margin-bottom: 30px; 
+}
+
+.type-selector button { 
+    padding: 12px; 
+    border-radius: 10px; 
+    border: 1px solid #333; 
+    background: #111; 
+    color: white; 
+    font-weight: 900; 
+    font-size: 0.7rem; 
+    cursor: pointer; 
+    transition: 0.2s;
+}
+
+.type-selector button:hover { 
+    border-color: #ffe800; 
+    color: #ffe800; 
+}
+
+.modal-actions { 
+    display: flex; 
+    gap: 15px; 
+}
+
+.modal-actions button { 
+    flex: 1; 
+    padding: 18px; 
+    border-radius: 15px; 
+    font-weight: 900; 
+    font-size: 0.9rem;
+    cursor: pointer; 
+    border: none; 
+    transition: 0.3s;
+}
+
 .save-btn { background: #ffe800; color: #000; }
+.save-btn:hover { background: #fff; transform: translateY(-3px); }
+
 .cancel-btn { background: #222; color: #fff; }
+.cancel-btn:hover { background: #333; }
+
+/* --- RESPONSYWNOŚĆ --- */
+@media (max-width: 768px) {
+    .modal-content { padding: 25px; }
+    #shiftInput { font-size: 1.5rem; }
+}

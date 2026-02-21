@@ -11,23 +11,21 @@
     </header>
     <div class="overlay" id="overlay" onclick="toggleMenu()"></div>
     <nav class="sidebar" id="sidebar">
-        <a href="index.html" class="sidebar-link">STRONA GŁÓWNA</a>
-        <a href="plan.html" class="sidebar-link">PLAN PRACY</a>
-        <a href="qr.html" class="sidebar-link">KOD QR</a>
+        <a href="index.html" class="sidebar-link">🏠 STRONA GŁÓWNA</a>
+        <a href="plan.html" class="sidebar-link">📅 PLAN PRACY</a>
+        <a href="qr.html" class="sidebar-link">🖼️ KOD QR</a>
     </nav>
 
     <main style="padding-top: 50px;">
         <h1 style="font-size: 2.2rem; margin-bottom: 30px; font-weight: 900;">GENERATOR KODU <span style="color: #ffe800;">QR</span></h1>
         
-        <div class="qr-pill-box">
-            <div class="json-text">
-                { "type" : "npws_order_received_qr_code" , "order_number" : " 
-                <input type="tel" id="ord_input" class="qr-input-pill" placeholder="123123"> " , "pin" : " 
-                <input type="tel" id="pin_input" class="qr-input-pill" style="width: 70px;" placeholder="123"> " }
-            </div>
+        <div class="qr-box">
+            { "type" : "npws_order_received_qr_code" , "order_number" : " 
+            <input type="tel" id="ord_input" class="qr-input" placeholder="123123" style="width: 150px;"> " , "pin" : " 
+            <input type="tel" id="pin_input" class="qr-input" placeholder="23" style="width: 70px;"> " }
         </div>
 
-        <button id="copyBtn" class="copy-btn-large" onclick="copyQR()">KOPIUJ KOD</button>
+        <button class="btn-copy" onclick="copyQR()">KOPIUJ KOD</button>
 
         <div style="max-width: 800px; margin: 40px auto; border-top: 1px solid #222; padding-top: 20px;">
             <div style="display: flex; justify-content: space-between; color: #444; font-size: 0.7rem; font-weight: bold; padding: 0 10px;">
@@ -35,7 +33,7 @@
                 <span>GODZINA</span>
                 <span>HISTORIA</span>
             </div>
-            <div id="history-list" style="margin-top: 10px;"></div>
+            <div id="history-list" style="margin-top: 15px;"></div>
         </div>
     </main>
     <script src="java.js"></script>

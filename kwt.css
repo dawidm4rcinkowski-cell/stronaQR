@@ -1,220 +1,96 @@
 /* --- RESET I PODSTAWY --- */
-* { 
-    box-sizing: border-box; 
-    margin: 0; 
-    padding: 0; 
-    font-family: 'Montserrat', sans-serif; 
-}
+* { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Montserrat', sans-serif; }
+body { background: #000; color: white; overflow-x: hidden; }
 
-body { 
-    background: #000; 
-    color: white; 
-    overflow-x: hidden; 
-}
+/* --- HEADER & SIDEBAR --- */
+header { background: #ffe800; height: 60px; display: flex; align-items: center; justify-content: center; position: sticky; top: 0; z-index: 2000; }
+.logo { color: #000; font-weight: 900; font-size: 1.6rem; text-transform: uppercase; }
+.logo span { background: #000; color: #ffe800; padding: 0 6px; border-radius: 4px; }
+.menu-btn { position: absolute; left: 20px; cursor: pointer; color: #000; font-size: 1.8rem; }
 
-/* --- GÓRNY BAR (HEADER) --- */
-header { 
-    background: #ffe800; 
-    height: 60px; 
-    display: flex; 
-    align-items: center; 
-    justify-content: center; 
-    position: sticky; 
-    top: 0; 
-    z-index: 2000; 
-    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-}
-
-.logo { 
-    color: #000; 
-    font-weight: 900; 
-    font-size: 1.6rem; 
-    text-transform: uppercase; 
-}
-
-.logo span { 
-    background: #000; 
-    color: #ffe800; 
-    padding: 0 6px; 
-    border-radius: 4px; 
-}
-
-.menu-btn { 
-    position: absolute; 
-    left: 20px; 
-    cursor: pointer; 
-    color: #000; 
-    font-size: 1.8rem; 
-}
-
-/* --- SIDEBAR --- */
-.sidebar { 
-    position: fixed; 
-    left: -280px; 
-    top: 0; 
-    width: 260px; 
-    height: 100%; 
-    background: #0a0a0a; 
-    border-right: 3px solid #ffe800; 
-    transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
-    z-index: 3000; 
-    padding-top: 70px; 
-}
-
+.sidebar { position: fixed; left: -280px; top: 0; width: 260px; height: 100%; background: #0a0a0a; border-right: 3px solid #ffe800; transition: 0.3s; z-index: 3000; padding-top: 70px; }
 .sidebar.active { left: 0; }
-
-.sidebar-link { 
-    display: block; 
-    color: white; 
-    padding: 18px 25px; 
-    text-decoration: none; 
-    font-weight: 700; 
-    border-bottom: 1px solid #1a1a1a; 
-}
-
+.sidebar-link { display: block; color: white; padding: 18px 25px; text-decoration: none; font-weight: 700; border-bottom: 1px solid #1a1a1a; }
 .sidebar-link.active { background: #ffe800; color: #000; }
-
-.overlay { 
-    position: fixed; 
-    inset: 0; 
-    background: rgba(0,0,0,0.85); 
-    display: none; 
-    z-index: 2500; 
-    backdrop-filter: blur(4px); 
-}
-
+.overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.85); display: none; z-index: 2500; backdrop-filter: blur(4px); }
 .overlay.active { display: block; }
 
 /* --- GŁÓWNA TREŚĆ --- */
-main { 
-    padding: 40px 20px; 
-    max-width: 1400px; 
-    margin: 0 auto; 
-}
-
-.page-title { 
-    text-align: center; 
-    font-weight: 900; 
-    font-size: 2.8rem; 
-    margin-bottom: 40px; 
-    text-transform: uppercase;
-}
-
+main { padding: 40px 20px; max-width: 1400px; margin: 0 auto; }
+.page-title { text-align: center; font-weight: 900; font-size: 2.5rem; margin-bottom: 40px; text-transform: uppercase; }
 .page-title span { color: #ffe800; }
 
 /* --- FILTRY --- */
-.filter-bar { 
-    display: flex; 
-    gap: 15px; 
-    justify-content: center; 
-    margin-bottom: 40px; 
-}
+.filter-bar { display: flex; gap: 10px; justify-content: center; margin-bottom: 30px; flex-wrap: wrap; }
+.filter-btn { background: #111; border: 2px solid #222; color: #777; padding: 15px 25px; border-radius: 12px; font-weight: 900; cursor: pointer; transition: 0.3s; min-width: 120px; }
+.filter-btn.active { background: #ffe800; color: #000; border-color: #ffe800; }
 
-.filter-btn { 
-    background: #111; 
-    border: 2px solid #222; 
-    color: #777; 
-    padding: 18px; 
-    border-radius: 15px; 
-    font-weight: 900; 
-    cursor: pointer; 
-    transition: 0.3s; 
-    flex: 1; 
-    max-width: 200px; 
-    font-size: 1.1rem; 
-}
-
-.filter-btn.active { 
-    background: #ffe800; 
-    color: #000; 
-    box-shadow: 0 0 20px rgba(255, 232, 0, 0.2);
-}
-
-/* --- SEKCJE CZASOWE I SIATKA --- */
-.time-group-header { 
-    background: #151515; 
-    color: #ffe800; 
-    padding: 20px 30px; 
-    border-radius: 15px; 
-    font-weight: 900; 
-    font-size: 1.1rem; 
-    margin: 50px 0 25px 0; 
-    text-transform: uppercase; 
-    border-left: 8px solid #ffe800;
-}
-
+/* --- SIATKA (Zwiększony min-width kafelka) --- */
 .inwa-grid { 
     display: grid; 
-    grid-template-columns: repeat(auto-fill, minmax(450px, 1fr)); 
-    gap: 20px; 
+    grid-template-columns: repeat(auto-fill, minmax(380px, 1fr)); 
+    gap: 25px; 
 }
 
-/* --- POPRAWIONY KAFELEK (Klucz do rozwiązania problemu) --- */
+/* --- KAFELEK - KONSTRUKCJA PIONOWA DLA PEWNOŚCI --- */
 .inwa-card { 
     background: #111; 
-    border-radius: 20px; 
+    border-radius: 24px; 
     border: 3px solid #222; 
-    padding: 30px; 
+    padding: 25px; 
     display: flex; 
-    flex-direction: row; /* Elementy obok siebie */
-    align-items: center; /* Wyśrodkowanie w pionie */
+    flex-direction: column; /* Tekst góra, przycisk dół - to się nigdy nie rozjedzie */
     justify-content: space-between; 
-    gap: 25px; 
-    min-height: 130px;
+    gap: 20px; 
+    min-height: 220px; /* Stała wysokość sprawia, że kafelki w rzędzie są równe */
     transition: 0.3s;
 }
 
-.inwa-info { 
-    flex: 1; /* Zajmuje całą dostępną przestrzeń */
-    min-width: 0; /* Pozwala na zawijanie tekstu wewnątrz flexa */
-}
-
+.inwa-info { width: 100%; }
 .inwa-info h3 { 
     font-weight: 900; 
-    font-size: 1.35rem; 
+    font-size: 1.4rem; 
     color: #fff; 
-    text-transform: uppercase;
-    line-height: 1.2;
-    overflow-wrap: break-word; /* Rozbija tekst, jeśli jest za długi */
+    text-transform: uppercase; 
+    line-height: 1.3;
+    display: -webkit-box;
+    -webkit-line-clamp: 3; /* Max 3 linijki tekstu, potem kropki (zabezpieczenie) */
+    -webkit-box-orient: vertical;
+    overflow: hidden;
 }
 
 .inwa-info p { 
-    color: #666; 
+    color: #555; 
     font-size: 0.9rem; 
-    font-weight: 700; 
+    font-weight: 800; 
     margin-top: 10px;
+    letter-spacing: 1px;
 }
 
-/* --- POPRAWIONY PRZYCISK --- */
+/* --- PRZYCISK NA CAŁĄ SZEROKOŚĆ --- */
 .done-btn { 
-    flex-shrink: 0; /* Przycisk nigdy się nie zgniata */
-    min-width: 160px; 
-    height: 65px;
+    width: 100%; 
+    height: 60px;
     background: transparent; 
     border: 3px solid #ffe800; 
     color: #ffe800; 
-    border-radius: 15px; 
+    border-radius: 14px; 
     font-weight: 900; 
-    font-size: 1rem; 
+    font-size: 1.1rem; 
     cursor: pointer; 
     transition: 0.3s;
     text-transform: uppercase;
 }
 
-.done-btn:hover { background: rgba(255, 232, 0, 0.15); transform: translateY(-3px); }
+.done-btn:hover { background: rgba(255, 232, 0, 0.1); }
 
-/* --- STANY AKTYWNE --- */
-.inwa-card.pending { border-color: #ffe800; background: #1a1a00; }
+/* --- STATUSY --- */
+.inwa-card.pending { border-color: #ffe800; background: #151500; }
 .inwa-card.pending .done-btn { background: #ffe800; color: #000; }
 .inwa-card.pending .inwa-info p { color: #ffe800; }
 
-/* --- MOBILE --- */
-@media (max-width: 600px) {
+/* RESPONSYWNOŚĆ */
+@media (max-width: 450px) {
     .inwa-grid { grid-template-columns: 1fr; }
-    .inwa-card { 
-        flex-direction: column; 
-        text-align: center; 
-        padding: 25px; 
-    }
-    .done-btn { width: 100%; }
+    .page-title { font-size: 1.8rem; }
 }

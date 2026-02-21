@@ -32,7 +32,13 @@ function filterDept(dept, btn) {
 }
 
 function changeMonth() {
-    renderList(); // W przyszłości tu dojdzie logika podmiany danych
+    renderList();
+}
+
+// Funkcja generująca unikalny klucz dla miesiąca
+function getStorageKey(id) {
+    const month = document.getElementById('monthSelect').value;
+    return `inwa_${month}_${id}`;
 }
 
 function renderList() {
@@ -59,16 +65,18 @@ function renderList() {
             grid.className = 'inwa-grid';
 
             filteredItems.forEach(item => {
-                const saved = JSON.parse(localStorage.getItem(`inwa_v3_${item.id}`)) || { status: 'none', time: '' };
+                const storageKey = getStorageKey(item.id);
+                const saved = JSON.parse(localStorage.getItem(storageKey)) || { status: 'none', time: '' };
+                
                 const card = document.createElement('div');
                 card.className = `inwa-card ${saved.status === 'pending' ? 'pending' : ''}`;
                 card.innerHTML = `
                     <div class="inwa-info">
                         <h3>${item.name}</h3>
-                        <p>${saved.time ? 'WYKONANO: ' + saved.time : 'STATUS: DO ZROBIENIA'}</p>
+                        <p>${saved.time ? '📅 ' + saved.time : '🔴 DO ZROBIENIA'}</p>
                     </div>
                     <button class="done-btn" onclick="submitInwa(${item.id})">
-                        ${saved.status === 'pending' ? 'OCZEKUJE NA ZATWIERDZENIE (COFNIJ)' : 'WYKONAŁEM'}
+                        ${saved.status === 'pending' ? 'COFNIJ' : 'WYKONAŁEM'}
                     </button>
                 `;
                 grid.appendChild(card);
@@ -79,12 +87,12 @@ function renderList() {
 }
 
 function submitInwa(id) {
-    const key = `inwa_v3_${id}`;
-    const saved = JSON.parse(localStorage.getItem(key)) || { status: 'none', time: '' };
+    const storageKey = getStorageKey(id);
+    const saved = JSON.parse(localStorage.getItem(storageKey)) || { status: 'none', time: '' };
     
     if (saved.status === 'pending') {
-        if (confirm("Czy chcesz cofnąć zgłoszenie inwentury?")) {
-            localStorage.removeItem(key);
+        if (confirm("Czy chcesz cofnąć zgłoszenie?")) {
+            localStorage.removeItem(storageKey);
             renderList();
         }
         return;
@@ -92,7 +100,7 @@ function submitInwa(id) {
 
     const now = new Date();
     const timeStr = now.toLocaleDateString('pl-PL') + ' ' + now.toLocaleTimeString('pl-PL', {hour: '2-digit', minute:'2-digit'});
-    localStorage.setItem(key, JSON.stringify({ status: 'pending', time: timeStr }));
+    localStorage.setItem(storageKey, JSON.stringify({ status: 'pending', time: timeStr }));
     renderList();
 }
 

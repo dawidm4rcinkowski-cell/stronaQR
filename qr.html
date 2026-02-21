@@ -2,52 +2,42 @@
 <html lang="pl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Media Expert - Generator QR</title>
     <link rel="stylesheet" href="main.css">
 </head>
 <body>
     <header>
-        <div class="menu-btn" onclick="toggleMenu()">
-            <div></div><div></div><div></div>
-        </div>
+        <div class="menu-btn" onclick="toggleMenu()"><div></div><div></div><div></div></div>
         <div class="logo">MEDIA <span>EXPERT</span></div>
     </header>
-
     <div class="overlay" id="overlay" onclick="toggleMenu()"></div>
-
     <nav class="sidebar" id="sidebar">
-        <div class="sidebar-header">MENU</div>
-        <a href="index.html" class="sidebar-link"><i>🏠</i> STRONA GŁÓWNA</a>
-        <a href="plan.html" class="sidebar-link"><i>📅</i> PLAN PRACY</a>
-        <a href="qr.html" class="sidebar-link"><i>🖼️</i> KOD QR</a>
+        <a href="index.html" class="sidebar-link">STRONA GŁÓWNA</a>
+        <a href="plan.html" class="sidebar-link">PLAN PRACY</a>
+        <a href="qr.html" class="sidebar-link">KOD QR</a>
     </nav>
 
-    <main>
-        <section class="qr-wrapper">
-            <h2 class="qr-title">GENERATOR KODU <span>QR</span></h2>
-            
-            <div class="qr-pill-box">
-                <div class="json-text">
-                    { "type" : "npws_order_received_qr_code" , "order_number" : " <input type="tel" id="ord_input" class="qr-input-pill" placeholder="02412312312"> " , "pin" : " <input type="tel" id="pin_input" class="qr-input-pill" style="width: 100px;" placeholder="213"> " }
-                </div>
+    <main class="qr-wrapper">
+        <h1 style="font-size: 3rem; font-weight: 900; margin-bottom: 40px;">GENERATOR KODU <span style="color: #ffe800;">QR</span></h1>
+        
+        <div class="qr-pill-box">
+            <div class="json-text">
+                { "type" : "npws_order_received_qr_code" , "order_number" : " 
+                <input type="tel" id="ord_input" class="qr-input-pill" placeholder="123123"> " , "pin" : " 
+                <input type="tel" id="pin_input" class="qr-input-pill" style="width: 100px;" placeholder="23"> " }
             </div>
+        </div>
 
-            <button id="copyBtn" class="copy-btn-large" onclick="copyQR()">KOPIUJ KOD</button>
-            
-            <div id="copy-status" class="status-msg-green"></div>
+        <button id="copyBtn" class="copy-btn-large" onclick="copyQR()">KOPIUJ KOD</button>
 
-            <div class="history-table-container">
-                <div class="history-header">
-                    <span class="h-col-code">OSTATNIO SKOPIOWANE (PEŁNY JSON)</span>
-                    <span class="h-col-time" style="text-align: center;">GODZINA</span>
-                    <span class="h-col-action" style="text-align: right;">AKCJA</span>
-                </div>
-                <div id="qr-history-list"></div>
+        <div class="history-container">
+            <div class="history-header">
+                <span>OSTATNIO SKOPIOWANE</span>
+                <span>GODZINA</span>
+                <span>HISTORIA</span>
             </div>
-        </section>
+            <div id="history-list"></div>
+        </div>
     </main>
-
     <script src="java.js"></script>
 </body>
 </html>

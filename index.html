@@ -1,72 +1,51 @@
-const inwaData = [
-    { id: 1, name: "Myszki gamingowe", freq: "week" },
-    { id: 2, name: "Słuchawki Truewireless", freq: "week" },
-    { id: 3, name: "Smartfony", freq: "week" },
-    { id: 4, name: "Słuchawki nauszne", freq: "2month" },
-    { id: 5, name: "Konsole", freq: "2month" },
-    { id: 6, name: "Android TV", freq: "2month" },
-    { id: 7, name: "Tusze", freq: "month" },
-    { id: 8, name: "Papier", freq: "month" },
-    { id: 9, name: "Akcesoria do konsol", freq: "month" },
-    { id: 10, name: "Akcesoria do golarek", freq: "month" }
-];
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Media Expert - Inwentura</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="inwa.css">
+</head>
+<body>
+    <header>
+        <div class="menu-btn" onclick="toggleMenu()">☰</div>
+        <div class="logo">MEDIA <span>EXPERT</span></div>
+    </header>
 
-function toggleMenu() {
-    document.getElementById('sidebar').classList.toggle('active');
-    document.getElementById('overlay').classList.toggle('active');
-}
+    <div class="overlay" id="overlay" onclick="toggleMenu()"></div>
 
-function filterInwa(filter, btn) {
-    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-    renderList(filter);
-}
+    <nav class="sidebar" id="sidebar">
+        <div class="sidebar-header">NAWIGACJA</div>
+        <a href="index.html" class="sidebar-link">🏠 STRONA GŁÓWNA</a>
+        <a href="plan.html" class="sidebar-link">📅 PLAN PRACY</a>
+        <a href="inwa.html" class="sidebar-link">📝 INWENTURA</a>
+        <a href="qr.html" class="sidebar-link">🖼️ KOD QR</a>
+    </nav>
 
-function renderList(filter = 'all') {
-    const container = document.getElementById('inwaList');
-    container.innerHTML = '';
+    <main>
+        <h1 class="page-title">HARMONOGRAM <span>INWENTUR</span></h1>
 
-    const filtered = inwaData.filter(item => filter === 'all' || item.freq === filter);
+        <div class="month-selector-wrapper">
+            <label for="monthSelect">ARCHIWUM:</label>
+            <select id="monthSelect" onchange="changeMonth()">
+                <option value="current">LUTY 2026 (BIEŻĄCY)</option>
+                <option value="2026-01">STYCZEŃ 2026</option>
+                <option value="2025-12">GRUDZIEŃ 2025</option>
+            </select>
+        </div>
 
-    filtered.forEach(item => {
-        const saved = JSON.parse(localStorage.getItem(`inwa_v2_${item.id}`)) || { status: 'none', time: '' };
-        
-        const card = document.createElement('div');
-        card.className = `inwa-card ${saved.status === 'pending' ? 'pending' : ''}`;
+        <div class="filter-bar">
+            <button class="filter-btn active" onclick="filterInwa('all', this)">WSZYSTKO</button>
+            <button class="filter-btn" onclick="filterInwa('week', this)">TYDZIEŃ</button>
+            <button class="filter-btn" onclick="filterInwa('2month', this)">2x MIESIĄC</button>
+            <button class="filter-btn" onclick="filterInwa('month', this)">MIESIĄC</button>
+        </div>
 
-        card.innerHTML = `
-            <div class="inwa-info">
-                <h3>${item.name}</h3>
-                <p>${item.freq.toUpperCase()} ${saved.time ? '| ' + saved.time : ''}</p>
+        <div id="inwaList" class="inwa-grid">
             </div>
-            <button class="done-btn" onclick="submitInwa(${item.id})">
-                ${saved.status === 'pending' ? 'OCZEKUJE NA ZATWIERDZENIE' : 'WYKONAŁEM'}
-            </button>
-        `;
-        container.appendChild(card);
-    });
-}
+    </main>
 
-function submitInwa(id) {
-    const saved = JSON.parse(localStorage.getItem(`inwa_v2_${id}`)) || { status: 'none', time: '' };
-    
-    // Jeśli już wysłano, nic nie rób (czekamy na KSS)
-    if (saved.status === 'pending') return;
-
-    const now = new Date();
-    const timeStr = now.toLocaleDateString('pl-PL') + ' ' + now.toLocaleTimeString('pl-PL', {hour: '2-digit', minute:'2-digit'});
-
-    const newData = {
-        status: 'pending',
-        time: timeStr
-    };
-
-    localStorage.setItem(`inwa_v2_${id}`, JSON.stringify(newData));
-    
-    // Tutaj w przyszłości dodamy kod wysyłający sygnał do Kierownika
-    console.log(`Inwentura ${id} wysłana do zatwierdzenia przez Kierownika`);
-    
-    renderList(document.querySelector('.filter-btn.active').innerText.toLowerCase().replace(' ', ''));
-}
-
-window.onload = () => renderList('all');
+    <script src="inwa.js"></script>
+</body>
+</html>

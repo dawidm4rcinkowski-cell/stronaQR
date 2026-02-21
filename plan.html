@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Media Expert - Plan Pracy</title>
+    <link rel="stylesheet" href="main.css">
+</head>
+<body>
+    <header>
+        <div class="menu-btn" onclick="toggleMenu()">
+            <div></div><div></div><div></div>
+        </div>
+        <div class="logo">MEDIA <span>EXPERT</span></div>
+    </header>
+
+    <div class="overlay" id="overlay" onclick="toggleMenu()"></div>
+
+    <nav class="sidebar" id="sidebar">
+        <div class="sidebar-header">MENU</div>
+        <a href="index.html" class="sidebar-link"><i>🏠</i> STRONA GŁÓWNA</a>
+        <a href="plan.html" class="sidebar-link"><i>📅</i> PLAN PRACY</a>
+        <a href="qr.html" class="sidebar-link"><i>🖼️</i> KOD QR</a>
+        <a href="inwentura.html" class="sidebar-link"><i>📋</i> INWENTARYZACJA</a>
+    </nav>
+
+    <main class="main-dashboard">
+        <section class="content-section active">
+            <div class="selector-bar">
+                <select id="monthSelect" onchange="generateTable()"></select>
+            </div>
+
+            <div class="legend-container">
+                <div class="legend-item"><div class="dot task-social"></div> SOCJAL</div>
+                <div class="legend-item"><div class="dot task-klucze"></div> KLUCZE</div>
+                <div class="legend-item"><div class="dot task-dostawa"></div> DOSTAWA</div>
+                <div style="margin-left: auto; color: #666; font-size: 0.8rem;">* KLIKNIJ W KOMÓRKĘ, ABY ZMIENIĆ ZADANIE</div>
+            </div>
+
+            <div class="table-container">
+                <table id="scheduleTable">
+                    <thead>
+                        <tr>
+                            <th rowspan="2" class="date-col">DATA</th>
+                            <th class="dept-header sep-left">KE</th>
+                            <th class="dept-header sep-left">KSS</th>
+                            <th colspan="2" class="dept-header sep-left">POK</th>
+                            <th colspan="4" class="dept-header sep-left">IT</th>
+                            <th colspan="2" class="dept-header sep-left">AGD</th>
+                            <th class="dept-header sep-left">RTV</th>
+                        </tr>
+                        <tr>
+                            <th class="name-header sep-left" data-col="1">PAWEŁ</th>
+                            <th class="name-header sep-left" data-col="2">MICHAŁ</th>
+                            <th class="name-header sep-left" data-col="3">NATALIA</th>
+                            <th class="name-header" data-col="4">MAGDA</th>
+                            <th class="name-header sep-left" data-col="5">JAKUB</th>
+                            <th class="name-header" data-col="6">ADRIAN</th>
+                            <th class="name-header" data-col="7">DAWID</th>
+                            <th class="name-header" data-col="8">DAREK</th>
+                            <th class="name-header sep-left" data-col="9">ŁUKASZ</th>
+                            <th class="name-header">ILONA</th>
+                            <th class="name-header sep-left" data-col="11">ARIEL</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tableBody"></tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+
+    <script src="java.js"></script>
+    <script>
+        window.onload = () => {
+            initMonths();
+            generateTable();
+        };
+    </script>
+</body>
+</html>

@@ -25,58 +25,51 @@
     </nav>
 
     <main class="main-dashboard">
-        <section class="content-section active">
-            <div class="selector-bar">
-                <select id="monthSelect" onchange="generateTable()"></select>
-            </div>
+        <div class="selector-bar">
+            <select id="monthSelect" onchange="generateTable()"></select>
+        </div>
 
-            <div class="legend-container">
-                <div class="legend-group">
-                    <div class="legend-item"><div class="dot task-social"></div> SOCJAL</div>
-                    <div class="legend-item"><div class="dot task-klucze"></div> KLUCZE</div>
-                    <div class="legend-item"><div class="dot task-dostawa"></div> DOSTAWA</div>
-                </div>
-                <div class="legend-hint">* KLIKNIJ W KOMÓRKĘ, ABY ZMIENIĆ ZADANIE</div>
+        <div class="legend-container">
+            <div class="legend-group">
+                <div class="legend-item"><div class="dot task-social"></div> SOCJAL</div>
+                <div class="legend-item"><div class="dot task-klucze"></div> KLUCZE</div>
+                <div class="legend-item"><div class="dot task-dostawa"></div> DOSTAWA</div>
             </div>
+            <div class="legend-hint">* KLIKNIJ W KOMÓRKĘ, ABY ZMIENIĆ ZADANIE</div>
+        </div>
 
-            <div class="table-container">
-                <table id="scheduleTable">
-                    <thead>
-                        <tr>
-                            <th rowspan="2" class="date-col">DATA</th>
-                            <th class="dept-header sep-left">KE</th>
-                            <th class="dept-header sep-left">KSS</th>
-                            <th colspan="2" class="dept-header sep-left">POK</th>
-                            <th colspan="4" class="dept-header sep-left">IT</th>
-                            <th colspan="2" class="dept-header sep-left">AGD</th>
-                            <th class="dept-header sep-left">RTV</th>
-                        </tr>
-                        <tr>
-                            <th class="name-header sep-left">PAWEŁ</th>
-                            <th class="name-header sep-left">MICHAŁ</th>
-                            <th class="name-header sep-left">NATALIA</th>
-                            <th class="name-header">MAGDA</th>
-                            <th class="name-header sep-left">JAKUB</th>
-                            <th class="name-header">ADRIAN</th>
-                            <th class="name-header">DAWID</th>
-                            <th class="name-header">DAREK</th>
-                            <th class="name-header sep-left">ŁUKASZ</th>
-                            <th class="name-header">ILONA</th>
-                            <th class="name-header sep-left">ARIEL</th>
-                        </tr>
-                    </thead>
-                    <tbody id="tableBody"></tbody>
-                </table>
-            </div>
-        </section>
+        <div class="table-container">
+            <table id="scheduleTable">
+                <thead>
+                    <tr>
+                        <th rowspan="2" class="date-col">DATA</th>
+                        <th class="dept-header sep-left">KE</th>
+                        <th class="dept-header sep-left">KSS</th>
+                        <th colspan="2" class="dept-header sep-left">POK</th>
+                        <th colspan="4" class="dept-header sep-left">IT</th>
+                        <th colspan="2" class="dept-header sep-left">AGD</th>
+                        <th class="dept-header sep-left">RTV</th>
+                    </tr>
+                    <tr>
+                        <th class="name-header sep-left">PAWEŁ</th>
+                        <th class="name-header sep-left">MICHAŁ</th>
+                        <th class="name-header sep-left">NATALIA</th>
+                        <th class="name-header">MAGDA</th>
+                        <th class="name-header sep-left">JAKUB</th>
+                        <th class="name-header">ADRIAN</th>
+                        <th class="name-header">DAWID</th>
+                        <th class="name-header">DAREK</th>
+                        <th class="name-header sep-left">ŁUKASZ</th>
+                        <th class="name-header">ILONA</th>
+                        <th class="name-header sep-left">ARIEL</th>
+                    </tr>
+                </thead>
+                <tbody id="tableBody"></tbody>
+            </table>
+        </div>
     </main>
 
     <script src="java.js"></script>
-    <script>
-        window.onload = () => {
-            initMonths();
-            generateTable();
-        };
-    </script>
+    <script>window.onload = () => { initMonths(); generateTable(); };</script>
 </body>
 </html>

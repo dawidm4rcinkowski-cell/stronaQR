@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Media Expert - Panel Pracownika</title>
+    <title>Media Expert - Dashboard</title>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="home.css">
 </head>
 <body>
     <header>
@@ -17,41 +17,92 @@
 
     <nav class="sidebar" id="sidebar">
         <div class="sidebar-header">NAWIGACJA</div>
-        <a href="index.html" class="sidebar-link active">🏠 STRONA GŁÓWNA</a>
+        <a href="index.html" class="sidebar-link">🏠 STRONA GŁÓWNA</a>
         <a href="plan.html" class="sidebar-link">📅 PLAN PRACY</a>
         <a href="qr.html" class="sidebar-link">🖼️ KOD QR</a>
-        <a href="inwa.html" class="sidebar-link">📝 INWENTURA</a>
     </nav>
 
-    <main class="home-container">
-        <div class="welcome-box">
-            <h1 id="greeting" class="main-title">Witaj!</h1>
-            <p class="subtitle">CO DZISIAJ DZIAŁAMY?</p>
+    <main>
+        <div class="clock-container">
+            <div class="flip-card" id="hours-card">
+                <div class="flip-inner">
+                    <div class="flip-front" id="hours">00</div>
+                    <div class="flip-back">00</div>
+                </div>
+            </div>
+            <div class="clock-sep">:</div>
+            <div class="flip-card" id="minutes-card">
+                <div class="flip-inner">
+                    <div class="flip-front" id="minutes">00</div>
+                    <div class="flip-back">00</div>
+                </div>
+            </div>
+            <div class="clock-sep">:</div>
+            <div class="flip-card" id="seconds-card">
+                <div class="flip-inner">
+                    <div class="flip-front" id="seconds">00</div>
+                    <div class="flip-back">00</div>
+                </div>
+            </div>
         </div>
 
-        <div class="quick-grid">
-            <a href="plan.html" class="quick-card">
-                <span class="icon">📅</span>
-                <h3>PLAN PRACY</h3>
-                <p>Sprawdź grafik</p>
+        <div class="dashboard-grid">
+            <a href="plan.html" class="dash-card">
+                <div class="icon-box">📅</div>
+                <div class="card-info">
+                    <h3>PLAN PRACY</h3>
+                    <p>SPRAWDŹ GRAFIK</p>
+                </div>
             </a>
-            
-            <a href="qr.html" class="quick-card">
-                <span class="icon">🖼️</span>
-                <h3>KOD QR</h3>
-                <p>Generuj JSON</p>
+            <a href="qr.html" class="dash-card">
+                <div class="icon-box">🖼️</div>
+                <div class="card-info">
+                    <h3>TWÓJ KOD QR</h3>
+                    <p>SZYBKI GENERATOR</p>
+                </div>
             </a>
-
-            <a href="inwa.html" class="quick-card">
-                <span class="icon">📝</span>
-                <h3>INWENTURA</h3>
-                <p>Zatwierdź stany</p>
-            </a>
+            <div class="dash-card">
+                <div class="icon-box">🕒</div>
+                <div class="card-info">
+                    <h3>ZMIANA</h3>
+                    <p>10:00 - 18:00</p>
+                </div>
+            </div>
         </div>
 
-        <div id="alertZone"></div>
-    </main>
-
-    <script src="home.js"></script>
-</body>
-</html>
+        <div class="team-wrapper">
+            <h2 class="team-title">NASZA <span class="yellow-highlight">EXPERTOWA</span> EKIPA</h2>
+            <div class="team-grid">
+                <div class="member-card">
+                    <div class="avatar-placeholder">P</div>
+                    <div class="m-info"><strong>Paweł</strong><span>KE / KSS</span></div>
+                    <div class="m-info"><strong>Paweł</strong><span>KE</span></div>
+                </div>
+                <div class="member-card">
+                    <div class="avatar-placeholder">M</div>
+                    <div class="m-info"><strong>Michał</strong><span>KE / KSS</span></div>
+                    <div class="m-info"><strong>Michał</strong><span>KSS</span></div>
+                </div>
+                <div class="member-card">
+                    <div class="avatar-placeholder">N</div>
+                    <div class="m-info"><strong>Natalia</strong><span>POK</span></div>
+                </div>
+                <div class="member-card">
+                    <div class="avatar-placeholder">M</div>
+                    <div class="m-info"><strong>Magda</strong><span>POK</span></div>
+                </div>
+                <div class="member-card">
+                    <div class="avatar-placeholder">J</div>
+                    <div class="m-info"><strong>Jakub</strong><span>IT</span></div>
+                </div>
+                <div class="member-card">
+                    <div class="avatar-placeholder">A</div>
+                    <div class="m-info"><strong>Adrian</strong><span>IT</span></div>
+                </div>
+                <div class="member-card">
+                    <div class="avatar-placeholder">D</div>
+                    <div class="m-info"><strong>Dawid</strong><span>IT</span></div>
+                </div>
+                <div class="member-card">
+                    <div class="avatar-placeholder">D</div>
+                    <div class="m-info"><strong>Darek</strong><span>IT</span></div>

@@ -1,64 +1,78 @@
-/* RESET I PODSTAWY */
+/* PODSTAWY */
 * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Arial', sans-serif; }
-body { background: #0a0a0a; color: white; overflow-x: hidden; }
+body { background: #080808; color: white; overflow-x: hidden; }
 
 /* NAGŁÓWEK */
-header { background-color: #ffe800; height: 70px; display: flex; align-items: center; justify-content: center; border-bottom: 4px solid #000; position: sticky; top: 0; z-index: 1001; }
-.logo { color: #000; font-size: 1.8rem; font-weight: 900; text-transform: uppercase; letter-spacing: -1px; }
-.logo span { background: #000; color: #ffe800; padding: 2px 8px; border-radius: 4px; margin-left: 5px; }
-.menu-btn { position: absolute; left: 20px; cursor: pointer; display: flex; flex-direction: column; gap: 5px; }
-.menu-btn div { width: 30px; height: 4px; background-color: #000; border-radius: 2px; }
+header { background-color: #ffe800; height: 60px; display: flex; align-items: center; justify-content: center; position: sticky; top: 0; z-index: 1001; }
+.logo { color: #000; font-size: 1.6rem; font-weight: 900; text-transform: uppercase; }
+.logo span { background: #000; color: #ffe800; padding: 0 6px; border-radius: 4px; margin-left: 4px; }
+.menu-btn { position: absolute; left: 20px; cursor: pointer; }
+.menu-btn div { width: 25px; height: 3px; background: #000; margin: 4px 0; border-radius: 2px; }
 
 /* SIDEBAR & OVERLAY */
-.sidebar { position: fixed; left: -320px; top: 0; width: 300px; height: 100%; background: #111; border-right: 5px solid #ffe800; z-index: 2000; transition: 0.4s; padding-top: 80px; }
+.sidebar { position: fixed; left: -300px; top: 0; width: 280px; height: 100%; background: #111; z-index: 2000; transition: 0.3s; padding-top: 60px; border-right: 2px solid #ffe800; }
 .sidebar.active { left: 0; }
-.sidebar-header { color: #ffe800; padding: 20px 25px; font-size: 1.5rem; font-weight: bold; border-bottom: 1px solid #222; }
-.sidebar-link { display: flex; align-items: center; color: #fff; padding: 15px 25px; cursor: pointer; text-decoration: none; font-size: 1.1rem; }
-.sidebar-link:hover { background: #ffe800; color: #000; font-weight: bold; }
-.overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.85); display: none; z-index: 1500; backdrop-filter: blur(5px); }
+.sidebar-link { display: block; color: white; padding: 15px 20px; text-decoration: none; font-weight: bold; border-bottom: 1px solid #222; }
+.sidebar-link:hover { background: #ffe800; color: black; }
+.overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.7); display: none; z-index: 1500; }
 .overlay.active { display: block; }
 
-/* DASHBOARD - STRONA GŁÓWNA */
-.main-dashboard { padding: 15px; max-width: 1400px; margin: 0 auto; }
-.dashboard-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 15px; margin-bottom: 30px; }
-.dash-card { background: #161616; border: 1px solid #222; border-radius: 12px; padding: 20px; display: flex; align-items: center; gap: 15px; text-decoration: none; color: white; transition: 0.3s; }
-.dash-card:hover { border-color: #ffe800; background: #1a1a1a; transform: translateY(-3px); }
-.icon-circle { width: 50px; height: 50px; background: #222; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1.8rem; }
-.card-info h3 { color: #ffe800; font-size: 1.1rem; margin-bottom: 2px; }
-.card-info p { color: #888; font-size: 0.8rem; }
+/* ZEGAR (ZGODNIE Z IMAGE_785107) */
+.flip-clock { display: flex; justify-content: center; gap: 8px; margin: 30px 0; }
+.flip-unit { background: #1a1a1a; padding: 12px; border-radius: 8px; font-size: 2.5rem; color: #ffe800; font-weight: 900; border: 1px solid #333; min-width: 60px; text-align: center; }
 
-/* ZEGAR */
-.flip-clock { display: flex; justify-content: center; gap: 10px; margin: 20px 0; }
-.flip-unit { background: #1a1a1a; padding: 15px; border-radius: 8px; font-size: 2.5rem; color: #ffe800; font-weight: 900; border: 1px solid #333; min-width: 70px; text-align: center; }
+/* DASHBOARD / KARTY */
+.main-dashboard { padding: 20px; max-width: 1200px; margin: 0 auto; }
+.dashboard-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 15px; margin-bottom: 40px; }
+.dash-card { background: #161616; border-radius: 12px; padding: 15px; display: flex; align-items: center; gap: 15px; text-decoration: none; color: white; border: 1px solid #222; transition: 0.2s; }
+.dash-card:hover { border-color: #ffe800; background: #1f1f1f; }
+.icon-circle { width: 45px; height: 45px; background: #222; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1.4rem; }
+.card-info h3 { color: #ffe800; font-size: 1rem; margin-bottom: 2px; }
+.card-info p { color: #777; font-size: 0.75rem; }
 
-/* PLAN PRACY - TABELA */
-.table-container { width: 100%; overflow-x: auto; background: #000; border: 1px solid #222; border-radius: 8px; }
-table { width: 100%; border-collapse: collapse; min-width: 1100px; }
-th, td { border: 1px solid #222; padding: 10px 2px; text-align: center; position: relative; }
+/* EKIPA */
+.team-list { margin-top: 20px; text-align: left; }
+.team-item { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; color: #ccc; font-size: 0.9rem; }
+.team-item i { color: #6e448a; }
 
-/* Naprawione podświetlanie (Celownik) */
-#tableBody tr:hover { background-color: rgba(255, 232, 0, 0.08) !important; }
-.highlight-col::after { content: ''; position: absolute; inset: 0; background-color: rgba(255, 232, 0, 0.12); pointer-events: none; z-index: 1; }
+/* GRAFIK / TABELA (ZGODNIE Z IMAGE_7850EA) */
+.legend-container { padding: 10px 0; font-size: 0.8rem; font-weight: bold; }
+.legend-item { display: inline-flex; align-items: center; margin-right: 15px; text-transform: uppercase; }
+.dot { width: 12px; height: 12px; border-radius: 2px; margin-right: 5px; }
+.dot-socjal { background: #007bff; }
+.dot-klucze { background: #fd7e14; }
+.dot-dostawa { background: #ffe800; }
 
-.cell-data { width: 100%; background: transparent; border: none; color: inherit; text-align: center; font-size: 0.95rem; font-weight: 900; outline: none; position: relative; z-index: 2; cursor: pointer; }
+.table-container { width: 100%; overflow-x: auto; margin-top: 10px; }
+table { width: 100%; border-collapse: collapse; background: #000; min-width: 1000px; }
+th, td { border: 1px solid #222; padding: 8px 4px; text-align: center; font-size: 0.85rem; position: relative; }
+th { background: #000; color: #ffe800; text-transform: uppercase; font-size: 0.75rem; }
+.date-col { text-align: left; padding-left: 10px; color: white; }
 
-/* KOLORY ZADAŃ */
-.task-social { background-color: #007bff !important; color: white !important; }
-.task-klucze { background-color: #fd7e14 !important; color: white !important; }
+.cell-data { width: 100%; background: transparent; border: none; color: white; text-align: center; font-weight: bold; outline: none; cursor: pointer; position: relative; z-index: 2; }
+
+/* KOLORY ZADAŃ W TABELI */
+.task-social { background-color: #007bff !important; }
+.task-klucze { background-color: #fd7e14 !important; }
 .task-dostawa { background-color: #ffe800 !important; color: black !important; }
+.task-dostawa .cell-data { color: black !important; }
 
-/* GENERATOR QR */
-.qr-wrapper { max-width: 900px; margin: 40px auto; padding: 0 20px; text-align: center; }
-.qr-pill-box { background: #161616; border: 1px solid #333; padding: 30px; border-radius: 20px; margin-bottom: 30px; overflow-x: auto; }
-.json-text { font-family: 'Courier New', monospace; font-size: 0.95rem; color: #aaa; white-space: nowrap; display: flex; align-items: center; justify-content: center; gap: 5px; }
-.qr-input-pill { background: #000; border: 2px solid #ffe800; color: #ffe800; padding: 8px 15px; border-radius: 25px; font-weight: 900; font-size: 1.1rem; text-align: center; outline: none; }
-.copy-btn-large { background: #ffe800; color: #000; border: none; padding: 20px 60px; border-radius: 50px; font-size: 1.3rem; font-weight: 900; cursor: pointer; transition: 0.3s; text-transform: uppercase; }
-.copy-btn-large:disabled { background: #444; color: #888; cursor: not-allowed; }
+/* CELOWNIK */
+#tableBody tr:hover { background: rgba(255, 232, 0, 0.05); }
+.highlight-col::after { content: ''; position: absolute; inset: 0; background: rgba(255, 232, 0, 0.1); pointer-events: none; z-index: 1; }
 
-/* HISTORIA QR */
-.history-table-container { background: #111; border-radius: 15px; border: 1px solid #222; margin-top: 50px; text-align: left; overflow: hidden; }
-.history-header { background: #1a1a1a; padding: 15px; display: grid; grid-template-columns: 3fr 1fr 0.5fr; border-bottom: 2px solid #ffe800; font-weight: bold; color: #777; font-size: 0.75rem; }
-.history-row { display: grid; grid-template-columns: 3fr 1fr 0.5fr; padding: 15px; border-bottom: 1px solid #222; align-items: center; }
-.h-val-code { color: #ffe800; font-family: monospace; font-size: 0.8rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.h-val-time { color: #555; text-align: center; font-size: 0.9rem; }
-.h-val-action button { background: transparent; color: #ff4444; border: 1px solid #ff4444; padding: 4px 8px; border-radius: 4px; cursor: pointer; font-size: 0.7rem; }
+/* GENERATOR QR (ZGODNIE Z IMAGE_7845C4) */
+.qr-wrapper { max-width: 850px; margin: 50px auto; text-align: center; }
+.qr-pill-box { background: #141414; border: 1px solid #333; padding: 40px 20px; border-radius: 15px; margin-bottom: 30px; }
+.json-text { font-family: 'Courier New', monospace; color: #888; display: flex; align-items: center; justify-content: center; gap: 8px; flex-wrap: nowrap; overflow-x: auto; }
+.qr-input-pill { background: #000; border: 1px solid #ffe800; color: #ffe800; padding: 6px 15px; border-radius: 20px; font-weight: bold; font-size: 1rem; text-align: center; outline: none; }
+.copy-btn-large { background: #ffe800; color: #000; border: none; padding: 18px 50px; border-radius: 40px; font-size: 1.2rem; font-weight: 900; cursor: pointer; text-transform: uppercase; transition: 0.2s; }
+.copy-btn-large:disabled { background: #444; color: #888; }
+
+.history-table-container { background: #111; border-radius: 10px; border: 1px solid #222; margin-top: 50px; overflow: hidden; }
+.history-header { background: #1a1a1a; padding: 12px 20px; display: grid; grid-template-columns: 3fr 1fr 1fr; border-bottom: 2px solid #ffe800; color: #666; font-size: 0.75rem; font-weight: bold; }
+.history-row { display: grid; grid-template-columns: 3fr 1fr 1fr; padding: 12px 20px; border-bottom: 1px solid #222; align-items: center; text-align: left; }
+.h-val-code { color: #ffe800; font-family: monospace; font-size: 0.8rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.h-val-time { color: #555; text-align: center; }
+.h-val-action { text-align: right; }
+.h-val-action button { background: none; border: none; color: #ff4444; cursor: pointer; font-size: 0.7rem; font-weight: bold; }

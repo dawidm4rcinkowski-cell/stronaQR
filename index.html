@@ -2,79 +2,59 @@
 <html lang="pl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Media Expert - Panel Główny</title>
     <link rel="stylesheet" href="main.css">
 </head>
 <body>
     <header>
-        <div class="menu-btn" onclick="toggleMenu()">
-            <div></div><div></div><div></div>
-        </div>
+        <div class="menu-btn" onclick="toggleMenu()"><div></div><div></div><div></div></div>
         <div class="logo">MEDIA <span>EXPERT</span></div>
     </header>
-
     <div class="overlay" id="overlay" onclick="toggleMenu()"></div>
-
     <nav class="sidebar" id="sidebar">
-        <div class="sidebar-header">MENU</div>
         <a href="index.html" class="sidebar-link">STRONA GŁÓWNA</a>
         <a href="plan.html" class="sidebar-link">PLAN PRACY</a>
         <a href="qr.html" class="sidebar-link">KOD QR</a>
     </nav>
 
     <main class="main-dashboard">
-        <div class="welcome-section" style="text-align: center;">
-            <div class="flip-clock">
-                <div class="flip-unit" id="hours">00</div>
-                <div class="flip-unit" id="minutes">00</div>
-                <div class="flip-unit" id="seconds">00</div>
-            </div>
+        <div class="flip-clock">
+            <div class="flip-unit" id="hours">00</div>
+            <div class="flip-unit" id="minutes">00</div>
+            <div class="flip-unit" id="seconds">00</div>
         </div>
 
         <div class="dashboard-grid">
             <a href="plan.html" class="dash-card">
                 <div class="icon-circle">📅</div>
-                <div class="card-info">
-                    <h3>Plan Pracy</h3>
-                    <p>Sprawdź grafik i zadania</p>
-                </div>
+                <div class="card-info"><h3>Plan Pracy</h3><p>Sprawdź grafik</p></div>
             </a>
             <a href="qr.html" class="dash-card">
                 <div class="icon-circle">🖼️</div>
-                <div class="card-info">
-                    <h3>Twój Kod QR</h3>
-                    <p>Szybki dostęp do identyfikacji</p>
-                </div>
+                <div class="card-info"><h3>Twój Kod QR</h3><p>Szybki dostęp</p></div>
             </a>
             <div class="dash-card">
                 <div class="icon-circle">🕒</div>
-                <div class="card-info">
-                    <h3>Twoja zmiana</h3>
-                    <p id="nextShiftInfo">10:00 - 18:00</p>
-                </div>
+                <div class="card-info"><h3>Twoja zmiana</h3><p>10:00 - 18:00</p></div>
             </div>
         </div>
 
-        <section class="team-section" style="background: #111; padding: 20px; border-radius: 15px; border: 1px solid #222;">
-            <h2 style="color: #ffe800; font-size: 1.2rem; margin-bottom: 20px; text-transform: uppercase;">Nasza EXPERTOWA Ekipa</h2>
+        <div class="team-container">
+            <h2 class="team-title">Nasza EXPERTOWA Ekipa</h2>
             <div class="team-list">
-                <div class="team-item"><i>👤</i> <b>Paweł</b> - KE / KSS</div>
-                <div class="team-item"><i>👤</i> <b>Michał</b> - KE / KSS</div>
-                <div class="team-item"><i>👤</i> <b>Natalia</b> - POK</div>
-                <div class="team-item"><i>👤</i> <b>Magda</b> - POK</div>
-                <div class="team-item"><i>👤</i> <b>Jakub</b> - IT</div>
-                <div class="team-item"><i>👤</i> <b>Adrian</b> - IT</div>
-                <div class="team-item"><i>👤</i> <b>Dawid</b> - IT</div>
-                <div class="team-item"><i>👤</i> <b>Darek</b> - IT</div>
-                <div class="team-item"><i>👤</i> <b>Łukasz</b> - AGD</div>
-                <div class="team-item"><i>👤</i> <b>Ilona</b> - AGD</div>
-                <div class="team-item"><i>👤</i> <b>Ariel</b> - RTV</div>
+                <div class="team-item"><i>👤</i> Paweł - KE / KSS</div>
+                <div class="team-item"><i>👤</i> Michał - KE / KSS</div>
+                <div class="team-item"><i>👤</i> Natalia - POK</div>
+                <div class="team-item"><i>👤</i> Magda - POK</div>
+                <div class="team-item"><i>👤</i> Jakub - IT</div>
+                <div class="team-item"><i>👤</i> Adrian - IT</div>
+                <div class="team-item"><i>👤</i> Dawid - IT</div>
+                <div class="team-item"><i>👤</i> Darek - IT</div>
+                <div class="team-item"><i>👤</i> Łukasz - AGD</div>
+                <div class="team-item"><i>👤</i> Ilona - AGD</div>
+                <div class="team-item"><i>👤</i> Ariel - RTV</div>
             </div>
-        </section>
+        </div>
     </main>
-
     <script src="java.js"></script>
-    <script>window.onload = () => { startClock(); };</script>
 </body>
 </html>

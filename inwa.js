@@ -1,111 +1,99 @@
-// Baza danych inwentur (możesz tu dopisywać kolejne pozycje)
 const inwaData = [
-    { id: 1, name: "Myszki gamingowe", freq: "week" },
-    { id: 2, name: "Słuchawki Truewireless", freq: "week" },
-    { id: 3, name: "Smartfony", freq: "week" },
-    { id: 4, name: "Słuchawki nauszne", freq: "2month" },
-    { id: 5, name: "Konsole", freq: "2month" },
-    { id: 6, name: "Android TV", freq: "2month" },
-    { id: 7, name: "Tusze", freq: "month" },
-    { id: 8, name: "Papier", freq: "month" },
-    { id: 9, name: "Akcesoria do konsol", freq: "month" },
-    { id: 10, name: "Akcesoria do golarek", freq: "month" }
+    // DZIAŁ IT
+    { id: 1, name: "Myszki gamingowe", freq: "week", dept: "it" },
+    { id: 2, name: "Słuchawki Truewireless", freq: "week", dept: "it" },
+    { id: 3, name: "Smartfony", freq: "week", dept: "it" },
+    { id: 4, name: "Słuchawki nauszne", freq: "2month", dept: "it" },
+    { id: 5, name: "Tusze i Papier", freq: "month", dept: "it" },
+    // DZIAŁ RTV
+    { id: 6, name: "Telewizory powyżej 55", freq: "week", dept: "rtv" },
+    { id: 7, name: "Soundbary", freq: "2month", dept: "rtv" },
+    { id: 8, name: "Konsole i Gry", freq: "2month", dept: "rtv" },
+    { id: 9, name: "Akcesoria RTV", freq: "month", dept: "rtv" },
+    // DZIAŁ AGD
+    { id: 10, name: "Ekspresy do kawy", freq: "week", dept: "agd" },
+    { id: 11, name: "Szczoteczki elektryczne", freq: "week", dept: "agd" },
+    { id: 12, name: "Golarki i Trymery", freq: "2month", dept: "agd" },
+    { id: 13, name: "Odkurzacze pionowe", freq: "month", dept: "agd" }
 ];
 
-let currentFilter = 'all';
+let currentDept = 'it';
 
-// Funkcja obsługi menu bocznego
 function toggleMenu() {
-    const sidebar = document.getElementById('sidebar');
-    const overlay = document.getElementById('overlay');
-    sidebar.classList.toggle('active');
-    overlay.classList.toggle('active');
+    document.getElementById('sidebar').classList.toggle('active');
+    document.getElementById('overlay').classList.toggle('active');
 }
 
-// Obsługa filtrów (Tydzień, Miesiąc itd.)
-function filterInwa(filter, btn) {
+function filterDept(dept, btn) {
     document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
-    currentFilter = filter;
-    renderList(filter);
+    currentDept = dept;
+    renderList();
 }
 
-// Funkcja zmiany miesiąca (Archiwum)
 function changeMonth() {
-    const val = document.getElementById('monthSelect').value;
-    console.log("Wybrano miesiąc archiwalny: " + val);
-    // Tutaj w przyszłości dodamy ładowanie danych historycznych
-    renderList(currentFilter); 
+    renderList(); // W przyszłości tu dojdzie logika podmiany danych
 }
 
-// Główna funkcja generująca listę kart
-function renderList(filter = 'all') {
+function renderList() {
     const container = document.getElementById('inwaList');
     if (!container) return;
     container.innerHTML = '';
 
-    const filtered = inwaData.filter(item => filter === 'all' || item.freq === filter);
+    const timeFrames = [
+        { key: 'week', label: 'Inwentury Cotygodniowe' },
+        { key: '2month', label: 'Dwa razy w miesiącu' },
+        { key: 'month', label: 'Raz w miesiącu' }
+    ];
 
-    filtered.forEach(item => {
-        const saved = JSON.parse(localStorage.getItem(`inwa_v2_${item.id}`)) || { status: 'none', time: '' };
+    timeFrames.forEach(frame => {
+        const filteredItems = inwaData.filter(item => item.dept === currentDept && item.freq === frame.key);
         
-        const card = document.createElement('div');
-        card.className = `inwa-card ${saved.status === 'pending' ? 'pending' : ''}`;
+        if (filteredItems.length > 0) {
+            const header = document.createElement('div');
+            header.className = 'time-group-header';
+            header.innerText = frame.label;
+            container.appendChild(header);
 
-        // Mapowanie nazw częstotliwości na ładne etykiety
-        let freqLabel = item.freq.toUpperCase();
-        if(item.freq === '2month') freqLabel = "DWA RAZY W MIESIĄCU";
-        if(item.freq === 'week') freqLabel = "RAZ W TYGODNIU";
-        if(item.freq === 'month') freqLabel = "RAZ W MIESIĄCU";
+            const grid = document.createElement('div');
+            grid.className = 'inwa-grid';
 
-        card.innerHTML = `
-            <div class="inwa-info">
-                <h3>${item.name}</h3>
-                <p>${freqLabel} ${saved.time ? '| ' + saved.time : ''}</p>
-            </div>
-            <button class="done-btn" onclick="submitInwa(${item.id})">
-                ${saved.status === 'pending' ? 'OCZEKUJE NA ZATWIERDZENIE (KLIKNIJ ABY COFNĄĆ)' : 'WYKONAŁEM'}
-            </button>
-        `;
-        container.appendChild(card);
+            filteredItems.forEach(item => {
+                const saved = JSON.parse(localStorage.getItem(`inwa_v3_${item.id}`)) || { status: 'none', time: '' };
+                const card = document.createElement('div');
+                card.className = `inwa-card ${saved.status === 'pending' ? 'pending' : ''}`;
+                card.innerHTML = `
+                    <div class="inwa-info">
+                        <h3>${item.name}</h3>
+                        <p>${saved.time ? 'WYKONANO: ' + saved.time : 'STATUS: DO ZROBIENIA'}</p>
+                    </div>
+                    <button class="done-btn" onclick="submitInwa(${item.id})">
+                        ${saved.status === 'pending' ? 'OCZEKUJE NA ZATWIERDZENIE (COFNIJ)' : 'WYKONAŁEM'}
+                    </button>
+                `;
+                grid.appendChild(card);
+            });
+            container.appendChild(grid);
+        }
     });
 }
 
-// Funkcja obsługująca przycisk akcji
 function submitInwa(id) {
-    const saved = JSON.parse(localStorage.getItem(`inwa_v2_${id}`)) || { status: 'none', time: '' };
+    const key = `inwa_v3_${id}`;
+    const saved = JSON.parse(localStorage.getItem(key)) || { status: 'none', time: '' };
     
-    // LOGIKA COFANIA: Jeśli status to "pending", drugie kliknięcie resetuje kartę
     if (saved.status === 'pending') {
-        const confirmReset = confirm("Czy chcesz cofnąć zgłoszenie do zatwierdzenia?");
-        if (confirmReset) {
-            localStorage.removeItem(`inwa_v2_${id}`);
-            renderList(currentFilter);
+        if (confirm("Czy chcesz cofnąć zgłoszenie inwentury?")) {
+            localStorage.removeItem(key);
+            renderList();
         }
         return;
     }
 
-    // LOGIKA ZATWIERDZANIA: Pierwsze kliknięcie ustawia status na "pending"
     const now = new Date();
-    const timeStr = now.toLocaleDateString('pl-PL') + ' ' + now.toLocaleTimeString('pl-PL', {
-        hour: '2-digit', 
-        minute: '2-digit'
-    });
-
-    const newData = { 
-        status: 'pending', 
-        time: timeStr 
-    };
-
-    localStorage.setItem(`inwa_v2_${id}`, JSON.stringify(newData));
-    
-    // Powiadomienie w konsoli (pod przyszły system dla Kierownika)
-    console.log(`Inwentura ID:${id} wysłana do bazy. Czeka na KSS.`);
-    
-    renderList(currentFilter);
+    const timeStr = now.toLocaleDateString('pl-PL') + ' ' + now.toLocaleTimeString('pl-PL', {hour: '2-digit', minute:'2-digit'});
+    localStorage.setItem(key, JSON.stringify({ status: 'pending', time: timeStr }));
+    renderList();
 }
 
-// Uruchomienie listy przy starcie strony
-window.onload = () => {
-    renderList('all');
-};
+window.onload = () => renderList();

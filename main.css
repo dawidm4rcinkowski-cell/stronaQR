@@ -28,66 +28,51 @@ header { background-color: #ffe800; height: 70px; display: flex; align-items: ce
 .flip-sep { font-size: 2rem; color: #ffe800; font-weight: bold; animation: pulse 1s infinite; }
 @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.2; } }
 
-/* KARTY DASHBOARDU */
-.dashboard-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px; margin-bottom: 30px; }
-.dash-card { background: #161616; border: 1px solid #222; border-radius: 12px; padding: 20px; display: flex; align-items: center; gap: 15px; text-decoration: none; color: white; transition: 0.3s; }
-.dash-card:hover { border-color: #ffe800; background: #1a1a1a; transform: translateY(-3px); }
-.icon-circle { width: 50px; height: 50px; background: #222; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1.8rem; }
-.card-info h3 { color: #ffe800; font-size: 1.1rem; margin-bottom: 2px; }
-.card-info p { color: #777; font-size: 0.8rem; }
+/* ELEMENTY NAD KALENDARZEM (NAPRAWIONE) */
+.selector-bar { margin: 20px 0; text-align: center; }
+#monthSelect { background: #000; color: #ffe800; border: 2px solid #ffe800; padding: 10px 30px; border-radius: 25px; font-weight: 900; cursor: pointer; font-size: 1rem; text-transform: uppercase; }
 
-/* EKIPA */
-.team-section { background: #111; border-radius: 15px; padding: 20px; border: 1px solid #222; }
-.section-title { color: #ffe800; text-align: center; margin-bottom: 20px; font-size: 1.3rem; text-transform: uppercase; }
-.team-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 12px; }
-.team-card { background: #000; border: 1px solid #222; padding: 12px; border-radius: 10px; display: flex; align-items: center; gap: 12px; }
-.avatar-circle { width: 40px; height: 40px; background: #1a1a1a; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #444; border: 1px solid #333; }
-.member-name { font-weight: 900; font-size: 0.95rem; }
-.member-dept { color: #ffe800; font-size: 0.65rem; font-weight: bold; }
+.legend-container { background: rgba(255,255,255,0.03); padding: 15px; border-radius: 10px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border: 1px solid #222; }
+.legend-group { display: flex; gap: 20px; }
+.legend-item { display: flex; align-items: center; gap: 8px; font-size: 0.8rem; font-weight: bold; letter-spacing: 1px; }
+.dot { width: 16px; height: 16px; border-radius: 4px; }
+.legend-hint { color: #666; font-size: 0.75rem; font-weight: bold; }
 
-/* TABELA - PLAN PRACY */
-.table-container { width: 100%; overflow-x: hidden; background: #000; border: 1px solid #222; border-radius: 8px; }
-table { width: 100%; border-collapse: collapse; table-layout: fixed; }
-th, td { border: 1px solid #222; padding: 8px 2px; text-align: center; position: relative; }
+/* TABELA */
+.table-container { width: 100%; overflow-x: auto; background: #000; border: 1px solid #222; border-radius: 8px; }
+table { width: 100%; border-collapse: collapse; table-layout: fixed; min-width: 1000px; }
+th, td { border: 1px solid #222; padding: 10px 2px; text-align: center; position: relative; }
 
-/* CELOWNIK: WIERSZ */
-/* Używamy półprzezroczystego tła na hover wiersza, by nie zakryć kolorowych zadań */
-#tableBody tr:hover td { 
-    background-color: rgba(255, 232, 0, 0.08) !important; 
-}
+/* PODŚWIETLANIE CELOWNIKA (NAPRAWIONE - NIE ZAKRYWA KOLORÓW) */
+/* Efekt najechania na wiersz */
+#tableBody tr:hover { background-color: rgba(255, 232, 0, 0.07) !important; }
 
-/* CELOWNIK: KOLUMNA (Nakładka) */
-.highlight-col::after {
+/* Efekt najechania na kolumnę (celownik) */
+.highlight-col::before {
     content: '';
     position: absolute;
-    inset: 0;
-    background-color: rgba(255, 232, 0, 0.12);
+    top: 0; left: 0; right: 0; bottom: 0;
+    background-color: rgba(255, 232, 0, 0.1);
     pointer-events: none;
     z-index: 1;
 }
 
 .sep-left { border-left: 2px solid #ffe800 !important; }
-.dept-header { background: #1a1a1a; color: #ffe800; font-size: 0.65rem; font-weight: 900; }
-.name-header { background: #ffe800; color: #000; font-size: 0.75rem; font-weight: 900; padding: 12px 0; }
-.date-col { background: #0a0a0a; color: #ffe800; font-size: 0.8rem; font-weight: bold; width: 110px; }
+.dept-header { background: #1a1a1a; color: #ffe800; font-size: 0.7rem; font-weight: 900; padding: 5px; }
+.name-header { background: #ffe800; color: #000; font-size: 0.8rem; font-weight: 900; padding: 15px 0; }
+.date-col { background: #0a0a0a; color: #ffe800; font-size: 0.85rem; font-weight: bold; width: 120px; }
 
-.cell-data { width: 100%; background: transparent; border: none; color: inherit !important; text-align: center; font-size: 0.9rem; font-weight: 900; outline: none; cursor: pointer; position: relative; z-index: 2; }
+.cell-data { width: 100%; background: transparent; border: none; color: inherit; text-align: center; font-size: 0.95rem; font-weight: 900; outline: none; cursor: pointer; position: relative; z-index: 2; }
 
-/* ZADANIA */
+/* KOLORY ZADAŃ - UŻYWAMY !IMPORTANT ABY ZAWSZE BYŁY NAD TŁEM WIERSZA */
 .task-social { background-color: #007bff !important; color: #fff !important; }
 .task-klucze { background-color: #fd7e14 !important; color: #fff !important; }
 .task-dostawa { background-color: #ffe800 !important; color: #000 !important; }
 
-/* STATUSY DNI */
 .today-row .date-col { background-color: #ffe800 !important; color: #000 !important; }
-.is-weekend { background: #121212; color: #555; }
+.is-weekend { background: #121212; color: #666; }
 .is-sunday { background: #1a0a0a !important; }
 .is-sunday .date-col { color: #ff4444 !important; }
 
-.total-row td { background: #000 !important; border-top: 3px solid #ffe800 !important; padding: 12px 0; }
-.total-cell { color: #ffe800 !important; font-size: 1rem !important; }
-
-@media (max-width: 1100px) {
-    .date-col { width: 80px; font-size: 0.7rem; }
-    .cell-data { font-size: 0.8rem; }
-}
+.total-row td { background: #000 !important; border-top: 3px solid #ffe800 !important; padding: 15px 0; }
+.total-cell { color: #ffe800 !important; font-size: 1.1rem !important; }

@@ -3,6 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Media Expert - Plan Pracy</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="plan.css">
 </head>
 <body>
@@ -10,28 +12,63 @@
         <div class="menu-btn" onclick="toggleMenu()">☰</div>
         <div class="logo">MEDIA <span>EXPERT</span></div>
     </header>
-    <div class="sidebar" id="sidebar">
+
+    <div class="overlay" id="overlay" onclick="toggleMenu()"></div>
+
+    <nav class="sidebar" id="sidebar">
+        <div class="sidebar-header">NAWIGACJA</div>
         <a href="index.html" class="sidebar-link">🏠 STRONA GŁÓWNA</a>
         <a href="plan.html" class="sidebar-link">📅 PLAN PRACY</a>
         <a href="qr.html" class="sidebar-link">🖼️ KOD QR</a>
-    </div>
+    </nav>
+
     <main>
-        <select id="monthSelect" onchange="generateTable()"></select>
-        <div class="legend">
-            <div class="l-item"><div class="dot socjal"></div> SOCJAL</div>
-            <div class="l-item"><div class="dot klucze"></div> KLUCZE</div>
-            <div class="l-item"><div class="dot dostawa"></div> DOSTAWA</div>
+        <div class="month-selector-wrapper">
+            <div id="monthSelector" class="month-tabs"></div>
         </div>
-        <div class="table-container">
+
+        <div class="legend-bar">
+            <div class="leg-item"><span class="badge socjal-dot"></span> SOCJAL</div>
+            <div class="leg-item"><span class="badge klucze-dot"></span> KLUCZE</div>
+            <div class="leg-item"><span class="badge dostawa-dot"></span> DOSTAWA</div>
+        </div>
+
+        <div class="table-scroll-container">
             <table id="scheduleTable">
                 <thead>
-                    <tr><th rowspan="2">DATA</th><th>KE</th><th>KSS</th><th colspan="2">POK</th><th colspan="4">IT</th><th colspan="2">AGD</th><th>RTV</th></tr>
-                    <tr><th>PAWEŁ</th><th>MICHAŁ</th><th>NATALIA</th><th>MAGDA</th><th>JAKUB</th><th>ADRIAN</th><th>DAWID</th><th>DAREK</th><th>ŁUKASZ</th><th>ILONA</th><th>ARIEL</th></tr>
+                    <tr class="main-header">
+                        <th rowspan="2" class="sticky-col">DATA</th>
+                        <th class="dept-title">KE</th><th class="dept-title">KSS</th>
+                        <th colspan="2" class="dept-title">POK</th>
+                        <th colspan="4" class="dept-title">IT</th>
+                        <th colspan="2" class="dept-title">AGD</th>
+                        <th class="dept-title">RTV</th>
+                    </tr>
+                    <tr class="names-header">
+                        </tr>
                 </thead>
                 <tbody id="tableBody"></tbody>
             </table>
         </div>
     </main>
+
+    <div id="editModal" class="modal">
+        <div class="modal-content">
+            <h3 id="modalTitle">Edytuj Zmianę</h3>
+            <input type="text" id="shiftInput" placeholder="np. 10-18">
+            <div class="type-selector">
+                <button onclick="setShiftType('socjal')">SOCJAL</button>
+                <button onclick="setShiftType('klucze')">KLUCZE</button>
+                <button onclick="setShiftType('dostawa')">DOSTAWA</button>
+                <button onclick="setShiftType('')">NORMALNA</button>
+            </div>
+            <div class="modal-actions">
+                <button onclick="closeModal()" class="cancel-btn">ANULUJ</button>
+                <button onclick="saveShift()" class="save-btn">ZAPISZ</button>
+            </div>
+        </div>
+    </div>
+
     <script src="plan.js"></script>
 </body>
 </html>

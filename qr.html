@@ -23,30 +23,28 @@
     </nav>
 
     <main>
-        <div class="qr-container">
-            <h1 class="page-title">GENERATOR KODU <span>QR</span></h1>
+        <div class="qr-card">
+            <h1 class="qr-title">GENERATOR KODU <span>QR</span></h1>
             
-            <div class="input-box">
-                <div class="json-preview">
-                    { "type" : "npws_order_received_qr_code" , "order_number" : "
-                    <input type="number" id="orderNum" placeholder="123456" oninput="updatePreview()"> 
-                    " , "pin" : "
-                    <input type="number" id="pinNum" placeholder="123" oninput="updatePreview()"> 
-                    " }
-                </div>
+            <div class="json-box">
+                <span class="json-syntax">{ "type" : "npws_order_received_qr_code" , "order_number" : "</span>
+                <input type="number" id="orderNum" class="qr-input" placeholder="123456" oninput="updatePreview()"> 
+                <span class="json-syntax">" , "pin" : "</span>
+                <input type="number" id="pinNum" class="qr-input pin" placeholder="123" oninput="updatePreview()"> 
+                <span class="json-syntax">" }</span>
             </div>
 
-            <button id="copyBtn" class="main-btn" onclick="copyCode()">KOPIUJ KOD</button>
+            <button id="copyBtn" class="copy-action-btn" onclick="copyCode()">KOPIUJ KOD</button>
         </div>
 
-        <div class="history-section">
-            <h2 class="section-title">HISTORIA GENEROWANIA</h2>
-            <div class="history-table-header">
-                <span>KOD / TREŚĆ</span>
-                <span>GODZINA</span>
-                <span>AKCJA</span>
+        <div class="history-wrapper">
+            <h2 class="history-title">OSTATNIO WYGENEROWANE</h2>
+            <div class="history-header">
+                <span class="col-main">PEŁNY KOD JSON</span>
+                <span class="col-time">GODZINA</span>
+                <span class="col-action">AKCJA</span>
             </div>
-            <div id="historyList" class="history-list">
+            <div id="historyList" class="history-items">
                 </div>
         </div>
     </main>

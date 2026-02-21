@@ -15,6 +15,7 @@
     <div class="overlay" id="overlay" onclick="toggleMenu()"></div>
 
     <nav class="sidebar" id="sidebar">
+        <div class="sidebar-header">MENU</div>
         <a href="index.html" class="sidebar-link">🏠 STRONA GŁÓWNA</a>
         <a href="plan.html" class="sidebar-link">📅 PLAN PRACY</a>
         <a href="qr.html" class="sidebar-link">🖼️ KOD QR</a>
@@ -23,18 +24,24 @@
     <main>
         <div class="clock-container">
             <div class="flip-card" id="hours-card">
-                <div class="top" id="hours">00</div>
-                <div class="bottom">00</div>
+                <div class="flip-inner">
+                    <div class="flip-front" id="hours">00</div>
+                    <div class="flip-back">00</div>
+                </div>
             </div>
-            <div class="clock-separator">:</div>
+            <div class="clock-sep">:</div>
             <div class="flip-card" id="minutes-card">
-                <div class="top" id="minutes">00</div>
-                <div class="bottom">00</div>
+                <div class="flip-inner">
+                    <div class="flip-front" id="minutes">00</div>
+                    <div class="flip-back">00</div>
+                </div>
             </div>
-            <div class="clock-separator">:</div>
+            <div class="clock-sep">:</div>
             <div class="flip-card" id="seconds-card">
-                <div class="top" id="seconds">00</div>
-                <div class="bottom">00</div>
+                <div class="flip-inner">
+                    <div class="flip-front" id="seconds">00</div>
+                    <div class="flip-back">00</div>
+                </div>
             </div>
         </div>
 
@@ -43,39 +50,39 @@
                 <div class="icon-box">📅</div>
                 <div class="card-info">
                     <h3>Plan Pracy</h3>
-                    <p>Sprawdź grafik i zadania</p>
+                    <p>Sprawdź grafik</p>
                 </div>
             </a>
             <a href="qr.html" class="dash-card">
                 <div class="icon-box">🖼️</div>
                 <div class="card-info">
                     <h3>Twój Kod QR</h3>
-                    <p>Szybki dostęp do identyfikacji</p>
+                    <p>Szybki generator</p>
                 </div>
             </a>
-            <div class="dash-card" id="shift-card">
+            <div class="dash-card">
                 <div class="icon-box">🕒</div>
                 <div class="card-info">
-                    <h3>Twoja zmiana</h3>
-                    <p id="shift-time">10:00 - 18:00</p>
+                    <h3>Zmiana</h3>
+                    <p>10:00 - 18:00</p>
                 </div>
             </div>
         </div>
 
         <div class="team-wrapper">
-            <h2 class="team-title">NASZA <span style="color:#ffe800">EXPERTOWA</span> EKIPA</h2>
-            <div class="team-container">
-                <div class="member-card"><i>👤</i><div class="member-info"><strong>Paweł</strong><span>KE / KSS</span></div></div>
-                <div class="member-card"><i>👤</i><div class="member-info"><strong>Michał</strong><span>KE / KSS</span></div></div>
-                <div class="member-card"><i>👤</i><div class="member-info"><strong>Natalia</strong><span>POK</span></div></div>
-                <div class="member-card"><i>👤</i><div class="member-info"><strong>Magda</strong><span>POK</span></div></div>
-                <div class="member-card"><i>👤</i><div class="member-info"><strong>Jakub</strong><span>IT</span></div></div>
-                <div class="member-card"><i>👤</i><div class="member-info"><strong>Adrian</strong><span>IT</span></div></div>
-                <div class="member-card"><i>👤</i><div class="member-info"><strong>Dawid</strong><span>IT</span></div></div>
-                <div class="member-card"><i>👤</i><div class="member-info"><strong>Darek</strong><span>IT</span></div></div>
-                <div class="member-card"><i>👤</i><div class="member-info"><strong>Łukasz</strong><span>AGD</span></div></div>
-                <div class="member-card"><i>👤</i><div class="member-info"><strong>Ilona</strong><span>AGD</span></div></div>
-                <div class="member-card"><i>👤</i><div class="member-info"><strong>Ariel</strong><span>RTV</span></div></div>
+            <h2 class="team-title">NASZA <span style="color: #ffe800;">EXPERTOWA</span> EKIPA</h2>
+            <div class="team-grid">
+                <div class="member-card"><i>👤</i><div class="m-info"><strong>Paweł</strong><span>KE / KSS</span></div></div>
+                <div class="member-card"><i>👤</i><div class="m-info"><strong>Michał</strong><span>KE / KSS</span></div></div>
+                <div class="member-card"><i>👤</i><div class="m-info"><strong>Natalia</strong><span>POK</span></div></div>
+                <div class="member-card"><i>👤</i><div class="m-info"><strong>Magda</strong><span>POK</span></div></div>
+                <div class="member-card"><i>👤</i><div class="m-info"><strong>Jakub</strong><span>IT</span></div></div>
+                <div class="member-card"><i>👤</i><div class="m-info"><strong>Adrian</strong><span>IT</span></div></div>
+                <div class="member-card"><i>👤</i><div class="m-info"><strong>Dawid</strong><span>IT</span></div></div>
+                <div class="member-card"><i>👤</i><div class="m-info"><strong>Darek</strong><span>IT</span></div></div>
+                <div class="member-card"><i>👤</i><div class="m-info"><strong>Łukasz</strong><span>AGD</span></div></div>
+                <div class="member-card"><i>👤</i><div class="m-info"><strong>Ilona</strong><span>AGD</span></div></div>
+                <div class="member-card"><i>👤</i><div class="m-info"><strong>Ariel</strong><span>RTV</span></div></div>
             </div>
         </div>
     </main>

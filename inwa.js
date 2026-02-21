@@ -1,3 +1,4 @@
+// Baza danych inwentur (możesz tu dopisywać kolejne pozycje)
 const inwaData = [
     { id: 1, name: "Myszki gamingowe", freq: "week" },
     { id: 2, name: "Słuchawki Truewireless", freq: "week" },
@@ -13,11 +14,15 @@ const inwaData = [
 
 let currentFilter = 'all';
 
+// Funkcja obsługi menu bocznego
 function toggleMenu() {
-    document.getElementById('sidebar').classList.toggle('active');
-    document.getElementById('overlay').classList.toggle('active');
+    const sidebar = document.getElementById('sidebar');
+    const overlay = document.getElementById('overlay');
+    sidebar.classList.toggle('active');
+    overlay.classList.toggle('active');
 }
 
+// Obsługa filtrów (Tydzień, Miesiąc itd.)
 function filterInwa(filter, btn) {
     document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
@@ -25,6 +30,15 @@ function filterInwa(filter, btn) {
     renderList(filter);
 }
 
+// Funkcja zmiany miesiąca (Archiwum)
+function changeMonth() {
+    const val = document.getElementById('monthSelect').value;
+    console.log("Wybrano miesiąc archiwalny: " + val);
+    // Tutaj w przyszłości dodamy ładowanie danych historycznych
+    renderList(currentFilter); 
+}
+
+// Główna funkcja generująca listę kart
 function renderList(filter = 'all') {
     const container = document.getElementById('inwaList');
     if (!container) return;
@@ -38,37 +52,60 @@ function renderList(filter = 'all') {
         const card = document.createElement('div');
         card.className = `inwa-card ${saved.status === 'pending' ? 'pending' : ''}`;
 
+        // Mapowanie nazw częstotliwości na ładne etykiety
+        let freqLabel = item.freq.toUpperCase();
+        if(item.freq === '2month') freqLabel = "DWA RAZY W MIESIĄCU";
+        if(item.freq === 'week') freqLabel = "RAZ W TYGODNIU";
+        if(item.freq === 'month') freqLabel = "RAZ W MIESIĄCU";
+
         card.innerHTML = `
             <div class="inwa-info">
                 <h3>${item.name}</h3>
-                <p>${item.freq === '2month' ? 'DWA RAZY W MIESIĄCU' : item.freq.toUpperCase()} ${saved.time ? '| ' + saved.time : ''}</p>
+                <p>${freqLabel} ${saved.time ? '| ' + saved.time : ''}</p>
             </div>
             <button class="done-btn" onclick="submitInwa(${item.id})">
-                ${saved.status === 'pending' ? 'OCZEKUJE NA ZATWIERDZENIE' : 'WYKONAŁEM'}
+                ${saved.status === 'pending' ? 'OCZEKUJE NA ZATWIERDZENIE (KLIKNIJ ABY COFNĄĆ)' : 'WYKONAŁEM'}
             </button>
         `;
         container.appendChild(card);
     });
 }
 
+// Funkcja obsługująca przycisk akcji
 function submitInwa(id) {
     const saved = JSON.parse(localStorage.getItem(`inwa_v2_${id}`)) || { status: 'none', time: '' };
-    if (saved.status === 'pending') return;
+    
+    // LOGIKA COFANIA: Jeśli status to "pending", drugie kliknięcie resetuje kartę
+    if (saved.status === 'pending') {
+        const confirmReset = confirm("Czy chcesz cofnąć zgłoszenie do zatwierdzenia?");
+        if (confirmReset) {
+            localStorage.removeItem(`inwa_v2_${id}`);
+            renderList(currentFilter);
+        }
+        return;
+    }
 
+    // LOGIKA ZATWIERDZANIA: Pierwsze kliknięcie ustawia status na "pending"
     const now = new Date();
-    const timeStr = now.toLocaleDateString('pl-PL') + ' ' + now.toLocaleTimeString('pl-PL', {hour: '2-digit', minute:'2-digit'});
+    const timeStr = now.toLocaleDateString('pl-PL') + ' ' + now.toLocaleTimeString('pl-PL', {
+        hour: '2-digit', 
+        minute: '2-digit'
+    });
 
-    const newData = { status: 'pending', time: timeStr };
+    const newData = { 
+        status: 'pending', 
+        time: timeStr 
+    };
+
     localStorage.setItem(`inwa_v2_${id}`, JSON.stringify(newData));
+    
+    // Powiadomienie w konsoli (pod przyszły system dla Kierownika)
+    console.log(`Inwentura ID:${id} wysłana do bazy. Czeka na KSS.`);
     
     renderList(currentFilter);
 }
 
-function changeMonth() {
-    const val = document.getElementById('monthSelect').value;
-    alert("Przełączono na widok: " + val + ". (Logika archiwum zostanie podpięta pod bazę danych)");
-    // Tutaj w przyszłości dodamy pobieranie danych z konkretnego miesiąca z serwera
-}
-
-// Inicjalizacja
-window.onload = () => renderList('all');
+// Uruchomienie listy przy starcie strony
+window.onload = () => {
+    renderList('all');
+};

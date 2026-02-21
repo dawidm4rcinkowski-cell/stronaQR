@@ -18,58 +18,62 @@
 
     <nav class="sidebar" id="sidebar">
         <div class="sidebar-header">MENU</div>
-        <a href="index.html" class="sidebar-link"><i>🏠</i> STRONA GŁÓWNA</a>
-        <a href="plan.html" class="sidebar-link"><i>📅</i> PLAN PRACY</a>
-        <a href="qr.html" class="sidebar-link"><i>🖼️</i> KOD QR</a>
-        <a href="inwentura.html" class="sidebar-link"><i>📋</i> INWENTARYZACJA</a>
+        <a href="index.html" class="sidebar-link">STRONA GŁÓWNA</a>
+        <a href="plan.html" class="sidebar-link">PLAN PRACY</a>
+        <a href="qr.html" class="sidebar-link">KOD QR</a>
     </nav>
 
     <main class="main-dashboard">
-        <div class="selector-bar">
-            <select id="monthSelect" onchange="generateTable()"></select>
+        <div style="text-align: center; margin-bottom: 20px;">
+            <select id="monthSelect" onchange="generateTable()" style="background: #000; color: #ffe800; border: 2px solid #ffe800; padding: 10px 25px; border-radius: 20px; font-weight: bold; cursor: pointer;">
+                </select>
         </div>
 
         <div class="legend-container">
-            <div class="legend-group">
-                <div class="legend-item"><div class="dot task-social"></div> SOCJAL</div>
-                <div class="legend-item"><div class="dot task-klucze"></div> KLUCZE</div>
-                <div class="legend-item"><div class="dot task-dostawa"></div> DOSTAWA</div>
-            </div>
-            <div class="legend-hint">* KLIKNIJ W KOMÓRKĘ, ABY ZMIENIĆ ZADANIE</div>
+            <div class="legend-item"><div class="dot dot-socjal"></div> SOCJAL</div>
+            <div class="legend-item"><div class="dot dot-klucze"></div> KLUCZE</div>
+            <div class="legend-item"><div class="dot dot-dostawa"></div> DOSTAWA</div>
         </div>
 
         <div class="table-container">
             <table id="scheduleTable">
                 <thead>
                     <tr>
-                        <th rowspan="2" class="date-col">DATA</th>
-                        <th class="dept-header sep-left">KE</th>
-                        <th class="dept-header sep-left">KSS</th>
-                        <th colspan="2" class="dept-header sep-left">POK</th>
-                        <th colspan="4" class="dept-header sep-left">IT</th>
-                        <th colspan="2" class="dept-header sep-left">AGD</th>
-                        <th class="dept-header sep-left">RTV</th>
+                        <th rowspan="2" class="date-col" style="width: 140px;">DATA</th>
+                        <th colspan="1">KE</th>
+                        <th colspan="1">KSS</th>
+                        <th colspan="2">POK</th>
+                        <th colspan="4">IT</th>
+                        <th colspan="2">AGD</th>
+                        <th colspan="1">RTV</th>
                     </tr>
                     <tr>
-                        <th class="name-header sep-left">PAWEŁ</th>
-                        <th class="name-header sep-left">MICHAŁ</th>
-                        <th class="name-header sep-left">NATALIA</th>
-                        <th class="name-header">MAGDA</th>
-                        <th class="name-header sep-left">JAKUB</th>
-                        <th class="name-header">ADRIAN</th>
-                        <th class="name-header">DAWID</th>
-                        <th class="name-header">DAREK</th>
-                        <th class="name-header sep-left">ŁUKASZ</th>
-                        <th class="name-header">ILONA</th>
-                        <th class="name-header sep-left">ARIEL</th>
+                        <th>PAWEŁ</th>
+                        <th>MICHAŁ</th>
+                        <th>NATALIA</th>
+                        <th>MAGDA</th>
+                        <th>JAKUB</th>
+                        <th>ADRIAN</th>
+                        <th>DAWID</th>
+                        <th>DAREK</th>
+                        <th>ŁUKASZ</th>
+                        <th>ILONA</th>
+                        <th>ARIEL</th>
                     </tr>
                 </thead>
-                <tbody id="tableBody"></tbody>
+                <tbody id="tableBody">
+                    </tbody>
             </table>
         </div>
     </main>
 
     <script src="java.js"></script>
-    <script>window.onload = () => { initMonths(); generateTable(); };</script>
+    <script>
+        window.onload = () => { 
+            startClock(); 
+            if(typeof initMonths === 'function') initMonths(); 
+            if(typeof generateTable === 'function') generateTable(); 
+        };
+    </script>
 </body>
 </html>

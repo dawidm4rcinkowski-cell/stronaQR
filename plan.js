@@ -21,27 +21,37 @@ function toggleMenu() {
 }
 
 function initPlan() {
-    const tabs = document.getElementById('monthSelector');
+    const tabsContainer = document.getElementById('monthSelector');
     const now = new Date();
+    const currentYear = now.getFullYear();
+    const currentMonth = now.getMonth();
     
-    // Generuj 4 miesiące
-    for (let i = -1; i < 3; i++) {
-        const d = new Date(now.getFullYear(), now.getMonth() + i, 1);
-        const monthLabel = d.toLocaleDateString('pl-PL', { month: 'short', year: '2-digit' }).toUpperCase();
-        const value = `${d.getFullYear()}-${d.getMonth()}`;
+    // Generowanie wszystkich 12 miesięcy roku 2026
+    for (let m = 0; m < 12; m++) {
+        const d = new Date(currentYear, m, 1);
+        const monthLabel = d.toLocaleDateString('pl-PL', { month: 'long' }).toUpperCase();
+        const value = `${currentYear}-${m}`;
         
         const tab = document.createElement('div');
-        tab.className = `month-tab ${i === 0 ? 'active' : ''}`;
+        tab.className = `month-tab ${m === currentMonth ? 'active' : ''}`;
         tab.innerText = monthLabel;
+        
         tab.onclick = () => {
             document.querySelectorAll('.month-tab').forEach(t => t.classList.remove('active'));
             tab.classList.add('active');
             generateTable(value);
         };
-        tabs.appendChild(tab);
+        tabsContainer.appendChild(tab);
+
+        // Automatyczne przewinięcie do aktualnego miesiąca
+        if (m === currentMonth) {
+            setTimeout(() => {
+                tab.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+            }, 100);
+        }
     }
 
-    // Nagłówki imion z awatarami
+    // Nagłówki imion z awatarami w tabeli
     const nameRow = document.querySelector('.names-header');
     employees.forEach(emp => {
         const th = document.createElement('th');
@@ -52,7 +62,7 @@ function initPlan() {
         nameRow.appendChild(th);
     });
 
-    generateTable(`${now.getFullYear()}-${now.getMonth()}`);
+    generateTable(`${currentYear}-${currentMonth}`);
 }
 
 function generateTable(monthVal) {
@@ -97,8 +107,10 @@ function openEdit(id) {
 }
 
 function setShiftType(type) {
+    // Resetuj wizualnie przyciski w modalu
+    document.querySelectorAll('.type-selector button').forEach(btn => btn.style.borderColor = '#222');
     selectedShiftType = type;
-    // Wizualne podświetlenie wyboru można dodać tutaj
+    // Możesz dodać podświetlenie wybranego typu w modalu
 }
 
 function saveShift() {

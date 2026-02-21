@@ -1,3 +1,4 @@
+/* PODSTAWY */
 * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Arial', sans-serif; }
 body { background: #0a0a0a; color: white; overflow-x: hidden; }
 
@@ -18,57 +19,75 @@ header { background-color: #ffe800; height: 70px; display: flex; align-items: ce
 .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.85); display: none; z-index: 1500; backdrop-filter: blur(5px); }
 .overlay.active { display: block; }
 
-/* DASHBOARD */
+/* STRONA GŁÓWNA - UKŁAD KART (NAPRAWIONE) */
 .main-dashboard { padding: 15px; max-width: 1400px; margin: 0 auto; }
-.date-top-label { text-align: center; color: #888; font-size: 0.9rem; margin-bottom: 5px; font-weight: bold; }
+.welcome-section { text-align: center; margin-bottom: 20px; }
+.date-top-label { color: #888; font-size: 0.9rem; margin-bottom: 5px; font-weight: bold; text-transform: lowercase; }
 
-/* ZEGAR FLIP */
+.dashboard-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 15px; margin-bottom: 30px; }
+.dash-card { background: #161616; border: 1px solid #222; border-radius: 12px; padding: 20px; display: flex; align-items: center; gap: 15px; text-decoration: none; color: white; transition: 0.3s; }
+.dash-card:hover { border-color: #ffe800; background: #1a1a1a; transform: translateY(-3px); }
+.icon-circle { width: 50px; height: 50px; background: #222; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1.8rem; }
+.card-info h3 { color: #ffe800; font-size: 1.1rem; margin-bottom: 2px; }
+.card-info p { color: #777; font-size: 0.8rem; }
+
+/* EKIPA - SIATKA (NAPRAWIONE) */
+.team-section { background: #111; border-radius: 15px; padding: 20px; border: 1px solid #222; }
+.section-title { color: #ffe800; text-align: center; margin-bottom: 20px; font-size: 1.3rem; text-transform: uppercase; letter-spacing: 1px; }
+.team-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px; }
+.team-card { background: #000; border: 1px solid #222; padding: 15px; border-radius: 10px; display: flex; align-items: center; gap: 12px; }
+.avatar-circle { width: 40px; height: 40px; background: #1a1a1a; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #ffe800; border: 1px solid #333; }
+.member-info { display: flex; flex-direction: column; }
+.member-name { font-weight: 900; font-size: 1rem; }
+.member-dept { color: #ffe800; font-size: 0.7rem; font-weight: bold; text-transform: uppercase; }
+
+/* ZEGAR */
 .flip-clock { display: flex; justify-content: center; gap: 8px; align-items: center; margin-bottom: 30px; }
-.flip-unit { background: #1a1a1a; border-radius: 8px; width: 60px; height: 70px; display: flex; align-items: center; justify-content: center; font-size: 2.5rem; color: #ffe800; border: 1px solid #333; font-weight: 900; box-shadow: 0 8px 15px rgba(0,0,0,0.5); }
-.flip-sep { font-size: 2rem; color: #ffe800; font-weight: bold; animation: pulse 1s infinite; }
-@keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.2; } }
+.flip-unit { background: #1a1a1a; border-radius: 8px; width: 60px; height: 70px; display: flex; align-items: center; justify-content: center; font-size: 2.5rem; color: #ffe800; border: 1px solid #333; font-weight: 900; }
+.flip-sep { font-size: 2rem; color: #ffe800; font-weight: bold; }
 
-/* ELEMENTY NAD KALENDARZEM (NAPRAWIONE) */
+/* PLAN PRACY - ELEMENTY STERUJĄCE */
 .selector-bar { margin: 20px 0; text-align: center; }
-#monthSelect { background: #000; color: #ffe800; border: 2px solid #ffe800; padding: 10px 30px; border-radius: 25px; font-weight: 900; cursor: pointer; font-size: 1rem; text-transform: uppercase; }
+#monthSelect { background: #000; color: #ffe800; border: 2px solid #ffe800; padding: 10px 30px; border-radius: 25px; font-weight: 900; cursor: pointer; font-size: 1rem; }
 
 .legend-container { background: rgba(255,255,255,0.03); padding: 15px; border-radius: 10px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border: 1px solid #222; }
 .legend-group { display: flex; gap: 20px; }
-.legend-item { display: flex; align-items: center; gap: 8px; font-size: 0.8rem; font-weight: bold; letter-spacing: 1px; }
-.dot { width: 16px; height: 16px; border-radius: 4px; }
-.legend-hint { color: #666; font-size: 0.75rem; font-weight: bold; }
+.legend-item { display: flex; align-items: center; gap: 8px; font-size: 0.8rem; font-weight: bold; }
+.dot { width: 14px; height: 14px; border-radius: 3px; }
 
-/* TABELA */
+/* TABELA I CELOWNIK (NAPRAWIONE) */
 .table-container { width: 100%; overflow-x: auto; background: #000; border: 1px solid #222; border-radius: 8px; }
-table { width: 100%; border-collapse: collapse; table-layout: fixed; min-width: 1000px; }
+table { width: 100%; border-collapse: collapse; table-layout: fixed; min-width: 1100px; }
 th, td { border: 1px solid #222; padding: 10px 2px; text-align: center; position: relative; }
 
-/* PODŚWIETLANIE CELOWNIKA (NAPRAWIONE - NIE ZAKRYWA KOLORÓW) */
-/* Efekt najechania na wiersz */
-#tableBody tr:hover { background-color: rgba(255, 232, 0, 0.07) !important; }
+/* Półprzezroczyste podświetlenie wiersza (nie zakrywa koloru zadania) */
+#tableBody tr:hover { 
+    background-color: rgba(255, 232, 0, 0.08) !important; 
+}
 
-/* Efekt najechania na kolumnę (celownik) */
-.highlight-col::before {
+/* Półprzezroczyste podświetlenie kolumny (celownik) */
+.highlight-col::after {
     content: '';
     position: absolute;
-    top: 0; left: 0; right: 0; bottom: 0;
+    inset: 0;
     background-color: rgba(255, 232, 0, 0.1);
     pointer-events: none;
     z-index: 1;
 }
 
-.sep-left { border-left: 2px solid #ffe800 !important; }
-.dept-header { background: #1a1a1a; color: #ffe800; font-size: 0.7rem; font-weight: 900; padding: 5px; }
-.name-header { background: #ffe800; color: #000; font-size: 0.8rem; font-weight: 900; padding: 15px 0; }
 .date-col { background: #0a0a0a; color: #ffe800; font-size: 0.85rem; font-weight: bold; width: 120px; }
+.dept-header { background: #1a1a1a; color: #ffe800; font-size: 0.7rem; font-weight: 900; }
+.name-header { background: #ffe800; color: #000; font-size: 0.8rem; font-weight: 900; padding: 15px 0; }
+.sep-left { border-left: 2px solid #ffe800 !important; }
 
 .cell-data { width: 100%; background: transparent; border: none; color: inherit; text-align: center; font-size: 0.95rem; font-weight: 900; outline: none; cursor: pointer; position: relative; z-index: 2; }
 
-/* KOLORY ZADAŃ - UŻYWAMY !IMPORTANT ABY ZAWSZE BYŁY NAD TŁEM WIERSZA */
+/* ZADANIA */
 .task-social { background-color: #007bff !important; color: #fff !important; }
 .task-klucze { background-color: #fd7e14 !important; color: #fff !important; }
 .task-dostawa { background-color: #ffe800 !important; color: #000 !important; }
 
+/* DNI SPECJALNE */
 .today-row .date-col { background-color: #ffe800 !important; color: #000 !important; }
 .is-weekend { background: #121212; color: #666; }
 .is-sunday { background: #1a0a0a !important; }

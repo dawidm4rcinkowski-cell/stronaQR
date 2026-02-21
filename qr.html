@@ -28,9 +28,9 @@
             
             <div class="json-box">
                 <span class="json-syntax">{ "type" : "npws_order_received_qr_code" , "order_number" : "</span>
-                <input type="number" id="orderNum" class="qr-input" placeholder="123456" oninput="updatePreview()"> 
+                <input type="number" id="orderNum" class="qr-input no-spin" placeholder="123456"> 
                 <span class="json-syntax">" , "pin" : "</span>
-                <input type="number" id="pinNum" class="qr-input pin" placeholder="123" oninput="updatePreview()"> 
+                <input type="number" id="pinNum" class="qr-input pin no-spin" placeholder="123"> 
                 <span class="json-syntax">" }</span>
             </div>
 
@@ -44,8 +44,7 @@
                 <span class="col-time">GODZINA</span>
                 <span class="col-action">AKCJA</span>
             </div>
-            <div id="historyList" class="history-items">
-                </div>
+            <div id="historyList" class="history-items"></div>
         </div>
     </main>
 

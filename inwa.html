@@ -19,18 +19,18 @@
         <div class="sidebar-header">NAWIGACJA</div>
         <a href="index.html" class="sidebar-link">🏠 STRONA GŁÓWNA</a>
         <a href="plan.html" class="sidebar-link">📅 PLAN PRACY</a>
-        <a href="inwa.html" class="sidebar-link">📝 INWENTURA</a>
         <a href="qr.html" class="sidebar-link">🖼️ KOD QR</a>
+        <a href="inwa.html" class="sidebar-link">📝 INWENTURA</a>
     </nav>
 
     <main>
         <h1 class="page-title">HARMONOGRAM <span>INWENTUR</span></h1>
 
         <div class="filter-bar">
-            <button class="filter-btn active" onclick="filterInwa('all')">WSZYSTKO</button>
-            <button class="filter-btn" onclick="filterInwa('week')">TYDZIEŃ</button>
-            <button class="filter-btn" onclick="filterInwa('2month')">2x MIESIĄC</button>
-            <button class="filter-btn" onclick="filterInwa('month')">MIESIĄC</button>
+            <button class="filter-btn active" onclick="filterInwa('all', this)">WSZYSTKO</button>
+            <button class="filter-btn" onclick="filterInwa('week', this)">TYDZIEŃ</button>
+            <button class="filter-btn" onclick="filterInwa('2month', this)">2x MIESIĄC</button>
+            <button class="filter-btn" onclick="filterInwa('month', this)">MIESIĄC</button>
         </div>
 
         <div id="inwaList" class="inwa-grid">

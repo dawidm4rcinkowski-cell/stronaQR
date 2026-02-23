@@ -123,7 +123,7 @@ function toggleKWT(id) {
     const saved = JSON.parse(localStorage.getItem(id)) || { status: 'none', time: '' };
     
     if (saved.status === 'done') {
-        if (confirm("Czy na pewno chcesz wycofać zatwierdzenie skanowania dla tej grupy?")) {
+        if (confirm("Czy na pewno chcesz wycofać zatwierdzenie?")) {
             localStorage.removeItem(id);
             renderKWT();
         }

@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>System Media Expert</title>
+    <title>Media Expert - Plan Pracy</title>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="home.css">
+    <link rel="stylesheet" href="plan.css">
 </head>
 <body>
     <header>
@@ -17,44 +17,30 @@
 
     <nav class="sidebar" id="sidebar">
         <div class="sidebar-header">NAWIGACJA</div>
-        <a href="index.html" class="sidebar-link active">🏠 STRONA GŁÓWNA</a>
-        <a href="plan.html" class="sidebar-link">📅 PLAN PRACY</a>
+        <a href="index.html" class="sidebar-link">🏠 STRONA GŁÓWNA</a>
+        <a href="plan.html" class="sidebar-link active">📅 PLAN PRACY</a>
         <a href="inwa.html" class="sidebar-link">📝 INWENTURY</a>
         <a href="kwt.html" class="sidebar-link">🔍 KWT</a>
         <a href="qr.html" class="sidebar-link">🖼️ KOD QR</a>
     </nav>
 
     <main>
-        <h1 class="page-title">SYSTEM <span>ZARZĄDZANIA</span></h1>
-        <div class="home-grid">
-            <a href="plan.html" class="home-card">
-                <div class="icon">📅</div>
-                <h2>PLAN PRACY</h2>
-                <p>Sprawdź grafik i godziny</p>
-            </a>
-            <a href="inwa.html" class="home-card">
-                <div class="icon">📝</div>
-                <h2>INWENTURY</h2>
-                <p>Listy tygodniowe i miesięczne</p>
-            </a>
-            <a href="kwt.html" class="home-card">
-                <div class="icon">🔍</div>
-                <h2>KWT</h2>
-                <p>Kontrola towaru na wystawie</p>
-            </a>
-            <a href="qr.html" class="home-card">
-                <div class="icon">🖼️</div>
-                <h2>KOD QR</h2>
-                <p>Szybki dostęp do systemu</p>
-            </a>
+        <h1 class="page-title">PLAN <span>PRACY</span></h1>
+        
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr id="headerRow">
+                        <th class="sticky-col">Pracownik</th>
+                        <th class="sum-col">Suma</th>
+                    </tr>
+                </thead>
+                <tbody id="scheduleBody">
+                    </tbody>
+            </table>
         </div>
     </main>
 
-    <script>
-        function toggleMenu() {
-            document.getElementById('sidebar').classList.toggle('active');
-            document.getElementById('overlay').classList.toggle('active');
-        }
-    </script>
+    <script src="plan.js"></script>
 </body>
 </html>

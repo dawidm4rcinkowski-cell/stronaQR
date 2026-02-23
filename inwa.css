@@ -1,4 +1,4 @@
-/* --- RESET I PODSTAWY --- */
+/* --- RESET I FUNDAMENTY --- */
 * { 
     box-sizing: border-box; 
     margin: 0; 
@@ -12,7 +12,7 @@ body {
     overflow-x: hidden; 
 }
 
-/* --- GÓRNY BAR (HEADER) --- */
+/* --- HEADER (GÓRNY BAR) --- */
 header { 
     background: #ffe800; 
     height: 60px; 
@@ -47,7 +47,7 @@ header {
     font-size: 1.8rem; 
 }
 
-/* --- NAWIGACJA BOCZNA (SIDEBAR) --- */
+/* --- NAWIGACJA BOCZNA --- */
 .sidebar { 
     position: fixed; 
     left: -280px; 
@@ -61,17 +61,7 @@ header {
     padding-top: 70px; 
 }
 
-.sidebar.active { 
-    left: 0; 
-}
-
-.sidebar-header {
-    color: #444;
-    font-size: 0.7rem;
-    font-weight: 900;
-    padding: 10px 25px;
-    letter-spacing: 2px;
-}
+.sidebar.active { left: 0; }
 
 .sidebar-link { 
     display: block; 
@@ -80,18 +70,9 @@ header {
     text-decoration: none; 
     font-weight: 700; 
     border-bottom: 1px solid #1a1a1a; 
-    transition: 0.2s;
 }
 
-.sidebar-link:hover {
-    background: #111;
-    color: #ffe800;
-}
-
-.sidebar-link.active { 
-    background: #ffe800; 
-    color: #000; 
-}
+.sidebar-link.active { background: #ffe800; color: #000; }
 
 .overlay { 
     position: fixed; 
@@ -102,13 +83,11 @@ header {
     backdrop-filter: blur(4px); 
 }
 
-.overlay.active { 
-    display: block; 
-}
+.overlay.active { display: block; }
 
-/* --- GŁÓWNA TREŚĆ --- */
+/* --- TREŚĆ GŁÓWNA --- */
 main { 
-    padding: 40px 20px; 
+    padding: 30px 20px; 
     max-width: 1400px; 
     margin: 0 auto; 
 }
@@ -116,35 +95,32 @@ main {
 .page-title { 
     text-align: center; 
     font-weight: 900; 
-    font-size: 2.8rem; 
-    margin-bottom: 40px; 
+    font-size: 2.2rem; 
+    margin-bottom: 30px; 
     text-transform: uppercase;
 }
 
-.page-title span { 
-    color: #ffe800; 
-}
+.page-title span { color: #ffe800; }
 
-/* --- FILTRY DZIAŁÓW --- */
+/* --- FILTRY --- */
 .filter-bar { 
     display: flex; 
-    gap: 15px; 
+    gap: 12px; 
     justify-content: center; 
-    margin-bottom: 25px; 
+    margin-bottom: 30px; 
+    flex-wrap: wrap; 
 }
 
 .filter-btn { 
     background: #111; 
     border: 2px solid #222; 
     color: #777; 
-    padding: 18px; 
-    border-radius: 15px; 
+    padding: 15px 20px; 
+    border-radius: 12px; 
     font-weight: 900; 
     cursor: pointer; 
     transition: 0.3s; 
-    flex: 1; 
-    max-width: 200px; 
-    font-size: 1.1rem; 
+    min-width: 100px;
     text-transform: uppercase;
 }
 
@@ -152,97 +128,68 @@ main {
     background: #ffe800; 
     color: #000; 
     border-color: #ffe800; 
-    box-shadow: 0 0 20px rgba(255, 232, 0, 0.2);
 }
 
-/* --- SELEKTOR MIESIĄCA --- */
-.month-selector-wrapper { 
-    text-align: center; 
-    margin-bottom: 40px; 
-    color: #555; 
-    font-weight: 900; 
-    font-size: 0.9rem; 
-}
-
-#monthSelect { 
-    background: #000; 
-    color: #fff; 
-    border: 2px solid #222; 
-    padding: 12px 20px; 
-    border-radius: 10px; 
-    font-weight: 900; 
-    margin-left: 10px; 
-    font-size: 0.9rem; 
-    cursor: pointer; 
-    outline: none;
-}
-
-#monthSelect:focus {
-    border-color: #ffe800;
-}
-
-/* --- NAGŁÓWKI SEKCJI CZASOWYCH --- */
+/* --- NAGŁÓWKI SEKCJI --- */
 .time-group-header { 
     background: #151515; 
     color: #ffe800; 
-    padding: 20px 30px; 
-    border-radius: 15px; 
+    padding: 15px 25px; 
+    border-radius: 12px; 
     font-weight: 900; 
-    font-size: 1.1rem; 
-    margin: 50px 0 25px 0; 
+    margin: 40px 0 20px 0; 
     text-transform: uppercase; 
-    border-left: 8px solid #ffe800;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+    border-left: 6px solid #ffe800;
 }
 
-/* --- SIATKA KAFELKÓW --- */
+/* --- SIATKA KAFELKÓW (ZWIĘKSZONA CZYTELNOŚĆ) --- */
 .inwa-grid { 
     display: grid; 
-    grid-template-columns: repeat(auto-fill, minmax(420px, 1fr)); 
+    grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); 
     gap: 20px; 
 }
 
-/* --- KAFELEK (INWA-CARD) --- */
+/* --- KAFELEK - UKŁAD PIONOWY (ROZWIĄZANIE PROBLEMU) --- */
 .inwa-card { 
     background: #111; 
     border-radius: 20px; 
     border: 3px solid #222; 
-    padding: 30px; 
+    padding: 25px; 
     display: flex; 
-    align-items: center; 
+    flex-direction: column; /* Tekst na górze, przycisk na dole */
     justify-content: space-between; 
-    gap: 20px;
-    transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    gap: 20px; 
+    min-height: 200px; /* Wszystkie kafelki będą równe */
+    transition: 0.3s;
 }
 
-.inwa-info {
-    flex: 1;
-}
+.inwa-info { width: 100%; }
 
 .inwa-info h3 { 
     font-weight: 900; 
-    font-size: 1.35rem; 
+    font-size: 1.3rem; 
     color: #fff; 
-    letter-spacing: 0.5px;
     text-transform: uppercase;
+    line-height: 1.3;
+    word-wrap: break-word; /* Rozbijanie długich słów */
 }
 
 .inwa-info p { 
-    color: #666; 
-    font-size: 0.95rem; 
-    font-weight: 700; 
-    margin-top: 8px;
-    text-transform: uppercase;
+    color: #555; 
+    font-size: 0.85rem; 
+    font-weight: 800; 
+    margin-top: 10px;
+    letter-spacing: 0.5px;
 }
 
-/* --- PRZYCISK --- */
+/* --- PRZYCISK (SZEROKI I CZYTELNY) --- */
 .done-btn { 
-    min-width: 160px; 
-    height: 65px;
+    width: 100%; /* Przycisk na całą szerokość kafelka */
+    height: 55px;
     background: transparent; 
     border: 3px solid #ffe800; 
     color: #ffe800; 
-    border-radius: 15px; 
+    border-radius: 12px; 
     font-weight: 900; 
     font-size: 1rem; 
     cursor: pointer; 
@@ -250,51 +197,26 @@ main {
     text-transform: uppercase;
 }
 
-.done-btn:hover { 
-    background: rgba(255, 232, 0, 0.15); 
-    transform: translateY(-3px); 
-}
+.done-btn:hover { background: rgba(255, 232, 0, 0.1); }
 
-/* --- STAN ZATWIERDZONY (PENDING) --- */
+/* --- STATUSY PO ZATWIERDZENIU --- */
 .inwa-card.pending { 
     border-color: #ffe800; 
-    background: #1a1a00; 
+    background: #151500; 
 }
 
 .inwa-card.pending .done-btn { 
     background: #ffe800; 
     color: #000; 
-    box-shadow: 0 5px 20px rgba(255, 232, 0, 0.3);
+    box-shadow: 0 4px 15px rgba(255, 232, 0, 0.3);
 }
 
 .inwa-card.pending .inwa-info p { 
     color: #ffe800; 
-    font-weight: 900;
 }
 
-/* --- RESPONSYWNOŚĆ (MOBILE) --- */
-@media (max-width: 600px) {
-    .inwa-grid { 
-        grid-template-columns: 1fr; 
-    }
-    
-    .inwa-card { 
-        padding: 25px; 
-        flex-direction: column; 
-        text-align: center; 
-    }
-    
-    .done-btn { 
-        width: 100%; 
-        margin-top: 20px; 
-    }
-    
-    .page-title { 
-        font-size: 2rem; 
-    }
-    
-    .filter-btn {
-        padding: 12px;
-        font-size: 0.9rem;
-    }
+/* --- DOSTOSOWANIE DO MAŁYCH EKRANÓW --- */
+@media (max-width: 400px) {
+    .inwa-grid { grid-template-columns: 1fr; }
+    .page-title { font-size: 1.8rem; }
 }

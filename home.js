@@ -1,14 +1,8 @@
-// --- OBSŁUGA MENU BOCZNEGO (SIDEBAR) ---
 function toggleSidebar() {
-    const sidebar = document.getElementById('sidebar');
-    const overlay = document.getElementById('overlay');
-    if (sidebar && overlay) {
-        sidebar.classList.toggle('active');
-        overlay.classList.toggle('active');
-    }
+    document.getElementById('sidebar').classList.toggle('active');
+    document.getElementById('overlay').classList.toggle('active');
 }
 
-// --- LOGIKA ZEGARA FLIP (EFEKT 3D) ---
 function updateClock() {
     const now = new Date();
     updateFlipCard('hours', String(now.getHours()).padStart(2, '0'));
@@ -18,7 +12,7 @@ function updateClock() {
 
 function updateFlipCard(id, value) {
     const card = document.getElementById(id);
-    if (!card) return;
+    if (!card) return; // Jeśli nie znajdzie ID, nie wywala błędu
 
     const front = card.querySelector('.flip-front');
     const back = card.querySelector('.flip-back');
@@ -26,7 +20,6 @@ function updateFlipCard(id, value) {
     if (front.innerText !== value) {
         back.innerText = value;
         card.classList.add('animate');
-        
         setTimeout(() => {
             front.innerText = value;
             card.classList.remove('animate');
@@ -34,7 +27,6 @@ function updateFlipCard(id, value) {
     }
 }
 
-// --- SEKTY EKIPY (DZIAŁY IT / RTV / AGD) ---
 const teamMembers = [
     { name: "KAMIL", dept: "IT", initial: "K" },
     { name: "MAREK", dept: "RTV", initial: "M" },
@@ -43,7 +35,10 @@ const teamMembers = [
 
 function renderTeam() {
     const grid = document.getElementById('teamGrid');
-    if (!grid) return; // Zabezpieczenie, jeśli elementu nie ma na stronie
+    if (!grid) {
+        console.log("Błąd: Nie znaleziono kontenera teamGrid!");
+        return;
+    }
 
     grid.innerHTML = teamMembers.map(m => `
         <div class="member-card">
@@ -56,12 +51,10 @@ function renderTeam() {
     `).join('');
 }
 
-// --- INICJALIZACJA PO ZAŁADOWANIU STRONY ---
+// Start wszystkiego po załadowaniu
 window.onload = () => {
-    // Uruchom zegar co sekundę
+    console.log("Strona załadowana, home.js startuje...");
     setInterval(updateClock, 1000);
     updateClock();
-    
-    // Wyświetl listę pracowników
     renderTeam();
 };

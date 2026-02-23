@@ -220,3 +220,13 @@ main {
     .inwa-grid { grid-template-columns: 1fr; }
     .page-title { font-size: 1.8rem; }
 }
+.sidebar-header {
+    color: #ffe800; /* Charakterystyczny żółty Media Expert */
+    font-weight: 900;
+    font-size: 1.4rem;
+    padding: 20px 25px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    border-bottom: 2px solid #1a1a1a;
+    margin-bottom: 10px;
+}

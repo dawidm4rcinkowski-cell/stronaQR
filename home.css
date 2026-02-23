@@ -1,199 +1,87 @@
-/* PODSTAWOWY RESET I FONTY */
-* { 
-    box-sizing: border-box; 
-    margin: 0; 
-    padding: 0; 
-    font-family: 'Montserrat', sans-serif; 
-}
+* { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Montserrat', sans-serif; }
+body { background: #000; color: white; overflow-x: hidden; }
 
-body { 
-    background: #000; 
-    color: white; 
-    overflow-x: hidden; 
-}
+/* HEADER & SIDEBAR (Spójny styl) */
+header { background: #ffe800; height: 60px; display: flex; align-items: center; justify-content: center; position: sticky; top: 0; z-index: 2000; }
+.logo { color: #000; font-weight: 900; font-size: 1.6rem; text-transform: uppercase; }
+.logo span { background: #000; color: #ffe800; padding: 0 6px; border-radius: 4px; }
+.menu-btn { position: absolute; left: 20px; cursor: pointer; color: #000; font-size: 1.8rem; }
 
-/* HEADER */
-header { 
-    background: #ffe800; 
-    height: 60px; 
-    display: flex; 
-    align-items: center; 
-    justify-content: center; 
-    position: sticky; 
-    top: 0; 
-    z-index: 2000; 
-    box-shadow: 0 4px 15px rgba(0,0,0,0.5); 
-}
+.sidebar { position: fixed; left: -280px; top: 0; width: 260px; height: 100%; background: #0a0a0a; border-right: 3px solid #ffe800; transition: 0.3s; z-index: 3000; }
+.sidebar.active { left: 0; }
+.sidebar-header { background: #1a1a1a; color: #777; padding: 25px; font-weight: 900; font-size: 0.75rem; letter-spacing: 2px; text-transform: uppercase; border-bottom: 1px solid #222; }
+.sidebar-link { display: block; color: white; padding: 18px 25px; text-decoration: none; font-weight: 700; border-bottom: 1px solid #1a1a1a; transition: 0.3s; }
+.sidebar-link:hover { background: #111; color: #ffe800; padding-left: 35px; }
+.sidebar-link.active { background: #111; color: #ffe800; border-left: 5px solid #ffe800; }
 
-.logo { 
-    color: #000; 
-    font-weight: 900; 
-    font-size: 1.6rem; 
-    text-transform: uppercase; 
-}
-
-.logo span { 
-    background: #000; 
-    color: #ffe800; 
-    padding: 0 6px; 
-    border-radius: 4px; 
-}
-
-.menu-btn { 
-    position: absolute; 
-    left: 20px; 
-    cursor: pointer; 
-    color: #000; 
-    font-size: 1.8rem; 
-}
-
-/* SIDEBAR - CHARAKTERYSTYCZNA NAWIGACJA */
-.sidebar { 
-    position: fixed; 
-    left: -280px; 
-    top: 0; 
-    width: 260px; 
-    height: 100%; 
-    background: #0a0a0a; 
-    border-right: 3px solid #ffe800; 
-    transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
-    z-index: 3000; 
-}
-
-.sidebar.active { 
-    left: 0; 
-}
-
-.sidebar-header { 
-    background: #1a1a1a; 
-    color: #777; 
-    padding: 25px; 
-    font-weight: 900; 
-    font-size: 0.75rem; 
-    letter-spacing: 2px; 
-    text-transform: uppercase; 
-    border-bottom: 1px solid #222; 
-}
-
-.sidebar-link { 
-    display: block; 
-    color: white; 
-    padding: 18px 25px; 
-    text-decoration: none; 
-    font-weight: 700; 
-    border-bottom: 1px solid #1a1a1a; 
-    transition: 0.3s; 
-    border-left: 0 solid #ffe800; 
-    position: relative;
-}
-
-/* ANIMACJA NAJEŻDŻANIA NA LINKI */
-.sidebar-link:hover { 
-    background: #111; 
-    color: #ffe800; 
-    padding-left: 35px; /* Tekst przesuwa się w prawo */
-}
-
-/* PASEK AKTYWNEJ ZAKŁADKI */
-.sidebar-link.active { 
-    background: #111; 
-    color: #ffe800; 
-    border-left: 5px solid #ffe800; 
-}
-
-.overlay { 
-    position: fixed; 
-    inset: 0; 
-    background: rgba(0,0,0,0.85); 
-    display: none; 
-    z-index: 2500; 
-    backdrop-filter: blur(4px); 
-}
-
-.overlay.active { 
-    display: block; 
-}
+.overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.85); display: none; z-index: 2500; }
+.overlay.active { display: block; }
 
 /* MAIN CONTENT */
-main { 
-    padding: 40px 20px; 
-    max-width: 1200px; 
-    margin: 0 auto; 
-}
+main { padding: 40px 20px; max-width: 1400px; margin: 0 auto; }
+.page-title { text-align: center; font-weight: 900; font-size: 2.5rem; margin-bottom: 40px; text-transform: uppercase; }
+.page-title span { color: #ffe800; }
 
-.page-title { 
-    text-align: center; 
-    font-weight: 900; 
-    font-size: 2.8rem; 
-    margin-bottom: 50px; 
-    text-transform: uppercase; 
-}
-
-.page-title span { 
-    color: #ffe800; 
-}
-
-/* GRID KONTENERÓW */
-.home-grid { 
+/* GRID PRACOWNIKÓW */
+.team-grid { 
     display: grid; 
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); 
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); 
     gap: 20px; 
 }
 
-.home-card { 
+/* KONTENER PRACOWNIKA */
+.employee-card { 
     background: #111; 
     border: 2px solid #222; 
     border-radius: 20px; 
-    padding: 30px; 
+    padding: 25px; 
     display: flex; 
+    flex-direction: column; 
     align-items: center; 
-    gap: 20px; 
-    text-decoration: none; 
-    color: white; 
-    transition: 0.3s ease;
-}
-
-.home-card:hover { 
-    border-color: #ffe800; 
-    background: #1a1a00; 
-    transform: translateY(-5px); 
-    box-shadow: 0 10px 30px rgba(255, 232, 0, 0.1);
-}
-
-.home-card .icon { 
-    font-size: 2.2rem; 
-    background: #1a1a1a; 
-    width: 65px; 
-    height: 65px; 
-    display: flex; 
-    align-items: center; 
-    justify-content: center; 
-    border-radius: 15px; 
-    border: 1px solid #333;
+    text-align: center; 
     transition: 0.3s;
 }
 
-.home-card:hover .icon {
-    border-color: #ffe800;
-    color: #ffe800;
+.employee-card:hover { 
+    border-color: #ffe800; 
+    transform: translateY(-5px); 
+    background: #1a1a00; 
 }
 
-.home-card h2 { 
+.emp-avatar { 
+    width: 60px; 
+    height: 60px; 
+    background: #ffe800; 
+    color: #000; 
+    border-radius: 50%; 
+    display: flex; 
+    align-items: center; 
+    justify-content: center; 
     font-weight: 900; 
-    font-size: 1.15rem; 
-    text-transform: uppercase; 
-    margin-bottom: 5px; 
+    font-size: 1.5rem; 
+    margin-bottom: 15px; 
 }
 
-.home-card p { 
-    color: #666; 
-    font-size: 0.85rem; 
-    font-weight: 700; 
+.employee-card h3 { 
+    font-weight: 900; 
+    font-size: 1.2rem; 
+    margin-bottom: 5px; 
     text-transform: uppercase;
 }
 
-/* RWD */
-@media (max-width: 600px) {
-    .page-title { font-size: 1.8rem; }
-    .home-grid { grid-template-columns: 1fr; }
+.emp-dept { 
+    font-weight: 700; 
+    font-size: 0.8rem; 
+    color: #ffe800; 
+    background: rgba(255, 232, 0, 0.1); 
+    padding: 5px 15px; 
+    border-radius: 20px; 
+    letter-spacing: 1px;
+}
+
+.emp-status {
+    margin-top: 15px;
+    font-size: 0.8rem;
+    color: #666;
+    font-weight: 700;
 }

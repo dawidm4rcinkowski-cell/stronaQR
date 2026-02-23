@@ -92,3 +92,13 @@ main { padding: 30px 15px; max-width: 900px; margin: 0 auto; }
 .btn-delete:hover { background: #ff4444; color: #000; }
 
 @keyframes slideUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+.sidebar-header {
+    color: #ffe800; /* Charakterystyczny żółty Media Expert */
+    font-weight: 900;
+    font-size: 1.4rem;
+    padding: 20px 25px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    border-bottom: 2px solid #1a1a1a;
+    margin-bottom: 10px;
+}

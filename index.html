@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Media Expert - Plan Pracy</title>
+    <title>Media Expert - System Zarządzania</title>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="plan.css">
+    <link rel="stylesheet" href="index.css">
 </head>
 <body>
     <header>
@@ -17,30 +17,51 @@
 
     <nav class="sidebar" id="sidebar">
         <div class="sidebar-header">NAWIGACJA</div>
-        <a href="index.html" class="sidebar-link">🏠 STRONA GŁÓWNA</a>
-        <a href="plan.html" class="sidebar-link active">📅 PLAN PRACY</a>
+        <a href="index.html" class="sidebar-link active">🏠 STRONA GŁÓWNA</a>
+        <a href="plan.html" class="sidebar-link">📅 PLAN PRACY</a>
         <a href="inwa.html" class="sidebar-link">📝 INWENTURY</a>
         <a href="kwt.html" class="sidebar-link">🔍 KWT</a>
         <a href="qr.html" class="sidebar-link">🖼️ KOD QR</a>
     </nav>
 
     <main>
-        <h1 class="page-title">PLAN <span>PRACY</span></h1>
+        <h1 class="page-title">SYSTEM <span>ZARZĄDZANIA</span></h1>
         
-        <div class="table-container">
-            <table>
-                <thead>
-                    <tr id="headerRow">
-                        <th class="sticky-col">Pracownik</th>
-                        <th class="sum-col">Suma</th>
-                    </tr>
-                </thead>
-                <tbody id="scheduleBody">
-                    </tbody>
-            </table>
+        <div class="home-grid">
+            <a href="plan.html" class="home-card">
+                <div class="icon">📅</div>
+                <div class="card-content">
+                    <h2>PLAN PRACY</h2>
+                    <p>Grafik dla całego zespołu</p>
+                </div>
+            </a>
+
+            <a href="inwa.html" class="home-card">
+                <div class="icon">📝</div>
+                <div class="card-content">
+                    <h2>INWENTURY</h2>
+                    <p>Listy IT, RTV i AGD</p>
+                </div>
+            </a>
+
+            <a href="kwt.html" class="home-card">
+                <div class="icon">🔍</div>
+                <div class="card-content">
+                    <h2>KWT</h2>
+                    <p>Kontrola towaru na wystawie</p>
+                </div>
+            </a>
+
+            <a href="qr.html" class="home-card">
+                <div class="icon">🖼️</div>
+                <div class="card-content">
+                    <h2>KOD QR</h2>
+                    <p>Szybki dostęp mobilny</p>
+                </div>
+            </a>
         </div>
     </main>
 
-    <script src="plan.js"></script>
+    <script src="home.js"></script>
 </body>
 </html>

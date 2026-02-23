@@ -1,4 +1,4 @@
-/* --- RESET I FUNDAMENTY --- */
+/* --- FUNDAMENTY (Montserrat 900) --- */
 * { 
     box-sizing: border-box; 
     margin: 0; 
@@ -9,6 +9,7 @@
 body { 
     background: #000; 
     color: white; 
+    text-align: center; 
     overflow-x: hidden; 
 }
 
@@ -22,7 +23,7 @@ header {
     position: sticky; 
     top: 0; 
     z-index: 2000; 
-    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.3); 
 }
 
 .logo { 
@@ -30,6 +31,7 @@ header {
     font-weight: 900; 
     font-size: 1.6rem; 
     text-transform: uppercase; 
+    letter-spacing: -1px; 
 }
 
 .logo span { 
@@ -37,6 +39,7 @@ header {
     color: #ffe800; 
     padding: 0 6px; 
     border-radius: 4px; 
+    margin-left: 2px; 
 }
 
 .menu-btn { 
@@ -47,7 +50,7 @@ header {
     font-size: 1.8rem; 
 }
 
-/* --- NAWIGACJA BOCZNA --- */
+/* --- SIDEBAR (NAWIGACJA) --- */
 .sidebar { 
     position: fixed; 
     left: -280px; 
@@ -56,12 +59,24 @@ header {
     height: 100%; 
     background: #0a0a0a; 
     border-right: 3px solid #ffe800; 
-    transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
+    transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
     z-index: 3000; 
-    padding-top: 70px; 
+    text-align: left; 
+    padding-top: 20px; 
 }
 
 .sidebar.active { left: 0; }
+
+.sidebar-header { 
+    color: #ffe800; 
+    padding: 30px 25px 20px 25px; 
+    font-weight: 900; 
+    font-size: 1.4rem; 
+    letter-spacing: 2px; 
+    text-transform: uppercase; 
+    border-bottom: 2px solid #1a1a1a;
+    margin-bottom: 10px;
+}
 
 .sidebar-link { 
     display: block; 
@@ -70,9 +85,14 @@ header {
     text-decoration: none; 
     font-weight: 700; 
     border-bottom: 1px solid #1a1a1a; 
+    transition: 0.3s; 
 }
 
-.sidebar-link.active { background: #ffe800; color: #000; }
+.sidebar-link:hover { 
+    background: #1a1a1a; 
+    padding-left: 35px; 
+    color: #ffe800; 
+}
 
 .overlay { 
     position: fixed; 
@@ -85,52 +105,72 @@ header {
 
 .overlay.active { display: block; }
 
-/* --- TREŚĆ GŁÓWNA --- */
-main { 
-    padding: 30px 20px; 
-    max-width: 1400px; 
-    margin: 0 auto; 
+/* --- ZEGAR FLIP --- */
+.clock-container { display: flex; justify-content: center; align-items: center; gap: 12px; margin: 40px 0; }
+.clock-sep { font-size: 2.5rem; color: #222; font-weight: 900; animation: blink 1s infinite; }
+@keyframes blink { 50% { opacity: 0; } }
+
+.flip-card { width: 85px; height: 110px; perspective: 1000px; }
+.flip-inner { position: relative; width: 100%; height: 100%; transition: transform 0.6s; transform-style: preserve-3d; }
+.flip-card.animate .flip-inner { transform: rotateX(-180deg); }
+.flip-front, .flip-back { position: absolute; width: 100%; height: 100%; backface-visibility: hidden; display: flex; align-items: center; justify-content: center; background: #111; border: 2px solid #222; border-radius: 12px; font-size: 3.5rem; color: #ffe800; font-weight: 900; }
+.flip-back { transform: rotateX(-180deg); }
+
+/* --- DASHBOARD (MENU GŁÓWNE) --- */
+.dashboard-grid { display: flex; justify-content: center; gap: 15px; padding: 0 15px; max-width: 1100px; margin: 0 auto; }
+.dash-card { background: #111; border: 2px solid #222; border-radius: 16px; padding: 20px; flex: 1; display: flex; align-items: center; gap: 20px; text-decoration: none; color: white; text-align: left; transition: 0.3s; }
+.dash-card:hover { transform: translateY(-8px); border-color: #ffe800; box-shadow: 0 10px 20px rgba(255,232,0,0.15); }
+
+.icon-box { 
+    background: #1a1a1a; 
+    padding: 15px; 
+    border-radius: 12px; 
+    border: 1px solid #333; 
+    font-size: 1.8rem; /* Większe ikonki */
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
-.page-title { 
-    text-align: center; 
+.card-info h3 { color: #fff; font-size: 1.1rem; font-weight: 900; text-transform: uppercase; }
+.card-info p { color: #ffe800; font-size: 0.8rem; font-weight: 700; text-transform: uppercase; margin-top: 2px; }
+
+/* --- EKIPA (PRACOWNICY) --- */
+.team-wrapper { max-width: 1200px; margin: 60px auto; padding: 0 20px; }
+.team-title { font-size: 1.3rem; font-weight: 900; margin-bottom: 40px; letter-spacing: 2px; text-transform: uppercase; }
+.team-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 25px; }
+
+.member-card { background: #0a0a0a; border: 2px solid #1a1a1a; border-radius: 20px; padding: 20px; display: flex; align-items: center; gap: 15px; transition: 0.3s; }
+.member-card:hover { border-color: #ffe800; background: #111; transform: translateY(-5px); }
+
+.avatar-placeholder { width: 55px; height: 55px; background: #1a1a1a; border: 2px solid #333; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 900; color: #ffe800; font-size: 1.3rem; overflow: hidden; }
+
+.m-info { text-align: left; }
+.m-info strong { display: block; font-size: 1.1rem; font-weight: 900; color: #fff; }
+.m-info span { 
+    font-size: 0.8rem; 
+    color: #ffe800; /* Żółte napisy IT/RTV/AGD */
     font-weight: 900; 
-    font-size: 2.2rem; 
-    margin-bottom: 30px; 
-    text-transform: uppercase;
+    text-transform: uppercase; 
+    margin-top: 3px; 
+    display: block; 
 }
 
+/* --- INWENTURA I KWT (PIONOWE KAFELKI) --- */
+main { padding: 40px 20px; max-width: 1400px; margin: 0 auto; }
+.page-title { font-weight: 900; font-size: 2.5rem; margin-bottom: 40px; text-transform: uppercase; }
 .page-title span { color: #ffe800; }
 
-/* --- FILTRY --- */
-.filter-bar { 
-    display: flex; 
-    gap: 12px; 
-    justify-content: center; 
-    margin-bottom: 30px; 
-    flex-wrap: wrap; 
+.filter-bar { display: flex; gap: 12px; justify-content: center; margin-bottom: 30px; flex-wrap: wrap; }
+.filter-btn { background: #111; border: 2px solid #222; color: #777; padding: 15px 25px; border-radius: 12px; font-weight: 900; cursor: pointer; text-transform: uppercase; transition: 0.3s; }
+.filter-btn.active { background: #ffe800; color: #000; border-color: #ffe800; }
+
+.inwa-grid { 
+    display: grid; 
+    grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); 
+    gap: 20px; 
 }
 
-.filter-btn { 
-    background: #111; 
-    border: 2px solid #222; 
-    color: #777; 
-    padding: 15px 20px; 
-    border-radius: 12px; 
-    font-weight: 900; 
-    cursor: pointer; 
-    transition: 0.3s; 
-    min-width: 100px;
-    text-transform: uppercase;
-}
-
-.filter-btn.active { 
-    background: #ffe800; 
-    color: #000; 
-    border-color: #ffe800; 
-}
-
-/* --- NAGŁÓWKI SEKCJI --- */
 .time-group-header { 
     background: #151515; 
     color: #ffe800; 
@@ -139,94 +179,61 @@ main {
     font-weight: 900; 
     margin: 40px 0 20px 0; 
     text-transform: uppercase; 
-    border-left: 6px solid #ffe800;
+    border-left: 6px solid #ffe800; 
+    text-align: left; 
 }
 
-/* --- SIATKA KAFELKÓW (ZWIĘKSZONA CZYTELNOŚĆ) --- */
-.inwa-grid { 
-    display: grid; 
-    grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); 
-    gap: 20px; 
-}
-
-/* --- KAFELEK - UKŁAD PIONOWY (ROZWIĄZANIE PROBLEMU) --- */
+/* KAFELEK PIONOWY - Gwarancja braku rozjazdów */
 .inwa-card { 
     background: #111; 
-    border-radius: 20px; 
+    border-radius: 24px; 
     border: 3px solid #222; 
     padding: 25px; 
     display: flex; 
     flex-direction: column; /* Tekst na górze, przycisk na dole */
     justify-content: space-between; 
     gap: 20px; 
-    min-height: 200px; /* Wszystkie kafelki będą równe */
+    min-height: 220px; 
+    text-align: left;
     transition: 0.3s;
 }
-
-.inwa-info { width: 100%; }
 
 .inwa-info h3 { 
     font-weight: 900; 
     font-size: 1.3rem; 
     color: #fff; 
-    text-transform: uppercase;
+    text-transform: uppercase; 
     line-height: 1.3;
-    word-wrap: break-word; /* Rozbijanie długich słów */
+    word-wrap: break-word;
 }
 
-.inwa-info p { 
-    color: #555; 
-    font-size: 0.85rem; 
-    font-weight: 800; 
-    margin-top: 10px;
-    letter-spacing: 0.5px;
-}
+.inwa-info p { color: #555; font-size: 0.85rem; font-weight: 800; margin-top: 10px; text-transform: uppercase; }
 
-/* --- PRZYCISK (SZEROKI I CZYTELNY) --- */
+/* PRZYCISK SZEROKI */
 .done-btn { 
-    width: 100%; /* Przycisk na całą szerokość kafelka */
-    height: 55px;
+    width: 100%; 
+    height: 55px; 
     background: transparent; 
     border: 3px solid #ffe800; 
     color: #ffe800; 
-    border-radius: 12px; 
+    border-radius: 14px; 
     font-weight: 900; 
-    font-size: 1rem; 
     cursor: pointer; 
-    transition: 0.3s;
-    text-transform: uppercase;
+    text-transform: uppercase; 
+    transition: 0.3s; 
 }
 
 .done-btn:hover { background: rgba(255, 232, 0, 0.1); }
 
-/* --- STATUSY PO ZATWIERDZENIU --- */
-.inwa-card.pending { 
-    border-color: #ffe800; 
-    background: #151500; 
-}
+/* STANY ZATWIERDZONE */
+.inwa-card.pending { border-color: #ffe800; background: #151500; }
+.inwa-card.pending .done-btn { background: #ffe800; color: #000; box-shadow: 0 4px 15px rgba(255, 232, 0, 0.3); }
+.inwa-card.pending .inwa-info p { color: #ffe800; }
 
-.inwa-card.pending .done-btn { 
-    background: #ffe800; 
-    color: #000; 
-    box-shadow: 0 4px 15px rgba(255, 232, 0, 0.3);
-}
-
-.inwa-card.pending .inwa-info p { 
-    color: #ffe800; 
-}
-
-/* --- DOSTOSOWANIE DO MAŁYCH EKRANÓW --- */
-@media (max-width: 400px) {
+/* --- RESPONSYWNOŚĆ --- */
+@media (max-width: 768px) {
+    .dashboard-grid { flex-direction: column; }
+    .team-grid { grid-template-columns: 1fr 1fr; }
     .inwa-grid { grid-template-columns: 1fr; }
     .page-title { font-size: 1.8rem; }
-}
-.sidebar-header {
-    color: #ffe800; /* Charakterystyczny żółty Media Expert */
-    font-weight: 900;
-    font-size: 1.4rem;
-    padding: 20px 25px;
-    letter-spacing: 2px;
-    text-transform: uppercase;
-    border-bottom: 2px solid #1a1a1a;
-    margin-bottom: 10px;
 }

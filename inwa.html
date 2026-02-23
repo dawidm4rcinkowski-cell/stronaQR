@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kontrola Towarów - Media Expert</title>
+    <title>Media Expert - Inwentury</title>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="inwa.css">
 </head>
@@ -25,38 +25,37 @@
 
 <div class="overlay" id="overlay" onclick="toggleSidebar()"></div>
 
-<main>
+<main class="inwa-container">
     <h1 class="page-title">KONTROLA <span>TOWARÓW</span></h1>
 
-    <div class="period-selector">
-        <label>OKRES:</label>
-        <select id="monthSelect" onchange="renderInwentura()">
-            <option value="0">Styczeń</option>
-            <option value="1">Luty</option>
-            <option value="2" selected>Marzec</option>
-            <option value="3">Kwiecień</option>
-            <option value="4">Maj</option>
-            <option value="5">Czerwiec</option>
-            <option value="6">Lipiec</option>
-            <option value="7">Sierpień</option>
-            <option value="8">Wrzesień</option>
-            <option value="9">Październik</option>
-            <option value="10">Listopad</option>
-            <option value="11">Grudzień</option>
-        </select>
-    </div>
-
-    <div class="filter-bar">
-        <button class="filter-btn active" onclick="setDept('IT', this)">IT</button>
-        <button class="filter-btn" onclick="setDept('RTV', this)">RTV</button>
-        <button class="filter-btn" onclick="setDept('AGD', this)">AGD</button>
-    </div>
-
-    <div id="inwaList" class="inwa-grid">
+    <div class="filters-section">
+        <div class="select-wrapper">
+            <label>OKRES:</label>
+            <select id="monthSelect">
+                <option value="marzec">MARZEC</option>
+                <option value="kwiecień">KWIECIEŃ</option>
+            </select>
         </div>
+        <div class="dept-tabs">
+            <button class="tab-btn active" onclick="switchDept('IT')">IT</button>
+            <button class="tab-btn" onclick="switchDept('RTV')">RTV</button>
+            <button class="tab-btn" onclick="switchDept('AGD')">AGD</button>
+        </div>
+    </div>
+
+    <section class="inwa-section">
+        <h2 class="section-label">INWENTURY 2-TYGODNIOWE</h2>
+        <div class="items-grid" id="grid2Weeks">
+            </div>
+    </section>
+
+    <section class="inwa-section">
+        <h2 class="section-label">INWENTURY MIESIĘCZNE</h2>
+        <div class="items-grid" id="gridMonthly">
+            </div>
+    </section>
 </main>
 
 <script src="inwa.js"></script>
-
 </body>
 </html>

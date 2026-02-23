@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Media Expert - Panel Sterowania</title>
+    <title>Media Expert - System</title>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="home.css">
 </head>
@@ -25,9 +25,29 @@
     </nav>
 
     <main>
-        <h1 class="page-title">PANEL <span>ZESPOŁU</span></h1>
-        
-        <div class="team-grid" id="teamGrid"></div>
+        <h1 class="page-title">SYSTEM <span>ZARZĄDZANIA</span></h1>
+        <div class="home-grid">
+            <a href="plan.html" class="home-card main-nav">
+                <div class="icon">📅</div>
+                <div class="card-info"><h2>PLAN PRACY</h2><p>GRAFIK GODZIN</p></div>
+            </a>
+            <a href="inwa.html" class="home-card main-nav">
+                <div class="icon">📝</div>
+                <div class="card-info"><h2>INWENTURY</h2><p>LISTY KONTROLNE</p></div>
+            </a>
+            <a href="kwt.html" class="home-card main-nav">
+                <div class="icon">🔍</div>
+                <div class="card-info"><h2>KWT</h2><p>KONTROLA WYSTAWY</p></div>
+            </a>
+            <a href="qr.html" class="home-card main-nav">
+                <div class="icon">🖼️</div>
+                <div class="card-info"><h2>KOD QR</h2><p>DOSTĘP MOBILNY</p></div>
+            </a>
+        </div>
+
+        <h2 class="section-title">TWÓJ <span>ZESPÓŁ</span></h2>
+        <div class="team-grid" id="teamGrid">
+            </div>
     </main>
 
     <script src="home.js"></script>

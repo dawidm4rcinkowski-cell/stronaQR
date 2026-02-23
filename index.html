@@ -3,126 +3,49 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Media Expert - Dashboard</title>
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="home.css">
+    <title>Kontrola Towarów - Media Expert</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="inwa.css">
 </head>
 <body>
-    <header>
-        <div class="menu-btn" onclick="toggleMenu()">☰</div>
-        <div class="logo">MEDIA <span>EXPERT</span></div>
-    </header>
 
-    <div class="overlay" id="overlay" onclick="toggleMenu()"></div>
+<header>
+    <div class="menu-btn" onclick="toggleSidebar()">☰</div>
+    <div class="logo">MEDIA <span>EXPERT</span></div>
+</header>
 
 <nav class="sidebar" id="sidebar">
     <div class="sidebar-header">NAWIGACJA</div>
     <a href="index.html" class="sidebar-link">🏠 STRONA GŁÓWNA</a>
     <a href="plan.html" class="sidebar-link">📅 PLAN PRACY</a>
-    <a href="inwa.html" class="sidebar-link">📝 INWENTURA</a>
-    <a href="kwt.html" class="sidebar-link">🗒️ KWT</a>
+    <a href="inwa.html" class="sidebar-link active">📝 INWENTURY</a>
+    <a href="kwt.html" class="sidebar-link">📋 KWT</a>
     <a href="qr.html" class="sidebar-link">🖼️ KOD QR</a>
 </nav>
 
-    <main>
-        <div class="clock-container">
-            <div class="flip-card" id="hours-card">
-                <div class="flip-inner">
-                    <div class="flip-front" id="hours">00</div>
-                    <div class="flip-back">00</div>
-                </div>
-            </div>
-            <div class="clock-sep">:</div>
-            <div class="flip-card" id="minutes-card">
-                <div class="flip-inner">
-                    <div class="flip-front" id="minutes">00</div>
-                    <div class="flip-back">00</div>
-                </div>
-            </div>
-            <div class="clock-sep">:</div>
-            <div class="flip-card" id="seconds-card">
-                <div class="flip-inner">
-                    <div class="flip-front" id="seconds">00</div>
-                    <div class="flip-back">00</div>
-                </div>
-            </div>
-        </div>
+<div class="overlay" id="overlay" onclick="toggleSidebar()"></div>
 
-        <div class="dashboard-grid">
-            <a href="plan.html" class="dash-card">
-                <div class="icon-box">📅</div>
-                <div class="card-info">
-                    <h3>PLAN PRACY</h3>
-                    <p>SPRAWDŹ GRAFIK</p>
-                </div>
-            </a>
-            <a href="qr.html" class="dash-card">
-                <div class="icon-box">🖼️</div>
-                <div class="card-info">
-                    <h3>TWÓJ KOD QR</h3>
-                    <p>SZYBKI GENERATOR</p>
-                </div>
-            </a>
-            <div class="dash-card">
-                <div class="icon-box">🕒</div>
-                <div class="card-info">
-                    <h3>ZMIANA</h3>
-                    <p>10:00 - 18:00</p>
-                </div>
-            </div>
-        </div>
+<main>
+    <h1 class="page-title">KONTROLA <span>TOWARÓW</span></h1>
 
-        <div class="team-wrapper">
-            <h2 class="team-title">NASZA <span class="yellow-highlight">EXPERTOWA</span> EKIPA</h2>
-            <div class="team-grid">
-                <div class="member-card">
-                    <div class="avatar-placeholder">P</div>
-                    <div class="m-info"><strong>Paweł</strong><span>MS</span></div>
-                </div>
-                <div class="member-card">
-                    <div class="avatar-placeholder">M</div>
-                    <div class="m-info"><strong>Michał</strong><span>KSS</span></div>
-                </div>
-                <div class="member-card">
-                    <div class="avatar-placeholder">N</div>
-                    <div class="m-info"><strong>Natalia</strong><span>POK</span></div>
-                </div>
-                <div class="member-card">
-                    <div class="avatar-placeholder">M</div>
-                    <div class="m-info"><strong>Magda</strong><span>POK</span></div>
-                </div>
-                <div class="member-card">
-                    <div class="avatar-placeholder">J</div>
-                    <div class="m-info"><strong>Jakub</strong><span>IT</span></div>
-                </div>
-                <div class="member-card">
-                    <div class="avatar-placeholder">A</div>
-                    <div class="m-info"><strong>Adrian</strong><span>IT</span></div>
-                </div>
-                <div class="member-card">
-                    <div class="avatar-placeholder">D</div>
-                    <div class="m-info"><strong>Dawid</strong><span>IT</span></div>
-                </div>
-                <div class="member-card">
-                    <div class="avatar-placeholder">D</div>
-                    <div class="m-info"><strong>Darek</strong><span>IT</span></div>
-                </div>
-                <div class="member-card">
-                    <div class="avatar-placeholder">Ł</div>
-                    <div class="m-info"><strong>Łukasz</strong><span>AGD</span></div>
-                </div>
-                <div class="member-card">
-                    <div class="avatar-placeholder">I</div>
-                    <div class="m-info"><strong>Ilona</strong><span>AGD</span></div>
-                </div>
-                <div class="member-card">
-                    <div class="avatar-placeholder">A</div>
-                    <div class="m-info"><strong>Ariel</strong><span>RTV</span></div>
-                </div>
-            </div>
-        </div>
-    </main>
+    <div class="period-selector">
+        <label>OKRES:</label>
+        <select id="monthSelect" onchange="renderInwentura()">
+            <option value="1">LUTY 2026</option>
+            <option value="2" selected>MARZEC 2026</option>
+            <option value="3">KWIECIEŃ 2026</option>
+        </select>
+    </div>
 
-    <script src="home.js"></script>
+    <div class="filter-bar">
+        <button class="filter-btn active" onclick="setDept('IT', this)">IT</button>
+        <button class="filter-btn" onclick="setDept('RTV', this)">RTV</button>
+        <button class="filter-btn" onclick="setDept('AGD', this)">AGD</button>
+    </div>
+
+    <div id="inwaList"></div>
+</main>
+
+<script src="inwa.js"></script>
 </body>
 </html>

@@ -3,48 +3,60 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Media Expert - Inwentura</title>
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&display=swap" rel="stylesheet">
+    <title>Kontrola Towarów - Media Expert</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="inwa.css">
 </head>
 <body>
-    <header>
-        <div class="menu-btn" onclick="toggleMenu()">☰</div>
-        <div class="logo">MEDIA <span>EXPERT</span></div>
-    </header>
 
-    <div class="overlay" id="overlay" onclick="toggleMenu()"></div>
+<header>
+    <div class="menu-btn" onclick="toggleSidebar()">☰</div>
+    <div class="logo">MEDIA <span>EXPERT</span></div>
+</header>
 
-    <nav class="sidebar" id="sidebar">
-        <div class="sidebar-header">NAWIGACJA</div>
-        <a href="index.html" class="sidebar-link">🏠 STRONA GŁÓWNA</a>
-        <a href="plan.html" class="sidebar-link">📅 PLAN PRACY</a>
-        <a href="inwa.html" class="sidebar-link active">📝 INWENTURA</a>
-        <a href="kwt.html" class="sidebar-link">🗒️ KWT</a>
-        <a href="qr.html" class="sidebar-link">🖼️ KOD QR</a>
-    </nav>
+<nav class="sidebar" id="sidebar">
+    <div class="sidebar-header">NAWIGACJA</div>
+    <a href="index.html" class="sidebar-link">🏠 STRONA GŁÓWNA</a>
+    <a href="plan.html" class="sidebar-link">📅 PLAN PRACY</a>
+    <a href="inwa.html" class="sidebar-link active">📝 INWENTURY</a>
+    <a href="kwt.html" class="sidebar-link">📋 KWT</a>
+    <a href="qr.html" class="sidebar-link">🖼️ KOD QR</a>
+</nav>
 
-    <main>
-        <h1 class="page-title">SYSTEM <span>INWENTURY</span></h1>
+<div class="overlay" id="overlay" onclick="toggleSidebar()"></div>
 
-        <div class="filter-bar">
-            <button class="filter-btn active" onclick="filterDept('it', this)">IT</button>
-            <button class="filter-btn" onclick="filterDept('rtv', this)">RTV</button>
-            <button class="filter-btn" onclick="filterDept('agd', this)">AGD</button>
+<main>
+    <h1 class="page-title">KONTROLA <span>TOWARÓW</span></h1>
+
+    <div class="period-selector">
+        <label>OKRES:</label>
+        <select id="monthSelect" onchange="renderInwentura()">
+            <option value="0">Styczeń</option>
+            <option value="1">Luty</option>
+            <option value="2" selected>Marzec</option>
+            <option value="3">Kwiecień</option>
+            <option value="4">Maj</option>
+            <option value="5">Czerwiec</option>
+            <option value="6">Lipiec</option>
+            <option value="7">Sierpień</option>
+            <option value="8">Wrzesień</option>
+            <option value="9">Październik</option>
+            <option value="10">Listopad</option>
+            <option value="11">Grudzień</option>
+        </select>
+    </div>
+
+    <div class="filter-bar">
+        <button class="filter-btn active" onclick="setDept('IT', this)">IT</button>
+        <button class="filter-btn" onclick="setDept('RTV', this)">RTV</button>
+        <button class="filter-btn" onclick="setDept('AGD', this)">AGD</button>
+    </div>
+
+    <div id="inwaList" class="inwa-grid">
         </div>
+</main>
 
-        <div class="month-selector-wrapper">
-            <label>OKRES:</label>
-            <select id="monthSelect" onchange="changeMonth()">
-                <option value="2026-02">LUTY 2026</option>
-                <option value="2026-03">MARZEC 2026</option>
-                <option value="2026-04">KWIECIEŃ 2026</option>
-            </select>
-        </div>
+<script src="inwa.js"></script>
 
-        <div id="inwaList" class="inwa-content"></div>
-    </main>
-
-    <script src="inwa.js"></script>
 </body>
 </html>

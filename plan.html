@@ -75,7 +75,7 @@
 <div class="navigation-area">
     <div class="month-row">
         <div class="month-selector" id="monthSelector"></div>
-        <div class="admin-controls" id="adminTools">
+        <div class="admin-controls">
             <div style="display:flex; align-items:center; gap:5px;">
                 <span style="font-size:0.6rem; font-weight:900; color:#ffe800;">NORMA:</span>
                 <input type="number" id="hourNormInput" class="norm-input" value="160">
@@ -97,221 +97,221 @@
 
 <div class="modal" id="wishModal">
     <div class="modal-content">
-        <div class="section-title">ZAKRESY PRACY I SKLEP (GLOBALNE)</div>
+        <div class="section-title">USTAWIENIA SKLEPU</div>
         <div class="shop-settings">
-            <div>
-                <span class="label-text">OTWARCIE:</span>
-                <input type="text" id="shopOpen" class="card-input" value="10:00">
-            </div>
-            <div>
-                <span class="label-text">ZAMKNIĘCIE:</span>
-                <input type="text" id="shopClose" class="card-input" value="20:00">
-            </div>
-            <div>
-                <span class="label-text">ZAKRESY PRACY (OD-DO):</span>
-                <input type="text" id="globalShifts" class="card-input" value="10-20, 10-18, 12-20, 13-20">
-            </div>
+            <div><span class="label-text">OTWARCIE:</span><input type="text" id="shopOpen" class="card-input" value="10:00"></div>
+            <div><span class="label-text">ZAMKNIĘCIE:</span><input type="text" id="shopClose" class="card-input" value="20:00"></div>
+            <div><span class="label-text">ZMIANY (ROZDZIEL PRZECINKIEM):</span><input type="text" id="globalShifts" class="card-input" value="10-20, 10-18, 12-20, 13-20"></div>
         </div>
-
-        <div class="section-title">ŻYCZENIA I URLOPY (PRACOWNICY)</div>
+        <div class="section-title">ŻYCZENIA I URLOPY</div>
         <div class="worker-grid" id="workerGrid"></div>
-
         <div style="display:flex; gap:10px; margin-top:20px;">
-            <button class="btn-gen" style="flex:1; height:45px;" onclick="applySettings()">ZAPISZ I ODŚWIEŻ</button>
-            <button class="btn-gen" style="flex:1; height:45px; background:#333; color:white;" onclick="toggleModal(false)">ANULUJ</button>
+            <button class="btn-gen" style="flex:1; height:45px;" onclick="applySettings()">ZAPISZ</button>
+            <button class="btn-gen" style="flex:1; height:45px; background:#333;" onclick="toggleModal(false)">ANULUJ</button>
         </div>
     </div>
 </div>
 
 <script>
-    const employees = [
-        {n: "PAWEŁ", i: "P"}, {n: "MICHAŁ", i: "M"}, {n: "NATALIA", i: "N"}, 
-        {n: "MAGDA", i: "M"}, {n: "JAKUB", i: "J"}, {n: "ADRIAN", i: "A"}, 
-        {n: "DAWID", i: "D"}, {n: "DAREK", i: "D"}, {n: "ŁUKASZ", i: "Ł"}, 
-        {n: "ILONA", i: "I"}, {n: "ARIEL", i: "A"}
-    ];
+const employees = [
+    {n: "PAWEŁ", i: "P", pok: false}, {n: "MICHAŁ", i: "M", pok: false}, {n: "NATALIA", i: "N", pok: true}, 
+    {n: "MAGDA", i: "M", pok: true}, {n: "JAKUB", i: "J", pok: false}, {n: "ADRIAN", i: "A", pok: false}, 
+    {n: "DAWID", i: "D", pok: false}, {n: "DAREK", i: "D", pok: false}, {n: "ŁUKASZ", i: "Ł", pok: false}, 
+    {n: "ILONA", i: "I", pok: false}, {n: "ARIEL", i: "A", pok: false}
+];
 
-    const months = ["STYCZEŃ", "LUTY", "MARZEC", "KWIECIEŃ", "MAJ", "CZERWIEC", "LIPIEC", "SIERPIEŃ", "WRZESIEŃ", "PAŹDZIERNIK", "LISTOPAD", "GRUDZIEŃ"];
-    let currentMonthIdx = 1; 
-    const handlowe2026 = ["2026-01-25", "2026-04-26", "2026-06-28", "2026-08-30", "2026-12-13", "2026-12-20"];
+const months = ["STYCZEŃ", "LUTY", "MARZEC", "KWIECIEŃ", "MAJ", "CZERWIEC", "LIPIEC", "SIERPIEŃ", "WRZESIEŃ", "PAŹDZIERNIK", "LISTOPAD", "GRUDZIEŃ"];
+let currentMonthIdx = 1; 
+const handlowe2026 = ["2026-01-25", "2026-04-26", "2026-06-28", "2026-08-30", "2026-12-13", "2026-12-20"];
 
-    function init() {
-        renderMonths(); renderTable(); renderWishForm();
+function saveVal(name, d, v) {
+    localStorage.setItem(`plan_${months[currentMonthIdx]}_${name}_d${d}`, v.toUpperCase());
+}
+
+function getEmpHours(name) {
+    let total = 0;
+    const daysCount = new Date(2026, currentMonthIdx + 1, 0).getDate();
+    for(let d = 1; d <= daysCount; d++) {
+        const v = localStorage.getItem(`plan_${months[currentMonthIdx]}_${name}_d${d}`) || "";
+        if(v.includes('-')) {
+            const p = v.split('-');
+            total += (parseInt(p[1]) - parseInt(p[0]));
+        } else if(v === "URLOP") total += 8;
     }
+    return total;
+}
 
-    function getEmpHours(name) {
-        let total = 0;
-        const daysCount = new Date(2026, currentMonthIdx + 1, 0).getDate();
-        for(let d = 1; d <= daysCount; d++) {
-            const v = localStorage.getItem(`plan_${months[currentMonthIdx]}_${name}_d${d}`) || "";
-            if(v.includes('-')) {
-                const parts = v.split('-');
-                total += (parseInt(parts[1]) - parseInt(parts[0]));
-            } else if(v === "URLOP") total += 8;
-        }
-        return total;
-    }
+function generateAutoPlan() {
+    const targetNorm = parseInt(document.getElementById('hourNormInput').value);
+    const shopOpen = document.getElementById('shopOpen').value.split(':')[0];
+    const shopClose = document.getElementById('shopClose').value.split(':')[0];
+    const shiftsStr = document.getElementById('globalShifts').value;
+    const shiftsPula = shiftsStr.split(',').map(s => s.trim());
+    const daysCount = new Date(2026, currentMonthIdx + 1, 0).getDate();
 
-    function generateAutoPlan() {
-        const norm = parseInt(document.getElementById('hourNormInput').value) || 160;
-        const shifts = (localStorage.getItem(`global_shifts_${months[currentMonthIdx]}`) || "10-20, 10-18, 12-20, 13-20").split(',').map(s => s.trim());
-        const daysCount = new Date(2026, currentMonthIdx + 1, 0).getDate();
-
-        // 1. Czyścimy stare wpisy (zostawiamy Ż i URLOP)
-        employees.forEach(emp => {
-            for(let d=1; d<=daysCount; d++) {
-                const v = localStorage.getItem(`plan_${months[currentMonthIdx]}_${emp.n}_d${d}`) || "";
-                if(v !== "Ż" && v !== "URLOP") localStorage.removeItem(`plan_${months[currentMonthIdx]}_${emp.n}_d${d}`);
-            }
-        });
-
-        // 2. Najpierw POK i Soboty (obowiązkowe)
+    // 1. Czyścimy plan (zostawiamy Ż i URLOP)
+    employees.forEach(emp => {
         for(let d=1; d<=daysCount; d++) {
-            const date = new Date(2026, currentMonthIdx, d);
-            const isSat = date.getDay() === 6;
-            const ds = `2026-${String(currentMonthIdx+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
-            if(date.getDay() === 0 && !handlowe2026.includes(ds)) continue;
+            const v = localStorage.getItem(`plan_${months[currentMonthIdx]}_${emp.n}_d${d}`) || "";
+            if(v !== "Ż" && v !== "URLOP") localStorage.removeItem(`plan_${months[currentMonthIdx]}_${emp.n}_d${d}`);
+        }
+    });
 
-            const nV = localStorage.getItem(`plan_${months[currentMonthIdx]}_NATALIA_d${d}`);
-            const mV = localStorage.getItem(`plan_${months[currentMonthIdx]}_MAGDA_d${d}`);
-            if(!nV && !mV) {
-                if(isSat) { saveVal("NATALIA", d, "10-20"); saveVal("MAGDA", d, "10-20"); }
-                else { saveVal("NATALIA", d, "10-18"); saveVal("MAGDA", d, "13-20"); }
-            }
-            // Soboty dla reszty
-            if(isSat) {
-                employees.forEach(emp => {
-                    if(emp.n!=="PAWEŁ" && !localStorage.getItem(`plan_${months[currentMonthIdx]}_${emp.n}_d${d}`)) saveVal(emp.n, d, "10-20");
-                });
-            }
+    // 2. Soboty - Sztywne 10-20
+    for(let d=1; d<=daysCount; d++) {
+        const date = new Date(2026, currentMonthIdx, d);
+        if(date.getDay() === 6) {
+            employees.forEach(emp => {
+                if(emp.n === "PAWEŁ") return;
+                const v = localStorage.getItem(`plan_${months[currentMonthIdx]}_${emp.n}_d${d}`);
+                if(!v) saveVal(emp.n, d, "10-20");
+            });
+        }
+    }
+
+    // 3. Obsada POK (Natalia/Magda) i Działów (Otwarcie/Zamknięcie)
+    for(let d=1; d<=daysCount; d++) {
+        const date = new Date(2026, currentMonthIdx, d);
+        const ds = `2026-${String(currentMonthIdx+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+        if(date.getDay() === 0 && !handlowe2026.includes(ds)) continue;
+        if(date.getDay() === 6) continue; // Soboty już mamy
+
+        // POK: Jeden rano, jeden wieczór
+        const poks = employees.filter(e => e.pok);
+        const availPok = poks.filter(e => !localStorage.getItem(`plan_${months[currentMonthIdx]}_${e.n}_d${d}`));
+        if(availPok.length >= 2) {
+            saveVal(availPok[0].n, d, `${shopOpen}-18`);
+            saveVal(availPok[1].n, d, `12-${shopClose}`);
+        } else if(availPok.length === 1) {
+            saveVal(availPok[0].n, d, `${shopOpen}-${shopClose}`);
         }
 
-        // 3. Dopełnianie do NORMY (bezwzględne)
-        employees.forEach(emp => {
-            if(emp.n === "PAWEŁ") return;
-            let currentH = getEmpHours(emp.n);
-            let attempts = 0;
+        // DZIAŁY: 3 na otwarcie, 3 na zamknięcie
+        const dzialy = employees.filter(e => !e.pok && e.n !== "PAWEŁ");
+        const availDzialy = dzialy.filter(e => !localStorage.getItem(`plan_${months[currentMonthIdx]}_${e.n}_d${d}`));
+        
+        // Tasujemy pracowników dla losowości
+        availDzialy.sort(() => Math.random() - 0.5);
+        
+        if(availDzialy.length >= 6) {
+            for(let i=0; i<3; i++) saveVal(availDzialy[i].n, d, `${shopOpen}-18`);
+            for(let i=3; i<6; i++) saveVal(availDzialy[i].n, d, `12-${shopClose}`);
+        }
+    }
 
-            while(currentH < norm - 4 && attempts < 100) {
-                let randomDay = Math.floor(Math.random() * daysCount) + 1;
-                const date = new Date(2026, currentMonthIdx, randomDay);
-                const ds = `2026-${String(currentMonthIdx+1).padStart(2,'0')}-${String(randomDay).padStart(2,'0')}`;
-                
-                // Nie pracujemy w niedziele niehandlowe
-                if(date.getDay() === 0 && !handlowe2026.includes(ds)) { attempts++; continue; }
+    // 4. DOPYCHANIE DO NORMY (SZTYWNE)
+    employees.forEach(emp => {
+        if(emp.n === "PAWEŁ") return;
+        let currentH = getEmpHours(emp.n);
+        let loops = 0;
 
-                if(!localStorage.getItem(`plan_${months[currentMonthIdx]}_${emp.n}_d${randomDay}`)) {
-                    let rs = shifts[Math.floor(Math.random() * shifts.length)];
-                    let h = parseInt(rs.split('-')[1]) - parseInt(rs.split('-')[0]);
-                    
-                    if(currentH + h <= norm + 4) {
-                        saveVal(emp.n, randomDay, rs);
+        while(currentH < targetNorm && loops < 500) {
+            let d = Math.floor(Math.random() * daysCount) + 1;
+            const date = new Date(2026, currentMonthIdx, d);
+            const ds = `2026-${String(currentMonthIdx+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+            if(date.getDay() === 0 && !handlowe2026.includes(ds)) { loops++; continue; }
+            
+            const existing = localStorage.getItem(`plan_${months[currentMonthIdx]}_${emp.n}_d${d}`);
+            if(!existing) {
+                // Wybieramy zmianę z puli, która nie przekroczy normy
+                for(let s of shiftsPula) {
+                    const h = parseInt(s.split('-')[1]) - parseInt(s.split('-')[0]);
+                    if(currentH + h <= targetNorm) {
+                        saveVal(emp.n, d, s);
                         currentH += h;
+                        break;
                     }
                 }
-                attempts++;
             }
+            loops++;
+        }
+    });
+
+    renderTable();
+}
+
+// Reszta funkcji systemowych (Menu, Tabela, Sumy) pozostaje bez zmian
+function renderTable() {
+    const workerRow = document.getElementById('workerRow');
+    const sumRow = document.getElementById('sumRow');
+    const daysBody = document.getElementById('daysBody');
+    workerRow.innerHTML = '<th class="date-col">DATA</th>';
+    sumRow.innerHTML = '<td class="date-col">SUMA H</td>';
+    employees.forEach(emp => {
+        workerRow.innerHTML += `<th><div class="avatar">${emp.i}</div><div class="worker-name">${emp.n}</div></th>`;
+        sumRow.innerHTML += `<td id="sum-${emp.n}">0h</td>`;
+    });
+    const daysCount = new Date(2026, currentMonthIdx + 1, 0).getDate();
+    daysBody.innerHTML = '';
+    for (let d = 1; d <= daysCount; d++) {
+        const date = new Date(2026, currentMonthIdx, d);
+        const isSun = date.getDay() === 0;
+        const isSat = date.getDay() === 6;
+        const ds = `2026-${String(currentMonthIdx+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+        const tr = document.createElement('tr');
+        if(isSun) tr.className = handlowe2026.includes(ds) ? 'sunday-handlowa' : 'sunday-red';
+        else if(isSat) tr.className = 'sat-yellow';
+        let html = `<td class="date-col">${d} ${["ND", "PN", "WT", "ŚR", "CZ", "PT", "SB"][date.getDay()]}</td>`;
+        employees.forEach(emp => {
+            const val = localStorage.getItem(`plan_${months[currentMonthIdx]}_${emp.n}_d${d}`) || "";
+            let cls = (val === "Ż") ? "val-z" : (val === "URLOP" ? "val-urlop" : "");
+            html += `<td><input type="text" class="${cls}" value="${val}" onchange="localStorage.setItem('plan_${months[currentMonthIdx]}_${emp.n}_d${d}', this.value); updateSums();"></td>`;
         });
+        tr.innerHTML = html;
+        daysBody.appendChild(tr);
+    }
+    updateSums();
+}
+
+function updateSums() {
+    employees.forEach(emp => {
+        document.getElementById(`sum-${emp.n}`).innerText = getEmpHours(emp.n) + "h";
+    });
+}
+
+function renderWishForm() {
+    const grid = document.getElementById('workerGrid');
+    grid.innerHTML = "";
+    employees.forEach(emp => {
+        if(emp.n === "PAWEŁ") return;
+        grid.innerHTML += `<div class="worker-card"><h4>${emp.n}</h4><span class="label-text">ŻYCZENIE (DZIEŃ):</span><input type="number" id="z_${emp.n}" class="card-input"><span class="label-text">URLOP (OD-DO):</span><div style="display:flex;gap:5px"><input type="number" id="u1_${emp.n}" class="card-input"><input type="number" id="u2_${emp.n}" class="card-input"></div></div>`;
+    });
+}
+
+function applySettings() {
+    employees.forEach(emp => {
+        const z = document.getElementById(`z_${emp.n}`).value;
+        const u1 = document.getElementById(`u1_${emp.n}`).value;
+        const u2 = document.getElementById(`u2_${emp.n}`).value;
+        if(z) saveVal(emp.n, z, "Ż");
+        if(u1 && u2) for(let i=parseInt(u1); i<=parseInt(u2); i++) saveVal(emp.n, i, "URLOP");
+    });
+    toggleModal(false);
+    renderTable();
+}
+
+function renderMonths() {
+    const container = document.getElementById('monthSelector');
+    container.innerHTML = "";
+    months.forEach((m, idx) => {
+        const btn = document.createElement('button');
+        btn.className = `month-btn ${idx === currentMonthIdx ? 'active' : ''}`;
+        btn.innerText = m;
+        btn.onclick = () => { currentMonthIdx = idx; renderMonths(); renderTable(); };
+        container.appendChild(btn);
+    });
+}
+
+function clearFullMonth() {
+    if(confirm("CZYŚCIĆ WSZYSTKO?")) {
+        employees.forEach(e => { for(let d=1; d<=31; d++) localStorage.removeItem(`plan_${months[currentMonthIdx]}_${e.n}_d${d}`); });
         renderTable();
     }
+}
 
-    function saveVal(name, d, v) {
-        localStorage.setItem(`plan_${months[currentMonthIdx]}_${name}_d${d}`, v.toUpperCase());
-        updateSums();
-    }
-
-    function updateSums() {
-        employees.forEach(emp => {
-            const h = getEmpHours(emp.n);
-            const el = document.getElementById(`sum-${emp.n}`);
-            if(el) el.innerText = h + "h";
-        });
-    }
-
-    function renderTable() {
-        const workerRow = document.getElementById('workerRow');
-        const sumRow = document.getElementById('sumRow');
-        const daysBody = document.getElementById('daysBody');
-        workerRow.innerHTML = '<th class="date-col">DATA</th>';
-        sumRow.innerHTML = '<td class="date-col">SUMA H</td>';
-        employees.forEach(emp => {
-            workerRow.innerHTML += `<th><div class="avatar">${emp.i}</div><div class="worker-name">${emp.n}</div></th>`;
-            sumRow.innerHTML += `<td id="sum-${emp.n}">0h</td>`;
-        });
-        const daysCount = new Date(2026, currentMonthIdx + 1, 0).getDate();
-        daysBody.innerHTML = '';
-        for (let d = 1; d <= daysCount; d++) {
-            const date = new Date(2026, currentMonthIdx, d);
-            const isSun = date.getDay() === 0;
-            const isSat = date.getDay() === 6;
-            const ds = `2026-${String(currentMonthIdx+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
-            const tr = document.createElement('tr');
-            if(isSun) tr.className = handlowe2026.includes(ds) ? 'sunday-handlowa' : 'sunday-red';
-            else if(isSat) tr.className = 'sat-yellow';
-            let html = `<td class="date-col">${d} ${["ND", "PN", "WT", "ŚR", "CZ", "PT", "SB"][date.getDay()]}</td>`;
-            employees.forEach(emp => {
-                const val = localStorage.getItem(`plan_${months[currentMonthIdx]}_${emp.n}_d${d}`) || "";
-                let cls = (val === "Ż") ? "val-z" : (val === "URLOP" ? "val-urlop" : "");
-                html += `<td><input type="text" class="${cls}" value="${val}" onchange="saveVal('${emp.n}', ${d}, this.value)"></td>`;
-            });
-            tr.innerHTML = html;
-            daysBody.appendChild(tr);
-        }
-        updateSums();
-    }
-
-    function renderWishForm() {
-        const grid = document.getElementById('workerGrid');
-        grid.innerHTML = "";
-        employees.forEach(emp => {
-            if(emp.n === "PAWEŁ") return;
-            grid.innerHTML += `
-                <div class="worker-card">
-                    <h4>${emp.n}</h4>
-                    <span class="label-text">ŻYCZENIA (DNI):</span>
-                    <div style="display:flex; gap:4px;"><input type="number" id="z1_${emp.n}" class="card-input" placeholder="1"><input type="number" id="z2_${emp.n}" class="card-input" placeholder="2"></div>
-                    <span class="label-text">URLOP (OD-DO):</span>
-                    <div style="display:flex; gap:4px;"><input type="number" id="u_od_${emp.n}" class="card-input" placeholder="Od"><input type="number" id="u_do_${emp.n}" class="card-input" placeholder="Do"></div>
-                </div>`;
-        });
-    }
-
-    function applySettings() {
-        localStorage.setItem(`global_shifts_${months[currentMonthIdx]}`, document.getElementById('globalShifts').value);
-        employees.forEach(emp => {
-            if(emp.n === "PAWEŁ") return;
-            const z1 = document.getElementById(`z1_${emp.n}`).value;
-            const z2 = document.getElementById(`z2_${emp.n}`).value;
-            const uOd = parseInt(document.getElementById(`u_od_${emp.n}`).value);
-            const uDo = parseInt(document.getElementById(`u_do_${emp.n}`).value);
-            if(z1) saveVal(emp.n, z1, "Ż"); if(z2) saveVal(emp.n, z2, "Ż");
-            if(uOd && uDo) for(let i=uOd; i<=uDo; i++) saveVal(emp.n, i, "URLOP");
-        });
-        renderTable(); toggleModal(false);
-    }
-
-    function renderMonths() {
-        const container = document.getElementById('monthSelector');
-        container.innerHTML = "";
-        months.forEach((m, idx) => {
-            const btn = document.createElement('button');
-            btn.className = `month-btn ${idx === currentMonthIdx ? 'active' : ''}`;
-            btn.innerText = m;
-            btn.onclick = () => { currentMonthIdx = idx; renderMonths(); renderTable(); };
-            container.appendChild(btn);
-        });
-    }
-
-    function clearFullMonth() {
-        if(confirm("Wyczyścić?")) {
-            employees.forEach(e => { for(let d=1; d<=31; d++) localStorage.removeItem(`plan_${months[currentMonthIdx]}_${e.n}_d${d}`); });
-            renderTable();
-        }
-    }
-
-    function toggleModal(s) { document.getElementById('wishModal').style.display = s ? 'flex' : 'none'; }
-    function toggleNav() { document.getElementById('sidebar').classList.toggle('active'); document.getElementById('overlay').classList.toggle('active'); }
-    window.onload = init;
+function toggleModal(s) { document.getElementById('wishModal').style.display = s ? 'flex' : 'none'; }
+function toggleNav() { document.getElementById('sidebar').classList.toggle('active'); document.getElementById('overlay').classList.toggle('active'); }
+window.onload = init;
 </script>
 </body>
 </html>

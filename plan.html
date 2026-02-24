@@ -3,11 +3,87 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Media Expert - Plan Pracy</title>
+    <title>Plan Pracy - Media Expert</title>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="plan.css">
+    <style>
+        /* RESET I PODSTAWY */
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Montserrat', sans-serif; }
+        body { background: #000; color: white; overflow-x: hidden; }
+
+        /* HEADER */
+        header { 
+            background: #ffe800; height: 60px; display: flex; align-items: center; 
+            justify-content: center; position: sticky; top: 0; z-index: 2000; 
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5); 
+        }
+        .logo { color: #000; font-weight: 900; font-size: 1.6rem; text-transform: uppercase; }
+        .logo span { background: #000; color: #ffe800; padding: 0 6px; border-radius: 4px; }
+        .menu-btn { position: absolute; left: 20px; cursor: pointer; color: #000; font-size: 1.8rem; }
+
+        /* SIDEBAR */
+        .sidebar { 
+            position: fixed; left: -280px; top: 0; width: 260px; height: 100%; 
+            background: #0a0a0a; border-right: 3px solid #ffe800; transition: 0.3s; z-index: 3000; 
+        }
+        .sidebar.active { left: 0; }
+        .sidebar-header { 
+            background: #1a1a1a; color: #777; padding: 25px; font-weight: 900; 
+            font-size: 0.75rem; text-transform: uppercase; border-bottom: 1px solid #222; 
+        }
+        .sidebar-link { 
+            display: block; color: white; padding: 18px 25px; text-decoration: none; 
+            font-weight: 700; border-bottom: 1px solid #1a1a1a; transition: 0.3s; 
+        }
+        .sidebar-link:hover { background: #111; color: #ffe800; padding-left: 35px; }
+        .sidebar-link.active { background: #111; color: #ffe800; border-left: 5px solid #ffe800; }
+        
+        .overlay { 
+            position: fixed; inset: 0; background: rgba(0,0,0,0.85); 
+            display: none; z-index: 2500; backdrop-filter: blur(4px); 
+        }
+        .overlay.active { display: block; }
+
+        /* MAIN CONTENT */
+        main { padding: 30px 10px; }
+        .page-title { text-align: center; font-weight: 900; font-size: 2rem; margin-bottom: 30px; text-transform: uppercase; }
+        .page-title span { color: #ffe800; }
+
+        /* TABELA */
+        .table-container { 
+            overflow-x: auto; background: #111; border-radius: 15px; 
+            border: 2px solid #222; box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+        table { width: 100%; border-collapse: collapse; min-width: 1400px; }
+        th, td { border: 1px solid #222; padding: 12px 8px; text-align: center; }
+        th { background: #1a1a1a; color: #777; font-size: 0.75rem; text-transform: uppercase; }
+        
+        /* KOLUMNA Z NAZWISKIEM */
+        .sticky-col { 
+            position: sticky; left: 0; background: #0a0a0a !important; 
+            font-weight: 900; color: #ffe800; border-right: 2px solid #ffe800; 
+            min-width: 180px; text-align: left; padding-left: 15px;
+            z-index: 10;
+        }
+
+        /* INPUTY W TABELI */
+        input { 
+            background: transparent; border: none; color: white; width: 45px; 
+            text-align: center; font-weight: 700; outline: none; font-size: 0.9rem;
+        }
+        input:focus { background: rgba(255, 232, 0, 0.1); border-radius: 4px; }
+
+        /* KOLUMNA SUMY */
+        .sum-col { 
+            background: #1a1a00 !important; color: #ffe800; 
+            font-weight: 900; font-size: 1rem; border-left: 2px solid #ffe800;
+        }
+
+        /* DZIAŁY */
+        .dept-tag { font-size: 0.6rem; color: #555; display: block; font-weight: 400; }
+    </style>
 </head>
 <body>
+
     <header>
         <div class="menu-btn" onclick="toggleMenu()">☰</div>
         <div class="logo">MEDIA <span>EXPERT</span></div>
@@ -15,62 +91,75 @@
 
     <div class="overlay" id="overlay" onclick="toggleMenu()"></div>
 
-<nav class="sidebar" id="sidebar">
-    <div class="sidebar-header">NAWIGACJA</div>
-    <a href="index.html" class="sidebar-link">🏠 STRONA GŁÓWNA</a>
-    <a href="plan.html" class="sidebar-link">📅 PLAN PRACY</a>
-    <a href="inwa.html" class="sidebar-link">📝 INWENTURA</a>
-    <a href="kwt.html" class="sidebar-link">🗒️ KWT</a>
-    <a href="qr.html" class="sidebar-link">🖼️ KOD QR</a>
-</nav>
+    <nav class="sidebar" id="sidebar">
+        <div class="sidebar-header">NAWIGACJA</div>
+        <a href="index.html" class="sidebar-link">🏠 STRONA GŁÓWNA</a>
+        <a href="plan.html" class="sidebar-link active">📅 PLAN PRACY</a>
+        <a href="inwa.html" class="sidebar-link">📝 INWENTURY</a>
+        <a href="kwt.html" class="sidebar-link">🔍 KWT</a>
+        <a href="qr.html" class="sidebar-link">🖼️ KOD QR</a>
+        <a href="#" onclick="logout()" class="sidebar-link" style="color: #ff4444; margin-top: 20px;">🚪 WYLOGUJ</a>
+    </nav>
 
     <main>
-        <div class="month-selector-wrapper">
-            <div id="monthSelector" class="month-tabs"></div>
-        </div>
-
-        <div class="legend-bar">
-            <div class="leg-item"><span class="badge socjal-dot"></span> SOCJAL</div>
-            <div class="leg-item"><span class="badge klucze-dot"></span> KLUCZE</div>
-            <div class="leg-item"><span class="badge dostawa-dot"></span> DOSTAWA</div>
-        </div>
-
-        <div class="table-scroll-container">
-            <table id="scheduleTable">
+        <h1 class="page-title">PLAN <span>PRACY</span></h1>
+        
+        <div class="table-container">
+            <table>
                 <thead>
-                    <tr class="main-header">
-                        <th rowspan="2" class="sticky-col">DATA</th>
-                        <th class="dept-title">KE</th><th class="dept-title">KSS</th>
-                        <th colspan="2" class="dept-title">POK</th>
-                        <th colspan="4" class="dept-title">IT</th>
-                        <th colspan="2" class="dept-title">AGD</th>
-                        <th class="dept-title">RTV</th>
+                    <tr id="headerRow">
+                        <th class="sticky-col">PRACOWNIK / DZIAŁ</th>
+                        <th class="sum-col">SUMA</th>
                     </tr>
-                    <tr class="names-header">
-                        </tr>
                 </thead>
-                <tbody id="tableBody"></tbody>
+                <tbody id="scheduleBody">
+                    </tbody>
             </table>
         </div>
     </main>
 
-    <div id="editModal" class="modal">
-        <div class="modal-content">
-            <h3 id="modalTitle">Edytuj Zmianę</h3>
-            <input type="text" id="shiftInput" placeholder="np. 10-18">
-            <div class="type-selector">
-                <button onclick="setShiftType('socjal')">SOCJAL</button>
-                <button onclick="setShiftType('klucze')">KLUCZE</button>
-                <button onclick="setShiftType('dostawa')">DOSTAWA</button>
-                <button onclick="setShiftType('')">NORMALNA</button>
-            </div>
-            <div class="modal-actions">
-                <button onclick="closeModal()" class="cancel-btn">ANULUJ</button>
-                <button onclick="saveShift()" class="save-btn">ZAPISZ</button>
-            </div>
-        </div>
-    </div>
+    <script>
+        const employees = [
+            {n: "Pawel", d: "ME"}, {n: "Michal", d: "KSS"}, {n: "Kuba", d: "IT"},
+            {n: "Lukasz", d: "AGD"}, {n: "Ariel", d: "RTV"}, {n: "Dawid", d: "IT"},
+            {n: "Adrian", d: "IT"}, {n: "Magdalena", d: "POK"}, {n: "Ilona", d: "AGD"},
+            {n: "Dariusz", d: "IT"}, {n: "Natalia", d: "POK"}
+        ];
 
-    <script src="plan.js"></script>
-</body>
-</html>
+        const daysInMonth = 28; // Luty 2026
+
+        function toggleMenu() {
+            document.getElementById('sidebar').classList.toggle('active');
+            document.getElementById('overlay').classList.toggle('active');
+        }
+
+        function logout() {
+            localStorage.removeItem('loggedCharID');
+            localStorage.removeItem('loggedName');
+            window.location.href = 'login.html';
+        }
+
+        // Zabezpieczenie dostępu
+        if(!localStorage.getItem('loggedCharID')) {
+            window.location.href = 'login.html';
+        }
+
+        function initPlan() {
+            const headerRow = document.getElementById('headerRow');
+            const scheduleBody = document.getElementById('scheduleBody');
+            const sumHeader = headerRow.querySelector('.sum-col');
+
+            // 1. Generuj nagłówki dni (1-28)
+            for (let i = 1; i <= daysInMonth; i++) {
+                const th = document.createElement('th');
+                th.innerText = i;
+                headerRow.insertBefore(th, sumHeader);
+            }
+
+            // 2. Generuj wiersze pracowników
+            employees.forEach(emp => {
+                const tr = document.createElement('tr');
+                let rowHtml = `
+                    <td class="sticky-col">
+                        ${emp.n}
+                        <span class="dept-tag">${emp.d

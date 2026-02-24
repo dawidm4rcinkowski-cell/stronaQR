@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Media Expert - Plan Pracy PRO</title>
+    <title>Media Expert - Plan Pracy PRO V4</title>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Montserrat', sans-serif; }
         body { background: #080808; color: white; display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
-        header { background: #ffe800; height: 50px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; z-index: 9999; position: relative; }
+        header { background: #ffe800; height: 50px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; z-index: 9999; position: relative; border-bottom: 2px solid #000; }
         .logo { color: #000; font-weight: 900; font-size: 1.4rem; text-transform: uppercase; }
         .logo span { background: #000; color: #ffe800; padding: 0 4px; border-radius: 3px; }
         .menu-btn { position: absolute; left: 15px; cursor: pointer; color: #000; font-size: 1.5rem; }
@@ -34,10 +34,10 @@
         .table-container { flex-grow: 1; overflow: auto; position: relative; z-index: 100; }
         table { border-collapse: collapse; width: 100%; table-layout: fixed; }
         thead th { background: #080808; position: sticky; top: 0; z-index: 500; padding: 12px 5px; border-bottom: 2px solid #222; }
-        .avatar { width: 32px; height: 32px; border-radius: 50%; border: 2px solid #ffe800; display: flex; align-items: center; justify-content: center; margin: 0 auto 5px; font-weight: 900; color: #ffe800; font-size: 0.75rem; }
-        .worker-name { font-size: 0.6rem; font-weight: 900; text-transform: uppercase; }
+        .avatar { width: 30px; height: 30px; border-radius: 50%; border: 2px solid #ffe800; display: flex; align-items: center; justify-content: center; margin: 0 auto 5px; font-weight: 900; color: #ffe800; font-size: 0.7rem; }
+        .worker-name { font-size: 0.55rem; font-weight: 900; text-transform: uppercase; letter-spacing: 0.5px; }
         .date-col { position: sticky; left: 0; background: #080808; z-index: 600; width: 85px; font-size: 0.7rem; font-weight: 700; color: #777; text-align: center; border-right: 2px solid #ffe800; }
-        .obsada-col { width: 100px; color: #ffe800; font-weight: 900; font-size: 0.75rem; background: #111; text-align: center; border-left: 2px solid #ffe800; }
+        .obsada-col { width: 120px; color: #ffe800; font-weight: 900; font-size: 0.65rem; background: #111; text-align: center; border-left: 2px solid #ffe800; }
         
         td { border-bottom: 1px solid #151515; border-right: 1px solid #151515; height: 42px; }
         td input { width: 100%; height: 100%; background: transparent; border: none; color: white; text-align: center; font-weight: 700; font-size: 0.8rem; outline: none; }
@@ -45,8 +45,9 @@
         .sunday-red { background: #330000 !important; }
         .sunday-handlowa { background: #002200 !important; }
         .sat-yellow { background: #1a1a00 !important; }
+        
         tfoot td { background: #111; color: #ffe800; font-weight: 900; font-size: 0.8rem; text-align: center; position: sticky; bottom: 0; z-index: 500; border-top: 1px solid #333; height: 40px; }
-        .foot-label { text-align: right; padding-right: 10px; color: #777; font-size: 0.6rem; }
+        .foot-label { text-align: right; padding-right: 10px; color: #777; font-size: 0.6rem; text-transform: uppercase; }
 
         .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 11000; align-items: center; justify-content: center; padding: 15px; }
         .modal-content { background: #0a0a0a; border: 2px solid #ffe800; padding: 20px; width: 100%; max-width: 850px; border-radius: 15px; max-height: 90vh; overflow-y: auto; }
@@ -74,9 +75,9 @@
     <div class="month-row">
         <div class="month-selector" id="monthSelector"></div>
         <div class="admin-controls">
-            <span style="font-size:0.6rem; font-weight:900; color:#ffe800;">NORMA:</span>
+            <span style="font-size:0.6rem; font-weight:900; color:#ffe800;">NORMA H:</span>
             <input type="number" id="hourNormInput" class="norm-input" value="160">
-            <button class="btn-gen" onclick="generateAutoPlan()">🚀 GENERUJ</button>
+            <button class="btn-gen" onclick="generateAutoPlan()">🚀 GENERUJ PLAN</button>
             <button class="btn-gen btn-clear" onclick="clearFullMonth()">🗑️ CZYŚĆ</button>
             <div class="gear-btn" onclick="toggleModal(true)">⚙️</div>
         </div>
@@ -96,16 +97,16 @@
 
 <div class="modal" id="wishModal">
     <div class="modal-content">
-        <div class="section-title">USTAWIENIA SKLEPU</div>
+        <div class="section-title">KONFIGURACJA GENERATORA</div>
         <div style="background:#151515; padding:10px; border-radius:8px; margin-bottom:10px;">
-            <span class="label-text">ZAKRESY ZMIAN (UŻYWANE PRZY GENEROWANIU):</span>
+            <span class="label-text">DOSTĘPNE ZMIANY (NP. 10-20, 10-18, 12-20):</span>
             <input type="text" id="globalShifts" class="card-input" value="10-20, 10-18, 12-20, 13-20">
         </div>
-        <div class="section-title">ŻYCZENIA (Ż) I URLOPY (U)</div>
+        <div class="section-title">ŻYCZENIA I URLOPY</div>
         <div id="workerGrid" style="display:grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap:10px;"></div>
         <div style="margin-top:20px; display:flex; gap:10px;">
-            <button class="btn-gen" style="flex:1; height:40px;" onclick="applySettings()">ZAPISZ I ZAMKNIJ</button>
-            <button class="btn-gen" style="flex:1; height:40px; background:#333;" onclick="toggleModal(false)">ANULUJ</button>
+            <button class="btn-gen" style="flex:1; height:45px;" onclick="applySettings()">ZAPISZ USTAWIENIA</button>
+            <button class="btn-gen" style="flex:1; height:45px; background:#333;" onclick="toggleModal(false)">ANULUJ</button>
         </div>
     </div>
 </div>
@@ -155,6 +156,7 @@ function generateAutoPlan() {
     const shiftsPula = document.getElementById('globalShifts').value.split(',').map(s => s.trim());
     const daysCount = new Date(2026, currentMonthIdx + 1, 0).getDate();
 
+    // 1. Reset
     employees.forEach(e => {
         for(let d=1; d<=daysCount; d++) {
             const v = getVal(e.n, d);
@@ -165,50 +167,88 @@ function generateAutoPlan() {
     let saturdays = [];
     for(let d=1; d<=daysCount; d++) if(new Date(2026, currentMonthIdx, d).getDay() === 6) saturdays.push(d);
 
-    // Gwarancja min. 1 wolnej soboty
+    // 2. SZTYWNA ZASADA: KAŻDY MA JEDNĄ SOBOTĘ WOLNĄ
     employees.forEach(e => {
         if(e.n === "PAWEŁ") return;
         let possibleSats = saturdays.filter(d => getVal(e.n, d) !== "Ż" && getVal(e.n, d) !== "URLOP");
-        let freeSat = possibleSats[Math.floor(Math.random() * possibleSats.length)];
+        let freeSatIdx = Math.floor(Math.random() * possibleSats.length);
+        let freeDay = possibleSats[freeSatIdx];
+        
         saturdays.forEach(d => {
-            if(d !== freeSat && !getVal(e.n, d)) saveVal(e.n, d, "10-20");
+            if(d !== freeDay) saveVal(e.n, d, "10-20"); // Pozostałe pracujące
+            else saveVal(e.n, d, ""); // Ta jedna pusta
         });
     });
 
-    // POK obsada
+    // 3. SZTYWNA ZASADA: POK NIGDY RAZEM WOLNE
     for(let d=1; d<=daysCount; d++) {
         const date = new Date(2026, currentMonthIdx, d);
-        if(date.getDay() === 0 && !handlowe2026.includes(`2026-${String(currentMonthIdx+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`)) continue;
-        if(date.getDay() === 6) continue;
+        const ds = `2026-${String(currentMonthIdx+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+        const isSun = (date.getDay() === 0 && !handlowe2026.includes(ds));
+        if(isSun) continue;
 
-        let nV = getVal("NATALIA", d); let mV = getVal("MAGDA", d);
-        if(!nV && !mV) {
+        let nV = getVal("NATALIA", d);
+        let mV = getVal("MAGDA", d);
+
+        // Jeśli Natalia ma już wolne (z życzenia/soboty), Magda musi pracować 10-20 i odwrotnie
+        if((nV === "Ż" || nV === "URLOP" || nV === "") && (!mV || mV.includes('-'))) saveVal("MAGDA", d, "10-20");
+        else if((mV === "Ż" || mV === "URLOP" || mV === "") && (!nV || nV.includes('-'))) saveVal("NATALIA", d, "10-20");
+        else if(!nV && !mV) {
+            // Obie puste -> dajemy zmiany, żeby się nie pokryły wolnym
             saveVal("NATALIA", d, "10-18"); saveVal("MAGDA", d, "12-20");
-        } else if(!nV) saveVal("NATALIA", d, "10-20");
-        else if(!mV) saveVal("MAGDA", d, "10-20");
+        }
     }
 
-    // Korekta do normy przy użyciu NOWEJ puli zmian
+    // 4. OBSADA: 3 OSOBY + POK NA OTWARCIE (10) I ZAMKNIĘCIE (20)
+    for(let d=1; d<=daysCount; d++) {
+        const date = new Date(2026, currentMonthIdx, d);
+        const ds = `2026-${String(currentMonthIdx+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+        if(date.getDay() === 0 && !handlowe2026.includes(ds)) continue;
+
+        let dzialy = employees.filter(e => !e.pok && e.n !== "PAWEŁ");
+        
+        // Zapewnij 3 osoby na 10:00 (Otwarcie)
+        let openCount = dzialy.filter(e => getVal(e.n, d).startsWith('10-')).length;
+        while(openCount < 3) {
+            let candidate = dzialy.find(e => !getVal(e.n, d));
+            if(!candidate) break;
+            saveVal(candidate.n, d, "10-18");
+            openCount++;
+        }
+
+        // Zapewnij 3 osoby na 20:00 (Zamknięcie)
+        let closeCount = dzialy.filter(e => getVal(e.n, d).endsWith('-20')).length;
+        while(closeCount < 3) {
+            let candidate = dzialy.find(e => !getVal(e.n, d));
+            if(!candidate) break;
+            saveVal(candidate.n, d, "12-20");
+            closeCount++;
+        }
+    }
+
+    // 5. KOREKTA DO NORMY
     employees.forEach(e => {
         if(e.n === "PAWEŁ") return;
-        let count = 0;
-        while(getEmpHours(e.n) !== target && count < 2000) {
+        let limit = 0;
+        while(getEmpHours(e.n) !== target && limit < 2000) {
             let diff = target - getEmpHours(e.n);
             let d = Math.floor(Math.random() * daysCount) + 1;
             const date = new Date(2026, currentMonthIdx, d);
-            if(date.getDay() === 0 && !handlowe2026.includes(`2026-${String(currentMonthIdx+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`)) { count++; continue; }
-
+            if(date.getDay() === 0 && !handlowe2026.includes(`2026-${String(currentMonthIdx+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`)) { limit++; continue; }
+            
+            // Nie ruszamy sobót (zasada 1 wolnej) ani POK (zasada nie-razem-wolne) jeśli to mogłoby je zepsuć
             let curV = getVal(e.n, d);
             if(diff > 0 && !curV) {
-                // Szukamy zmiany z puli, która pasuje do brakujących godzin
-                let fittingShift = shiftsPula.find(s => (parseInt(s.split('-')[1]) - parseInt(s.split('-')[0])) <= diff) || shiftsPula[0];
-                saveVal(e.n, d, fittingShift);
+                let shift = shiftsPula.find(s => (parseInt(s.split('-')[1]) - parseInt(s.split('-')[0])) <= diff) || shiftsPula[0];
+                saveVal(e.n, d, shift);
             } else if(diff < 0 && curV.includes('-')) {
+                // Usuwamy tylko jeśli nie psuje to obsady min. 3 osoby (uproszczone)
                 localStorage.removeItem(`plan_${months[currentMonthIdx]}_${e.n}_d${d}`);
             }
-            count++;
+            limit++;
         }
     });
+
     renderTable();
 }
 
@@ -221,28 +261,27 @@ function renderTable() {
     employees.forEach(e => {
         workerRow.innerHTML += `<th><div class="avatar">${e.i}</div><div class="worker-name">${e.n}</div></th>`;
     });
-    workerRow.innerHTML += '<th class="obsada-col">OBSADA (10/20)</th>';
+    workerRow.innerHTML += '<th class="obsada-col">OBSADA (10 / 20)</th>';
 
     daysBody.innerHTML = "";
     for(let d=1; d<=daysCount; d++) {
         const date = new Date(2026, currentMonthIdx, d);
         const dayIdx = date.getDay();
         const tr = document.createElement('tr');
-        if(dayIdx === 0) tr.className = handlowe2026.includes(`2026-...`) ? 'sunday-handlowa' : 'sunday-red';
+        if(dayIdx === 0) tr.className = handlowe2026.includes(`2026-${String(currentMonthIdx+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`) ? 'sunday-handlowa' : 'sunday-red';
         else if(dayIdx === 6) tr.className = 'sat-yellow';
 
         let html = `<td class="date-col">${d} ${['ND','PN','WT','ŚR','CZ','PT','SB'][dayIdx]}</td>`;
-        let count10 = 0;
-        let count20 = 0;
+        let o10 = 0; let z20 = 0;
 
         employees.forEach(e => {
             const val = getVal(e.n, d);
-            if(val.startsWith('10-')) count10++;
-            if(val.endsWith('-20')) count20++;
+            if(val.startsWith('10-')) o10++;
+            if(val.endsWith('-20')) z20++;
             html += `<td><input type="text" value="${val}" onchange="saveVal('${e.n}', ${d}, this.value); renderTable();"></td>`;
         });
         
-        html += `<td class="obsada-col">O: ${count10} | Z: ${count20}</td>`;
+        html += `<td class="obsada-col">O: ${o10} | Z: ${z20}</td>`;
         tr.innerHTML = html;
         daysBody.appendChild(tr);
     }
@@ -261,13 +300,10 @@ function updateSums() {
         const h = getEmpHours(e.n);
         const s = getFreeSats(e.n);
         const hColor = (h === target) ? "#00ff00" : (h > target ? "#ff4444" : "#ffe800");
-        
         sumRow.innerHTML += `<td style="color:${hColor}">${h}h</td>`;
         satRow.innerHTML += `<td style="color:#00aaff">${s}</td>`;
     });
-    // Puste komórki pod kolumną Obsada
-    sumRow.innerHTML += '<td></td>';
-    satRow.innerHTML += '<td></td>';
+    sumRow.innerHTML += '<td></td>'; satRow.innerHTML += '<td></td>';
 }
 
 function renderMonths() {
@@ -287,8 +323,8 @@ function renderWishForm() {
         if(e.n === "PAWEŁ") return;
         grid.innerHTML += `<div style="background:#151515; padding:8px; border-radius:8px; border:1px solid #222">
             <div style="font-weight:900; color:#ffe800; font-size:0.7rem">${e.n}</div>
-            <input type="number" id="z_${e.n}" class="card-input" placeholder="Dzień wolny (Ż)">
-            <div style="display:flex; gap:2px"><input type="number" id="u1_${e.n}" class="card-input" placeholder="Urlop od"><input type="number" id="u2_${e.n}" class="card-input" placeholder="do"></div>
+            <input type="number" id="z_${e.n}" class="card-input" placeholder="Wolne (Ż) - dzień">
+            <div style="display:flex; gap:2px"><input type="number" id="u1_${e.n}" class="card-input" placeholder="Od"><input type="number" id="u2_${e.n}" class="card-input" placeholder="Do"></div>
         </div>`;
     });
 }
@@ -304,7 +340,7 @@ function applySettings() {
     toggleModal(false); renderTable();
 }
 
-function clearFullMonth() { if(confirm("CZYŚCIĆ?")) { localStorage.clear(); renderTable(); } }
+function clearFullMonth() { if(confirm("CZYŚCIĆ WSZYSTKO?")) { localStorage.clear(); renderTable(); } }
 function toggleNav() { document.getElementById('sidebar').classList.toggle('active'); document.getElementById('overlay').classList.toggle('active'); }
 function toggleModal(s) { document.getElementById('wishModal').style.display = s ? 'flex' : 'none'; }
 

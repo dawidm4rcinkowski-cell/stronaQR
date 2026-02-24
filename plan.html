@@ -6,40 +6,132 @@
     <title>Media Expert - Plan Pracy PRO</title>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
+        /* Reset i baza */
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Montserrat', sans-serif; }
-        body { background: #080808; color: white; display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
+        
+        /* Layout blokujący przewijanie całego body - przewija się tylko tabela */
+        html, body { 
+            height: 100%; 
+            background: #080808; 
+            color: white; 
+            overflow: hidden; 
+            display: flex; 
+            flex-direction: column; 
+        }
 
+        /* Nagłówek */
         header { 
-            background: #ffe800; height: 50px; display: flex; 
-            align-items: center; justify-content: center; flex-shrink: 0; z-index: 2000;
+            background: #ffe800; 
+            height: 50px; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            flex-shrink: 0; 
+            z-index: 5000; 
+            position: relative;
         }
         .logo { color: #000; font-weight: 900; font-size: 1.4rem; text-transform: uppercase; }
         .logo span { background: #000; color: #ffe800; padding: 0 4px; border-radius: 3px; }
         .menu-btn { position: absolute; left: 15px; cursor: pointer; color: #000; font-size: 1.5rem; }
 
-        /* PASEK ADMINA I KONTROLKI */
-        .controls-container { background: #111; border-bottom: 1px solid #ffe800; flex-shrink: 0; }
-        .admin-bar { padding: 10px; display: flex; justify-content: center; gap: 10px; align-items: center; border-bottom: 1px solid #222; }
-        .top-controls { display: flex; justify-content: space-between; align-items: center; padding: 10px 15px; }
+        /* Kontener sterowania - to on musi być widoczny */
+        .controls-container { 
+            background: #111; 
+            border-bottom: 2px solid #ffe800; 
+            flex-shrink: 0; 
+            z-index: 4000; 
+            position: relative; 
+            display: flex;
+            flex-direction: column;
+        }
+
+        .admin-bar { 
+            padding: 10px; 
+            display: flex; 
+            justify-content: center; 
+            gap: 15px; 
+            align-items: center; 
+            border-bottom: 1px solid #222; 
+        }
+
+        .top-controls { 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            padding: 10px 15px; 
+        }
         
-        .month-selector { display: flex; gap: 8px; overflow-x: auto; white-space: nowrap; scrollbar-width: none; }
-        .month-btn { padding: 6px 12px; border-radius: 20px; border: 1px solid #222; background: #111; color: #555; font-size: 0.7rem; font-weight: 700; cursor: pointer; }
+        /* Miesiące */
+        .month-selector { 
+            display: flex; 
+            gap: 8px; 
+            overflow-x: auto; 
+            white-space: nowrap; 
+            scrollbar-width: none; 
+            padding-bottom: 5px;
+        }
+        .month-btn { 
+            padding: 6px 15px; 
+            border-radius: 20px; 
+            border: 1px solid #222; 
+            background: #111; 
+            color: #555; 
+            font-size: 0.7rem; 
+            font-weight: 700; 
+            cursor: pointer; 
+        }
         .month-btn.active { background: #ffe800; color: #000; border-color: #ffe800; }
         
-        .gear-btn { font-size: 1.5rem; cursor: pointer; color: #ffe800; padding: 0 5px; }
-        .btn-gen { background: #ffe800; color: #000; border: none; padding: 8px 12px; font-weight: 900; border-radius: 20px; cursor: pointer; font-size: 0.65rem; }
+        .gear-btn { font-size: 1.8rem; cursor: pointer; color: #ffe800; line-height: 1; }
+        .btn-gen { 
+            background: #ffe800; 
+            color: #000; 
+            border: none; 
+            padding: 8px 15px; 
+            font-weight: 900; 
+            border-radius: 20px; 
+            cursor: pointer; 
+            font-size: 0.7rem; 
+        }
 
-        /* TABLE */
-        .table-wrapper { flex-grow: 1; overflow: auto; background: #080808; }
+        /* Tabela i przewijanie */
+        .table-wrapper { 
+            flex-grow: 1; 
+            overflow: auto; 
+            position: relative; 
+            z-index: 1000; 
+        }
         table { border-collapse: collapse; width: 100%; table-layout: fixed; }
-        thead th { background: #080808; position: sticky; top: 0; z-index: 100; padding: 8px 2px; border-bottom: 2px solid #222; }
-        .avatar { width: 25px; height: 25px; border-radius: 50%; border: 2px solid #ffe800; display: flex; align-items: center; justify-content: center; margin: 0 auto 3px; font-weight: 900; color: #ffe800; font-size: 0.6rem; }
-        .worker-name { font-size: 0.5rem; font-weight: 900; text-transform: uppercase; }
-        .date-col { position: sticky; left: 0; background: #080808; z-index: 150; width: 75px; font-size: 0.6rem; font-weight: 700; color: #777; text-align: center; border-right: 2px solid #ffe800; }
+        
+        /* Nagłówki kolumn - zablokowane na górze */
+        thead th { 
+            background: #080808; 
+            position: sticky; 
+            top: 0; 
+            z-index: 1100; 
+            padding: 8px 2px; 
+            border-bottom: 2px solid #222; 
+        }
+        
+        .avatar { width: 28px; height: 28px; border-radius: 50%; border: 2px solid #ffe800; display: flex; align-items: center; justify-content: center; margin: 0 auto 3px; font-weight: 900; color: #ffe800; font-size: 0.65rem; }
+        .worker-name { font-size: 0.55rem; font-weight: 900; text-transform: uppercase; }
 
-        /* KOMÓRKI */
-        td { border-bottom: 1px solid #151515; border-right: 1px solid #151515; height: 35px; }
-        td input { width: 100%; height: 100%; background: transparent; border: none; color: white; text-align: center; font-weight: 700; font-size: 0.7rem; outline: none; }
+        /* Pierwsza kolumna - zablokowana z boku */
+        .date-col { 
+            position: sticky; 
+            left: 0; 
+            background: #080808; 
+            z-index: 1200; 
+            width: 80px; 
+            font-size: 0.65rem; 
+            font-weight: 700; 
+            color: #777; 
+            text-align: center; 
+            border-right: 2px solid #ffe800; 
+        }
+
+        td { border-bottom: 1px solid #151515; border-right: 1px solid #151515; height: 38px; }
+        td input { width: 100%; height: 100%; background: transparent; border: none; color: white; text-align: center; font-weight: 700; font-size: 0.75rem; outline: none; }
         
         .sunday-red { background: #330000 !important; }
         .sunday-handlowa { background: #002200 !important; }
@@ -47,19 +139,31 @@
         .val-w { color: #ffe800 !important; }
         .val-urlop { color: #00aaff !important; }
 
-        tfoot td { background: #111; color: #ffe800; font-weight: 900; font-size: 0.75rem; text-align: center; position: sticky; bottom: 0; z-index: 100; border-top: 2px solid #ffe800; height: 40px; }
+        /* Stopka tabeli - zablokowana na dole */
+        tfoot td { 
+            background: #111; 
+            color: #ffe800; 
+            font-weight: 900; 
+            font-size: 0.8rem; 
+            text-align: center; 
+            position: sticky; 
+            bottom: 0; 
+            z-index: 1100; 
+            border-top: 2px solid #ffe800; 
+            height: 45px; 
+        }
 
-        /* SIDEBAR & MODAL */
-        .sidebar { position: fixed; left: -280px; top: 0; width: 260px; height: 100%; background: #0a0a0a; border-right: 3px solid #ffe800; transition: 0.4s; z-index: 3000; padding-top: 60px; }
+        /* Sidebar & Modals */
+        .sidebar { position: fixed; left: -280px; top: 0; width: 260px; height: 100%; background: #0a0a0a; border-right: 3px solid #ffe800; transition: 0.4s; z-index: 6000; padding-top: 60px; }
         .sidebar.active { left: 0; }
         .sidebar-link { display: block; color: white; padding: 15px 25px; text-decoration: none; font-weight: 700; font-size: 0.8rem; border-bottom: 1px solid #111; }
-        .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.8); display: none; z-index: 2500; }
+        .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.8); display: none; z-index: 5500; }
         .overlay.active { display: block; }
 
-        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 4000; align-items: center; justify-content: center; padding: 15px; }
+        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 7000; align-items: center; justify-content: center; padding: 15px; }
         .modal-content { background: #0a0a0a; border: 2px solid #ffe800; padding: 20px; width: 100%; max-width: 600px; border-radius: 15px; }
-        .wish-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px; max-height: 300px; overflow-y: auto; }
-        .wish-card { background: #111; padding: 8px; border-radius: 5px; border: 1px solid #222; }
+        .wish-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px; max-height: 350px; overflow-y: auto; padding-right: 5px; }
+        .wish-card { background: #111; padding: 10px; border-radius: 8px; border: 1px solid #222; }
     </style>
 </head>
 <body>
@@ -80,9 +184,9 @@
 <div class="controls-container">
     <div class="admin-bar" id="adminBar">
         <button class="btn-gen" onclick="generateAutoPlan()">🚀 Autoplan</button>
-        <div style="display:flex; align-items:center; gap:5px;">
-            <span style="font-size:0.6rem; font-weight:900;">NORMA:</span>
-            <input type="number" id="hourNormInput" style="width:50px; background:#000; color:#ffe800; border:1px solid #ffe800; text-align:center; font-size:0.7rem;" value="176">
+        <div style="display:flex; align-items:center; gap:8px;">
+            <span style="font-size:0.65rem; font-weight:900; color: #ffe800;">NORMA:</span>
+            <input type="number" id="hourNormInput" style="width:55px; background:#000; color:#ffe800; border:1px solid #ffe800; text-align:center; font-weight:900; padding: 4px;" value="176">
         </div>
         <button class="btn-gen" style="background:#444; color:white;" onclick="clearPlan()">Czyść</button>
     </div>
@@ -103,10 +207,11 @@
 
 <div class="modal" id="wishModal">
     <div class="modal-content">
-        <h3 style="color:#ffe800; text-align:center; margin-bottom:15px; font-size:0.9rem;">USTAWIENIA MIESIĘCZNE</h3>
+        <h3 style="color:#ffe800; text-align:center; margin-bottom:15px; font-size:1rem; text-transform:uppercase;">Życzenia i Urlopy</h3>
+        <p style="font-size:0.6rem; color:#888; text-align:center; margin-bottom:10px;">Wpisz dni po przecinku (np. 1,5,12)</p>
         <div class="wish-grid" id="wishGrid"></div>
         <div style="display:flex; gap:10px; margin-top:20px;">
-            <button class="btn-gen" style="flex:1" onclick="applySettings()">ZAPISZ ŻYCZENIA</button>
+            <button class="btn-gen" style="flex:1" onclick="applySettings()">ZAPISZ DLA MIESIĄCA</button>
             <button class="btn-gen" style="flex:1; background:#333; color:white;" onclick="toggleModal(false)">ZAMKNIJ</button>
         </div>
     </div>
@@ -123,7 +228,7 @@
     ];
 
     const months = ["STYCZEŃ", "LUTY", "MARZEC", "KWIECIEŃ", "MAJ", "CZERWIEC", "LIPIEC", "SIERPIEŃ", "WRZESIEŃ", "PAŹDZIERNIK", "LISTOPAD", "GRUDZIEŃ"];
-    let currentMonthIdx = 2; // Marzec
+    let currentMonthIdx = 2; // Marzec 2026
     const handlowe2026 = ["2026-01-25", "2026-04-26", "2026-06-28", "2026-08-30", "2026-12-13", "2026-12-20"];
     
     const loggedID = localStorage.getItem('loggedCharID');
@@ -131,7 +236,7 @@
 
     function init() {
         if(!isAdmin) {
-            document.getElementById('adminBar').style.visibility = 'hidden';
+            document.getElementById('adminBar').style.display = 'none';
             document.getElementById('gearBtn').style.display = 'none';
         }
         renderMonths();
@@ -183,7 +288,7 @@
             employees.forEach(emp => {
                 const val = localStorage.getItem(`plan_${months[currentMonthIdx]}_${emp.n}_d${d}`) || "";
                 let cls = val === "W" ? "val-w" : (val === "URLOP" ? "val-urlop" : "");
-                html += `<td><input type="text" class="${cls}" value="${val}" onchange="saveVal('${emp.n}', ${d}, this.value)"></td>`;
+                html += `<td><input type="text" class="${cls}" value="${val}" ${!isAdmin ? 'disabled' : ''} onchange="saveVal('${emp.n}', ${d}, this.value)"></td>`;
             });
             tr.innerHTML = html;
             daysBody.appendChild(tr);
@@ -215,21 +320,31 @@
         const grid = document.getElementById('wishGrid');
         grid.innerHTML = "";
         employees.forEach(emp => {
-            grid.innerHTML += `<div class="wish-card"><label style="font-size:0.6rem; color:#ffe800;">${emp.n}</label>
-            <input type="text" id="w_${emp.n}" placeholder="Wolne" style="width:100%; background:#000; color:white; border:1px solid #333; margin:2px 0;">
-            <input type="text" id="u_${emp.n}" placeholder="Urlop" style="width:100%; background:#000; color:white; border:1px solid #333;"></div>`;
+            if(emp.n === "PAWEŁ") return;
+            grid.innerHTML += `
+            <div class="wish-card">
+                <label style="font-size:0.7rem; color:#ffe800; font-weight:900;">${emp.n}</label>
+                <input type="text" id="w_${emp.n}" placeholder="Dni wolne" style="width:100%; background:#000; color:white; border:1px solid #333; margin:5px 0; padding:4px; font-size:0.7rem;">
+                <input type="text" id="u_${emp.n}" placeholder="Urlop" style="width:100%; background:#000; color:white; border:1px solid #333; padding:4px; font-size:0.7rem;">
+            </div>`;
         });
     }
 
     function applySettings() {
+        // Zapis normy dla miesiąca
         localStorage.setItem(`norma_${months[currentMonthIdx]}`, document.getElementById('hourNormInput').value);
+        
+        // Zapis życzeń
         employees.forEach(emp => {
+            if(emp.n === "PAWEŁ") return;
             const w = document.getElementById(`w_${emp.n}`).value.split(',');
             const u = document.getElementById(`u_${emp.n}`).value.split(',');
             w.forEach(d => { if(d.trim()) saveVal(emp.n, d.trim(), "W"); });
             u.forEach(d => { if(d.trim()) saveVal(emp.n, d.trim(), "URLOP"); });
         });
-        renderTable(); toggleModal(false);
+        renderTable(); 
+        toggleModal(false);
+        alert("Zapisano ustawienia dla miesiąca: " + months[currentMonthIdx]);
     }
 
     function generateAutoPlan() {
@@ -241,6 +356,16 @@
             let curH = 0;
             let streak = 0;
 
+            // Najpierw policz co już jest wpisane
+            for(let d=1; d<=days; d++) {
+                const v = localStorage.getItem(`plan_${months[currentMonthIdx]}_${emp.n}_d${d}`) || "";
+                if(v === "URLOP") curH += 8;
+                else if(v.includes('-')) {
+                    const t = v.split('-');
+                    curH += (parseInt(t[1]) - parseInt(t[0]));
+                }
+            }
+
             for(let d=1; d<=days; d++) {
                 const date = new Date(2026, currentMonthIdx, d);
                 const isSun = date.getDay() === 0;
@@ -248,13 +373,11 @@
                 const dateStr = `2026-${String(currentMonthIdx+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
                 const exists = localStorage.getItem(`plan_${months[currentMonthIdx]}_${emp.n}_d${d}`);
 
-                if(exists === "URLOP") { curH += 8; streak++; continue; }
+                if(exists === "URLOP") { streak++; continue; }
                 if(exists === "W" || (isSun && !handlowe2026.includes(dateStr))) { streak = 0; continue; }
-                if(exists && exists.includes('-')) { 
-                    const t = exists.split('-'); curH += (parseInt(t[1]) - parseInt(t[0])); 
-                    streak++; continue; 
-                }
+                if(exists && exists.includes('-')) { streak++; continue; }
 
+                // Generuj jeśli brakuje godzin i nie przekroczono 5 dni z rzędu
                 if(curH < norm && streak < 5) {
                     let s = isSat ? "10-20" : (Math.random() > 0.5 ? "10-18" : "12-20");
                     saveVal(emp.n, d, s);
@@ -271,7 +394,13 @@
 
     function toggleModal(s) { document.getElementById('wishModal').style.display = s ? 'flex' : 'none'; }
     function toggleNav() { document.getElementById('sidebar').classList.toggle('active'); document.getElementById('overlay').classList.toggle('active'); }
-    function clearPlan() { if(confirm("Czyścić?")) { localStorage.clear(); location.reload(); } }
+    function clearPlan() { if(confirm("Czyścić grafik?")) { 
+        const days = new Date(2026, currentMonthIdx+1, 0).getDate();
+        employees.forEach(emp => {
+            for(let d=1; d<=days; d++) localStorage.removeItem(`plan_${months[currentMonthIdx]}_${emp.n}_d${d}`);
+        });
+        renderTable(); 
+    }}
 
     window.onload = init;
 </script>

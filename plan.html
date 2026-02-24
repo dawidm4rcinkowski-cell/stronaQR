@@ -9,7 +9,6 @@
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Montserrat', sans-serif; }
         body { background: #080808; color: white; overflow-x: hidden; }
 
-        /* HEADER & NAV */
         header { 
             background: #ffe800; height: 50px; display: flex; 
             align-items: center; justify-content: center; position: sticky; 
@@ -27,7 +26,7 @@
         .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.8); display: none; z-index: 2500; }
         .overlay.active { display: block; }
 
-        /* CONTROLS */
+        /* ADMIN BAR */
         .admin-bar { background: #111; padding: 10px; border-bottom: 1px solid #ffe800; display: none; justify-content: center; gap: 15px; align-items: center; }
         .top-controls { display: flex; justify-content: space-between; align-items: center; padding: 15px 20px; }
         .month-selector { display: flex; gap: 8px; overflow-x: auto; white-space: nowrap; }
@@ -44,15 +43,16 @@
         .worker-name { font-size: 0.55rem; font-weight: 900; text-transform: uppercase; }
         .date-col { position: sticky; left: 0; background: #080808; z-index: 150; width: 90px; font-size: 0.65rem; font-weight: 700; color: #777; text-align: center; border-right: 2px solid #ffe800; }
 
-        /* SUNDAYS */
+        /* COLORS */
         .sunday-red { background: #440000 !important; }
         .sunday-red input { visibility: hidden; }
         .sunday-handlowa { background: #003300 !important; }
+        .sat-yellow { background: #222200; }
 
         td, th { border-bottom: 1px solid #151515; border-right: 1px solid #151515; height: 40px; }
         td input { width: 100%; height: 100%; background: transparent; border: none; color: white; text-align: center; font-weight: 700; font-size: 0.75rem; outline: none; }
-        .val-w { color: #ffe800 !important; }
-        .val-urlop { color: #00aaff !important; }
+        .val-w { color: #ffe800 !important; font-style: italic; }
+        .val-urlop { color: #00aaff !important; font-weight: 900; }
 
         tfoot td { background: #111; color: #ffe800; font-weight: 900; font-size: 0.8rem; text-align: center; position: sticky; bottom: 0; z-index: 100; border-top: 2px solid #ffe800; }
 
@@ -73,17 +73,18 @@
 </header>
 
 <div class="sidebar" id="sidebar">
-    <a href="#" class="sidebar-link">STRONA GŁÓWNA</a>
-    <a href="plan.html" class="sidebar-link" style="color:#ffe800">PLAN PRACY</a>
-    <a href="inwentury.html" class="sidebar-link">INWENTURY</a>
-    <a href="kodqr.html" class="sidebar-link">KOD QR</a>
+    <a href="index.html" class="sidebar-link">Strona główna</a>
+    <a href="plan.html" class="sidebar-link" style="color:#ffe800">Plan pracy</a>
+    <a href="inwentury.html" class="sidebar-link">Inwentury</a>
+    <a href="kodqr.html" class="sidebar-link">Kod QR</a>
 </div>
 <div class="overlay" id="overlay" onclick="toggleNav()"></div>
 
 <div class="admin-bar" id="adminBar">
     <button class="btn-gen" onclick="generateAutoPlan()">🚀 Autoplan</button>
-    <button class="btn-gen" style="background:#444; color:white;" onclick="clearPlan()">Czyść</button>
-    <input type="number" id="hourNorm" style="width:50px; background:#000; color:#ffe800; border:1px solid #ffe800; text-align:center;" value="160">
+    <button class="btn-gen" style="background:#444; color:white;" onclick="clearPlan()">Czyść Miesiąc</button>
+    <span style="font-size:0.6rem;">NORMA:</span>
+    <input type="number" id="hourNorm" style="width:55px; background:#000; color:#ffe800; border:1px solid #ffe800; text-align:center;" value="160">
 </div>
 
 <div class="top-controls">
@@ -95,17 +96,17 @@
     <table id="planTable">
         <thead><tr id="workerRow"><th class="date-col">DATA</th></tr></thead>
         <tbody id="daysBody"></tbody>
-        <tfoot><tr id="sumRow"><td class="date-col">SUMA H</td></tr></tfoot>
+        <tfoot><tr id="sumRow"><td class="date-col">SUMA GODZIN</td></tr></tfoot>
     </table>
 </div>
 
 <div class="modal" id="wishModal">
     <div class="modal-content">
-        <h2 style="color:#ffe800; font-size:1rem; text-align:center;">DNI WOLNE / URLOPY</h2>
+        <h2 style="color:#ffe800; font-size:1rem; text-align:center; text-transform:uppercase;">Zarządzanie wolnym</h2>
         <div class="wish-grid" id="wishGrid"></div>
         <div style="display:flex; gap:10px; margin-top:20px;">
-            <button class="btn-gen" style="flex:1" onclick="applyWishes()">ZAPISZ</button>
-            <button class="btn-gen" style="flex:1; background:#333; color:white;" onclick="toggleModal(false)">ZAMKNIJ</button>
+            <button class="btn-gen" style="flex:1" onclick="applyWishes()">ZAPISZ DNI</button>
+            <button class="btn-gen" style="flex:1; background:#333; color:white;" onclick="toggleModal(false)">ANULUJ</button>
         </div>
     </div>
 </div>
@@ -126,7 +127,7 @@
     ];
 
     const months = ["STYCZEŃ", "LUTY", "MARZEC", "KWIECIEŃ", "MAJ", "CZERWIEC", "LIPIEC", "SIERPIEŃ", "WRZESIEŃ", "PAŹDZIERNIK", "LISTOPAD", "GRUDZIEŃ"];
-    let currentMonthIdx = 1; // LUTY
+    let currentMonthIdx = 1; 
     const handlowe2026 = ["2026-01-25", "2026-03-29", "2026-04-26"];
     const loggedID = localStorage.getItem('loggedCharID');
     const isAdmin = (loggedID === "03060" || loggedID === "300101107");
@@ -175,16 +176,19 @@
         for (let d = 1; d <= daysInMonth; d++) {
             const date = new Date(2026, currentMonthIdx, d);
             const isSun = date.getDay() === 0;
+            const isSat = date.getDay() === 6;
             const dateStr = `2026-${String(currentMonthIdx+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
             const isHand = handlowe2026.includes(dateStr);
             const tr = document.createElement('tr');
+            
             if(isSun) tr.className = isHand ? 'sunday-handlowa' : 'sunday-red';
+            else if(isSat) tr.className = 'sat-yellow';
 
             let html = `<td class="date-col">${d} ${["ND", "PN", "WT", "ŚR", "CZ", "PT", "SB"][date.getDay()]}</td>`;
             employees.forEach(emp => {
                 const key = `plan_${months[currentMonthIdx]}_${emp.n}_d${d}`;
                 const val = localStorage.getItem(key) || "";
-                let cls = val === "W" ? "val-w" : (val === "URLOP" ? "val-urlop" : "");
+                let cls = val === "W" ? "val-w" : (val.includes('U') ? "val-urlop" : "");
                 html += `<td><input type="text" class="${cls}" value="${val}" ${!isAdmin ? 'disabled' : ''} onchange="saveVal('${emp.n}', ${d}, this.value)"></td>`;
             });
             tr.innerHTML = html;
@@ -235,36 +239,69 @@
     }
 
     function generateAutoPlan() {
-        const days = new Date(2026, currentMonthIdx + 1, 0).getDate();
-        const norm = parseInt(document.getElementById('hourNorm').value);
+        const daysInMonth = new Date(2026, currentMonthIdx + 1, 0).getDate();
+        const norm = parseInt(document.getElementById('hourNorm').value) || 160;
+        
         employees.forEach(emp => {
-            if(emp.n === "PAWEŁ") return;
-            let currentH = 0;
-            for(let d=1; d<=days; d++) {
+            if(emp.n === "PAWEŁ") return; 
+
+            let currentHours = 0;
+            let workDays = [];
+
+            for(let d = 1; d <= daysInMonth; d++) {
                 const date = new Date(2026, currentMonthIdx, d);
                 const isSun = date.getDay() === 0;
-                const isSat = date.getDay() === 6;
                 const dateStr = `2026-${String(currentMonthIdx+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
-                if(isSun && !handlowe2026.includes(dateStr)) continue;
+                const isHand = handlowe2026.includes(dateStr);
                 
-                const ex = localStorage.getItem(`plan_${months[currentMonthIdx]}_${emp.n}_d${d}`);
-                if(ex === "W" || ex === "URLOP") continue;
+                const existing = localStorage.getItem(`plan_${months[currentMonthIdx]}_${emp.n}_d${d}`);
+                
+                // ZACHOWUJEMY ŻYCZENIA I WOLNE
+                if ((isSun && !isHand) || existing === "W" || existing === "URLOP") {
+                    continue;
+                }
+                workDays.push({day: d, date: date});
+            }
 
-                let h = isSat ? 10 : 8;
-                if(currentH + h <= norm) {
-                    let s = isSat ? "10-20" : (Math.random() > 0.5 ? "10-18" : "12-20");
-                    saveVal(emp.n, d, s);
-                    currentH += h;
+            // LOSOWE MIESZANIE DNI PRACY
+            workDays.sort(() => Math.random() - 0.5);
+
+            workDays.forEach(item => {
+                const d = item.day;
+                const isSat = item.date.getDay() === 6;
+                let shiftH = isSat ? 10 : 8;
+                
+                if (currentHours + shiftH <= norm) {
+                    let label;
+                    if (isSat) {
+                        label = "10-20"; 
+                    } else {
+                        // Losowanie zmian jak na obrazku (10-18, 12-20, 13-20)
+                        const r = Math.random();
+                        if(r < 0.4) label = "10-18";
+                        else if(r < 0.8) label = "12-20";
+                        else label = "13-20";
+                    }
+                    saveVal(emp.n, d, label);
+                    currentHours += shiftH;
                 } else {
                     saveVal(emp.n, d, "W");
                 }
+            });
+
+            // UZUPEŁNIENIE PUSTYCH DNI JAKO WOLNE
+            for(let d = 1; d <= daysInMonth; d++) {
+                const existing = localStorage.getItem(`plan_${months[currentMonthIdx]}_${emp.n}_d${d}`);
+                if (!existing) saveVal(emp.n, d, "W");
             }
         });
+
         renderTable();
+        alert("Autoplan gotowy!");
     }
 
     function toggleModal(s) { document.getElementById('wishModal').style.display = s ? 'flex' : 'none'; }
-    function clearPlan() { if(confirm("Czyścić?")) { localStorage.clear(); location.reload(); } }
+    function clearPlan() { if(confirm("Czyścić grafik?")) { localStorage.clear(); location.reload(); } }
     
     window.onload = init;
 </script>

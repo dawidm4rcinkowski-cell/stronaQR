@@ -6,7 +6,6 @@
     <title>Plan Pracy - Media Expert</title>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
-        /* RESET I PODSTAWY */
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Montserrat', sans-serif; }
         body { background: #000; color: white; overflow-x: hidden; }
 
@@ -17,66 +16,96 @@
         }
         .logo { color: #000; font-weight: 900; font-size: 1.6rem; text-transform: uppercase; }
         .logo span { background: #000; color: #ffe800; padding: 0 6px; border-radius: 4px; }
-        
-        /* NAPRAWIONY PRZYCISK MENU */
-        .menu-btn { 
-            position: absolute; left: 20px; cursor: pointer; color: #000; 
-            font-size: 1.8rem; z-index: 2100; padding: 10px;
-        }
+        .menu-btn { position: absolute; left: 20px; cursor: pointer; color: #000; font-size: 1.8rem; z-index: 2100; padding: 10px; }
 
         /* SIDEBAR */
         .sidebar { 
             position: fixed; left: -280px; top: 0; width: 260px; height: 100%; 
-            background: #0a0a0a; border-right: 3px solid #ffe800; transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
-            z-index: 3000; 
+            background: #0a0a0a; border-right: 3px solid #ffe800; transition: 0.3s; z-index: 3000; 
         }
         .sidebar.active { left: 0; }
-        .sidebar-header { 
-            background: #1a1a1a; color: #777; padding: 25px; font-weight: 900; 
-            font-size: 0.75rem; text-transform: uppercase; border-bottom: 1px solid #222; 
-        }
-        .sidebar-link { 
-            display: block; color: white; padding: 18px 25px; text-decoration: none; 
-            font-weight: 700; border-bottom: 1px solid #1a1a1a; transition: 0.3s; 
-        }
+        .sidebar-header { background: #1a1a1a; color: #777; padding: 25px; font-weight: 900; font-size: 0.75rem; text-transform: uppercase; border-bottom: 1px solid #222; }
+        .sidebar-link { display: block; color: white; padding: 18px 25px; text-decoration: none; font-weight: 700; border-bottom: 1px solid #1a1a1a; transition: 0.3s; }
         .sidebar-link:hover { background: #111; color: #ffe800; padding-left: 35px; }
         .sidebar-link.active { background: #111; color: #ffe800; border-left: 5px solid #ffe800; }
         
-        /* OVERLAY */
-        .overlay { 
-            position: fixed; inset: 0; background: rgba(0,0,0,0.85); 
-            display: none; z-index: 2500; backdrop-filter: blur(4px); 
-        }
+        .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.85); display: none; z-index: 2500; backdrop-filter: blur(4px); }
         .overlay.active { display: block; }
 
-        /* TABELA I TREŚĆ */
-        main { padding: 30px 10px; }
-        .page-title { text-align: center; font-weight: 900; font-size: 2rem; margin-bottom: 30px; text-transform: uppercase; }
+        /* TABELA - ORYGINALNY STYL */
+        main { padding: 20px; }
+        .page-title { text-align: center; font-weight: 900; font-size: 2rem; margin-bottom: 20px; text-transform: uppercase; }
         .page-title span { color: #ffe800; }
 
         .table-container { 
-            overflow-x: auto; background: #111; border-radius: 15px; 
-            border: 2px solid #222; 
-        }
-        table { width: 100%; border-collapse: collapse; min-width: 1400px; }
-        th, td { border: 1px solid #222; padding: 12px 8px; text-align: center; }
-        th { background: #1a1a1a; color: #777; font-size: 0.75rem; }
-        
-        .sticky-col { 
-            position: sticky; left: 0; background: #0a0a0a !important; 
-            font-weight: 900; color: #ffe800; border-right: 2px solid #ffe800; 
-            min-width: 180px; text-align: left; padding-left: 15px; z-index: 10;
+            overflow-x: auto; 
+            background: #000; 
+            border: 2px solid #ffe800; 
+            border-radius: 10px;
         }
 
-        input { background: transparent; border: none; color: white; width: 45px; text-align: center; font-weight: 700; outline: none; }
-        .sum-col { background: #1a1a00 !important; color: #ffe800; font-weight: 900; border-left: 2px solid #ffe800; }
-        .dept-tag { font-size: 0.6rem; color: #555; display: block; font-weight: 400; }
+        table { width: 100%; border-collapse: collapse; min-width: 1500px; }
+        
+        th, td { 
+            border: 1px solid #333; 
+            padding: 10px 5px; 
+            text-align: center; 
+            font-size: 0.85rem;
+        }
+
+        th { 
+            background: #111; 
+            color: #ffe800; 
+            font-weight: 900; 
+            text-transform: uppercase;
+            font-size: 0.7rem;
+        }
+
+        /* STICKY COLUMN - PRACOWNICY */
+        .sticky-col { 
+            position: sticky; 
+            left: 0; 
+            background: #ffe800 !important; 
+            color: #000 !important; 
+            font-weight: 900; 
+            z-index: 100;
+            min-width: 180px;
+            text-align: left;
+            padding-left: 15px;
+            text-transform: uppercase;
+        }
+
+        /* INPUTY */
+        input { 
+            background: #0a0a0a; 
+            border: 1px solid #222; 
+            color: white; 
+            width: 42px; 
+            height: 35px;
+            text-align: center; 
+            font-weight: 700; 
+            outline: none;
+            border-radius: 4px;
+        }
+        input:focus { border-color: #ffe800; background: #111; }
+
+        /* SUMA */
+        .sum-header { background: #ffe800 !important; color: #000 !important; }
+        .sum-cell { 
+            background: #111 !important; 
+            color: #ffe800 !important; 
+            font-weight: 900; 
+            font-size: 1rem;
+            border-left: 2px solid #ffe800;
+        }
+
+        .dept-label { font-size: 0.6rem; opacity: 0.6; display: block; font-weight: 400; }
     </style>
 </head>
 <body>
 
     <header>
-        <div class="menu-btn" id="toggleBtn">☰</div>
+        <div class="menu-btn" id="menuBtn">☰</div>
         <div class="logo">MEDIA <span>EXPERT</span></div>
     </header>
 
@@ -94,12 +123,13 @@
 
     <main>
         <h1 class="page-title">PLAN <span>PRACY</span></h1>
+        
         <div class="table-container">
             <table>
                 <thead>
                     <tr id="headerRow">
-                        <th class="sticky-col">PRACOWNIK / DZIAŁ</th>
-                        <th class="sum-col">SUMA</th>
+                        <th class="sticky-col">PRACOWNIK</th>
+                        <th class="sum-header">SUMA</th>
                     </tr>
                 </thead>
                 <tbody id="scheduleBody"></tbody>
@@ -108,7 +138,6 @@
     </main>
 
     <script>
-        // LISTA PRACOWNIKÓW
         const employees = [
             {n: "Pawel", d: "ME"}, {n: "Michal", d: "KSS"}, {n: "Kuba", d: "IT"},
             {n: "Lukasz", d: "AGD"}, {n: "Ariel", d: "RTV"}, {n: "Dawid", d: "IT"},
@@ -116,79 +145,67 @@
             {n: "Dariusz", d: "IT"}, {n: "Natalia", d: "POK"}
         ];
 
-        const daysInMonth = 28;
+        const days = 28;
 
-        // FUNKCJE MENU
+        // MENU LOGIC
         const sidebar = document.getElementById('sidebar');
         const overlay = document.getElementById('overlay');
-        const toggleBtn = document.getElementById('toggleBtn');
+        const menuBtn = document.getElementById('menuBtn');
 
-        function toggleMenu() {
-            sidebar.classList.toggle('active');
-            overlay.classList.toggle('active');
-        }
+        menuBtn.onclick = () => { sidebar.classList.add('active'); overlay.classList.add('active'); };
+        overlay.onclick = () => { sidebar.classList.remove('active'); overlay.classList.remove('active'); };
 
-        toggleBtn.addEventListener('click', toggleMenu);
-        overlay.addEventListener('click', toggleMenu);
+        // AUTH
+        if(!localStorage.getItem('loggedCharID')) { window.location.href = 'login.html'; }
+        document.getElementById('logoutBtn').onclick = () => { localStorage.clear(); window.location.href = 'login.html'; };
 
-        // LOGOWANIE I WYLOGOWANIE
-        if(!localStorage.getItem('loggedCharID')) {
-            window.location.href = 'login.html';
-        }
+        // GENERATE TABLE
+        function init() {
+            const hRow = document.getElementById('headerRow');
+            const sBody = document.getElementById('scheduleBody');
+            const sumH = hRow.querySelector('.sum-header');
 
-        document.getElementById('logoutBtn').addEventListener('click', (e) => {
-            e.preventDefault();
-            localStorage.removeItem('loggedCharID');
-            localStorage.removeItem('loggedName');
-            window.location.href = 'login.html';
-        });
-
-        // INICJALIZACJA TABELI
-        function initPlan() {
-            const headerRow = document.getElementById('headerRow');
-            const scheduleBody = document.getElementById('scheduleBody');
-            const sumHeader = headerRow.querySelector('.sum-col');
-
-            for (let i = 1; i <= daysInMonth; i++) {
+            for(let i=1; i<=days; i++) {
                 const th = document.createElement('th');
                 th.innerText = i;
-                headerRow.insertBefore(th, sumHeader);
+                hRow.insertBefore(th, sumH);
             }
 
             employees.forEach(emp => {
                 const tr = document.createElement('tr');
-                let rowHtml = `<td class="sticky-col">${emp.n}<span class="dept-tag">${emp.d}</span></td>`;
-
-                for (let i = 1; i <= daysInMonth; i++) {
-                    const savedValue = localStorage.getItem(`plan_${emp.n}_day_${i}`) || "";
-                    rowHtml += `<td><input type="text" value="${savedValue}" onchange="saveHours('${emp.n}', ${i}, this.value)"></td>`;
+                let html = `<td class="sticky-col">${emp.n}<span class="dept-label">${emp.d}</span></td>`;
+                
+                for(let i=1; i<=days; i++) {
+                    const key = `plan_${emp.n}_${i}`;
+                    const val = localStorage.getItem(key) || "";
+                    html += `<td><input type="text" value="${val}" onchange="save('${emp.n}', ${i}, this.value)"></td>`;
                 }
-
-                rowHtml += `<td class="sum-col" id="sum-${emp.n}">0</td>`;
-                tr.innerHTML = rowHtml;
-                scheduleBody.appendChild(tr);
-                updateSum(emp.n);
+                
+                html += `<td class="sum-cell" id="sum-${emp.n}">0</td>`;
+                tr.innerHTML = html;
+                sBody.appendChild(tr);
+                calc(emp.n);
             });
         }
 
-        function saveHours(worker, day, value) {
-            localStorage.setItem(`plan_${worker}_day_${day}`, value);
-            updateSum(worker);
+        function save(name, day, val) {
+            localStorage.setItem(`plan_${name}_${day}`, val);
+            calc(name);
         }
 
-        function updateSum(worker) {
+        function calc(name) {
             let total = 0;
-            for (let i = 1; i <= daysInMonth; i++) {
-                const val = localStorage.getItem(`plan_${worker}_day_${i}`);
-                if (val) {
-                    const num = parseFloat(val.replace(',', '.'));
-                    if (!isNaN(num)) total += num;
+            for(let i=1; i<=days; i++) {
+                const v = localStorage.getItem(`plan_${name}_${i}`);
+                if(v) {
+                    const n = parseFloat(v.replace(',', '.'));
+                    if(!isNaN(n)) total += n;
                 }
             }
-            document.getElementById(`sum-${worker}`).innerText = Math.round(total * 100) / 100;
+            document.getElementById(`sum-${name}`).innerText = total;
         }
 
-        window.onload = initPlan;
+        window.onload = init;
     </script>
 </body>
 </html>

@@ -9,7 +9,6 @@
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Montserrat', sans-serif; }
         body { background: #080808; color: white; overflow-x: hidden; }
 
-        /* HEADER & LOGO */
         header { 
             background: #ffe800; height: 50px; display: flex; 
             align-items: center; justify-content: center; position: sticky; 
@@ -19,7 +18,7 @@
         .logo span { background: #000; color: #ffe800; padding: 0 4px; border-radius: 3px; }
         .menu-btn { position: absolute; left: 15px; cursor: pointer; color: #000; font-size: 1.5rem; }
 
-        /* MONTH SELECTOR */
+        /* SELEKTOR MIESIĘCY */
         .month-selector {
             display: flex; justify-content: center; gap: 8px; padding: 20px 10px;
             overflow-x: auto; white-space: nowrap; background: #080808;
@@ -27,13 +26,11 @@
         .month-btn {
             padding: 8px 15px; border-radius: 20px; border: 1px solid #222;
             background: #111; color: #555; font-size: 0.7rem; font-weight: 700;
-            text-transform: uppercase; cursor: pointer;
+            text-transform: uppercase; cursor: pointer; transition: 0.3s;
         }
-        .month-btn.active {
-            background: #ffe800; color: #000; border-color: #ffe800;
-        }
+        .month-btn.active { background: #ffe800; color: #000; border-color: #ffe800; }
 
-        /* LEGEND */
+        /* LEGENDA */
         .legend {
             display: flex; justify-content: center; gap: 20px; padding-bottom: 20px;
             font-size: 0.7rem; font-weight: 900; text-transform: uppercase;
@@ -41,13 +38,10 @@
         .legend-item { display: flex; align-items: center; gap: 8px; }
         .dot { width: 10px; height: 10px; border-radius: 50%; }
 
-        /* TABLE STRUCTURE */
-        .table-wrapper { 
-            overflow: auto; height: calc(100vh - 200px); border-top: 1px solid #ffe800;
-        }
+        /* TABELA */
+        .table-wrapper { overflow: auto; height: calc(100vh - 200px); border-top: 1px solid #ffe800; }
         table { border-collapse: collapse; width: 100%; }
 
-        /* WORKER HEADERS (AVATARS) */
         thead th { 
             background: #080808; position: sticky; top: 0; z-index: 100;
             padding: 15px 5px; min-width: 90px;
@@ -60,7 +54,6 @@
         }
         .worker-name { font-size: 0.65rem; font-weight: 900; text-transform: uppercase; }
 
-        /* DATA COLUMN (STICKY) */
         .date-col {
             position: sticky; left: 0; background: #080808; z-index: 150;
             width: 120px; font-size: 0.7rem; font-weight: 700; color: #777;
@@ -68,15 +61,17 @@
         }
         .sunday { color: #ff4444 !important; background: #1a0a0a; }
 
-        /* CELLS */
         td, th { border-bottom: 1px solid #151515; border-right: 1px solid #151515; }
         td input {
             width: 100%; height: 45px; background: transparent; border: none;
             color: white; text-align: center; font-weight: 700; font-size: 0.8rem; outline: none;
         }
+        /* STYL DLA ZABLOKOWANYCH PÓL */
+        td input:disabled { color: #444; cursor: not-allowed; }
+
         tr:nth-child(even) { background: #0a0a0a; }
 
-        /* SIDEBAR (Strefa Nawigacji) */
+        /* SIDEBAR */
         .sidebar { 
             position: fixed; left: -280px; top: 0; width: 260px; height: 100%; 
             background: #0a0a0a; border-right: 3px solid #ffe800; transition: 0.4s; z-index: 3000; 
@@ -106,13 +101,13 @@
 </div>
 <div class="overlay" id="overlay" onclick="toggleSidebar()"></div>
 
-<div class="month-selector">
-    <button class="month-btn">Styczeń</button>
-    <button class="month-btn active">Luty</button>
-    <button class="month-btn">Marzec</button>
-    <button class="month-btn">Kwiecień</button>
-    <button class="month-btn">Maj</button>
-    <button class="month-btn">Czerwiec</button>
+<div class="month-selector" id="monthSelector">
+    <button class="month-btn" onclick="selectMonth(this)">Styczeń</button>
+    <button class="month-btn active" onclick="selectMonth(this)">Luty</button>
+    <button class="month-btn" onclick="selectMonth(this)">Marzec</button>
+    <button class="month-btn" onclick="selectMonth(this)">Kwiecień</button>
+    <button class="month-btn" onclick="selectMonth(this)">Maj</button>
+    <button class="month-btn" onclick="selectMonth(this)">Czerwiec</button>
 </div>
 
 <div class="legend">
@@ -126,7 +121,7 @@
         <thead>
             <tr id="workerRow">
                 <th class="date-col" style="top:0; border-bottom: 2px solid #ffe800;">DATA</th>
-                </tr>
+            </tr>
         </thead>
         <tbody id="daysBody"></tbody>
     </table>
@@ -138,25 +133,39 @@
         document.getElementById('overlay').classList.toggle('active');
     }
 
+    // Obsługa selektora miesięcy
+    function selectMonth(btn) {
+        document.querySelectorAll('.month-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+    }
+
     const employees = [
-        {n: "PAWEŁ", d: "KE", i: "P"}, {n: "MICHAŁ", d: "KSS", i: "M"},
-        {n: "NATALIA", d: "POK", i: "N"}, {n: "MAGDA", d: "POK", i: "M"},
-        {n: "JAKUB", d: "IT", i: "J"}, {n: "ADRIAN", d: "IT", i: "A"},
-        {n: "DAWID", d: "IT", i: "D"}, {n: "DAREK", d: "IT", i: "D"},
-        {n: "ŁUKASZ", d: "AGD", i: "Ł"}, {n: "ILONA", d: "AGD", i: "I"},
-        {n: "ARIEL", d: "RTV", i: "A"}
+        {n: "PAWEŁ", d: "KE", i: "P", id: "03060"}, 
+        {n: "MICHAŁ", d: "KSS", i: "M", id: "300100965"},
+        {n: "NATALIA", d: "POK", i: "N", id: "300101555"}, 
+        {n: "MAGDA", d: "POK", i: "M", id: "39544"},
+        {n: "JAKUB", d: "IT", i: "J", id: "300101019"}, 
+        {n: "ADRIAN", d: "IT", i: "A", id: "30662"},
+        {n: "DAWID", d: "IT", i: "D", id: "300101107"}, 
+        {n: "DAREK", d: "IT", i: "D", id: "40556"},
+        {n: "ŁUKASZ", d: "AGD", i: "Ł", id: "30378"}, 
+        {n: "ILONA", d: "AGD", i: "I", id: "300101413"},
+        {n: "ARIEL", d: "RTV", i: "A", id: "31020"}
     ];
 
     const daysCount = 28;
     const dayNames = ["NIEDZ.", "PON.", "WT.", "ŚR.", "CZW.", "PT.", "SOB."];
 
     function init() {
-        if(!localStorage.getItem('loggedCharID')) { window.location.href = 'login.html'; return; }
+        const loggedID = localStorage.getItem('loggedCharID');
+        if(!loggedID) { window.location.href = 'login.html'; return; }
+
+        // SPRAWDZENIE UPRAWNIEŃ (Paweł lub Dawid)
+        const isAdmin = (loggedID === "03060" || loggedID === "300101107");
 
         const workerRow = document.getElementById('workerRow');
         const daysBody = document.getElementById('daysBody');
 
-        // 1. Renderuj nagłówki pracowników (Awatary)
         employees.forEach(emp => {
             const th = document.createElement('th');
             th.innerHTML = `
@@ -167,7 +176,6 @@
             workerRow.appendChild(th);
         });
 
-        // 2. Renderuj dni (Wiersze)
         for (let d = 1; d <= daysCount; d++) {
             const date = new Date(2026, 1, d); // Luty 2026
             const dayName = dayNames[date.getDay()];
@@ -181,7 +189,11 @@
             employees.forEach(emp => {
                 const key = `plan_${emp.n}_d${d}`;
                 const val = localStorage.getItem(key) || "";
-                rowHtml += `<td><input type="text" value="${val}" onchange="localStorage.setItem('${key}', this.value)"></td>`;
+                
+                // Pole zablokowane, jeśli użytkownik nie jest adminem
+                const disabledAttr = isAdmin ? "" : "disabled";
+                
+                rowHtml += `<td><input type="text" value="${val}" ${disabledAttr} onchange="localStorage.setItem('${key}', this.value)"></td>`;
             });
 
             tr.innerHTML = rowHtml;

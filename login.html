@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Media Expert - Logowanie</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        /* STYLIZACJA WIZUALNA */
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Montserrat', sans-serif; }
+        body { 
+            background: #000; 
+            height: 100vh; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            color: white; 
+            overflow: hidden;
+        }
+
+        .login-container { 
+            background: #111; 
+            padding: 40px; 
+            border-radius: 25px; 
+            border: 2px solid #222; 
+            width: 100%; 
+            max-width: 400px; 
+            text-align: center; 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+
+        .logo { font-weight: 900; font-size: 2rem; text-transform: uppercase; margin-bottom: 40px; }
+        .logo span { background: #ffe800; color: #000; padding: 0 8px; border-radius: 4px; }
+
+        .input-group { text-align: left; margin-bottom: 20px; }
+        .input-group label { display: block; font-weight: 900; font-size: 0.7rem; color: #777; margin-bottom: 8px; letter-spacing: 1px; }
+
+        input { 
+            width: 100%; 
+            background: #000; 
+            border: 1px solid #333; 
+            padding: 15px; 
+            color: white; 
+            border-radius: 10px; 
+            font-weight: 700; 
+            outline: none; 
+            transition: 0.3s;
+        }
+        input:focus { border-color: #ffe800; }
+
+        .login-btn { 
+            width: 100%; 
+            background: #ffe800; 
+            color: #000; 
+            border: none; 
+            padding: 15px; 
+            font-weight: 900; 
+            border-radius: 10px; 
+            cursor: pointer; 
+            text-transform: uppercase; 
+            transition: 0.3s;
+            margin-top: 10px;
+        }
+        .login-btn:hover { background: #ffd000; transform: scale(1.02); }
+
+        .error { color: #ff4444; font-size: 0.8rem; margin-top: 15px; font-weight: 700; display: none; }
+
+        /* MODAL ZMIANY HASŁA */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.95);
+            display: none; /* Ukryte domyślnie */
+            align-items: center;
+            justify-content: center;
+            z-index: 5000;
+            backdrop-filter: blur(5px);
+        }
+
+        .modal-content {
+            background: #111;
+            padding: 40px;
+            border-radius: 25px;
+            border: 3px solid #ffe800;
+            text-align: center;
+            max-width: 350px;
+            width: 90%;
+        }
+
+        .modal-content h2 { font-weight: 900; color: #ffe800; margin-bottom: 10px; text-transform: uppercase; }
+        .modal-content p { font-size: 0.8rem; color: #777; margin-bottom: 20px; font-weight: 700; }
+        .modal-content input { margin-bottom: 20px; border-color: #ffe800; }
+    </style>
+</head>
+<body>
+
+    <div class="login-container">
+        <div class="logo">MEDIA <span>EXPERT</span></div>
+        <form id="loginForm">
+            <div class="input-group">
+                <label>NUMER CHARID</label>
+                <input type="text" id="username" placeholder="Wpisz CharID" required>
+            </div>
+            <div class="input-group">
+                <label>HASŁO</label>
+                <input type="password" id="password" placeholder="••••••••" required>
+            </div>
+            <button type="submit" class="login-btn">ZALOGUJ SIĘ</button>
+            <p id="errorMessage" class="error"></p>
+        </form>
+    </div>
+
+    <div id="changePassModal" class="modal-overlay">
+        <div class="modal-content">
+            <h2>PIERWSZE LOGOWANIE</h2>
+            <p>Zmień hasło bazowe na własne prywatne.</p>
+            <input type="password" id="newPassInput" placeholder="Nowe hasło">
+            <button onclick="saveNewPassword()" class="login-btn">ZAPISZ NOWE HASŁO</button>
+        </div>
+    </div>
+
+    <script>
+        // TWOJA BAZA CHARID
+        const employees = {
+            "03060": "Pawel - ME",
+            "300100965": "Michal - KSS",
+            "300101019": "Kuba - IT",
+            "30378": "Lukasz - AGD",
+            "31020": "Ariel - RTV",
+            "300101107": "Dawid - IT",
+            "30662": "Adrian - IT",
+            "39544": "Magdalena - POK",
+            "300101413": "Ilona - AGD",
+            "40556": "Dariusz - IT",
+            "300101555": "Natalia - POK"
+        };
+
+        const BAZOWE_HASLO = "Mediaki1!";
+
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const charID = document.getElementById('username').value.trim();
+            const passInput = document.getElementById('password').value;
+            const errorEl = document.getElementById('errorMessage');
+
+            // Pobierz zapisane hasło dla tego CharID (lub bazowe)
+            const savedPassword = localStorage.getItem(`pass_${charID}`) || BAZOWE_HASLO;
+
+            if (employees[charID]) {
+                if (passInput === savedPassword) {
+                    // Sukces - zapisujemy sesję
+                    localStorage.setItem('loggedCharID', charID);
+                    localStorage.setItem('loggedName', employees[charID]);
+
+                    // Jeśli hasło to nadal bazowe - wymuś zmianę
+                    if (passInput === BAZOWE_HASLO) {
+                        document.getElementById('changePassModal').style.display = 'flex';
+                    } else {
+                        window.location.href = 'index.html';
+                    }
+                } else {
+                    showError("BŁĘDNE HASŁO!");
+                }
+            } else {
+                showError("NIEPRAWIDŁOWY CHARID!");
+            }
+        });
+
+        function showError(msg) {
+            const errorEl = document.getElementById('errorMessage');
+            errorEl.textContent = msg;
+            errorEl.style.display = "block";
+        }
+
+        function saveNewPassword() {
+            const newPass = document.getElementById('newPassInput').value.trim();
+            const charID = localStorage.getItem('loggedCharID');
+
+            if (newPass.length >= 6 && newPass !== BAZOWE_HASLO) {
+                localStorage.setItem(`pass_${charID}`, newPass);
+                alert("Hasło zmienione! Zaloguj się ponownie nowym hasłem.");
+                
+                // Reset sesji po zmianie
+                localStorage.removeItem('loggedCharID');
+                localStorage.removeItem('loggedName');
+                location.reload();
+            } else {
+                alert("Nowe hasło musi mieć min. 6 znaków i być inne niż Mediaki1!");
+            }
+        }
+    </script>
+</body>
+</html>

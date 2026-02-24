@@ -7,182 +7,40 @@
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Montserrat', sans-serif; }
-        
-        body { 
-            background: #080808; 
-            color: white; 
-            display: flex; 
-            flex-direction: column; 
-            height: 100vh; 
-            overflow: hidden; 
-        }
-
-        header { 
-            background: #ffe800; 
-            height: 50px; 
-            display: flex; 
-            align-items: center; 
-            justify-content: center; 
-            flex-shrink: 0; 
-            z-index: 9999;
-            position: relative;
-        }
+        body { background: #080808; color: white; display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
+        header { background: #ffe800; height: 50px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; z-index: 9999; position: relative; }
         .logo { color: #000; font-weight: 900; font-size: 1.4rem; text-transform: uppercase; }
         .logo span { background: #000; color: #ffe800; padding: 0 4px; border-radius: 3px; }
         .menu-btn { position: absolute; left: 15px; cursor: pointer; color: #000; font-size: 1.5rem; }
-
-        .navigation-area {
-            background: #111;
-            border-bottom: 2px solid #ffe800;
-            flex-shrink: 0;
-            z-index: 9000;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .month-row {
-            display: flex;
-            align-items: center;
-            padding: 10px 15px;
-            gap: 10px;
-        }
-
-        .month-selector { 
-            display: flex; 
-            gap: 8px; 
-            overflow-x: auto; 
-            white-space: nowrap; 
-            scrollbar-width: none;
-            flex-grow: 1;
-        }
-        .month-btn { 
-            padding: 8px 15px; 
-            border-radius: 20px; 
-            border: 1px solid #222; 
-            background: #111; 
-            color: #666; 
-            font-size: 0.7rem; 
-            font-weight: 700; 
-            cursor: pointer; 
-        }
+        .navigation-area { background: #111; border-bottom: 2px solid #ffe800; flex-shrink: 0; z-index: 9000; display: flex; flex-direction: column; }
+        .month-row { display: flex; align-items: center; padding: 10px 15px; gap: 10px; }
+        .month-selector { display: flex; gap: 8px; overflow-x: auto; white-space: nowrap; scrollbar-width: none; flex-grow: 1; }
+        .month-btn { padding: 8px 15px; border-radius: 20px; border: 1px solid #222; background: #111; color: #666; font-size: 0.7rem; font-weight: 700; cursor: pointer; }
         .month-btn.active { background: #ffe800; color: #000; border-color: #ffe800; }
-
-        .admin-controls {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding-left: 15px;
-            border-left: 1px solid #333;
-        }
-
-        .norm-input { 
-            width: 55px; 
-            background: #000; 
-            color: #ffe800; 
-            border: 1px solid #ffe800; 
-            text-align: center; 
-            font-weight: 900; 
-            padding: 4px; 
-            font-size: 0.8rem; 
-        }
-
-        .btn-gen { 
-            background: #ffe800; 
-            color: #000; 
-            border: none; 
-            padding: 8px 15px; 
-            font-weight: 900; 
-            border-radius: 20px; 
-            cursor: pointer; 
-            font-size: 0.7rem; 
-            white-space: nowrap;
-        }
-
-        .btn-clear {
-            background: #333;
-            color: #ff4444;
-            border: 1px solid #ff4444;
-        }
-
+        .admin-controls { display: flex; align-items: center; gap: 12px; padding-left: 15px; border-left: 1px solid #333; }
+        .norm-input { width: 55px; background: #000; color: #ffe800; border: 1px solid #ffe800; text-align: center; font-weight: 900; padding: 4px; font-size: 0.8rem; }
+        .btn-gen { background: #ffe800; color: #000; border: none; padding: 8px 15px; font-weight: 900; border-radius: 20px; cursor: pointer; font-size: 0.7rem; white-space: nowrap; }
+        .btn-clear { background: #333; color: #ff4444; border: 1px solid #ff4444; }
         .gear-btn { font-size: 1.8rem; cursor: pointer; color: #ffe800; line-height: 1; }
-
-        .table-container {
-            flex-grow: 1;
-            overflow: auto;
-            position: relative;
-            z-index: 100;
-        }
-
+        .table-container { flex-grow: 1; overflow: auto; position: relative; z-index: 100; }
         table { border-collapse: collapse; width: 100%; table-layout: fixed; }
-        
-        thead th { 
-            background: #080808; 
-            position: sticky; 
-            top: 0; 
-            z-index: 500; 
-            padding: 12px 5px; 
-            border-bottom: 2px solid #222; 
-        }
-        
-        .avatar { 
-            width: 32px; 
-            height: 32px; 
-            border-radius: 50%; 
-            border: 2px solid #ffe800; 
-            display: flex; 
-            align-items: center; 
-            justify-content: center; 
-            margin: 0 auto 5px; 
-            font-weight: 900; 
-            color: #ffe800; 
-            font-size: 0.75rem; 
-        }
+        thead th { background: #080808; position: sticky; top: 0; z-index: 500; padding: 12px 5px; border-bottom: 2px solid #222; }
+        .avatar { width: 32px; height: 32px; border-radius: 50%; border: 2px solid #ffe800; display: flex; align-items: center; justify-content: center; margin: 0 auto 5px; font-weight: 900; color: #ffe800; font-size: 0.75rem; }
         .worker-name { font-size: 0.6rem; font-weight: 900; text-transform: uppercase; letter-spacing: 0.5px; }
-
-        .date-col { 
-            position: sticky; 
-            left: 0; 
-            background: #080808; 
-            z-index: 600; 
-            width: 85px; 
-            font-size: 0.7rem; 
-            font-weight: 700; 
-            color: #777; 
-            text-align: center; 
-            border-right: 2px solid #ffe800; 
-        }
-
+        .date-col { position: sticky; left: 0; background: #080808; z-index: 600; width: 85px; font-size: 0.7rem; font-weight: 700; color: #777; text-align: center; border-right: 2px solid #ffe800; }
         td { border-bottom: 1px solid #151515; border-right: 1px solid #151515; height: 42px; }
-        td input { 
-            width: 100%; height: 100%; background: transparent; border: none; 
-            color: white; text-align: center; font-weight: 700; font-size: 0.8rem; outline: none; 
-        }
-
+        td input { width: 100%; height: 100%; background: transparent; border: none; color: white; text-align: center; font-weight: 700; font-size: 0.8rem; outline: none; }
         .sunday-red { background: #440000 !important; }
         .sunday-handlowa { background: #003300 !important; }
         .sat-yellow { background: #222200; }
-        .val-w { color: #ffe800 !important; }
+        .val-z { color: #ffe800 !important; }
         .val-urlop { color: #00aaff !important; }
-
-        tfoot td { 
-            background: #111; 
-            color: #ffe800; 
-            font-weight: 900; 
-            font-size: 0.85rem; 
-            text-align: center; 
-            position: sticky; 
-            bottom: 0; 
-            z-index: 500; 
-            border-top: 2px solid #ffe800; 
-            height: 50px; 
-        }
-
+        tfoot td { background: #111; color: #ffe800; font-weight: 900; font-size: 0.85rem; text-align: center; position: sticky; bottom: 0; z-index: 500; border-top: 2px solid #ffe800; height: 50px; }
         .sidebar { position: fixed; left: -280px; top: 0; width: 260px; height: 100%; background: #0a0a0a; border-right: 3px solid #ffe800; transition: 0.4s; z-index: 10000; padding-top: 60px; }
         .sidebar.active { left: 0; }
         .sidebar-link { display: block; color: white; padding: 15px 25px; text-decoration: none; font-weight: 700; font-size: 0.8rem; border-bottom: 1px solid #111; }
         .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.8); display: none; z-index: 9500; }
         .overlay.active { display: block; }
-
         .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 11000; align-items: center; justify-content: center; padding: 15px; }
         .modal-content { background: #0a0a0a; border: 2px solid #ffe800; padding: 25px; width: 100%; max-width: 550px; border-radius: 15px; }
     </style>
@@ -205,7 +63,6 @@
 <div class="navigation-area">
     <div class="month-row">
         <div class="month-selector" id="monthSelector"></div>
-        
         <div class="admin-controls" id="adminTools">
             <div style="display:flex; align-items:center; gap:5px;">
                 <span style="font-size:0.6rem; font-weight:900; color:#ffe800;">NORMA:</span>
@@ -228,11 +85,12 @@
 
 <div class="modal" id="wishModal">
     <div class="modal-content">
-        <h3 style="color:#ffe800; text-align:center; margin-bottom:20px; font-size:1.1rem; text-transform:uppercase;">Ustawienia miesiąca</h3>
-        <div id="wishGrid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; max-height: 350px; overflow-y: auto; padding-right: 5px;"></div>
-        <div style="display:flex; gap:15px; margin-top:25px;">
-            <button class="btn-gen" style="flex:1; height:45px;" onclick="applySettings()">ZAPISZ ZMIANY</button>
-            <button class="btn-gen" style="flex:1; height:45px; background:#333; color:white;" onclick="toggleModal(false)">ANULUJ</button>
+        <h3 style="color:#ffe800; text-align:center; margin-bottom:10px; font-size:1.1rem; text-transform:uppercase;">Ustawienia miesięczne</h3>
+        <p style="font-size:0.6rem; color:#888; text-align:center; margin-bottom:15px;">Dni "Ż" wpisuj po przecinku (np. 1,5,10). Zmiany (np. 10-20,12-20)</p>
+        <div id="wishGrid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; max-height: 350px; overflow-y: auto; padding-right: 5px;"></div>
+        <div style="display:flex; gap:15px; margin-top:20px;">
+            <button class="btn-gen" style="flex:1; height:40px;" onclick="applySettings()">ZAPISZ</button>
+            <button class="btn-gen" style="flex:1; height:40px; background:#333; color:white;" onclick="toggleModal(false)">ANULUJ</button>
         </div>
     </div>
 </div>
@@ -250,7 +108,6 @@
     const months = ["STYCZEŃ", "LUTY", "MARZEC", "KWIECIEŃ", "MAJ", "CZERWIEC", "LIPIEC", "SIERPIEŃ", "WRZESIEŃ", "PAŹDZIERNIK", "LISTOPAD", "GRUDZIEŃ"];
     let currentMonthIdx = 2; 
     const handlowe2026 = ["2026-01-25", "2026-04-26", "2026-06-28", "2026-08-30", "2026-12-13", "2026-12-20"];
-    
     const loggedID = localStorage.getItem('loggedCharID');
     const isAdmin = (loggedID === "03060" || loggedID === "300101107");
 
@@ -260,11 +117,12 @@
     }
 
     function clearFullMonth() {
-        if(confirm("Czy na pewno wyczyścić cały miesiąc?")) {
+        if(confirm("Czy na pewno wyczyścić godziny pracy? (Dni Ż i URLOP zostaną)")) {
             const days = new Date(2026, currentMonthIdx + 1, 0).getDate();
             employees.forEach(emp => {
-                for(let d=1; d<=days; d++) {
-                    localStorage.removeItem(`plan_${months[currentMonthIdx]}_${emp.n}_d${d}`);
+                for(let d=1; d<=days; d++) { 
+                    const v = localStorage.getItem(`plan_${months[currentMonthIdx]}_${emp.n}_d${d}`) || "";
+                    if(v.includes('-')) localStorage.removeItem(`plan_${months[currentMonthIdx]}_${emp.n}_d${d}`);
                 }
             });
             renderTable();
@@ -295,12 +153,10 @@
         workerRow.innerHTML = '<th class="date-col">DATA</th>';
         daysBody.innerHTML = '';
         sumRow.innerHTML = '<td class="date-col">SUMA H</td>';
-
         employees.forEach(emp => {
             workerRow.innerHTML += `<th><div class="avatar">${emp.i}</div><div class="worker-name">${emp.n}</div></th>`;
             sumRow.innerHTML += `<td id="sum-${emp.n}">0h</td>`;
         });
-
         const days = new Date(2026, currentMonthIdx + 1, 0).getDate();
         for (let d = 1; d <= days; d++) {
             const date = new Date(2026, currentMonthIdx, d);
@@ -309,11 +165,10 @@
             const tr = document.createElement('tr');
             if(isSun) tr.className = handlowe2026.includes(dateStr) ? 'sunday-handlowa' : 'sunday-red';
             else if(date.getDay() === 6) tr.className = 'sat-yellow';
-
             let html = `<td class="date-col">${d} ${["ND", "PN", "WT", "ŚR", "CZ", "PT", "SB"][date.getDay()]}</td>`;
             employees.forEach(emp => {
                 const val = localStorage.getItem(`plan_${months[currentMonthIdx]}_${emp.n}_d${d}`) || "";
-                let cls = val === "W" ? "val-w" : (val === "URLOP" ? "val-urlop" : "");
+                let cls = val === "Ż" ? "val-z" : (val === "URLOP" ? "val-urlop" : "");
                 html += `<td><input type="text" class="${cls}" value="${val}" ${!isAdmin ? 'disabled' : ''} onchange="saveVal('${emp.n}', ${d}, this.value)"></td>`;
             });
             tr.innerHTML = html;
@@ -346,10 +201,12 @@
         grid.innerHTML = "";
         employees.forEach(emp => {
             if(emp.n === "PAWEŁ") return;
-            grid.innerHTML += `<div style="background:#111; padding:12px; border-radius:8px; border:1px solid #333;">
-                <label style="font-size:0.75rem; color:#ffe800; font-weight:900;">${emp.n}</label>
-                <input type="text" id="w_${emp.n}" placeholder="Dni wolne" style="width:100%; background:#000; color:white; border:1px solid #444; margin:8px 0; padding:6px; font-size:0.7rem;">
-                <input type="text" id="u_${emp.n}" placeholder="Urlopy" style="width:100%; background:#000; color:white; border:1px solid #444; padding:6px; font-size:0.7rem;">
+            const savedWishes = localStorage.getItem(`wishes_${months[currentMonthIdx]}_${emp.n}`) || "";
+            const savedShifts = localStorage.getItem(`shifts_${months[currentMonthIdx]}_${emp.n}`) || "10-20, 10-18, 12-20, 13-20";
+            grid.innerHTML += `<div style="background:#111; padding:10px; border-radius:8px; border:1px solid #333;">
+                <label style="font-size:0.7rem; color:#ffe800; font-weight:900;">${emp.n}</label>
+                <input type="text" id="w_${emp.n}" value="${savedWishes}" placeholder="Dni Ż" style="width:100%; background:#000; color:white; border:1px solid #444; margin:5px 0; padding:4px; font-size:0.65rem;">
+                <input type="text" id="s_${emp.n}" value="${savedShifts}" placeholder="Zmiany" style="width:100%; background:#000; color:#aaa; border:1px solid #444; padding:4px; font-size:0.65rem;">
             </div>`;
         });
     }
@@ -358,75 +215,79 @@
         localStorage.setItem(`norma_${months[currentMonthIdx]}`, document.getElementById('hourNormInput').value);
         employees.forEach(emp => {
             if(emp.n === "PAWEŁ") return;
-            const w = document.getElementById(`w_${emp.n}`).value.split(',');
-            const u = document.getElementById(`u_${emp.n}`).value.split(',');
-            w.forEach(d => { if(d.trim()) saveVal(emp.n, d.trim(), "W"); });
-            u.forEach(d => { if(d.trim()) saveVal(emp.n, d.trim(), "URLOP"); });
+            const wVal = document.getElementById(`w_${emp.n}`).value;
+            const sVal = document.getElementById(`s_${emp.n}`).value;
+            localStorage.setItem(`wishes_${months[currentMonthIdx]}_${emp.n}`, wVal);
+            localStorage.setItem(`shifts_${months[currentMonthIdx]}_${emp.n}`, sVal);
+            
+            const wDays = wVal.split(',');
+            wDays.forEach(d => { if(d.trim()) saveVal(emp.n, d.trim(), "Ż"); });
         });
         renderTable(); toggleModal(false);
     }
 
     function generateAutoPlan() {
         const norm = parseInt(document.getElementById('hourNormInput').value) || 176;
-        const days = new Date(2026, currentMonthIdx + 1, 0).getDate();
+        const daysCount = new Date(2026, currentMonthIdx + 1, 0).getDate();
         
+        // Czyścimy tylko godziny (zostawiamy Ż i URLOP)
         employees.forEach(emp => {
             if(emp.n === "PAWEŁ") return;
-            
-            let curH = 0;
-            let workDays = [];
-
-            // 1. Reset starych godzin i liczenie URLOPÓW
-            for(let d=1; d<=days; d++) {
+            for(let d=1; d<=daysCount; d++) {
                 const v = localStorage.getItem(`plan_${months[currentMonthIdx]}_${emp.n}_d${d}`) || "";
                 if(v.includes('-')) localStorage.removeItem(`plan_${months[currentMonthIdx]}_${emp.n}_d${d}`);
-                if(v === "URLOP") curH += 8;
-            }
-
-            // 2. Znajdowanie dni, w których MOŻNA pracować
-            for(let d=1; d<=days; d++) {
-                const date = new Date(2026, currentMonthIdx, d);
-                const isSun = date.getDay() === 0;
-                const dateStr = `2026-${String(currentMonthIdx+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
-                const status = localStorage.getItem(`plan_${months[currentMonthIdx]}_${emp.n}_d${d}`);
-
-                if(status !== "W" && status !== "URLOP") {
-                    if(!isSun || handlowe2026.includes(dateStr)) {
-                        workDays.push(d);
-                    }
-                }
-            }
-
-            // 3. Losowe przemieszanie dni pracy (aby wolne nie było tylko na końcu)
-            workDays.sort(() => Math.random() - 0.5);
-
-            for(let d of workDays) {
-                if(curH >= norm) {
-                    saveVal(emp.n, d, "W");
-                    continue;
-                }
-
-                const date = new Date(2026, currentMonthIdx, d);
-                let s;
-                let h;
-
-                const diff = norm - curH;
-                if(diff >= 10) {
-                    let r = Math.random();
-                    s = (r < 0.75) ? "10-20" : (r < 0.90 ? "10-18" : "12-20");
-                    h = (s === "10-20") ? 10 : 8;
-                } else if(diff >= 8) {
-                    s = (Math.random() > 0.5) ? "10-18" : "12-20";
-                    h = 8;
-                } else {
-                    s = `10-${10+diff}`;
-                    h = diff;
-                }
-
-                saveVal(emp.n, d, s);
-                curH += h;
             }
         });
+
+        for(let d=1; d<=daysCount; d++) {
+            const date = new Date(2026, currentMonthIdx, d);
+            const isSun = date.getDay() === 0;
+            const isSat = date.getDay() === 6;
+            const dateStr = `2026-${String(currentMonthIdx+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+            const isHandlowa = handlowe2026.includes(dateStr);
+
+            // LOGIKA POK (Natalia i Magda)
+            if (!isSun || isHandlowa) {
+                const natVal = localStorage.getItem(`plan_${months[currentMonthIdx]}_NATALIA_d${d}`);
+                const magVal = localStorage.getItem(`plan_${months[currentMonthIdx]}_MAGDA_d${d}`);
+                
+                if (natVal !== "Ż" && natVal !== "URLOP" && magVal !== "Ż" && magVal !== "URLOP") {
+                    if (isSat) {
+                        saveVal("NATALIA", d, "10-20"); saveVal("MAGDA", d, "10-20");
+                    } else {
+                        saveVal("NATALIA", d, "10-18"); saveVal("MAGDA", d, "13-20");
+                    }
+                } else if ((natVal === "Ż" || natVal === "URLOP") && (magVal !== "Ż" && magVal !== "URLOP")) {
+                    saveVal("MAGDA", d, isSat ? "10-20" : "10-20");
+                } else if ((magVal === "Ż" || magVal === "URLOP") && (natVal !== "Ż" && natVal !== "URLOP")) {
+                    saveVal("NATALIA", d, isSat ? "10-20" : "10-20");
+                }
+            }
+
+            // RESZTA ZAŁOGI
+            employees.forEach(emp => {
+                if(emp.n === "PAWEŁ" || emp.n === "NATALIA" || emp.n === "MAGDA") return;
+                const status = localStorage.getItem(`plan_${months[currentMonthIdx]}_${emp.n}_d${d}`);
+                if(status === "Ż" || status === "URLOP" || (isSun && !isHandlowa)) return;
+
+                let curTotal = 0;
+                for(let prevD=1; prevD<=daysCount; prevD++) {
+                    const v = localStorage.getItem(`plan_${months[currentMonthIdx]}_${emp.n}_d${prevD}`) || "";
+                    if(v.includes('-')) { const t = v.split('-'); curTotal += (parseInt(t[1]) - parseInt(t[0])); }
+                    else if(v === "URLOP") curTotal += 8;
+                }
+
+                if(curTotal < norm) {
+                    if(isSat) {
+                        saveVal(emp.n, d, "10-20");
+                    } else {
+                        const shiftPool = (localStorage.getItem(`shifts_${months[currentMonthIdx]}_${emp.n}`) || "10-20,10-18,12-20,13-20").split(',');
+                        const randomShift = shiftPool[Math.floor(Math.random() * shiftPool.length)].trim();
+                        saveVal(emp.n, d, randomShift);
+                    }
+                }
+            });
+        }
         renderTable();
     }
 

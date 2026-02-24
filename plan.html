@@ -170,7 +170,9 @@
             let html = `<td class="date-col">${d} ${["ND", "PN", "WT", "ŚR", "CZ", "PT", "SB"][date.getDay()]}</td>`;
             employees.forEach(emp => {
                 const val = localStorage.getItem(`plan_${months[currentMonthIdx]}_${emp.n}_d${d}`) || "";
-                let cls = val === "Ż" ? "val-z" : (val === "URLOP" ? "val-urlop" : "");
+                let cls = "";
+                if(val === "Ż") cls = "val-z";
+                else if(val === "URLOP") cls = "val-urlop";
                 html += `<td><input type="text" class="${cls}" value="${val}" onchange="saveVal('${emp.n}', ${d}, this.value)"></td>`;
             });
             tr.innerHTML = html;
@@ -194,9 +196,16 @@
 
     function generateAutoPlan() {
         const norm = parseInt(document.getElementById('hourNormInput').value) || 160;
-        const rawShifts = localStorage.getItem(`global_shifts_${months[currentMonthIdx]}`) || "10-20, 10-18, 12-20, 13-20";
-        const shifts = rawShifts.split(',').map(s => s.trim());
+        const shifts = (localStorage.getItem(`global_shifts_${months[currentMonthIdx]}`) || "10-20, 10-18, 12-20, 13-20").split(',').map(s => s.trim());
         const daysCount = new Date(2026, currentMonthIdx + 1, 0).getDate();
+
+        // Czyścimy tylko zmiany (nie Ż i URLOP) przed generowaniem dla lepszego rozkładu
+        employees.forEach(emp => {
+            for(let d=1; d<=daysCount; d++) {
+                const v = localStorage.getItem(`plan_${months[currentMonthIdx]}_${emp.n}_d${d}`) || "";
+                if(v !== "Ż" && v !== "URLOP") localStorage.removeItem(`plan_${months[currentMonthIdx]}_${emp.n}_d${d}`);
+            }
+        });
 
         for(let d = 1; d <= daysCount; d++) {
             const date = new Date(2026, currentMonthIdx, d);
@@ -206,39 +215,33 @@
 
             if(isSun && !handlowe2026.includes(ds)) continue;
 
-            // 1. Logika POK (Natalia i Magda)
-            const natExisting = localStorage.getItem(`plan_${months[currentMonthIdx]}_NATALIA_d${d}`);
-            const magExisting = localStorage.getItem(`plan_${months[currentMonthIdx]}_MAGDA_d${d}`);
-
-            if(!natExisting && !magExisting) {
+            // 1. POK (Natalia/Magda) - priorytet
+            const nV = localStorage.getItem(`plan_${months[currentMonthIdx]}_NATALIA_d${d}`);
+            const mV = localStorage.getItem(`plan_${months[currentMonthIdx]}_MAGDA_d${d}`);
+            if(!nV && !mV) {
                 if(isSat) { saveVal("NATALIA", d, "10-20"); saveVal("MAGDA", d, "10-20"); }
                 else { saveVal("NATALIA", d, "10-18"); saveVal("MAGDA", d, "13-20"); }
-            } else if(!natExisting && (magExisting === "Ż" || magExisting === "URLOP")) {
-                saveVal("NATALIA", d, isSat ? "10-20" : "10-20");
-            } else if((natExisting === "Ż" || natExisting === "URLOP") && !magExisting) {
-                saveVal("MAGDA", d, isSat ? "10-20" : "10-20");
             }
 
-            // 2. Reszta załogi
+            // 2. Reszta załogi z kontrolą normy i rozkładu
             employees.forEach(emp => {
                 if(emp.n === "PAWEŁ" || emp.n === "NATALIA" || emp.n === "MAGDA") return;
                 if(localStorage.getItem(`plan_${months[currentMonthIdx]}_${emp.n}_d${d}`)) return;
 
-                const currentHours = getEmpHours(emp.n);
-                if(currentHours < norm) {
-                    if(isSat) {
-                        saveVal(emp.n, d, "10-20");
+                const currentH = getEmpHours(emp.n);
+                // Szansa na wolne "W" (ok. 30% szans, jeśli mamy zapas godzin), żeby nie pchać wszystkiego na początek
+                if(currentH < norm) {
+                    const prob = Math.random();
+                    if(prob > 0.3 || isSat) {
+                        const rs = isSat ? "10-20" : shifts[Math.floor(Math.random() * shifts.length)];
+                        const h = parseInt(rs.split('-')[1]) - parseInt(rs.split('-')[0]);
+                        if(currentH + h <= norm + 8) saveVal(emp.n, d, rs);
+                        else saveVal(emp.n, d, "W");
                     } else {
-                        // Wybieramy zmianę, która nie przekroczy normy
-                        for(let attempt = 0; attempt < 5; attempt++) {
-                            const rs = shifts[Math.floor(Math.random() * shifts.length)];
-                            const [s, e] = rs.split('-');
-                            if(currentHours + (parseInt(e) - parseInt(s)) <= norm + 4) { // Margines 4h
-                                saveVal(emp.n, d, rs);
-                                break;
-                            }
-                        }
+                        saveVal(emp.n, d, "W");
                     }
+                } else {
+                    saveVal(emp.n, d, "W");
                 }
             });
         }

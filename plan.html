@@ -13,7 +13,6 @@
         .logo span { background: #000; color: #ffe800; padding: 0 4px; border-radius: 3px; }
         .menu-btn { position: absolute; left: 15px; cursor: pointer; color: #000; font-size: 1.5rem; }
         
-        /* Menu w Hamburgerze */
         .sidebar { position: fixed; left: -280px; top: 0; width: 260px; height: 100%; background: #0a0a0a; border-right: 3px solid #ffe800; transition: 0.4s; z-index: 10000; padding-top: 60px; }
         .sidebar.active { left: 0; }
         .sidebar-link { display: block; color: white; padding: 15px 25px; text-decoration: none; font-weight: 700; font-size: 0.8rem; border-bottom: 1px solid #111; }
@@ -27,7 +26,7 @@
         .month-btn.active { background: #ffe800; color: #000; border-color: #ffe800; }
         
         .admin-controls { display: flex; align-items: center; gap: 12px; padding-left: 15px; border-left: 1px solid #333; }
-        .norm-input { width: 55px; background: #000; color: #ffe800; border: 1px solid #ffe800; text-align: center; font-weight: 900; padding: 4px; font-size: 0.8rem; }
+        .norm-input { width: 60px; background: #000; color: #ffe800; border: 1px solid #ffe800; text-align: center; font-weight: 900; padding: 4px; font-size: 0.8rem; }
         .btn-gen { background: #ffe800; color: #000; border: none; padding: 8px 15px; font-weight: 900; border-radius: 20px; cursor: pointer; font-size: 0.7rem; white-space: nowrap; }
         .btn-clear { background: #333; color: #ff4444; border: 1px solid #ff4444; }
         .gear-btn { font-size: 1.8rem; cursor: pointer; color: #ffe800; line-height: 1; }
@@ -41,22 +40,21 @@
         td { border-bottom: 1px solid #151515; border-right: 1px solid #151515; height: 42px; }
         td input { width: 100%; height: 100%; background: transparent; border: none; color: white; text-align: center; font-weight: 700; font-size: 0.8rem; outline: none; }
         
-        .sunday-red { background: #440000 !important; }
-        .sunday-handlowa { background: #003300 !important; }
-        .sat-yellow { background: #222200; }
-        .val-z { color: #ffe800 !important; }
-        .val-urlop { color: #00aaff !important; }
+        .val-z { color: #ffe800 !important; font-weight: 900 !important; }
+        .val-urlop { color: #00aaff !important; font-weight: 900 !important; }
+        .sunday-red { background: #330000 !important; }
+        .sunday-handlowa { background: #002200 !important; }
+        .sat-yellow { background: #1a1a00 !important; }
         tfoot td { background: #111; color: #ffe800; font-weight: 900; font-size: 0.85rem; text-align: center; position: sticky; bottom: 0; z-index: 500; border-top: 2px solid #ffe800; height: 50px; }
 
-        /* Modal Ustawień */
         .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 11000; align-items: center; justify-content: center; padding: 15px; }
         .modal-content { background: #0a0a0a; border: 2px solid #ffe800; padding: 20px; width: 100%; max-width: 850px; border-radius: 15px; max-height: 90vh; overflow-y: auto; }
         .section-title { color: #ffe800; font-size: 0.8rem; font-weight: 900; text-transform: uppercase; margin: 15px 0 10px; border-bottom: 1px solid #333; padding-bottom: 5px; }
         .shop-settings { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; background: #151515; padding: 15px; border-radius: 8px; }
-        .worker-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 10px; margin-top: 10px; }
+        .worker-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 10px; margin-top: 10px; }
         .worker-card { background: #111; border: 1px solid #333; padding: 10px; border-radius: 8px; }
         .card-input { width: 100%; background: #000; border: 1px solid #444; color: white; padding: 6px; font-size: 0.7rem; margin-top: 4px; border-radius: 4px; }
-        .label-text { font-size: 0.6rem; color: #888; display: block; margin-top: 5px; font-weight: 700; }
+        .label-text { font-size: 0.55rem; color: #888; display: block; margin-top: 5px; font-weight: 700; }
     </style>
 </head>
 <body>
@@ -80,7 +78,7 @@
         <div class="admin-controls" id="adminTools">
             <div style="display:flex; align-items:center; gap:5px;">
                 <span style="font-size:0.6rem; font-weight:900; color:#ffe800;">NORMA:</span>
-                <input type="number" id="hourNormInput" class="norm-input" onchange="saveNorm()">
+                <input type="number" id="hourNormInput" class="norm-input" value="160">
             </div>
             <button class="btn-gen" onclick="generateAutoPlan()">🚀 AUTOPLAN</button>
             <button class="btn-gen btn-clear" onclick="clearFullMonth()">🗑️ WYCZYŚĆ</button>
@@ -91,9 +89,9 @@
 
 <div class="table-container">
     <table id="planTable">
-        <thead><tr id="workerRow"><th class="date-col">DATA</th></tr></thead>
+        <thead><tr id="workerRow"></tr></thead>
         <tbody id="daysBody"></tbody>
-        <tfoot><tr id="sumRow"><td class="date-col">SUMA H</td></tr></tfoot>
+        <tfoot><tr id="sumRow"></tr></tfoot>
     </table>
 </div>
 
@@ -111,7 +109,7 @@
             </div>
             <div>
                 <span class="label-text">DOSTĘPNE ZMIANY:</span>
-                <input type="text" id="globalShifts" class="card-input" placeholder="10-20, 12-20, 13-20">
+                <input type="text" id="globalShifts" class="card-input" value="10-20, 10-18, 12-20, 13-20">
             </div>
         </div>
 
@@ -134,7 +132,7 @@
     ];
 
     const months = ["STYCZEŃ", "LUTY", "MARZEC", "KWIECIEŃ", "MAJ", "CZERWIEC", "LIPIEC", "SIERPIEŃ", "WRZESIEŃ", "PAŹDZIERNIK", "LISTOPAD", "GRUDZIEŃ"];
-    let currentMonthIdx = 1; // Luty jako startowy
+    let currentMonthIdx = 1; 
     const handlowe2026 = ["2026-01-25", "2026-04-26", "2026-06-28", "2026-08-30", "2026-12-13", "2026-12-20"];
 
     function init() {
@@ -143,28 +141,10 @@
         renderWishForm();
     }
 
-    function renderMonths() {
-        const container = document.getElementById('monthSelector');
-        container.innerHTML = "";
-        months.forEach((m, idx) => {
-            const btn = document.createElement('button');
-            btn.className = `month-btn ${idx === currentMonthIdx ? 'active' : ''}`;
-            btn.innerText = m;
-            btn.onclick = () => { 
-                currentMonthIdx = idx; 
-                renderMonths(); 
-                renderTable(); 
-                document.getElementById('hourNormInput').value = localStorage.getItem(`norma_${months[idx]}`) || "160";
-            };
-            container.appendChild(btn);
-        });
-        document.getElementById('hourNormInput').value = localStorage.getItem(`norma_${months[currentMonthIdx]}`) || "160";
-    }
-
     function renderTable() {
         const workerRow = document.getElementById('workerRow');
-        const daysBody = document.getElementById('daysBody');
         const sumRow = document.getElementById('sumRow');
+        const daysBody = document.getElementById('daysBody');
         
         workerRow.innerHTML = '<th class="date-col">DATA</th>';
         sumRow.innerHTML = '<td class="date-col">SUMA H</td>';
@@ -174,17 +154,17 @@
             sumRow.innerHTML += `<td id="sum-${emp.n}">0h</td>`;
         });
 
-        const daysInMonth = new Date(2026, currentMonthIdx + 1, 0).getDate();
+        const daysCount = new Date(2026, currentMonthIdx + 1, 0).getDate();
         daysBody.innerHTML = '';
 
-        for (let d = 1; d <= daysInMonth; d++) {
+        for (let d = 1; d <= daysCount; d++) {
             const date = new Date(2026, currentMonthIdx, d);
             const isSun = date.getDay() === 0;
             const isSat = date.getDay() === 6;
-            const dateStr = `2026-${String(currentMonthIdx+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+            const ds = `2026-${String(currentMonthIdx+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
             
             const tr = document.createElement('tr');
-            if(isSun) tr.className = handlowe2026.includes(dateStr) ? 'sunday-handlowa' : 'sunday-red';
+            if(isSun) tr.className = handlowe2026.includes(ds) ? 'sunday-handlowa' : 'sunday-red';
             else if(isSat) tr.className = 'sat-yellow';
 
             let html = `<td class="date-col">${d} ${["ND", "PN", "WT", "ŚR", "CZ", "PT", "SB"][date.getDay()]}</td>`;
@@ -199,14 +179,88 @@
         updateSums();
     }
 
+    function getEmpHours(name) {
+        let total = 0;
+        const daysCount = new Date(2026, currentMonthIdx + 1, 0).getDate();
+        for(let d = 1; d <= daysCount; d++) {
+            const v = localStorage.getItem(`plan_${months[currentMonthIdx]}_${name}_d${d}`) || "";
+            if(v.includes('-')) {
+                const parts = v.split('-');
+                total += (parseInt(parts[1]) - parseInt(parts[0]));
+            } else if(v === "URLOP") total += 8;
+        }
+        return total;
+    }
+
+    function generateAutoPlan() {
+        const norm = parseInt(document.getElementById('hourNormInput').value) || 160;
+        const rawShifts = localStorage.getItem(`global_shifts_${months[currentMonthIdx]}`) || "10-20, 10-18, 12-20, 13-20";
+        const shifts = rawShifts.split(',').map(s => s.trim());
+        const daysCount = new Date(2026, currentMonthIdx + 1, 0).getDate();
+
+        for(let d = 1; d <= daysCount; d++) {
+            const date = new Date(2026, currentMonthIdx, d);
+            const isSun = date.getDay() === 0;
+            const isSat = date.getDay() === 6;
+            const ds = `2026-${String(currentMonthIdx+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+
+            if(isSun && !handlowe2026.includes(ds)) continue;
+
+            // 1. Logika POK (Natalia i Magda)
+            const natExisting = localStorage.getItem(`plan_${months[currentMonthIdx]}_NATALIA_d${d}`);
+            const magExisting = localStorage.getItem(`plan_${months[currentMonthIdx]}_MAGDA_d${d}`);
+
+            if(!natExisting && !magExisting) {
+                if(isSat) { saveVal("NATALIA", d, "10-20"); saveVal("MAGDA", d, "10-20"); }
+                else { saveVal("NATALIA", d, "10-18"); saveVal("MAGDA", d, "13-20"); }
+            } else if(!natExisting && (magExisting === "Ż" || magExisting === "URLOP")) {
+                saveVal("NATALIA", d, isSat ? "10-20" : "10-20");
+            } else if((natExisting === "Ż" || natExisting === "URLOP") && !magExisting) {
+                saveVal("MAGDA", d, isSat ? "10-20" : "10-20");
+            }
+
+            // 2. Reszta załogi
+            employees.forEach(emp => {
+                if(emp.n === "PAWEŁ" || emp.n === "NATALIA" || emp.n === "MAGDA") return;
+                if(localStorage.getItem(`plan_${months[currentMonthIdx]}_${emp.n}_d${d}`)) return;
+
+                const currentHours = getEmpHours(emp.n);
+                if(currentHours < norm) {
+                    if(isSat) {
+                        saveVal(emp.n, d, "10-20");
+                    } else {
+                        // Wybieramy zmianę, która nie przekroczy normy
+                        for(let attempt = 0; attempt < 5; attempt++) {
+                            const rs = shifts[Math.floor(Math.random() * shifts.length)];
+                            const [s, e] = rs.split('-');
+                            if(currentHours + (parseInt(e) - parseInt(s)) <= norm + 4) { // Margines 4h
+                                saveVal(emp.n, d, rs);
+                                break;
+                            }
+                        }
+                    }
+                }
+            });
+        }
+        renderTable();
+    }
+
+    function saveVal(name, d, v) {
+        localStorage.setItem(`plan_${months[currentMonthIdx]}_${name}_d${d}`, v.toUpperCase());
+        updateSums();
+    }
+
+    function updateSums() {
+        employees.forEach(emp => {
+            const h = getEmpHours(emp.n);
+            const el = document.getElementById(`sum-${emp.n}`);
+            if(el) el.innerText = h + "h";
+        });
+    }
+
     function renderWishForm() {
         const grid = document.getElementById('workerGrid');
         grid.innerHTML = "";
-        
-        document.getElementById('globalShifts').value = localStorage.getItem(`global_shifts_${months[currentMonthIdx]}`) || "10-20, 10-18, 12-20, 13-20";
-        document.getElementById('shopOpen').value = localStorage.getItem(`shop_open_${months[currentMonthIdx]}`) || "10:00";
-        document.getElementById('shopClose').value = localStorage.getItem(`shop_close_${months[currentMonthIdx]}`) || "20:00";
-
         employees.forEach(emp => {
             if(emp.n === "PAWEŁ") return;
             grid.innerHTML += `
@@ -230,7 +284,7 @@
         localStorage.setItem(`global_shifts_${months[currentMonthIdx]}`, document.getElementById('globalShifts').value);
         localStorage.setItem(`shop_open_${months[currentMonthIdx]}`, document.getElementById('shopOpen').value);
         localStorage.setItem(`shop_close_${months[currentMonthIdx]}`, document.getElementById('shopClose').value);
-
+        
         employees.forEach(emp => {
             if(emp.n === "PAWEŁ") return;
             const z1 = document.getElementById(`z1_${emp.n}`).value;
@@ -248,78 +302,20 @@
         toggleModal(false);
     }
 
-    function generateAutoPlan() {
-        const norm = parseInt(document.getElementById('hourNormInput').value) || 160;
-        const shifts = (localStorage.getItem(`global_shifts_${months[currentMonthIdx]}`) || "10-20, 10-18, 12-20, 13-20").split(',').map(s => s.trim());
-        const daysInMonth = new Date(2026, currentMonthIdx + 1, 0).getDate();
-
-        for(let d = 1; d <= daysInMonth; d++) {
-            const date = new Date(2026, currentMonthIdx, d);
-            const isSun = date.getDay() === 0;
-            const isSat = date.getDay() === 6;
-            const isHandlowa = handlowe2026.includes(`2026-${String(currentMonthIdx+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`);
-
-            if(isSun && !isHandlowa) continue;
-
-            // LOGIKA POK (Natalia i Magda)
-            const natVal = localStorage.getItem(`plan_${months[currentMonthIdx]}_NATALIA_d${d}`);
-            const magVal = localStorage.getItem(`plan_${months[currentMonthIdx]}_MAGDA_d${d}`);
-
-            if(!natVal && !magStatus(magVal)) {
-                if(isSat) { saveVal("NATALIA", d, "10-20"); saveVal("MAGDA", d, "10-20"); }
-                else { saveVal("NATALIA", d, "10-18"); saveVal("MAGDA", d, "13-20"); }
-            } else if(natVal && !magStatus(magVal)) {
-                 saveVal("MAGDA", d, isSat ? "10-20" : "10-20");
-            } else if(!natVal && magStatus(magVal)) {
-                 saveVal("NATALIA", d, isSat ? "10-20" : "10-20");
-            }
-
-            // POZOSTALI
-            employees.forEach(emp => {
-                if(emp.n === "PAWEŁ" || emp.n === "NATALIA" || emp.n === "MAGDA") return;
-                if(localStorage.getItem(`plan_${months[currentMonthIdx]}_${emp.n}_d${d}`)) return;
-
-                if(isSat) { saveVal(emp.n, d, "10-20"); }
-                else {
-                    const randomShift = shifts[Math.floor(Math.random() * shifts.length)];
-                    saveVal(emp.n, d, randomShift);
-                }
-            });
-        }
-        renderTable();
-    }
-
-    function magStatus(v) { return v === "Ż" || v === "URLOP"; }
-
-    function saveVal(name, d, v) {
-        localStorage.setItem(`plan_${months[currentMonthIdx]}_${name}_d${d}`, v.toUpperCase());
-        updateSums();
-    }
-
-    function saveNorm() {
-        localStorage.setItem(`norma_${months[currentMonthIdx]}`, document.getElementById('hourNormInput').value);
-    }
-
-    function updateSums() {
-        employees.forEach(emp => {
-            let total = 0;
-            const daysInMonth = new Date(2026, currentMonthIdx + 1, 0).getDate();
-            for(let d = 1; d <= daysInMonth; d++) {
-                const v = localStorage.getItem(`plan_${months[currentMonthIdx]}_${emp.n}_d${d}`) || "";
-                if(v.includes('-')) {
-                    const [s, e] = v.split('-');
-                    total += (parseInt(e) - parseInt(s));
-                } else if(v === "URLOP") {
-                    total += 8;
-                }
-            }
-            const el = document.getElementById(`sum-${emp.n}`);
-            if(el) el.innerText = total + "h";
+    function renderMonths() {
+        const container = document.getElementById('monthSelector');
+        container.innerHTML = "";
+        months.forEach((m, idx) => {
+            const btn = document.createElement('button');
+            btn.className = `month-btn ${idx === currentMonthIdx ? 'active' : ''}`;
+            btn.innerText = m;
+            btn.onclick = () => { currentMonthIdx = idx; renderMonths(); renderTable(); };
+            container.appendChild(btn);
         });
     }
 
     function clearFullMonth() {
-        if(confirm("Czy na pewno wyczyścić cały miesiąc?")) {
+        if(confirm("Wyczyścić plan?")) {
             employees.forEach(e => {
                 for(let d = 1; d <= 31; d++) localStorage.removeItem(`plan_${months[currentMonthIdx]}_${e.n}_d${d}`);
             });

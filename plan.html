@@ -372,35 +372,59 @@
         
         employees.forEach(emp => {
             if(emp.n === "PAWEŁ") return;
+            
             let curH = 0;
+            let workDays = [];
 
-            // 1. CZYSZCZENIE: Usuwamy stare godziny pracy, zostawiając W i URLOP
+            // 1. Reset starych godzin i liczenie URLOPÓW
             for(let d=1; d<=days; d++) {
                 const v = localStorage.getItem(`plan_${months[currentMonthIdx]}_${emp.n}_d${d}`) || "";
                 if(v.includes('-')) localStorage.removeItem(`plan_${months[currentMonthIdx]}_${emp.n}_d${d}`);
                 if(v === "URLOP") curH += 8;
             }
 
-            // 2. GENEROWANIE: Dążenie do normy przy użyciu zmian 10-20
+            // 2. Znajdowanie dni, w których MOŻNA pracować
             for(let d=1; d<=days; d++) {
                 const date = new Date(2026, currentMonthIdx, d);
                 const isSun = date.getDay() === 0;
                 const dateStr = `2026-${String(currentMonthIdx+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
                 const status = localStorage.getItem(`plan_${months[currentMonthIdx]}_${emp.n}_d${d}`);
 
-                // Pomiń jeśli jest URLOP, sztywne W lub niedziela niehandlowa
-                if(status === "URLOP" || status === "W") continue;
-                if(isSun && !handlowe2026.includes(dateStr)) continue;
-
-                if(curH < norm) {
-                    // Priorytet dla zmiany 10-20 (70% szans), reszta to 10-18 lub 12-20
-                    let rand = Math.random();
-                    let s = (rand < 0.7) ? "10-20" : (rand < 0.85 ? "10-18" : "12-20");
-                    
-                    saveVal(emp.n, d, s);
-                    const hours = s.split('-').map(Number);
-                    curH += (hours[1] - hours[0]);
+                if(status !== "W" && status !== "URLOP") {
+                    if(!isSun || handlowe2026.includes(dateStr)) {
+                        workDays.push(d);
+                    }
                 }
+            }
+
+            // 3. Losowe przemieszanie dni pracy (aby wolne nie było tylko na końcu)
+            workDays.sort(() => Math.random() - 0.5);
+
+            for(let d of workDays) {
+                if(curH >= norm) {
+                    saveVal(emp.n, d, "W");
+                    continue;
+                }
+
+                const date = new Date(2026, currentMonthIdx, d);
+                let s;
+                let h;
+
+                const diff = norm - curH;
+                if(diff >= 10) {
+                    let r = Math.random();
+                    s = (r < 0.75) ? "10-20" : (r < 0.90 ? "10-18" : "12-20");
+                    h = (s === "10-20") ? 10 : 8;
+                } else if(diff >= 8) {
+                    s = (Math.random() > 0.5) ? "10-18" : "12-20";
+                    h = 8;
+                } else {
+                    s = `10-${10+diff}`;
+                    h = diff;
+                }
+
+                saveVal(emp.n, d, s);
+                curH += h;
             }
         });
         renderTable();

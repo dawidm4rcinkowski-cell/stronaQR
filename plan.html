@@ -26,7 +26,7 @@
         .month-btn.active { background: #ffe800; color: #000; border-color: #ffe800; }
         
         .admin-controls { display: flex; align-items: center; gap: 12px; padding-left: 15px; border-left: 1px solid #333; }
-        .norm-input { width: 60px; background: #000; color: #ffe800; border: 1px solid #ffe800; text-align: center; font-weight: 900; padding: 4px; font-size: 0.8rem; }
+        .norm-input { width: 65px; background: #000; color: #ffe800; border: 1px solid #ffe800; text-align: center; font-weight: 900; padding: 4px; font-size: 0.8rem; }
         .btn-gen { background: #ffe800; color: #000; border: none; padding: 8px 15px; font-weight: 900; border-radius: 20px; cursor: pointer; font-size: 0.7rem; white-space: nowrap; }
         .btn-clear { background: #333; color: #ff4444; border: 1px solid #ff4444; }
         .gear-btn { font-size: 1.8rem; cursor: pointer; color: #ffe800; line-height: 1; }
@@ -40,8 +40,8 @@
         td { border-bottom: 1px solid #151515; border-right: 1px solid #151515; height: 42px; }
         td input { width: 100%; height: 100%; background: transparent; border: none; color: white; text-align: center; font-weight: 700; font-size: 0.8rem; outline: none; }
         
-        .val-z { color: #ffe800 !important; font-weight: 900 !important; }
-        .val-urlop { color: #00aaff !important; font-weight: 900 !important; }
+        .val-z { color: #ffe800 !important; font-weight: 900; }
+        .val-urlop { color: #00aaff !important; font-weight: 900; }
         .sunday-red { background: #330000 !important; }
         .sunday-handlowa { background: #002200 !important; }
         .sat-yellow { background: #1a1a00 !important; }
@@ -108,7 +108,7 @@
                 <input type="text" id="shopClose" class="card-input" value="20:00">
             </div>
             <div>
-                <span class="label-text">DOSTĘPNE ZMIANY:</span>
+                <span class="label-text">ZAKRESY PRACY (OD-DO):</span>
                 <input type="text" id="globalShifts" class="card-input" value="10-20, 10-18, 12-20, 13-20">
             </div>
         </div>
@@ -136,49 +136,7 @@
     const handlowe2026 = ["2026-01-25", "2026-04-26", "2026-06-28", "2026-08-30", "2026-12-13", "2026-12-20"];
 
     function init() {
-        renderMonths();
-        renderTable();
-        renderWishForm();
-    }
-
-    function renderTable() {
-        const workerRow = document.getElementById('workerRow');
-        const sumRow = document.getElementById('sumRow');
-        const daysBody = document.getElementById('daysBody');
-        
-        workerRow.innerHTML = '<th class="date-col">DATA</th>';
-        sumRow.innerHTML = '<td class="date-col">SUMA H</td>';
-        
-        employees.forEach(emp => {
-            workerRow.innerHTML += `<th><div class="avatar">${emp.i}</div><div class="worker-name">${emp.n}</div></th>`;
-            sumRow.innerHTML += `<td id="sum-${emp.n}">0h</td>`;
-        });
-
-        const daysCount = new Date(2026, currentMonthIdx + 1, 0).getDate();
-        daysBody.innerHTML = '';
-
-        for (let d = 1; d <= daysCount; d++) {
-            const date = new Date(2026, currentMonthIdx, d);
-            const isSun = date.getDay() === 0;
-            const isSat = date.getDay() === 6;
-            const ds = `2026-${String(currentMonthIdx+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
-            
-            const tr = document.createElement('tr');
-            if(isSun) tr.className = handlowe2026.includes(ds) ? 'sunday-handlowa' : 'sunday-red';
-            else if(isSat) tr.className = 'sat-yellow';
-
-            let html = `<td class="date-col">${d} ${["ND", "PN", "WT", "ŚR", "CZ", "PT", "SB"][date.getDay()]}</td>`;
-            employees.forEach(emp => {
-                const val = localStorage.getItem(`plan_${months[currentMonthIdx]}_${emp.n}_d${d}`) || "";
-                let cls = "";
-                if(val === "Ż") cls = "val-z";
-                else if(val === "URLOP") cls = "val-urlop";
-                html += `<td><input type="text" class="${cls}" value="${val}" onchange="saveVal('${emp.n}', ${d}, this.value)"></td>`;
-            });
-            tr.innerHTML = html;
-            daysBody.appendChild(tr);
-        }
-        updateSums();
+        renderMonths(); renderTable(); renderWishForm();
     }
 
     function getEmpHours(name) {
@@ -199,7 +157,7 @@
         const shifts = (localStorage.getItem(`global_shifts_${months[currentMonthIdx]}`) || "10-20, 10-18, 12-20, 13-20").split(',').map(s => s.trim());
         const daysCount = new Date(2026, currentMonthIdx + 1, 0).getDate();
 
-        // Czyścimy tylko zmiany (nie Ż i URLOP) przed generowaniem dla lepszego rozkładu
+        // 1. Czyścimy stare wpisy (zostawiamy Ż i URLOP)
         employees.forEach(emp => {
             for(let d=1; d<=daysCount; d++) {
                 const v = localStorage.getItem(`plan_${months[currentMonthIdx]}_${emp.n}_d${d}`) || "";
@@ -207,44 +165,53 @@
             }
         });
 
-        for(let d = 1; d <= daysCount; d++) {
+        // 2. Najpierw POK i Soboty (obowiązkowe)
+        for(let d=1; d<=daysCount; d++) {
             const date = new Date(2026, currentMonthIdx, d);
-            const isSun = date.getDay() === 0;
             const isSat = date.getDay() === 6;
             const ds = `2026-${String(currentMonthIdx+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+            if(date.getDay() === 0 && !handlowe2026.includes(ds)) continue;
 
-            if(isSun && !handlowe2026.includes(ds)) continue;
-
-            // 1. POK (Natalia/Magda) - priorytet
             const nV = localStorage.getItem(`plan_${months[currentMonthIdx]}_NATALIA_d${d}`);
             const mV = localStorage.getItem(`plan_${months[currentMonthIdx]}_MAGDA_d${d}`);
             if(!nV && !mV) {
                 if(isSat) { saveVal("NATALIA", d, "10-20"); saveVal("MAGDA", d, "10-20"); }
                 else { saveVal("NATALIA", d, "10-18"); saveVal("MAGDA", d, "13-20"); }
             }
-
-            // 2. Reszta załogi z kontrolą normy i rozkładu
-            employees.forEach(emp => {
-                if(emp.n === "PAWEŁ" || emp.n === "NATALIA" || emp.n === "MAGDA") return;
-                if(localStorage.getItem(`plan_${months[currentMonthIdx]}_${emp.n}_d${d}`)) return;
-
-                const currentH = getEmpHours(emp.n);
-                // Szansa na wolne "W" (ok. 30% szans, jeśli mamy zapas godzin), żeby nie pchać wszystkiego na początek
-                if(currentH < norm) {
-                    const prob = Math.random();
-                    if(prob > 0.3 || isSat) {
-                        const rs = isSat ? "10-20" : shifts[Math.floor(Math.random() * shifts.length)];
-                        const h = parseInt(rs.split('-')[1]) - parseInt(rs.split('-')[0]);
-                        if(currentH + h <= norm + 8) saveVal(emp.n, d, rs);
-                        else saveVal(emp.n, d, "W");
-                    } else {
-                        saveVal(emp.n, d, "W");
-                    }
-                } else {
-                    saveVal(emp.n, d, "W");
-                }
-            });
+            // Soboty dla reszty
+            if(isSat) {
+                employees.forEach(emp => {
+                    if(emp.n!=="PAWEŁ" && !localStorage.getItem(`plan_${months[currentMonthIdx]}_${emp.n}_d${d}`)) saveVal(emp.n, d, "10-20");
+                });
+            }
         }
+
+        // 3. Dopełnianie do NORMY (bezwzględne)
+        employees.forEach(emp => {
+            if(emp.n === "PAWEŁ") return;
+            let currentH = getEmpHours(emp.n);
+            let attempts = 0;
+
+            while(currentH < norm - 4 && attempts < 100) {
+                let randomDay = Math.floor(Math.random() * daysCount) + 1;
+                const date = new Date(2026, currentMonthIdx, randomDay);
+                const ds = `2026-${String(currentMonthIdx+1).padStart(2,'0')}-${String(randomDay).padStart(2,'0')}`;
+                
+                // Nie pracujemy w niedziele niehandlowe
+                if(date.getDay() === 0 && !handlowe2026.includes(ds)) { attempts++; continue; }
+
+                if(!localStorage.getItem(`plan_${months[currentMonthIdx]}_${emp.n}_d${randomDay}`)) {
+                    let rs = shifts[Math.floor(Math.random() * shifts.length)];
+                    let h = parseInt(rs.split('-')[1]) - parseInt(rs.split('-')[0]);
+                    
+                    if(currentH + h <= norm + 4) {
+                        saveVal(emp.n, randomDay, rs);
+                        currentH += h;
+                    }
+                }
+                attempts++;
+            }
+        });
         renderTable();
     }
 
@@ -261,6 +228,38 @@
         });
     }
 
+    function renderTable() {
+        const workerRow = document.getElementById('workerRow');
+        const sumRow = document.getElementById('sumRow');
+        const daysBody = document.getElementById('daysBody');
+        workerRow.innerHTML = '<th class="date-col">DATA</th>';
+        sumRow.innerHTML = '<td class="date-col">SUMA H</td>';
+        employees.forEach(emp => {
+            workerRow.innerHTML += `<th><div class="avatar">${emp.i}</div><div class="worker-name">${emp.n}</div></th>`;
+            sumRow.innerHTML += `<td id="sum-${emp.n}">0h</td>`;
+        });
+        const daysCount = new Date(2026, currentMonthIdx + 1, 0).getDate();
+        daysBody.innerHTML = '';
+        for (let d = 1; d <= daysCount; d++) {
+            const date = new Date(2026, currentMonthIdx, d);
+            const isSun = date.getDay() === 0;
+            const isSat = date.getDay() === 6;
+            const ds = `2026-${String(currentMonthIdx+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+            const tr = document.createElement('tr');
+            if(isSun) tr.className = handlowe2026.includes(ds) ? 'sunday-handlowa' : 'sunday-red';
+            else if(isSat) tr.className = 'sat-yellow';
+            let html = `<td class="date-col">${d} ${["ND", "PN", "WT", "ŚR", "CZ", "PT", "SB"][date.getDay()]}</td>`;
+            employees.forEach(emp => {
+                const val = localStorage.getItem(`plan_${months[currentMonthIdx]}_${emp.n}_d${d}`) || "";
+                let cls = (val === "Ż") ? "val-z" : (val === "URLOP" ? "val-urlop" : "");
+                html += `<td><input type="text" class="${cls}" value="${val}" onchange="saveVal('${emp.n}', ${d}, this.value)"></td>`;
+            });
+            tr.innerHTML = html;
+            daysBody.appendChild(tr);
+        }
+        updateSums();
+    }
+
     function renderWishForm() {
         const grid = document.getElementById('workerGrid');
         grid.innerHTML = "";
@@ -269,40 +268,26 @@
             grid.innerHTML += `
                 <div class="worker-card">
                     <h4>${emp.n}</h4>
-                    <span class="label-text">ŻYCZENIA (MAX 2 DNI):</span>
-                    <div style="display:flex; gap:4px;">
-                        <input type="number" id="z1_${emp.n}" class="card-input" placeholder="Dzień">
-                        <input type="number" id="z2_${emp.n}" class="card-input" placeholder="Dzień">
-                    </div>
-                    <span class="label-text">URLOP (ZAKRES):</span>
-                    <div style="display:flex; gap:4px;">
-                        <input type="number" id="u_od_${emp.n}" class="card-input" placeholder="Od">
-                        <input type="number" id="u_do_${emp.n}" class="card-input" placeholder="Do">
-                    </div>
+                    <span class="label-text">ŻYCZENIA (DNI):</span>
+                    <div style="display:flex; gap:4px;"><input type="number" id="z1_${emp.n}" class="card-input" placeholder="1"><input type="number" id="z2_${emp.n}" class="card-input" placeholder="2"></div>
+                    <span class="label-text">URLOP (OD-DO):</span>
+                    <div style="display:flex; gap:4px;"><input type="number" id="u_od_${emp.n}" class="card-input" placeholder="Od"><input type="number" id="u_do_${emp.n}" class="card-input" placeholder="Do"></div>
                 </div>`;
         });
     }
 
     function applySettings() {
         localStorage.setItem(`global_shifts_${months[currentMonthIdx]}`, document.getElementById('globalShifts').value);
-        localStorage.setItem(`shop_open_${months[currentMonthIdx]}`, document.getElementById('shopOpen').value);
-        localStorage.setItem(`shop_close_${months[currentMonthIdx]}`, document.getElementById('shopClose').value);
-        
         employees.forEach(emp => {
             if(emp.n === "PAWEŁ") return;
             const z1 = document.getElementById(`z1_${emp.n}`).value;
             const z2 = document.getElementById(`z2_${emp.n}`).value;
             const uOd = parseInt(document.getElementById(`u_od_${emp.n}`).value);
             const uDo = parseInt(document.getElementById(`u_do_${emp.n}`).value);
-
-            if(z1) saveVal(emp.n, z1, "Ż");
-            if(z2) saveVal(emp.n, z2, "Ż");
-            if(uOd && uDo) {
-                for(let i=uOd; i<=uDo; i++) saveVal(emp.n, i, "URLOP");
-            }
+            if(z1) saveVal(emp.n, z1, "Ż"); if(z2) saveVal(emp.n, z2, "Ż");
+            if(uOd && uDo) for(let i=uOd; i<=uDo; i++) saveVal(emp.n, i, "URLOP");
         });
-        renderTable(); 
-        toggleModal(false);
+        renderTable(); toggleModal(false);
     }
 
     function renderMonths() {
@@ -318,20 +303,14 @@
     }
 
     function clearFullMonth() {
-        if(confirm("Wyczyścić plan?")) {
-            employees.forEach(e => {
-                for(let d = 1; d <= 31; d++) localStorage.removeItem(`plan_${months[currentMonthIdx]}_${e.n}_d${d}`);
-            });
+        if(confirm("Wyczyścić?")) {
+            employees.forEach(e => { for(let d=1; d<=31; d++) localStorage.removeItem(`plan_${months[currentMonthIdx]}_${e.n}_d${d}`); });
             renderTable();
         }
     }
 
     function toggleModal(s) { document.getElementById('wishModal').style.display = s ? 'flex' : 'none'; }
-    function toggleNav() { 
-        document.getElementById('sidebar').classList.toggle('active'); 
-        document.getElementById('overlay').classList.toggle('active'); 
-    }
-    
+    function toggleNav() { document.getElementById('sidebar').classList.toggle('active'); document.getElementById('overlay').classList.toggle('active'); }
     window.onload = init;
 </script>
 </body>

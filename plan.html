@@ -209,7 +209,7 @@
         <div class="admin-controls" id="adminTools">
             <div style="display:flex; align-items:center; gap:5px;">
                 <span style="font-size:0.6rem; font-weight:900; color:#ffe800;">NORMA:</span>
-                <input type="number" id="hourNormInput" class="norm-input" value="176">
+                <input type="number" id="hourNormInput" class="norm-input">
             </div>
             <button class="btn-gen" onclick="generateAutoPlan()">🚀 AUTOPLAN</button>
             <button class="btn-gen btn-clear" onclick="clearFullMonth()">🗑️ WYCZYŚĆ</button>
@@ -285,6 +285,7 @@
             };
             container.appendChild(btn);
         });
+        document.getElementById('hourNormInput').value = localStorage.getItem(`norma_${months[currentMonthIdx]}`) || "176";
     }
 
     function renderTable() {
@@ -373,26 +374,32 @@
             if(emp.n === "PAWEŁ") return;
             let curH = 0;
 
-            // Najpierw czyścimy tylko wpisane godziny (zostawiamy W i URLOP)
+            // 1. CZYSZCZENIE: Usuwamy stare godziny pracy, zostawiając W i URLOP
             for(let d=1; d<=days; d++) {
                 const v = localStorage.getItem(`plan_${months[currentMonthIdx]}_${emp.n}_d${d}`) || "";
                 if(v.includes('-')) localStorage.removeItem(`plan_${months[currentMonthIdx]}_${emp.n}_d${d}`);
                 if(v === "URLOP") curH += 8;
             }
 
+            // 2. GENEROWANIE: Dążenie do normy przy użyciu zmian 10-20
             for(let d=1; d<=days; d++) {
                 const date = new Date(2026, currentMonthIdx, d);
                 const isSun = date.getDay() === 0;
                 const dateStr = `2026-${String(currentMonthIdx+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
                 const status = localStorage.getItem(`plan_${months[currentMonthIdx]}_${emp.n}_d${d}`);
 
+                // Pomiń jeśli jest URLOP, sztywne W lub niedziela niehandlowa
                 if(status === "URLOP" || status === "W") continue;
                 if(isSun && !handlowe2026.includes(dateStr)) continue;
 
                 if(curH < norm) {
-                    let s = (date.getDay() === 6) ? "10-20" : (Math.random() > 0.5 ? "10-18" : "12-20");
+                    // Priorytet dla zmiany 10-20 (70% szans), reszta to 10-18 lub 12-20
+                    let rand = Math.random();
+                    let s = (rand < 0.7) ? "10-20" : (rand < 0.85 ? "10-18" : "12-20");
+                    
                     saveVal(emp.n, d, s);
-                    curH += (date.getDay() === 6 ? 10 : 8);
+                    const hours = s.split('-').map(Number);
+                    curH += (hours[1] - hours[0]);
                 }
             }
         });

@@ -4,82 +4,89 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Media Expert - Plan Pracy</title>
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
-        /* STYL CSS Z TWOJEGO PLIKU plan.css */
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Montserrat', sans-serif; }
-        body { background: #000; color: white; overflow-x: hidden; }
-        
+        body { background: #080808; color: white; overflow-x: hidden; }
+
+        /* HEADER & LOGO */
         header { 
-            background: #ffe800; height: 60px; display: flex; 
+            background: #ffe800; height: 50px; display: flex; 
             align-items: center; justify-content: center; position: sticky; 
             top: 0; z-index: 2000; 
         }
-        
-        .logo { color: #000; font-weight: 900; font-size: 1.6rem; text-transform: uppercase; }
-        .logo span { background: #000; color: #ffe800; padding: 0 6px; border-radius: 4px; }
-        
-        .menu-btn { position: absolute; left: 20px; cursor: pointer; color: #000; font-size: 1.8rem; padding: 5px; }
-        
+        .logo { color: #000; font-weight: 900; font-size: 1.4rem; text-transform: uppercase; }
+        .logo span { background: #000; color: #ffe800; padding: 0 4px; border-radius: 3px; }
+        .menu-btn { position: absolute; left: 15px; cursor: pointer; color: #000; font-size: 1.5rem; }
+
+        /* MONTH SELECTOR */
+        .month-selector {
+            display: flex; justify-content: center; gap: 8px; padding: 20px 10px;
+            overflow-x: auto; white-space: nowrap; background: #080808;
+        }
+        .month-btn {
+            padding: 8px 15px; border-radius: 20px; border: 1px solid #222;
+            background: #111; color: #555; font-size: 0.7rem; font-weight: 700;
+            text-transform: uppercase; cursor: pointer;
+        }
+        .month-btn.active {
+            background: #ffe800; color: #000; border-color: #ffe800;
+        }
+
+        /* LEGEND */
+        .legend {
+            display: flex; justify-content: center; gap: 20px; padding-bottom: 20px;
+            font-size: 0.7rem; font-weight: 900; text-transform: uppercase;
+        }
+        .legend-item { display: flex; align-items: center; gap: 8px; }
+        .dot { width: 10px; height: 10px; border-radius: 50%; }
+
+        /* TABLE STRUCTURE */
+        .table-wrapper { 
+            overflow: auto; height: calc(100vh - 200px); border-top: 1px solid #ffe800;
+        }
+        table { border-collapse: collapse; width: 100%; }
+
+        /* WORKER HEADERS (AVATARS) */
+        thead th { 
+            background: #080808; position: sticky; top: 0; z-index: 100;
+            padding: 15px 5px; min-width: 90px;
+        }
+        .dept-code { font-size: 0.55rem; color: #444; margin-bottom: 5px; display: block; }
+        .avatar {
+            width: 40px; height: 40px; border-radius: 50%; border: 2px solid #ffe800;
+            display: flex; align-items: center; justify-content: center;
+            margin: 0 auto 8px; font-weight: 900; color: #ffe800; font-size: 0.9rem;
+        }
+        .worker-name { font-size: 0.65rem; font-weight: 900; text-transform: uppercase; }
+
+        /* DATA COLUMN (STICKY) */
+        .date-col {
+            position: sticky; left: 0; background: #080808; z-index: 150;
+            width: 120px; font-size: 0.7rem; font-weight: 700; color: #777;
+            text-align: center; border-right: 2px solid #ffe800;
+        }
+        .sunday { color: #ff4444 !important; background: #1a0a0a; }
+
+        /* CELLS */
+        td, th { border-bottom: 1px solid #151515; border-right: 1px solid #151515; }
+        td input {
+            width: 100%; height: 45px; background: transparent; border: none;
+            color: white; text-align: center; font-weight: 700; font-size: 0.8rem; outline: none;
+        }
+        tr:nth-child(even) { background: #0a0a0a; }
+
+        /* SIDEBAR (Strefa Nawigacji) */
         .sidebar { 
             position: fixed; left: -280px; top: 0; width: 260px; height: 100%; 
-            background: #0a0a0a; border-right: 3px solid #ffe800; transition: 0.4s; 
-            z-index: 3000; padding-top: 20px; 
+            background: #0a0a0a; border-right: 3px solid #ffe800; transition: 0.4s; z-index: 3000; 
         }
         .sidebar.active { left: 0; }
-        
-        .sidebar-header { 
-            background: #1a1a1a; color: #777; padding: 25px; 
-            font-weight: 900; font-size: 0.75rem; text-transform: uppercase; 
-            border-bottom: 1px solid #222; 
-        }
-        
-        .sidebar-link { 
-            display: block; color: white; padding: 18px 25px; 
-            text-decoration: none; font-weight: 700; border-bottom: 1px solid #1a1a1a; 
-        }
-        .sidebar-link:hover { color: #ffe800; background: #111; }
+        .sidebar-header { background: #1a1a1a; color: #777; padding: 25px; font-weight: 900; font-size: 0.75rem; text-transform: uppercase; border-bottom: 1px solid #222; }
+        .sidebar-link { display: block; color: white; padding: 18px 25px; text-decoration: none; font-weight: 700; border-bottom: 1px solid #1a1a1a; }
         .sidebar-link.active { color: #ffe800; background: #111; border-left: 5px solid #ffe800; }
-        
         .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.8); display: none; z-index: 2500; }
         .overlay.active { display: block; }
-
-        .plan-container { padding: 30px 10px; }
-        .plan-header { 
-            display: flex; justify-content: space-between; align-items: center; 
-            margin-bottom: 30px; padding: 0 10px; 
-        }
-        
-        .page-title { font-size: 2rem; font-weight: 900; text-transform: uppercase; }
-        .page-title span { color: #ffe800; }
-        
-        .month-display { 
-            background: #1a1a1a; padding: 10px 20px; border-radius: 8px; 
-            font-weight: 900; border: 1px solid #ffe800; 
-        }
-        
-        .table-wrapper { 
-            overflow-x: auto; background: #111; border-radius: 15px; 
-            border: 1px solid #222; 
-        }
-        
-        table { border-collapse: collapse; width: 100%; min-width: 1200px; }
-        th, td { border: 1px solid #222; padding: 12px 8px; text-align: center; font-size: 0.9rem; }
-        th { background: #1a1a1a; color: #777; text-transform: uppercase; }
-        
-        .sticky-col { 
-            position: sticky; left: 0; background: #111 !important; 
-            z-index: 100; min-width: 160px; text-align: left; 
-            font-weight: 900; color: #fff; border-right: 2px solid #ffe800; 
-        }
-        
-        .sum-col { font-weight: 900; color: #ffe800; background: #1a1a1a; }
-        
-        input { 
-            background: transparent; border: none; color: white; width: 45px; 
-            text-align: center; font-weight: 700; font-size: 1rem; outline: none; 
-        }
-        input:focus { background: rgba(255, 232, 0, 0.1); border-radius: 4px; }
     </style>
 </head>
 <body>
@@ -89,114 +96,100 @@
     <div class="logo">MEDIA <span>EXPERT</span></div>
 </header>
 
-<nav class="sidebar" id="sidebar">
+<div class="sidebar" id="sidebar">
     <div class="sidebar-header">NAWIGACJA</div>
     <a href="index.html" class="sidebar-link">🏠 STRONA GŁÓWNA</a>
     <a href="plan.html" class="sidebar-link active">📅 PLAN PRACY</a>
     <a href="inwa.html" class="sidebar-link">📝 INWENTURY</a>
     <a href="kwt.html" class="sidebar-link">📋 KWT</a>
     <a href="qr.html" class="sidebar-link">🖼️ KOD QR</a>
-    <a href="#" onclick="logout()" class="sidebar-link" style="color: #ff4444; margin-top: 20px;">🚪 WYLOGUJ</a>
-</nav>
-
+</div>
 <div class="overlay" id="overlay" onclick="toggleSidebar()"></div>
 
-<main class="plan-container">
-    <div class="plan-header">
-        <h1 class="page-title">PLAN <span>PRACY</span></h1>
-        <div class="month-display" id="currentMonth">LUTY 2026</div>
-    </div>
+<div class="month-selector">
+    <button class="month-btn">Styczeń</button>
+    <button class="month-btn active">Luty</button>
+    <button class="month-btn">Marzec</button>
+    <button class="month-btn">Kwiecień</button>
+    <button class="month-btn">Maj</button>
+    <button class="month-btn">Czerwiec</button>
+</div>
 
-    <div class="table-wrapper">
-        <table id="scheduleTable">
-            <thead>
-                <tr id="headerRow">
-                    <th class="sticky-col">Pracownik</th>
-                    <th class="sum-col">Suma</th>
+<div class="legend">
+    <div class="legend-item"><div class="dot" style="background:#00aaff"></div> SOCJAL</div>
+    <div class="legend-item"><div class="dot" style="background:#ff8800"></div> KLUCZE</div>
+    <div class="legend-item"><div class="dot" style="background:#ffe800"></div> DOSTAWA</div>
+</div>
+
+<div class="table-wrapper">
+    <table>
+        <thead>
+            <tr id="workerRow">
+                <th class="date-col" style="top:0; border-bottom: 2px solid #ffe800;">DATA</th>
                 </tr>
-            </thead>
-            <tbody id="scheduleBody"></tbody>
-        </table>
-    </div>
-</main>
+        </thead>
+        <tbody id="daysBody"></tbody>
+    </table>
+</div>
 
 <script>
-    // LOGIKA JS Z TWOJEGO PLIKU plan.js
     function toggleSidebar() {
         document.getElementById('sidebar').classList.toggle('active');
         document.getElementById('overlay').classList.toggle('active');
     }
 
-    function logout() {
-        localStorage.removeItem('loggedCharID');
-        window.location.href = 'login.html';
-    }
-
-    // Twoja pełna lista 11 pracowników
     const employees = [
-        "Pawel", "Michal", "Kuba", "Lukasz", "Ariel", 
-        "Dawid", "Adrian", "Magdalena", "Ilona", "Dariusz", "Natalia"
+        {n: "PAWEŁ", d: "KE", i: "P"}, {n: "MICHAŁ", d: "KSS", i: "M"},
+        {n: "NATALIA", d: "POK", i: "N"}, {n: "MAGDA", d: "POK", i: "M"},
+        {n: "JAKUB", d: "IT", i: "J"}, {n: "ADRIAN", d: "IT", i: "A"},
+        {n: "DAWID", d: "IT", i: "D"}, {n: "DAREK", d: "IT", i: "D"},
+        {n: "ŁUKASZ", d: "AGD", i: "Ł"}, {n: "ILONA", d: "AGD", i: "I"},
+        {n: "ARIEL", d: "RTV", i: "A"}
     ];
 
-    const daysInMonth = 28; // Luty 2026
+    const daysCount = 28;
+    const dayNames = ["NIEDZ.", "PON.", "WT.", "ŚR.", "CZW.", "PT.", "SOB."];
 
-    function initPlan() {
-        // Zabezpieczenie przed wejściem bez logowania
-        if(!localStorage.getItem('loggedCharID')) {
-            window.location.href = 'login.html';
-            return;
-        }
+    function init() {
+        if(!localStorage.getItem('loggedCharID')) { window.location.href = 'login.html'; return; }
 
-        const headerRow = document.getElementById('headerRow');
-        const scheduleBody = document.getElementById('scheduleBody');
-        const sumTh = headerRow.querySelector('.sum-col');
+        const workerRow = document.getElementById('workerRow');
+        const daysBody = document.getElementById('daysBody');
 
-        // Generuj nagłówki dni (1-28)
-        for (let i = 1; i <= daysInMonth; i++) {
-            const th = document.createElement('th');
-            th.innerText = i;
-            headerRow.insertBefore(th, sumTh);
-        }
-
-        // Generuj wiersze pracowników
+        // 1. Renderuj nagłówki pracowników (Awatary)
         employees.forEach(emp => {
-            const tr = document.createElement('tr');
-            let rowHtml = `<td class="sticky-col">${emp}</td>`;
-            
-            for (let i = 1; i <= daysInMonth; i++) {
-                const savedVal = localStorage.getItem(`plan-${emp}-${i}`) || "";
-                rowHtml += `<td><input type="text" value="${savedVal}" onchange="saveHour('${emp}', ${i}, this.value)"></td>`;
-            }
-            
-            rowHtml += `<td class="sum-col" id="sum-${emp}">0</td>`;
-            tr.innerHTML = rowHtml;
-            scheduleBody.appendChild(tr);
-            calculateSum(emp);
+            const th = document.createElement('th');
+            th.innerHTML = `
+                <span class="dept-code">${emp.d}</span>
+                <div class="avatar">${emp.i}</div>
+                <div class="worker-name">${emp.n}</div>
+            `;
+            workerRow.appendChild(th);
         });
-    }
 
-    function saveHour(emp, day, value) {
-        localStorage.setItem(`plan-${emp}-${day}`, value);
-        calculateSum(emp);
-    }
+        // 2. Renderuj dni (Wiersze)
+        for (let d = 1; d <= daysCount; d++) {
+            const date = new Date(2026, 1, d); // Luty 2026
+            const dayName = dayNames[date.getDay()];
+            const isSunday = date.getDay() === 0;
 
-    function calculateSum(emp) {
-        let total = 0;
-        for (let i = 1; i <= daysInMonth; i++) {
-            const val = localStorage.getItem(`plan-${emp}-${i}`);
-            if (val) {
-                // Obsługa przecinków i kropki
-                const num = parseFloat(val.replace(',', '.'));
-                if (!isNaN(num)) {
-                    total += num;
-                }
-            }
+            const tr = document.createElement('tr');
+            if(isSunday) tr.classList.add('sunday');
+
+            let rowHtml = `<td class="date-col ${isSunday ? 'sunday' : ''}">${d} ${dayName}</td>`;
+            
+            employees.forEach(emp => {
+                const key = `plan_${emp.n}_d${d}`;
+                const val = localStorage.getItem(key) || "";
+                rowHtml += `<td><input type="text" value="${val}" onchange="localStorage.setItem('${key}', this.value)"></td>`;
+            });
+
+            tr.innerHTML = rowHtml;
+            daysBody.appendChild(tr);
         }
-        // Wyświetlanie sumy (zaokrąglone)
-        document.getElementById(`sum-${emp}`).innerText = Math.round(total * 100) / 100;
     }
 
-    window.onload = initPlan;
+    window.onload = init;
 </script>
 
 </body>

@@ -13,6 +13,13 @@
         .logo span { background: #000; color: #ffe800; padding: 0 4px; border-radius: 3px; }
         .menu-btn { position: absolute; left: 15px; cursor: pointer; color: #000; font-size: 1.5rem; }
         
+        /* Menu w Hamburgerze */
+        .sidebar { position: fixed; left: -280px; top: 0; width: 260px; height: 100%; background: #0a0a0a; border-right: 3px solid #ffe800; transition: 0.4s; z-index: 10000; padding-top: 60px; }
+        .sidebar.active { left: 0; }
+        .sidebar-link { display: block; color: white; padding: 15px 25px; text-decoration: none; font-weight: 700; font-size: 0.8rem; border-bottom: 1px solid #111; }
+        .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.8); display: none; z-index: 9500; }
+        .overlay.active { display: block; }
+
         .navigation-area { background: #111; border-bottom: 2px solid #ffe800; flex-shrink: 0; z-index: 9000; display: flex; flex-direction: column; }
         .month-row { display: flex; align-items: center; padding: 10px 15px; gap: 10px; }
         .month-selector { display: flex; gap: 8px; overflow-x: auto; white-space: nowrap; scrollbar-width: none; flex-grow: 1; }
@@ -34,19 +41,22 @@
         td { border-bottom: 1px solid #151515; border-right: 1px solid #151515; height: 42px; }
         td input { width: 100%; height: 100%; background: transparent; border: none; color: white; text-align: center; font-weight: 700; font-size: 0.8rem; outline: none; }
         
+        .sunday-red { background: #440000 !important; }
+        .sunday-handlowa { background: #003300 !important; }
+        .sat-yellow { background: #222200; }
         .val-z { color: #ffe800 !important; }
         .val-urlop { color: #00aaff !important; }
-        .sunday-red { background: #440000 !important; }
-        .sat-yellow { background: #222200; }
+        tfoot td { background: #111; color: #ffe800; font-weight: 900; font-size: 0.85rem; text-align: center; position: sticky; bottom: 0; z-index: 500; border-top: 2px solid #ffe800; height: 50px; }
 
+        /* Modal Ustawień */
         .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 11000; align-items: center; justify-content: center; padding: 15px; }
         .modal-content { background: #0a0a0a; border: 2px solid #ffe800; padding: 20px; width: 100%; max-width: 850px; border-radius: 15px; max-height: 90vh; overflow-y: auto; }
         .section-title { color: #ffe800; font-size: 0.8rem; font-weight: 900; text-transform: uppercase; margin: 15px 0 10px; border-bottom: 1px solid #333; padding-bottom: 5px; }
         .shop-settings { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; background: #151515; padding: 15px; border-radius: 8px; }
-        .worker-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 10px; }
+        .worker-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 10px; margin-top: 10px; }
         .worker-card { background: #111; border: 1px solid #333; padding: 10px; border-radius: 8px; }
-        .card-input { width: 100%; background: #000; border: 1px solid #444; color: white; padding: 6px; font-size: 0.7rem; margin-top: 4px; }
-        .label-text { font-size: 0.6rem; color: #888; display: block; margin-top: 5px; }
+        .card-input { width: 100%; background: #000; border: 1px solid #444; color: white; padding: 6px; font-size: 0.7rem; margin-top: 4px; border-radius: 4px; }
+        .label-text { font-size: 0.6rem; color: #888; display: block; margin-top: 5px; font-weight: 700; }
     </style>
 </head>
 <body>
@@ -70,7 +80,7 @@
         <div class="admin-controls" id="adminTools">
             <div style="display:flex; align-items:center; gap:5px;">
                 <span style="font-size:0.6rem; font-weight:900; color:#ffe800;">NORMA:</span>
-                <input type="number" id="hourNormInput" class="norm-input">
+                <input type="number" id="hourNormInput" class="norm-input" onchange="saveNorm()">
             </div>
             <button class="btn-gen" onclick="generateAutoPlan()">🚀 AUTOPLAN</button>
             <button class="btn-gen btn-clear" onclick="clearFullMonth()">🗑️ WYCZYŚĆ</button>
@@ -81,15 +91,15 @@
 
 <div class="table-container">
     <table id="planTable">
-        <thead><tr id="workerRow"></tr></thead>
+        <thead><tr id="workerRow"><th class="date-col">DATA</th></tr></thead>
         <tbody id="daysBody"></tbody>
-        <tfoot><tr id="sumRow"></tr></tfoot>
+        <tfoot><tr id="sumRow"><td class="date-col">SUMA H</td></tr></tfoot>
     </table>
 </div>
 
 <div class="modal" id="wishModal">
     <div class="modal-content">
-        <div class="section-title">Ustawienia Sklepu (Globalne)</div>
+        <div class="section-title">ZAKRESY PRACY I SKLEP (GLOBALNE)</div>
         <div class="shop-settings">
             <div>
                 <span class="label-text">OTWARCIE:</span>
@@ -100,16 +110,16 @@
                 <input type="text" id="shopClose" class="card-input" value="20:00">
             </div>
             <div>
-                <span class="label-text">ZAKRESY PRACY (PO PRZECINKU):</span>
-                <input type="text" id="globalShifts" class="card-input" value="10-20, 10-18, 12-20, 13-20">
+                <span class="label-text">DOSTĘPNE ZMIANY:</span>
+                <input type="text" id="globalShifts" class="card-input" placeholder="10-20, 12-20, 13-20">
             </div>
         </div>
 
-        <div class="section-title">Życzenia i Urlopy (Indywidualne)</div>
+        <div class="section-title">ŻYCZENIA I URLOPY (PRACOWNICY)</div>
         <div class="worker-grid" id="workerGrid"></div>
 
         <div style="display:flex; gap:10px; margin-top:20px;">
-            <button class="btn-gen" style="flex:1; height:45px;" onclick="applySettings()">ZAPISZ ZMIANY</button>
+            <button class="btn-gen" style="flex:1; height:45px;" onclick="applySettings()">ZAPISZ I ODŚWIEŻ</button>
             <button class="btn-gen" style="flex:1; height:45px; background:#333; color:white;" onclick="toggleModal(false)">ANULUJ</button>
         </div>
     </div>
@@ -117,23 +127,38 @@
 
 <script>
     const employees = [
-        {n: "PAWEŁ", i: "P", id: "03060"}, {n: "MICHAŁ", i: "M", id: "300100965"},
-        {n: "NATALIA", i: "N", id: "300101555"}, {n: "MAGDA", i: "M", id: "39544"},
-        {n: "JAKUB", i: "J", id: "300101019"}, {n: "ADRIAN", i: "A", id: "30662"},
-        {n: "DAWID", i: "D", id: "300101107"}, {n: "DAREK", i: "D", id: "40556"},
-        {n: "ŁUKASZ", i: "Ł", id: "30378"}, {n: "ILONA", i: "I", id: "300101413"},
-        {n: "ARIEL", i: "A", id: "31020"}
+        {n: "PAWEŁ", i: "P"}, {n: "MICHAŁ", i: "M"}, {n: "NATALIA", i: "N"}, 
+        {n: "MAGDA", i: "M"}, {n: "JAKUB", i: "J"}, {n: "ADRIAN", i: "A"}, 
+        {n: "DAWID", i: "D"}, {n: "DAREK", i: "D"}, {n: "ŁUKASZ", i: "Ł"}, 
+        {n: "ILONA", i: "I"}, {n: "ARIEL", i: "A"}
     ];
 
     const months = ["STYCZEŃ", "LUTY", "MARZEC", "KWIECIEŃ", "MAJ", "CZERWIEC", "LIPIEC", "SIERPIEŃ", "WRZESIEŃ", "PAŹDZIERNIK", "LISTOPAD", "GRUDZIEŃ"];
-    let currentMonthIdx = new Date().getMonth(); 
+    let currentMonthIdx = 1; // Luty jako startowy
     const handlowe2026 = ["2026-01-25", "2026-04-26", "2026-06-28", "2026-08-30", "2026-12-13", "2026-12-20"];
-    const loggedID = localStorage.getItem('loggedCharID');
-    const isAdmin = (loggedID === "03060" || loggedID === "300101107");
 
     function init() {
-        if(!isAdmin) document.getElementById('adminTools').style.display = 'none';
-        renderMonths(); renderTable(); renderWishForm();
+        renderMonths();
+        renderTable();
+        renderWishForm();
+    }
+
+    function renderMonths() {
+        const container = document.getElementById('monthSelector');
+        container.innerHTML = "";
+        months.forEach((m, idx) => {
+            const btn = document.createElement('button');
+            btn.className = `month-btn ${idx === currentMonthIdx ? 'active' : ''}`;
+            btn.innerText = m;
+            btn.onclick = () => { 
+                currentMonthIdx = idx; 
+                renderMonths(); 
+                renderTable(); 
+                document.getElementById('hourNormInput').value = localStorage.getItem(`norma_${months[idx]}`) || "160";
+            };
+            container.appendChild(btn);
+        });
+        document.getElementById('hourNormInput').value = localStorage.getItem(`norma_${months[currentMonthIdx]}`) || "160";
     }
 
     function renderTable() {
@@ -166,7 +191,7 @@
             employees.forEach(emp => {
                 const val = localStorage.getItem(`plan_${months[currentMonthIdx]}_${emp.n}_d${d}`) || "";
                 let cls = val === "Ż" ? "val-z" : (val === "URLOP" ? "val-urlop" : "");
-                html += `<td><input type="text" class="${cls}" value="${val}" ${!isAdmin ? 'disabled' : ''} onchange="saveVal('${emp.n}', ${d}, this.value)"></td>`;
+                html += `<td><input type="text" class="${cls}" value="${val}" onchange="saveVal('${emp.n}', ${d}, this.value)"></td>`;
             });
             tr.innerHTML = html;
             daysBody.appendChild(tr);
@@ -178,7 +203,6 @@
         const grid = document.getElementById('workerGrid');
         grid.innerHTML = "";
         
-        // Załaduj ustawienia globalne
         document.getElementById('globalShifts').value = localStorage.getItem(`global_shifts_${months[currentMonthIdx]}`) || "10-20, 10-18, 12-20, 13-20";
         document.getElementById('shopOpen').value = localStorage.getItem(`shop_open_${months[currentMonthIdx]}`) || "10:00";
         document.getElementById('shopClose').value = localStorage.getItem(`shop_close_${months[currentMonthIdx]}`) || "20:00";
@@ -188,10 +212,13 @@
             grid.innerHTML += `
                 <div class="worker-card">
                     <h4>${emp.n}</h4>
-                    <span class="label-text">ŻYCZENIA (DNI):</span>
-                    <input type="text" id="z_${emp.n}" class="card-input" placeholder="np. 5, 12">
-                    <span class="label-text">URLOP (OD-DO):</span>
-                    <div style="display:flex; gap:5px;">
+                    <span class="label-text">ŻYCZENIA (MAX 2 DNI):</span>
+                    <div style="display:flex; gap:4px;">
+                        <input type="number" id="z1_${emp.n}" class="card-input" placeholder="Dzień">
+                        <input type="number" id="z2_${emp.n}" class="card-input" placeholder="Dzień">
+                    </div>
+                    <span class="label-text">URLOP (ZAKRES):</span>
+                    <div style="display:flex; gap:4px;">
                         <input type="number" id="u_od_${emp.n}" class="card-input" placeholder="Od">
                         <input type="number" id="u_do_${emp.n}" class="card-input" placeholder="Do">
                     </div>
@@ -200,25 +227,25 @@
     }
 
     function applySettings() {
-        // Zapisz globalne
         localStorage.setItem(`global_shifts_${months[currentMonthIdx]}`, document.getElementById('globalShifts').value);
         localStorage.setItem(`shop_open_${months[currentMonthIdx]}`, document.getElementById('shopOpen').value);
         localStorage.setItem(`shop_close_${months[currentMonthIdx]}`, document.getElementById('shopClose').value);
-        localStorage.setItem(`norma_${months[currentMonthIdx]}`, document.getElementById('hourNormInput').value);
 
-        // Zapisz indywidualne
         employees.forEach(emp => {
             if(emp.n === "PAWEŁ") return;
-            const zDays = document.getElementById(`z_${emp.n}`).value.split(',');
+            const z1 = document.getElementById(`z1_${emp.n}`).value;
+            const z2 = document.getElementById(`z2_${emp.n}`).value;
             const uOd = parseInt(document.getElementById(`u_od_${emp.n}`).value);
             const uDo = parseInt(document.getElementById(`u_do_${emp.n}`).value);
 
-            zDays.forEach(d => { if(d.trim()) saveVal(emp.n, d.trim(), "Ż"); });
+            if(z1) saveVal(emp.n, z1, "Ż");
+            if(z2) saveVal(emp.n, z2, "Ż");
             if(uOd && uDo) {
                 for(let i=uOd; i<=uDo; i++) saveVal(emp.n, i, "URLOP");
             }
         });
-        renderTable(); toggleModal(false);
+        renderTable(); 
+        toggleModal(false);
     }
 
     function generateAutoPlan() {
@@ -226,7 +253,7 @@
         const shifts = (localStorage.getItem(`global_shifts_${months[currentMonthIdx]}`) || "10-20, 10-18, 12-20, 13-20").split(',').map(s => s.trim());
         const daysInMonth = new Date(2026, currentMonthIdx + 1, 0).getDate();
 
-        for(let d=1; d<=daysInMonth; d++) {
+        for(let d = 1; d <= daysInMonth; d++) {
             const date = new Date(2026, currentMonthIdx, d);
             const isSun = date.getDay() === 0;
             const isSat = date.getDay() === 6;
@@ -234,16 +261,20 @@
 
             if(isSun && !isHandlowa) continue;
 
-            // POK LOGIC
-            const natStatus = localStorage.getItem(`plan_${months[currentMonthIdx]}_NATALIA_d${d}`);
-            const magStatus = localStorage.getItem(`plan_${months[currentMonthIdx]}_MAGDA_d${d}`);
+            // LOGIKA POK (Natalia i Magda)
+            const natVal = localStorage.getItem(`plan_${months[currentMonthIdx]}_NATALIA_d${d}`);
+            const magVal = localStorage.getItem(`plan_${months[currentMonthIdx]}_MAGDA_d${d}`);
 
-            if(!natStatus && !magStatus) {
+            if(!natVal && !magStatus(magVal)) {
                 if(isSat) { saveVal("NATALIA", d, "10-20"); saveVal("MAGDA", d, "10-20"); }
                 else { saveVal("NATALIA", d, "10-18"); saveVal("MAGDA", d, "13-20"); }
+            } else if(natVal && !magStatus(magVal)) {
+                 saveVal("MAGDA", d, isSat ? "10-20" : "10-20");
+            } else if(!natVal && magStatus(magVal)) {
+                 saveVal("NATALIA", d, isSat ? "10-20" : "10-20");
             }
 
-            // OTHERS
+            // POZOSTALI
             employees.forEach(emp => {
                 if(emp.n === "PAWEŁ" || emp.n === "NATALIA" || emp.n === "MAGDA") return;
                 if(localStorage.getItem(`plan_${months[currentMonthIdx]}_${emp.n}_d${d}`)) return;
@@ -258,32 +289,50 @@
         renderTable();
     }
 
-    function saveVal(name, d, v) { localStorage.setItem(`plan_${months[currentMonthIdx]}_${name}_d${d}`, v.toUpperCase()); updateSums(); }
+    function magStatus(v) { return v === "Ż" || v === "URLOP"; }
+
+    function saveVal(name, d, v) {
+        localStorage.setItem(`plan_${months[currentMonthIdx]}_${name}_d${d}`, v.toUpperCase());
+        updateSums();
+    }
+
+    function saveNorm() {
+        localStorage.setItem(`norma_${months[currentMonthIdx]}`, document.getElementById('hourNormInput').value);
+    }
+
     function updateSums() {
         employees.forEach(emp => {
             let total = 0;
-            for(let d=1; d<=31; d++) {
+            const daysInMonth = new Date(2026, currentMonthIdx + 1, 0).getDate();
+            for(let d = 1; d <= daysInMonth; d++) {
                 const v = localStorage.getItem(`plan_${months[currentMonthIdx]}_${emp.n}_d${d}`) || "";
-                if(v.includes('-')) { const [s, e] = v.split('-'); total += (parseInt(e) - parseInt(s)); }
-                if(v === "URLOP") total += 8;
+                if(v.includes('-')) {
+                    const [s, e] = v.split('-');
+                    total += (parseInt(e) - parseInt(s));
+                } else if(v === "URLOP") {
+                    total += 8;
+                }
             }
-            const el = document.getElementById(`sum-${emp.n}`); if(el) el.innerText = total + "h";
+            const el = document.getElementById(`sum-${emp.n}`);
+            if(el) el.innerText = total + "h";
         });
     }
-    function renderMonths() {
-        const container = document.getElementById('monthSelector');
-        container.innerHTML = "";
-        months.forEach((m, idx) => {
-            const btn = document.createElement('button');
-            btn.className = `month-btn ${idx === currentMonthIdx ? 'active' : ''}`;
-            btn.innerText = m;
-            btn.onclick = () => { currentMonthIdx = idx; renderMonths(); renderTable(); };
-            container.appendChild(btn);
-        });
+
+    function clearFullMonth() {
+        if(confirm("Czy na pewno wyczyścić cały miesiąc?")) {
+            employees.forEach(e => {
+                for(let d = 1; d <= 31; d++) localStorage.removeItem(`plan_${months[currentMonthIdx]}_${e.n}_d${d}`);
+            });
+            renderTable();
+        }
     }
-    function clearFullMonth() { if(confirm("Czyścić wszystko?")) { employees.forEach(e => { for(let d=1; d<=31; d++) localStorage.removeItem(`plan_${months[currentMonthIdx]}_${e.n}_d${d}`); }); renderTable(); } }
+
     function toggleModal(s) { document.getElementById('wishModal').style.display = s ? 'flex' : 'none'; }
-    function toggleNav() { document.getElementById('sidebar').classList.toggle('active'); document.getElementById('overlay').classList.toggle('active'); }
+    function toggleNav() { 
+        document.getElementById('sidebar').classList.toggle('active'); 
+        document.getElementById('overlay').classList.toggle('active'); 
+    }
+    
     window.onload = init;
 </script>
 </body>

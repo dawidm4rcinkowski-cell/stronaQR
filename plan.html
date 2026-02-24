@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Media Expert - Plan Pracy</title>
+    <title>Media Expert - Plan Pracy PRO</title>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Montserrat', sans-serif; }
@@ -17,24 +17,22 @@
         .logo { color: #000; font-weight: 900; font-size: 1.4rem; text-transform: uppercase; }
         .logo span { background: #000; color: #ffe800; padding: 0 4px; border-radius: 3px; }
         .menu-btn { position: absolute; left: 15px; cursor: pointer; color: #000; font-size: 1.5rem; }
+        .settings-btn { position: absolute; right: 15px; cursor: pointer; color: #000; font-size: 1.3rem; }
 
         /* ADMIN BAR */
         .admin-bar {
-            background: #111; padding: 15px; border-bottom: 1px solid #ffe800;
-            display: flex; justify-content: center; gap: 20px; align-items: center;
-        }
-        .admin-input {
-            background: #000; border: 1px solid #ffe800; color: #ffe800;
-            padding: 5px 10px; border-radius: 5px; width: 80px; font-weight: 900;
+            background: #111; padding: 10px; border-bottom: 1px solid #ffe800;
+            display: flex; justify-content: center; gap: 15px; align-items: center;
         }
         .btn-gen {
-            background: #ffe800; color: #000; border: none; padding: 8px 15px;
-            font-weight: 900; border-radius: 20px; cursor: pointer; text-transform: uppercase;
+            background: #ffe800; color: #000; border: none; padding: 6px 15px;
+            font-weight: 900; border-radius: 20px; cursor: pointer; font-size: 0.7rem;
         }
 
+        /* MONTH SELECTOR */
         .month-selector {
-            display: flex; justify-content: center; gap: 8px; padding: 20px 10px;
-            overflow-x: auto; white-space: nowrap; background: #080808;
+            display: flex; justify-content: center; gap: 8px; padding: 15px 10px;
+            background: #080808; overflow-x: auto;
         }
         .month-btn {
             padding: 8px 15px; border-radius: 20px; border: 1px solid #222;
@@ -43,53 +41,59 @@
         }
         .month-btn.active { background: #ffe800; color: #000; border-color: #ffe800; }
 
-        .legend {
-            display: flex; justify-content: center; gap: 20px; padding-bottom: 20px;
-            font-size: 0.7rem; font-weight: 900; text-transform: uppercase;
-        }
-        .legend-item { display: flex; align-items: center; gap: 8px; }
-        .dot { width: 10px; height: 10px; border-radius: 50%; }
-
-        .table-wrapper { overflow: auto; height: calc(100vh - 250px); border-top: 1px solid #ffe800; }
+        /* TABLE */
+        .table-wrapper { overflow: auto; height: calc(100vh - 220px); border-top: 1px solid #ffe800; }
         table { border-collapse: collapse; width: 100%; }
-
         thead th { 
             background: #080808; position: sticky; top: 0; z-index: 100;
-            padding: 15px 5px; min-width: 90px;
+            padding: 10px 5px; min-width: 90px;
         }
-        .dept-code { font-size: 0.55rem; color: #444; margin-bottom: 5px; display: block; }
         .avatar {
-            width: 40px; height: 40px; border-radius: 50%; border: 2px solid #ffe800;
+            width: 35px; height: 35px; border-radius: 50%; border: 2px solid #ffe800;
             display: flex; align-items: center; justify-content: center;
-            margin: 0 auto 8px; font-weight: 900; color: #ffe800; font-size: 0.9rem;
+            margin: 0 auto 5px; font-weight: 900; color: #ffe800; font-size: 0.8rem;
         }
-        .worker-name { font-size: 0.65rem; font-weight: 900; text-transform: uppercase; }
+        .worker-name { font-size: 0.6rem; font-weight: 900; text-transform: uppercase; }
 
         .date-col {
             position: sticky; left: 0; background: #080808; z-index: 150;
-            width: 120px; font-size: 0.7rem; font-weight: 700; color: #777;
+            width: 110px; font-size: 0.7rem; font-weight: 700; color: #777;
             text-align: center; border-right: 2px solid #ffe800;
         }
-        .sunday { color: #ff4444 !important; background: #1a0a0a; }
 
-        td, th { border-bottom: 1px solid #151515; border-right: 1px solid #151515; }
+        /* NIEDZIELE NIEHANDLOWE - CAŁY PASEK NA CZERWONO */
+        .sunday-red { background: #440000 !important; }
+        .sunday-red input { visibility: hidden; } /* Brak wpisywania w niedziele */
+        
+        /* NIEDZIELE HANDLOWE */
+        .sunday-handlowa { background: #003300 !important; }
+        .sunday-handlowa input { visibility: visible !important; }
+
+        td, th { border-bottom: 1px solid #151515; border-right: 1px solid #151515; height: 45px; }
         td input {
-            width: 100%; height: 45px; background: transparent; border: none;
+            width: 100%; height: 100%; background: transparent; border: none;
             color: white; text-align: center; font-weight: 700; font-size: 0.8rem; outline: none;
         }
-        td input:disabled { color: #444; cursor: not-allowed; }
-        tr:nth-child(even) { background: #0a0a0a; }
 
-        .sidebar { 
-            position: fixed; left: -280px; top: 0; width: 260px; height: 100%; 
-            background: #0a0a0a; border-right: 3px solid #ffe800; transition: 0.4s; z-index: 3000; 
+        /* SUMA W STOPCE */
+        tfoot td {
+            background: #111; color: #ffe800; font-weight: 900; font-size: 0.85rem;
+            text-align: center; position: sticky; bottom: 0; z-index: 100;
+            border-top: 2px solid #ffe800; height: 50px;
         }
-        .sidebar.active { left: 0; }
-        .sidebar-header { background: #1a1a1a; color: #777; padding: 25px; font-weight: 900; font-size: 0.75rem; text-transform: uppercase; border-bottom: 1px solid #222; }
-        .sidebar-link { display: block; color: white; padding: 18px 25px; text-decoration: none; font-weight: 700; border-bottom: 1px solid #1a1a1a; }
-        .sidebar-link.active { color: #ffe800; background: #111; border-left: 5px solid #ffe800; }
-        .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.8); display: none; z-index: 2500; }
-        .overlay.active { display: block; }
+
+        /* MODAL ŻYCZEŃ */
+        .modal {
+            display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.8);
+            z-index: 3000; align-items: center; justify-content: center;
+        }
+        .modal-content {
+            background: #111; border: 2px solid #ffe800; padding: 20px;
+            width: 90%; max-width: 350px; border-radius: 10px;
+        }
+        .modal input, .modal select {
+            width: 100%; padding: 10px; margin: 10px 0; background: #000; color: white; border: 1px solid #333;
+        }
     </style>
 </head>
 <body>
@@ -97,49 +101,34 @@
 <header>
     <div class="menu-btn" onclick="toggleSidebar()">☰</div>
     <div class="logo">MEDIA <span>EXPERT</span></div>
+    <div class="settings-btn" id="gearBtn" style="display:none;" onclick="toggleModal(true)">⚙️</div>
 </header>
 
-<div class="sidebar" id="sidebar">
-    <div class="sidebar-header">NAWIGACJA</div>
-    <a href="index.html" class="sidebar-link">🏠 STRONA GŁÓWNA</a>
-    <a href="plan.html" class="sidebar-link active">📅 PLAN PRACY</a>
-    <a href="inwa.html" class="sidebar-link">📝 INWENTURY</a>
-    <a href="kwt.html" class="sidebar-link">📋 KWT</a>
-    <a href="qr.html" class="sidebar-link">🖼️ KOD QR</a>
-</div>
-<div class="overlay" id="overlay" onclick="toggleSidebar()"></div>
-
-<div class="admin-bar" id="adminBar" style="display: none;">
-    <div>
-        <label style="font-size: 0.6rem; font-weight: 900;">NORMA GODZIN:</label>
-        <input type="number" id="hourNorm" class="admin-input" value="160">
-    </div>
+<div class="admin-bar" id="adminBar" style="display:none;">
     <button class="btn-gen" onclick="generateAutoPlan()">🚀 Autoplan</button>
-    <button class="btn-gen" style="background:#444; color:white;" onclick="clearPlan()">Czyść</button>
+    <button class="btn-gen" style="background:#444; color:white;" onclick="clearCurrentMonth()">Czyść Miesiąc</button>
+    <input type="number" id="hourNorm" style="width:50px; background:#000; color:#ffe800; border:1px solid #ffe800; text-align:center;" value="160">
 </div>
 
-<div class="month-selector">
-    <button class="month-btn">Styczeń</button>
-    <button class="month-btn active">Luty</button>
-    <button class="month-btn">Marzec</button>
-    <button class="month-btn">Kwiecień</button>
-</div>
-
-<div class="legend">
-    <div class="legend-item"><div class="dot" style="background:#00aaff"></div> SOCJAL</div>
-    <div class="legend-item"><div class="dot" style="background:#ff8800"></div> KLUCZE</div>
-    <div class="legend-item"><div class="dot" style="background:#ffe800"></div> DOSTAWA</div>
-</div>
+<div class="month-selector" id="monthSelector">
+    </div>
 
 <div class="table-wrapper">
-    <table>
-        <thead>
-            <tr id="workerRow">
-                <th class="date-col" style="top:0; border-bottom: 2px solid #ffe800;">DATA</th>
-            </tr>
-        </thead>
+    <table id="planTable">
+        <thead><tr id="workerRow"><th class="date-col">DATA</th></tr></thead>
         <tbody id="daysBody"></tbody>
+        <tfoot><tr id="sumRow"><td class="date-col">SUMA H</td></tr></tfoot>
     </table>
+</div>
+
+<div class="modal" id="wishModal">
+    <div class="modal-content">
+        <h3 style="color:#ffe800; font-size:0.8rem;">DODAJ ŻYCZENIE WOLNEGO</h3>
+        <select id="wishEmp"></select>
+        <input type="number" id="wishDay" placeholder="Dzień miesiąca">
+        <button class="btn-gen" style="width:100%; margin-top:10px;" onclick="addWish()">ZAPISZ WOLNE (W)</button>
+        <button class="btn-gen" style="width:100%; background:#333; color:white; margin-top:5px;" onclick="toggleModal(false)">ANULUJ</button>
+    </div>
 </div>
 
 <script>
@@ -157,138 +146,145 @@
         {n: "ARIEL", d: "RTV", i: "A", id: "31020", dept: "DZI"}
     ];
 
-    const daysCount = 28;
-    const dayNames = ["NIEDZ.", "PON.", "WT.", "ŚR.", "CZW.", "PT.", "SOB."];
+    const months = ["STYCZEŃ", "LUTY", "MARZEC", "KWIECIEŃ", "MAJ", "CZERWIEC", "LIPIEC", "SIERPIEŃ", "WRZESIEŃ", "PAŹDZIERNIK", "LISTOPAD", "GRUDZIEŃ"];
+    let currentMonthIdx = 1; // Domyślnie Luty
+    const handlowe2026 = ["2026-01-25", "2026-03-29", "2026-04-26"]; // Przykładowe daty niedziel handlowych
+
     const loggedID = localStorage.getItem('loggedCharID');
     const isAdmin = (loggedID === "03060" || loggedID === "300101107");
 
-    function toggleSidebar() {
-        document.getElementById('sidebar').classList.toggle('active');
-        document.getElementById('overlay').classList.toggle('active');
+    function init() {
+        if(isAdmin) {
+            document.getElementById('adminBar').style.display = 'flex';
+            document.getElementById('gearBtn').style.display = 'block';
+        }
+        renderMonths();
+        renderTable();
     }
 
-    function init() {
-        if(!loggedID) { window.location.href = 'login.html'; return; }
-        if(isAdmin) document.getElementById('adminBar').style.display = 'flex';
+    function renderMonths() {
+        const container = document.getElementById('monthSelector');
+        container.innerHTML = "";
+        months.forEach((m, idx) => {
+            const btn = document.createElement('button');
+            btn.className = `month-btn ${idx === currentMonthIdx ? 'active' : ''}`;
+            btn.innerText = m;
+            btn.onclick = () => { currentMonthIdx = idx; renderMonths(); renderTable(); };
+            container.appendChild(btn);
+        });
+    }
 
+    function renderTable() {
         const workerRow = document.getElementById('workerRow');
         const daysBody = document.getElementById('daysBody');
+        const sumRow = document.getElementById('sumRow');
+        const wishEmp = document.getElementById('wishEmp');
+
+        workerRow.innerHTML = '<th class="date-col">DATA</th>';
+        daysBody.innerHTML = '';
+        sumRow.innerHTML = '<td class="date-col">SUMA H</td>';
+        wishEmp.innerHTML = '';
 
         employees.forEach(emp => {
-            const th = document.createElement('th');
-            th.innerHTML = `<span class="dept-code">${emp.d}</span><div class="avatar">${emp.i}</div><div class="worker-name">${emp.n}</div>`;
-            workerRow.appendChild(th);
+            workerRow.innerHTML += `<th><span class="dept-code">${emp.d}</span><div class="avatar">${emp.i}</div><div class="worker-name">${emp.n}</div></th>`;
+            sumRow.innerHTML += `<td id="sum-${emp.n}">0</td>`;
+            wishEmp.innerHTML += `<option value="${emp.n}">${emp.n}</option>`;
         });
 
-        for (let d = 1; d <= daysCount; d++) {
-            const date = new Date(2026, 1, d);
-            const dayName = dayNames[date.getDay()];
-            const isSunday = date.getDay() === 0;
-            const tr = document.createElement('tr');
-            if(isSunday) tr.classList.add('sunday');
+        const daysInMonth = new Date(2026, currentMonthIdx + 1, 0).getDate();
 
-            let rowHtml = `<td class="date-col ${isSunday ? 'sunday' : ''}">${d} ${dayName}</td>`;
+        for (let d = 1; d <= daysInMonth; d++) {
+            const date = new Date(2026, currentMonthIdx, d);
+            const isSun = date.getDay() === 0;
+            const dateStr = `2026-${String(currentMonthIdx+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+            const isHandlowa = handlowe2026.includes(dateStr);
+
+            const tr = document.createElement('tr');
+            if(isSun) tr.className = isHandlowa ? 'sunday-handlowa' : 'sunday-red';
+
+            let rowHtml = `<td class="date-col">${d} ${["NIEDZ.", "PON.", "WT.", "ŚR.", "CZW.", "PT.", "SOB."][date.getDay()]}</td>`;
             employees.forEach(emp => {
-                const key = `plan_${emp.n}_d${d}`;
+                const key = `plan_${months[currentMonthIdx]}_${emp.n}_d${d}`;
                 const val = localStorage.getItem(key) || "";
                 const isDisabled = (emp.n === "PAWEŁ" && loggedID !== "03060") || !isAdmin;
-                rowHtml += `<td><input type="text" id="input_${emp.n}_${d}" value="${val}" ${isDisabled ? 'disabled' : ''} onchange="localStorage.setItem('${key}', this.value)"></td>`;
+                rowHtml += `<td><input type="text" id="input_${emp.n}_${d}" value="${val}" ${isDisabled ? 'disabled' : ''} onchange="saveVal('${emp.n}', ${d}, this.value)"></td>`;
             });
             tr.innerHTML = rowHtml;
             daysBody.appendChild(tr);
         }
+        updateAllSums();
     }
 
-    // --- LOGIKA AUTOPLANU ---
-    function generateAutoPlan() {
-        const norm = parseInt(document.getElementById('hourNorm').value);
-        const stats = {};
-        employees.forEach(e => stats[e.n] = { hours: 0, streak: 0 });
+    function saveVal(name, day, val) {
+        localStorage.setItem(`plan_${months[currentMonthIdx]}_${name}_d${day}`, val);
+        updateAllSums();
+    }
 
-        for (let d = 1; d <= daysCount; d++) {
-            const date = new Date(2026, 1, d);
-            const isSat = date.getDay() === 6;
-            const isSun = date.getDay() === 0;
-
-            // 1. Niedziele i święta - Wolne
-            if(isSun) {
-                employees.forEach(e => {
-                    if(e.n !== "PAWEŁ") setVal(e.n, d, "W");
-                    stats[e.n].streak = 0;
-                });
-                continue;
+    function updateAllSums() {
+        employees.forEach(emp => {
+            let total = 0;
+            const daysInMonth = new Date(2026, currentMonthIdx + 1, 0).getDate();
+            for(let d=1; d<=daysInMonth; d++) {
+                const val = localStorage.getItem(`plan_${months[currentMonthIdx]}_${emp.n}_d${d}`) || "";
+                if(val.includes('-')) {
+                    const parts = val.split('-');
+                    total += (parseInt(parts[1]) - parseInt(parts[0]));
+                }
             }
-
-            let obsadaDZI = 0;
-            let obsadaPOK = 0;
-
-            // Sortowanie pracowników, żeby ci z najmniejszą ilością godzin dostawali zmiany
-            const sorted = [...employees].filter(e => e.n !== "PAWEŁ").sort((a,b) => stats[a.n].hours - stats[b.n].hours);
-
-            sorted.forEach(emp => {
-                const input = document.getElementById(`input_${emp.n}_${d}`);
-                // Pomiń jeśli pracownik ma już wpisane życzenie "W"
-                if(input.value.toUpperCase() === 'W') {
-                    stats[emp.n].streak = 0;
-                    return;
-                }
-
-                // Zasada 5 dni pracy pod rząd
-                if(stats[emp.n].streak >= 5) {
-                    setVal(emp.n, d, "W");
-                    stats[emp.n].streak = 0;
-                    return;
-                }
-
-                // Obsada Soboty (10-20)
-                if(isSat) {
-                    if(obsadaDZI < 5 || (emp.dept === 'POK' && obsadaPOK < 1)) {
-                        setVal(emp.n, d, "10-20");
-                        stats[emp.n].hours += 10;
-                        stats[emp.n].streak++;
-                        if(emp.dept === 'POK') obsadaPOK++; else obsadaDZI++;
-                    } else {
-                        setVal(emp.n, d, "W");
-                        stats[emp.n].streak = 0;
-                    }
-                } 
-                // Obsada Tygodnia
-                else {
-                    if(stats[emp.n].hours < norm && (obsadaDZI < 4 || (emp.dept === 'POK' && obsadaPOK < 1))) {
-                        let shift = (obsadaDZI < 2) ? "10-18" : "12-20";
-                        setVal(emp.n, d, shift);
-                        stats[emp.n].hours += 8;
-                        stats[emp.n].streak++;
-                        if(emp.dept === 'POK') obsadaPOK++; else obsadaDZI++;
-                    } else {
-                        setVal(emp.n, d, "W");
-                        stats[emp.n].streak = 0;
-                    }
-                }
-            });
-        }
-        alert("Autoplan wygenerowany pomyślnie!");
+            document.getElementById(`sum-${emp.n}`).innerText = total + "h";
+        });
     }
 
-    function setVal(name, day, val) {
-        const el = document.getElementById(`input_${name}_${day}`);
-        if(el) {
-            el.value = val;
-            localStorage.setItem(`plan_${name}_d${day}`, val);
+    function toggleModal(show) { document.getElementById('wishModal').style.display = show ? 'flex' : 'none'; }
+
+    function addWish() {
+        const emp = document.getElementById('wishEmp').value;
+        const day = document.getElementById('wishDay').value;
+        if(day) {
+            saveVal(emp, day, "W");
+            renderTable();
+            toggleModal(false);
         }
     }
 
-    function clearPlan() {
-        if(confirm("Czy na pewno wyczyścić cały plan?")) {
+    function clearCurrentMonth() {
+        if(confirm("Wyczyścić caly miesiąc?")) {
+            const daysInMonth = new Date(2026, currentMonthIdx + 1, 0).getDate();
             employees.forEach(e => {
-                for(let d=1; d<=daysCount; d++) {
-                    setVal(e.n, d, "");
-                }
+                for(let d=1; d<=daysInMonth; d++) localStorage.removeItem(`plan_${months[currentMonthIdx]}_${e.n}_d${d}`);
             });
+            renderTable();
         }
+    }
+
+    // Prosta logika autoplanu (Soboty 10-20, Tydzień 10-18/12-20)
+    function generateAutoPlan() {
+        const daysInMonth = new Date(2026, currentMonthIdx + 1, 0).getDate();
+        employees.forEach(emp => {
+            if(emp.n === "PAWEŁ") return;
+            let workDays = 0;
+            for(let d=1; d<=daysInMonth; d++) {
+                const date = new Date(2026, currentMonthIdx, d);
+                if(date.getDay() === 0) continue; // Niedziele pomijamy
+                
+                const currentVal = localStorage.getItem(`plan_${months[currentMonthIdx]}_${emp.n}_d${d}`);
+                if(currentVal === "W") { workDays = 0; continue; }
+
+                if(workDays < 5) {
+                    let shift = (date.getDay() === 6) ? "10-20" : "10-18";
+                    saveVal(emp, d, shift);
+                    workDays++;
+                } else {
+                    saveVal(emp, d, "W");
+                    workDays = 0;
+                }
+            }
+        });
+        renderTable();
     }
 
     window.onload = init;
+    function toggleSidebar() { /* Tu Twój kod sidebar */ }
 </script>
 </body>
 </html>

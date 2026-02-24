@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Media Expert - Plan Pracy PRO</title>
+    <title>Media Expert - Plan Pracy FINAL FIX</title>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Montserrat', sans-serif; }
@@ -50,9 +50,6 @@
         .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 11000; align-items: center; justify-content: center; padding: 15px; }
         .modal-content { background: #0a0a0a; border: 2px solid #ffe800; padding: 20px; width: 100%; max-width: 850px; border-radius: 15px; max-height: 90vh; overflow-y: auto; }
         .section-title { color: #ffe800; font-size: 0.8rem; font-weight: 900; text-transform: uppercase; margin: 15px 0 10px; border-bottom: 1px solid #333; padding-bottom: 5px; }
-        .shop-settings { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; background: #151515; padding: 15px; border-radius: 8px; }
-        .worker-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 10px; margin-top: 10px; }
-        .worker-card { background: #111; border: 1px solid #333; padding: 10px; border-radius: 8px; }
         .card-input { width: 100%; background: #000; border: 1px solid #444; color: white; padding: 6px; font-size: 0.7rem; margin-top: 4px; border-radius: 4px; }
         .label-text { font-size: 0.55rem; color: #888; display: block; margin-top: 5px; font-weight: 700; }
     </style>
@@ -76,12 +73,10 @@
     <div class="month-row">
         <div class="month-selector" id="monthSelector"></div>
         <div class="admin-controls">
-            <div style="display:flex; align-items:center; gap:5px;">
-                <span style="font-size:0.6rem; font-weight:900; color:#ffe800;">NORMA:</span>
-                <input type="number" id="hourNormInput" class="norm-input" value="160">
-            </div>
-            <button class="btn-gen" onclick="generateAutoPlan()">🚀 AUTOPLAN</button>
-            <button class="btn-gen btn-clear" onclick="clearFullMonth()">🗑️ WYCZYŚĆ</button>
+            <span style="font-size:0.6rem; font-weight:900; color:#ffe800; margin-right:5px;">NORMA:</span>
+            <input type="number" id="hourNormInput" class="norm-input" value="160">
+            <button class="btn-gen" onclick="generateAutoPlan()">🚀 GENERUJ</button>
+            <button class="btn-gen btn-clear" onclick="clearFullMonth()">🗑️ CZYŚĆ</button>
             <div class="gear-btn" onclick="toggleModal(true)">⚙️</div>
         </div>
     </div>
@@ -98,16 +93,15 @@
 <div class="modal" id="wishModal">
     <div class="modal-content">
         <div class="section-title">USTAWIENIA SKLEPU</div>
-        <div class="shop-settings">
-            <div><span class="label-text">OTWARCIE:</span><input type="text" id="shopOpen" class="card-input" value="10:00"></div>
-            <div><span class="label-text">ZAMKNIĘCIE:</span><input type="text" id="shopClose" class="card-input" value="20:00"></div>
-            <div><span class="label-text">ZMIANY (OD-DO):</span><input type="text" id="globalShifts" class="card-input" value="10-20, 10-18, 12-20, 13-20"></div>
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; background:#151515; padding:10px; border-radius:8px;">
+            <div><span class="label-text">ZMIANY:</span><input type="text" id="globalShifts" class="card-input" value="10-20, 10-18, 12-20, 13-20"></div>
+            <div><span class="label-text">POK:</span><input type="text" id="pokNames" class="card-input" value="NATALIA, MAGDA" disabled></div>
         </div>
-        <div class="section-title">ŻYCZENIA I URLOPY</div>
-        <div class="worker-grid" id="workerGrid"></div>
-        <div style="display:flex; gap:10px; margin-top:20px;">
-            <button class="btn-gen" style="flex:1; height:45px;" onclick="applySettings()">ZAPISZ</button>
-            <button class="btn-gen" style="flex:1; height:45px; background:#333;" onclick="toggleModal(false)">ANULUJ</button>
+        <div class="section-title">ŻYCZENIA / URLOPY</div>
+        <div id="workerGrid" style="display:grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap:10px;"></div>
+        <div style="margin-top:20px; display:flex; gap:10px;">
+            <button class="btn-gen" style="flex:1" onclick="applySettings()">ZAPISZ</button>
+            <button class="btn-gen" style="flex:1; background:#333" onclick="toggleModal(false)">ZAMKNIJ</button>
         </div>
     </div>
 </div>
@@ -119,18 +113,17 @@ const employees = [
     {n: "DAWID", i: "D", pok: false}, {n: "DAREK", i: "D", pok: false}, {n: "ŁUKASZ", i: "Ł", pok: false}, 
     {n: "ILONA", i: "I", pok: false}, {n: "ARIEL", i: "A", pok: false}
 ];
-
 const months = ["STYCZEŃ", "LUTY", "MARZEC", "KWIECIEŃ", "MAJ", "CZERWIEC", "LIPIEC", "SIERPIEŃ", "WRZESIEŃ", "PAŹDZIERNIK", "LISTOPAD", "GRUDZIEŃ"];
 let currentMonthIdx = 1; 
 const handlowe2026 = ["2026-01-25", "2026-04-26", "2026-06-28", "2026-08-30", "2026-12-13", "2026-12-20"];
 
-function saveVal(name, d, v) { localStorage.setItem(`plan_${months[currentMonthIdx]}_${name}_d${d}`, v.toUpperCase()); }
 function getVal(name, d) { return localStorage.getItem(`plan_${months[currentMonthIdx]}_${name}_d${d}`) || ""; }
+function saveVal(name, d, v) { localStorage.setItem(`plan_${months[currentMonthIdx]}_${name}_d${d}`, v.toUpperCase()); }
 
 function getEmpHours(name) {
     let total = 0;
     const daysCount = new Date(2026, currentMonthIdx + 1, 0).getDate();
-    for(let d = 1; d <= daysCount; d++) {
+    for(let d=1; d<=daysCount; d++) {
         const v = getVal(name, d);
         if(v.includes('-')) {
             const p = v.split('-');
@@ -141,13 +134,11 @@ function getEmpHours(name) {
 }
 
 function generateAutoPlan() {
-    const targetNorm = parseInt(document.getElementById('hourNormInput').value);
-    const shopOpen = document.getElementById('shopOpen').value.split(':')[0];
-    const shopClose = document.getElementById('shopClose').value.split(':')[0];
+    const target = parseInt(document.getElementById('hourNormInput').value);
     const shiftsPula = document.getElementById('globalShifts').value.split(',').map(s => s.trim());
     const daysCount = new Date(2026, currentMonthIdx + 1, 0).getDate();
 
-    // Resetowanie planu
+    // 1. Reset (zostawiamy tylko Ż i URLOP)
     employees.forEach(e => {
         for(let d=1; d<=daysCount; d++) {
             const v = getVal(e.n, d);
@@ -155,97 +146,97 @@ function generateAutoPlan() {
         }
     });
 
-    // Zbieranie wszystkich sobót
+    // 2. SZTYWNE SOBOTY (Każdy musi mieć min. 1 wolną)
     let saturdays = [];
-    for(let d=1; d<=daysCount; d++) { if(new Date(2026, currentMonthIdx, d).getDay() === 6) saturdays.push(d); }
+    for(let d=1; d<=daysCount; d++) if(new Date(2026, currentMonthIdx, d).getDay() === 6) saturdays.push(d);
 
-    // Logika sobót: Każdy (oprócz Pawła) ma przynajmniej jedną wolną sobotę
-    saturdays.forEach((d, idx) => {
-        let workers = employees.filter(e => e.n !== "PAWEŁ" && !getVal(e.n, d));
-        workers.sort(() => Math.random() - 0.5);
-        // Zostawiamy 2-3 osoby wolne w każdą sobotę rotacyjnie
-        let toWork = workers.slice(0, workers.length - 2); 
-        toWork.forEach(e => saveVal(e.n, d, "10-20"));
+    employees.forEach(e => {
+        if(e.n === "PAWEŁ") return;
+        let freeSat = saturdays[Math.floor(Math.random() * saturdays.length)];
+        saturdays.forEach(d => {
+            if(d !== freeSat) saveVal(e.n, d, "10-20");
+        });
     });
 
-    // Logika dni powszednich (Obsada 3+1/2)
+    // 3. POK (Natalia vs Magda - Nigdy razem wolne)
     for(let d=1; d<=daysCount; d++) {
         const date = new Date(2026, currentMonthIdx, d);
-        const ds = `2026-${String(currentMonthIdx+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
-        if((date.getDay() === 0 && !handlowe2026.includes(ds)) || date.getDay() === 6) continue;
+        if(date.getDay() === 0 && !handlowe2026.includes(`2026-${String(currentMonthIdx+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`)) continue;
+        if(date.getDay() === 6) continue; // Soboty już obsadzone
 
-        // POK: Nigdy obie naraz wolne
-        const poks = employees.filter(e => e.pok);
-        let availPok = poks.filter(e => !getVal(e.n, d));
-        if(availPok.length === 2) {
-            saveVal(availPok[0].n, d, `${shopOpen}-18`);
-            saveVal(availPok[1].n, d, `12-${shopClose}`);
-        } else if(availPok.length === 1) {
-            saveVal(availPok[0].n, d, `${shopOpen}-${shopClose}`);
-        }
+        if(getVal("NATALIA", d) || getVal("MAGDA", d)) continue; 
 
-        // DZIAŁY: 3 na otwarcie, 3 na zamknięcie
-        const dzialy = employees.filter(e => !e.pok && e.n !== "PAWEŁ" && !getVal(e.n, d));
-        dzialy.sort(() => Math.random() - 0.5);
-        if(dzialy.length >= 6) {
-            for(let i=0; i<3; i++) saveVal(dzialy[i].n, d, `${shopOpen}-18`);
-            for(let i=3; i<6; i++) saveVal(dzialy[i].n, d, `12-${shopClose}`);
+        if(Math.random() > 0.5) {
+            saveVal("NATALIA", d, "10-18"); saveVal("MAGDA", d, "12-20");
+        } else {
+            saveVal("MAGDA", d, "10-18"); saveVal("NATALIA", d, "12-20");
         }
     }
 
-    // Bezwzględne dobicie do normy
-    employees.forEach(emp => {
-        if(emp.n === "PAWEŁ") return;
-        let currentH = getEmpHours(emp.n);
-        let attempts = 0;
-        while(currentH !== targetNorm && attempts < 2000) {
+    // 4. DZIAŁY (Dopełnienie podstawowe)
+    for(let d=1; d<=daysCount; d++) {
+        const date = new Date(2026, currentMonthIdx, d);
+        if(date.getDay() === 0 || date.getDay() === 6) continue;
+        const dzialy = employees.filter(e => !e.pok && e.n !== "PAWEŁ" && !getVal(e.n, d));
+        dzialy.sort(() => Math.random() - 0.5);
+        dzialy.slice(0, 4).forEach((e, i) => saveVal(e.n, d, i < 2 ? "10-18" : "12-20"));
+    }
+
+    // 5. KOREKTA BEZWZGLĘDNA DO NORMY (Mózg operacji)
+    employees.forEach(e => {
+        if(e.n === "PAWEŁ") return;
+        let count = 0;
+        while(getEmpHours(e.n) !== target && count < 500) {
+            let diff = target - getEmpHours(e.n);
             let d = Math.floor(Math.random() * daysCount) + 1;
             const date = new Date(2026, currentMonthIdx, d);
-            const ds = `2026-${String(currentMonthIdx+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
-            if(date.getDay() === 0 && !handlowe2026.includes(ds)) { attempts++; continue; }
+            const isSun = date.getDay() === 0 && !handlowe2026.includes(`2026-${String(currentMonthIdx+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`);
             
-            const existing = getVal(emp.n, d);
-            if(!existing) {
-                for(let s of shiftsPula) {
-                    let h = parseInt(s.split('-')[1]) - parseInt(s.split('-')[0]);
-                    if(currentH + h <= targetNorm) { saveVal(emp.n, d, s); currentH += h; break; }
-                }
+            if(isSun) { count++; continue; }
+
+            let curV = getVal(e.n, d);
+            if(diff > 0 && !curV) {
+                // Brakuje godzin -> wstaw zmianę
+                let s = shiftsPula.find(sh => (parseInt(sh.split('-')[1]) - parseInt(sh.split('-')[0])) <= diff) || shiftsPula[0];
+                saveVal(e.n, d, s);
+            } else if(diff < 0 && curV.includes('-')) {
+                // Za dużo godzin -> usuń lub zmniejsz zmianę
+                localStorage.removeItem(`plan_${months[currentMonthIdx]}_${e.n}_d${d}`);
             }
-            attempts++;
+            count++;
         }
     });
+
     renderTable();
 }
 
 function renderTable() {
+    const daysCount = new Date(2026, currentMonthIdx + 1, 0).getDate();
     const workerRow = document.getElementById('workerRow');
     const sumRow = document.getElementById('sumRow');
     const daysBody = document.getElementById('daysBody');
+
     workerRow.innerHTML = '<th class="date-col">DATA</th>';
     sumRow.innerHTML = '<td class="date-col">SUMA H</td>';
-    
-    employees.forEach(emp => {
-        workerRow.innerHTML += `<th><div class="avatar">${emp.i}</div><div class="worker-name">${emp.n}</div></th>`;
-        sumRow.innerHTML += `<td id="sum-${emp.n}">0h</td>`;
+    employees.forEach(e => {
+        workerRow.innerHTML += `<th><div class="avatar">${e.i}</div><div class="worker-name">${e.n}</div></th>`;
+        sumRow.innerHTML += `<td id="sum-${e.n}" style="color:#ffe800">0h</td>`;
     });
 
-    const daysCount = new Date(2026, currentMonthIdx + 1, 0).getDate();
-    daysBody.innerHTML = '';
-    for (let d = 1; d <= daysCount; d++) {
+    daysBody.innerHTML = "";
+    for(let d=1; d<=daysCount; d++) {
         const date = new Date(2026, currentMonthIdx, d);
-        const isSun = date.getDay() === 0;
-        const isSat = date.getDay() === 6;
+        const dayIdx = date.getDay();
         const ds = `2026-${String(currentMonthIdx+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
-        
         const tr = document.createElement('tr');
-        if(isSun) tr.className = handlowe2026.includes(ds) ? 'sunday-handlowa' : 'sunday-red';
-        else if(isSat) tr.className = 'sat-yellow';
+        
+        if(dayIdx === 0) tr.className = handlowe2026.includes(ds) ? 'sunday-handlowa' : 'sunday-red';
+        else if(dayIdx === 6) tr.className = 'sat-yellow';
 
-        let html = `<td class="date-col">${d} ${["ND", "PN", "WT", "ŚR", "CZ", "PT", "SB"][date.getDay()]}</td>`;
-        employees.forEach(emp => {
-            const val = getVal(emp.n, d);
-            let cls = (val === "Ż") ? "val-z" : (val === "URLOP" ? "val-urlop" : "");
-            html += `<td><input type="text" class="${cls}" value="${val}" onchange="saveVal('${emp.n}', ${d}, this.value); updateSums();"></td>`;
+        let html = `<td class="date-col">${d} ${['ND','PN','WT','ŚR','CZ','PT','SB'][dayIdx]}</td>`;
+        employees.forEach(e => {
+            const val = getVal(e.n, d);
+            html += `<td><input type="text" value="${val}" onchange="saveVal('${e.n}', ${d}, this.value); updateSums();"></td>`;
         });
         tr.innerHTML = html;
         daysBody.appendChild(tr);
@@ -253,39 +244,39 @@ function renderTable() {
     updateSums();
 }
 
-function updateSums() { employees.forEach(emp => { document.getElementById(`sum-${emp.n}`).innerText = getEmpHours(emp.n) + "h"; }); }
+function updateSums() {
+    employees.forEach(e => {
+        const h = getEmpHours(e.n);
+        const cell = document.getElementById(`sum-${e.n}`);
+        cell.innerText = h + "h";
+        const target = parseInt(document.getElementById('hourNormInput').value);
+        cell.style.color = (h === target) ? "#00ff00" : (h > target ? "#ff4444" : "#ffe800");
+    });
+}
+
 function renderMonths() {
-    const container = document.getElementById('monthSelector');
-    container.innerHTML = "";
-    months.forEach((m, idx) => {
-        const btn = document.createElement('button');
-        btn.className = `month-btn ${idx === currentMonthIdx ? 'active' : ''}`;
-        btn.innerText = m;
-        btn.onclick = () => { currentMonthIdx = idx; renderMonths(); renderTable(); };
-        container.appendChild(btn);
+    const div = document.getElementById('monthSelector');
+    div.innerHTML = "";
+    months.forEach((m, i) => {
+        const b = document.createElement('button');
+        b.className = `month-btn ${i === currentMonthIdx ? 'active' : ''}`;
+        b.innerText = m;
+        b.onclick = () => { currentMonthIdx = i; renderMonths(); renderTable(); };
+        div.appendChild(b);
     });
 }
-function renderWishForm() {
-    const grid = document.getElementById('workerGrid'); grid.innerHTML = "";
-    employees.forEach(emp => {
-        if(emp.n === "PAWEŁ") return;
-        grid.innerHTML += `<div class="worker-card"><h4>${emp.n}</h4><span class="label-text">ŻYCZENIE (DZIEŃ):</span><input type="number" id="z_${emp.n}" class="card-input"><span class="label-text">URLOP (OD-DO):</span><div style="display:flex;gap:5px"><input type="number" id="u1_${emp.n}" class="card-input"><input type="number" id="u2_${emp.n}" class="card-input"></div></div>`;
-    });
-}
-function applySettings() {
-    employees.forEach(emp => {
-        const z = document.getElementById(`z_${emp.n}`).value;
-        const u1 = document.getElementById(`u1_${emp.n}`).value;
-        const u2 = document.getElementById(`u2_${emp.n}`).value;
-        if(z) saveVal(emp.n, z, "Ż");
-        if(u1 && u2) for(let i=parseInt(u1); i<=parseInt(u2); i++) saveVal(emp.n, i, "URLOP");
-    });
-    toggleModal(false); renderTable();
-}
-function clearFullMonth() { if(confirm("CZYŚCIĆ?")) { localStorage.clear(); renderTable(); } }
-function toggleModal(s) { document.getElementById('wishModal').style.display = s ? 'flex' : 'none'; }
+
+function clearFullMonth() { if(confirm("CZYŚCIĆ CAŁY MIESIĄC?")) { localStorage.clear(); renderTable(); } }
 function toggleNav() { document.getElementById('sidebar').classList.toggle('active'); document.getElementById('overlay').classList.toggle('active'); }
-window.onload = () => { renderMonths(); renderTable(); renderWishForm(); };
+function toggleModal(s) { document.getElementById('wishModal').style.display = s ? 'flex' : 'none'; }
+
+function applySettings() {
+    // Tu można dodać logikę zapisywania urlopów z gridu
+    toggleModal(false);
+    renderTable();
+}
+
+window.onload = () => { renderMonths(); renderTable(); };
 </script>
 </body>
 </html>

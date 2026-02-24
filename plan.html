@@ -17,7 +17,6 @@
             overflow: hidden; 
         }
 
-        /* NAGŁÓWEK GŁÓWNY */
         header { 
             background: #ffe800; 
             height: 50px; 
@@ -32,7 +31,6 @@
         .logo span { background: #000; color: #ffe800; padding: 0 4px; border-radius: 3px; }
         .menu-btn { position: absolute; left: 15px; cursor: pointer; color: #000; font-size: 1.5rem; }
 
-        /* PASEK NAWIGACJI I NARZĘDZI - TO MUSI BYĆ WIDOCZNE */
         .navigation-area {
             background: #111;
             border-bottom: 2px solid #ffe800;
@@ -69,7 +67,6 @@
         }
         .month-btn.active { background: #ffe800; color: #000; border-color: #ffe800; }
 
-        /* NARZĘDZIA ADMINA PO PRAWEJ */
         .admin-controls {
             display: flex;
             align-items: center;
@@ -101,9 +98,14 @@
             white-space: nowrap;
         }
 
+        .btn-clear {
+            background: #333;
+            color: #ff4444;
+            border: 1px solid #ff4444;
+        }
+
         .gear-btn { font-size: 1.8rem; cursor: pointer; color: #ffe800; line-height: 1; }
 
-        /* OBSZAR TABELI */
         .table-container {
             flex-grow: 1;
             overflow: auto;
@@ -122,7 +124,6 @@
             border-bottom: 2px solid #222; 
         }
         
-        /* Styl kontenerów pracowników z Twojego screena */
         .avatar { 
             width: 32px; 
             height: 32px; 
@@ -176,14 +177,12 @@
             height: 50px; 
         }
 
-        /* SIDEBAR */
         .sidebar { position: fixed; left: -280px; top: 0; width: 260px; height: 100%; background: #0a0a0a; border-right: 3px solid #ffe800; transition: 0.4s; z-index: 10000; padding-top: 60px; }
         .sidebar.active { left: 0; }
         .sidebar-link { display: block; color: white; padding: 15px 25px; text-decoration: none; font-weight: 700; font-size: 0.8rem; border-bottom: 1px solid #111; }
         .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.8); display: none; z-index: 9500; }
         .overlay.active { display: block; }
 
-        /* MODAL */
         .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 11000; align-items: center; justify-content: center; padding: 15px; }
         .modal-content { background: #0a0a0a; border: 2px solid #ffe800; padding: 25px; width: 100%; max-width: 550px; border-radius: 15px; }
     </style>
@@ -213,6 +212,7 @@
                 <input type="number" id="hourNormInput" class="norm-input" value="176">
             </div>
             <button class="btn-gen" onclick="generateAutoPlan()">🚀 AUTOPLAN</button>
+            <button class="btn-gen btn-clear" onclick="clearFullMonth()">🗑️ WYCZYŚĆ</button>
             <div class="gear-btn" onclick="toggleModal(true)">⚙️</div>
         </div>
     </div>
@@ -248,7 +248,7 @@
     ];
 
     const months = ["STYCZEŃ", "LUTY", "MARZEC", "KWIECIEŃ", "MAJ", "CZERWIEC", "LIPIEC", "SIERPIEŃ", "WRZESIEŃ", "PAŹDZIERNIK", "LISTOPAD", "GRUDZIEŃ"];
-    let currentMonthIdx = 2; // Marzec 2026
+    let currentMonthIdx = 2; 
     const handlowe2026 = ["2026-01-25", "2026-04-26", "2026-06-28", "2026-08-30", "2026-12-13", "2026-12-20"];
     
     const loggedID = localStorage.getItem('loggedCharID');
@@ -257,6 +257,18 @@
     function init() {
         if(!isAdmin) document.getElementById('adminTools').style.display = 'none';
         renderMonths(); renderTable(); renderWishForm();
+    }
+
+    function clearFullMonth() {
+        if(confirm("Czy na pewno wyczyścić cały miesiąc?")) {
+            const days = new Date(2026, currentMonthIdx + 1, 0).getDate();
+            employees.forEach(emp => {
+                for(let d=1; d<=days; d++) {
+                    localStorage.removeItem(`plan_${months[currentMonthIdx]}_${emp.n}_d${d}`);
+                }
+            });
+            renderTable();
+        }
     }
 
     function renderMonths() {
@@ -273,7 +285,6 @@
             };
             container.appendChild(btn);
         });
-        document.getElementById('hourNormInput').value = localStorage.getItem(`norma_${months[currentMonthIdx]}`) || "176";
     }
 
     function renderTable() {
@@ -357,24 +368,32 @@
     function generateAutoPlan() {
         const norm = parseInt(document.getElementById('hourNormInput').value) || 176;
         const days = new Date(2026, currentMonthIdx + 1, 0).getDate();
+        
         employees.forEach(emp => {
             if(emp.n === "PAWEŁ") return;
-            let curH = 0; let streak = 0;
+            let curH = 0;
+
+            // Najpierw czyścimy tylko wpisane godziny (zostawiamy W i URLOP)
+            for(let d=1; d<=days; d++) {
+                const v = localStorage.getItem(`plan_${months[currentMonthIdx]}_${emp.n}_d${d}`) || "";
+                if(v.includes('-')) localStorage.removeItem(`plan_${months[currentMonthIdx]}_${emp.n}_d${d}`);
+                if(v === "URLOP") curH += 8;
+            }
+
             for(let d=1; d<=days; d++) {
                 const date = new Date(2026, currentMonthIdx, d);
                 const isSun = date.getDay() === 0;
-                const isSat = date.getDay() === 6;
                 const dateStr = `2026-${String(currentMonthIdx+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
-                const exists = localStorage.getItem(`plan_${months[currentMonthIdx]}_${emp.n}_d${d}`);
-                if(exists === "URLOP") { curH += 8; streak++; continue; }
-                if(exists === "W" || (isSun && !handlowe2026.includes(dateStr))) { streak = 0; continue; }
-                if(exists && exists.includes('-')) { 
-                    const t = exists.split('-'); curH += (parseInt(t[1]) - parseInt(t[0])); streak++; continue; 
+                const status = localStorage.getItem(`plan_${months[currentMonthIdx]}_${emp.n}_d${d}`);
+
+                if(status === "URLOP" || status === "W") continue;
+                if(isSun && !handlowe2026.includes(dateStr)) continue;
+
+                if(curH < norm) {
+                    let s = (date.getDay() === 6) ? "10-20" : (Math.random() > 0.5 ? "10-18" : "12-20");
+                    saveVal(emp.n, d, s);
+                    curH += (date.getDay() === 6 ? 10 : 8);
                 }
-                if(curH < norm && streak < 5) {
-                    let s = isSat ? "10-20" : (Math.random() > 0.5 ? "10-18" : "12-20");
-                    saveVal(emp.n, d, s); curH += (isSat ? 10 : 8); streak++;
-                } else { saveVal(emp.n, d, "W"); streak = 0; }
             }
         });
         renderTable();

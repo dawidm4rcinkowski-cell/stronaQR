@@ -78,4 +78,378 @@
             <span style="font-size:0.55rem; font-weight:900; color:#888;">NORMA H:</span>
             <input type="number" id="hourNormInput" class="norm-input" value="160">
             <button class="btn-settings" onclick="toggleModal(true)">⚙️ USTAWIENIA</button>
-            <button class="btn-gen
+            <button class="btn-gen" onclick="startGeneration()">🚀 GENERUJ</button>
+        </div>
+    </div>
+</div>
+
+<div class="table-container">
+    <table id="planTable">
+        <thead><tr id="workerRow"></tr></thead>
+        <tbody id="daysBody"></tbody>
+        <tfoot>
+            <tr id="sumRow"></tr>
+            <tr id="satCountRow"></tr>
+        </tfoot>
+    </table>
+</div>
+
+<div class="modal" id="settingsModal">
+    <div class="modal-content">
+        <h3 style="color:#ffe800; margin-bottom:10px; font-size:1rem;">USTAWIENIA SKLEPU</h3>
+        <label style="font-size:0.6rem; color:#888;">DOSTĘPNE ZMIANY (NP. 10-18, 12-20, 10-20):</label>
+        <input id="globalShifts" style="width:100%; background:#000; border:1px solid #ffe800; color:#fff; padding:8px; margin-bottom:15px;" value="10-18, 12-20, 10-20">
+        
+        <div class="worker-grid" id="workerGrid"></div>
+        <button class="btn-gen" style="width:100%; margin-top:20px; height:45px;" onclick="saveSettings()">ZAPISZ I ZAMKNIJ</button>
+    </div>
+</div>
+
+<script>
+const employees = [
+    {n: "PAWEŁ", i: "P", p: false}, {n: "MICHAŁ", i: "M", p: false}, {n: "NATALIA", i: "N", p: true}, 
+    {n: "MAGDA", i: "M", p: true}, {n: "JAKUB", i: "J", p: false}, {n: "ADRIAN", i: "A", p: false}, 
+    {n: "DAWID", i: "D", p: false}, {n: "DAREK", i: "D", p: false}, {n: "ŁUKASZ", i: "Ł", p: false}, 
+    {n: "ILONA", i: "I", p: false}, {n: "ARIEL", i: "A", p: false}
+];
+const months = ["STYCZEŃ", "LUTY", "MARZEC", "KWIECIEŃ", "MAJ", "CZERWIEC", "LIPIEC", "SIERPIEŃ", "WRZESIEŃ", "PAŹDZIERNIK", "LISTOPAD", "GRUDZIEŃ"];
+let curM = 1; // 1 = Luty
+const year = 2026;
+
+// Święta i Niedziele Handlowe 2026 (M-D)
+const holidays2026 = ["1-1", "1-6", "4-5", "4-6", "5-1", "5-3", "5-24", "6-4", "8-15", "11-1", "11-11", "12-25", "12-26"];
+const tradingSundays2026 = ["1-25", "3-29", "4-26", "6-28", "8-30", "12-13", "12-20"]; 
+
+function isWorkDay(d) {
+    let date = new Date(year, curM, d);
+    let ds = `${curM+1}-${d}`;
+    if (holidays2026.includes(ds)) return false;
+    if (date.getDay() === 0 && !tradingSundays2026.includes(ds)) return false;
+    return true;
+}
+
+function getV(n, d) { return localStorage.getItem(`pl_${curM}_${n}_${d}`) || ""; }
+function saveV(n, d, v) { localStorage.setItem(`pl_${curM}_${n}_${d}`, v.toUpperCase()); }
+
+function calcRealH(name) {
+    let h = 0;
+    for(let d=1; d<=31; d++) {
+        let v = getV(name, d);
+        if(v.includes('-')) {
+            let p = v.split('-');
+            h += (parseInt(p[1]) || 0) - (parseInt(p[0]) || 0);
+        }
+    }
+    return h;
+}
+
+function getStreak(name, day) {
+    let s = 0;
+    for (let d = day-1; d >= 1; d--) {
+        let v=getV(name, d);
+        if(v.includes('-') || v==="URLOP" || v.toLowerCase()==="szk.") s++; else break;
+    }
+    for (let d = day+1; d <= 31; d++) {
+        let v=getV(name, d);
+        if(v.includes('-') || v==="URLOP" || v.toLowerCase()==="szk.") s++; else break;
+    }
+    return s;
+}
+
+function startGeneration() {
+    const baseNorm = parseInt(document.getElementById('hourNormInput').value);
+    const shifts = document.getElementById('globalShifts').value.split(',').map(s => s.trim());
+    const openShift = shifts[0] || "10-18";
+    const closeShift = shifts.length > 1 ? shifts[1] : "12-20";
+    const fullShift = shifts.length > 2 ? shifts[2] : "10-20";
+    const days = new Date(year, curM + 1, 0).getDate();
+
+    // 1. Wyczyszczenie siatki przed losowaniem (Zostawia Ż, URLOP i szk.)
+    employees.forEach(e => { 
+        for(let d=1; d<=days; d++) { 
+            let v=getV(e.n, d); 
+            if(v.includes('-') || v==="WOLNE") saveV(e.n, d, ""); 
+        }
+    });
+
+    // 2. Sztywno: Dokładnie 1 wolna sobota per osoba
+    employees.forEach(e => {
+        let sats = [];
+        for(let d=1; d<=days; d++) if(new Date(year, curM, d).getDay() === 6 && isWorkDay(d)) sats.push(d);
+        
+        let offCount = 0;
+        sats.forEach(s => {
+            let v = getV(e.n, s);
+            if(v==="Ż" || v==="URLOP" || v.toLowerCase()==="szk.") offCount++;
+        });
+
+        if(offCount === 0 && sats.length > 0) {
+            let rs = sats[Math.floor(Math.random()*sats.length)];
+            saveV(e.n, rs, "WOLNE");
+        }
+    });
+
+    // 3. Obstawianie szkieletu dnia (3 Otw, 3 Zam + 1 POK Zam)
+    for(let d=1; d<=days; d++) {
+        if(!isWorkDay(d)) continue;
+        
+        let available = employees.filter(e => getV(e.n, d) === "" && getStreak(e.n, d) < 5);
+        
+        // Na soboty priorytetowo bierzemy tych co nie mają WOLNE (żeby na 100% wylądowali w grafiku)
+        if(new Date(year, curM, d).getDay() === 6) {
+            available.forEach(e => { saveV(e.n, d, (Math.random()>0.5 ? fullShift : openShift)); });
+            continue; // Soboty obsadzone na maxa dla tych co mogą pracować, aby uniknąć przerw. Algorytm potem to skróci.
+        }
+
+        // POK zamyka
+        let poks = available.filter(e => e.p).sort((a,b) => calcRealH(a.n) - calcRealH(b.n));
+        if(poks.length > 0) {
+            saveV(poks[0].n, d, closeShift);
+            available = available.filter(e => e.n !== poks[0].n);
+        }
+
+        // 3 Otwarcia
+        let otwNeeded = 3;
+        available.sort((a,b) => calcRealH(a.n) - calcRealH(b.n));
+        for(let i=0; i<available.length && otwNeeded>0; i++) {
+            saveV(available[i].n, d, openShift);
+            otwNeeded--;
+        }
+        available = available.filter(e => getV(e.n, d) === "");
+
+        // 3 Zamknięcia
+        let zamNeeded = 3;
+        available.sort((a,b) => calcRealH(a.n) - calcRealH(b.n));
+        for(let i=0; i<available.length && zamNeeded>0; i++) {
+            saveV(available[i].n, d, closeShift);
+            zamNeeded--;
+        }
+    }
+
+    // 4. Zaawansowane docinanie i dokładanie godzin (Strict Balancing)
+    let allBalanced = false;
+    let iterations = 0;
+
+    while(!allBalanced && iterations < 4000) {
+        allBalanced = true;
+        
+        // Oblicz status każdego pracownika
+        let status = employees.map(e => {
+            let urlops = 0;
+            for(let d=1; d<=days; d++) {
+                let v = getV(e.n, d);
+                if(v === "URLOP" || v.toLowerCase() === "szk.") urlops++;
+            }
+            let target = baseNorm - (urlops * 8);
+            let current = calcRealH(e.n);
+            return { e, target, current, diff: target - current };
+        });
+
+        // Sortuj po największym odchyleniu od normy
+        status.sort((a,b) => Math.abs(b.diff) - Math.abs(a.diff));
+
+        for(let st of status) {
+            if(st.diff === 0) continue;
+            allBalanced = false;
+            let emp = st.e;
+            
+            if(st.diff > 0) { // Brakuje godzin
+                let added = false;
+                // Jeśli brakuje dużo godzin, dodajemy cały nowy dzień pracy (8h)
+                if(st.diff >= 8) {
+                    let bestDay = -1;
+                    let minStaff = 999;
+                    for(let d=1; d<=days; d++) {
+                        if(isWorkDay(d) && getV(emp.n, d) === "" && getStreak(emp.n, d) < 5) {
+                            let c = 0; employees.forEach(em => { if(getV(em.n, d).includes('-')) c++; });
+                            if(c < minStaff) { minStaff = c; bestDay = d; }
+                        }
+                    }
+                    if(bestDay !== -1) {
+                        saveV(emp.n, bestDay, (Math.random()>0.5 ? openShift : closeShift));
+                        added = true;
+                    }
+                }
+                
+                // Jeśli brakuje mało lub nie dało się dodać całego dnia – podbijamy 8h do 10h
+                if(!added && st.diff >= 2) {
+                    for(let d=1; d<=days; d++) {
+                        let v = getV(emp.n, d);
+                        if((v === openShift || v === closeShift) && getStreak(emp.n, d) < 5) {
+                            saveV(emp.n, d, fullShift);
+                            break;
+                        }
+                    }
+                }
+                break; // Przerywamy by zaktualizować status wszystkich
+                
+            } else if (st.diff < 0) { // Za dużo godzin
+                let removed = false;
+                // Jeśli za dużo o 8h+ – kasujemy cały dzień pracy
+                if(st.diff <= -8) {
+                    let bestDay = -1;
+                    let maxStaff = 0;
+                    for(let d=1; d<=days; d++) {
+                        let v = getV(emp.n, d);
+                        if(v === openShift || v === closeShift || v === fullShift) {
+                            
+                            // Weryfikacja, czy usunięcie zmiany nie położy minimalnej obsady sklepu!
+                            let otw = 0, zam = 0, pok = 0;
+                            employees.forEach(em => {
+                                if(em.n === emp.n) return;
+                                let ev = getV(em.n, d);
+                                if(ev.includes('-')) {
+                                    let p = ev.split('-');
+                                    if(parseInt(p[0]) <= 10) otw++;
+                                    if(parseInt(p[1]) >= 20) { zam++; if(em.p) pok++; }
+                                }
+                            });
+                            
+                            let isOtw = v.split('-')[0] <= 10;
+                            let isZam = v.split('-')[1] >= 20;
+                            let isSafe = true;
+                            
+                            // Zabezpieczenie minimum (wyłączane dopiero gdy algorytm nie może sobie poradzić przez 3000 prób)
+                            if(iterations < 3000) {
+                                if(isOtw && otw < 3) isSafe = false;
+                                if(isZam && zam < 4) isSafe = false; // 3 zam + 1 pok
+                                if(isZam && emp.p && pok < 1) isSafe = false;
+                            }
+
+                            if(isSafe) {
+                                let c = otw + zam;
+                                if(c >= maxStaff) { maxStaff = c; bestDay = d; }
+                            }
+                        }
+                    }
+                    if(bestDay !== -1) {
+                        saveV(emp.n, bestDay, "");
+                        removed = true;
+                    }
+                }
+                
+                // Zbijamy pojedyncze 10h do 8h
+                if(!removed && st.diff <= -2) {
+                    for(let d=1; d<=days; d++) {
+                        let v = getV(emp.n, d);
+                        if(v === fullShift) {
+                            saveV(emp.n, d, (Math.random()>0.5 ? openShift : closeShift));
+                            break;
+                        }
+                    }
+                }
+                break;
+            }
+        }
+        iterations++;
+    }
+
+    render();
+}
+
+function render() {
+    const days = new Date(year, curM + 1, 0).getDate();
+    const body = document.getElementById('daysBody');
+    const head = document.getElementById('workerRow');
+    const baseNorm = parseInt(document.getElementById('hourNormInput').value);
+
+    head.innerHTML = '<th class="date-col">DATA</th>';
+    employees.forEach(e => head.innerHTML += `<th><div class="avatar">${e.i}</div><div class="worker-name">${e.n}</div></th>`);
+    head.innerHTML += '<th class="obsada-col">OTW|ZAM|SUMA</th>';
+
+    body.innerHTML = "";
+    for(let d=1; d<=days; d++) {
+        let date = new Date(year, curM, d);
+        let tr = document.createElement('tr');
+        if(!isWorkDay(d)) tr.className = 'sun';
+        else if(date.getDay() === 6) tr.className = 'sat';
+        
+        let html = `<td class="date-col">${d} ${['ND','PN','WT','ŚR','CZ','PT','SB'][date.getDay()]}</td>`;
+        let o=0, z=0, suma=0;
+        
+        employees.forEach(e => {
+            let v = getV(e.n, d);
+            let cellClass = (v === "Ż") ? 'class="wish-cell"' : '';
+            if(v.includes('-')) {
+                suma++;
+                let p = v.split('-');
+                if(parseInt(p[0]) <= 10) o++;
+                if(parseInt(p[1]) >= 20) z++;
+            }
+            html += `<td ${cellClass}><input value="${v}" onchange="saveV('${e.n}',${d},this.value);render()"></td>`;
+        });
+        html += `<td class="obsada-col">${o} | ${z} | ${suma}</td>`;
+        tr.innerHTML = html; body.appendChild(tr);
+    }
+
+    const fSum = document.getElementById('sumRow');
+    fSum.innerHTML = '<td class="date-col">GODZINY</td>';
+    employees.forEach(e => {
+        let urlops = 0;
+        for(let d=1; d<=days; d++) {
+            let v = getV(e.n, d);
+            if(v === "URLOP" || v.toLowerCase() === "szk.") urlops++;
+        }
+        let target = baseNorm - (urlops * 8); 
+        let h = calcRealH(e.n); 
+        
+        fSum.innerHTML += `<td style="color:${h==target?'#0f0':'#f44'}; font-size: 0.55rem;">${h} / ${target}</td>`;
+    });
+
+    const fSat = document.getElementById('satCountRow');
+    fSat.innerHTML = '<td class="date-col">WOLNE SB</td>';
+    employees.forEach(e => {
+        let count = 0;
+        for(let d=1; d<=days; d++) {
+            if(new Date(year, curM, d).getDay() === 6) {
+                let v = getV(e.n, d);
+                if(v === "WOLNE" || v === "URLOP" || v === "Ż" || v === "") count++;
+            }
+        }
+        fSat.innerHTML += `<td style="color:${count>1?'#f44':'#ffe800'}">${count}</td>`;
+    });
+}
+
+function renderSettings() {
+    const grid = document.getElementById('workerGrid'); grid.innerHTML = "";
+    employees.forEach(e => {
+        grid.innerHTML += `<div class="worker-card">
+            <div style="color:#ffe800; font-weight:900; font-size:0.7rem;">${e.n}</div>
+            <label>ŻYCZENIA (Dni np. 5,12):</label><input id="z_${e.n}">
+            <label>URLOP (Od-Do np. 1-7):</label>
+            <div style="display:flex; gap:2px"><input id="u1_${e.n}" placeholder="Od"><input id="u2_${e.n}" placeholder="Do"></div>
+        </div>`;
+    });
+}
+
+function saveSettings() {
+    employees.forEach(e => {
+        let z = document.getElementById(`z_${e.n}`)?.value;
+        if(z) z.split(',').forEach(d => saveV(e.n, d.trim(), "Ż"));
+        let u1 = document.getElementById(`u1_${e.n}`)?.value;
+        let u2 = document.getElementById(`u2_${e.n}`)?.value;
+        if(u1 && u2) for(let d=parseInt(u1); d<=parseInt(u2); d++) {
+            if(isWorkDay(d)) saveV(e.n, d, "URLOP");
+        }
+    });
+    toggleModal(false); render();
+}
+
+function renderMonths() {
+    const div = document.getElementById('monthSelector'); div.innerHTML = "";
+    months.forEach((m, i) => {
+        const b = document.createElement('button');
+        b.className = `month-btn ${i === curM ? 'active' : ''}`;
+        b.innerText = m;
+        b.onclick = () => { curM = i; renderMonths(); render(); };
+        div.appendChild(b);
+    });
+}
+
+function toggleNav() { document.getElementById('sidebar').classList.toggle('active'); document.getElementById('overlay').classList.toggle('active'); }
+function toggleModal(s) { document.getElementById('settingsModal').style.display = s ? 'flex' : 'none'; if(s) renderSettings(); }
+
+window.onload = () => { renderMonths(); render(); };
+</script>
+</body>
+</html>

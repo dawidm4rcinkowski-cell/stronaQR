@@ -12,11 +12,13 @@
         .logo { color: #000; font-weight: 900; font-size: 1.4rem; text-transform: uppercase; }
         .logo span { background: #000; color: #ffe800; padding: 0 4px; border-radius: 3px; }
         .menu-btn { position: absolute; left: 15px; cursor: pointer; color: #000; font-size: 1.5rem; }
+        
         .sidebar { position: fixed; left: -280px; top: 0; width: 260px; height: 100%; background: #0a0a0a; border-right: 3px solid #ffe800; transition: 0.4s; z-index: 10000; padding-top: 60px; }
         .sidebar.active { left: 0; }
         .sidebar-link { display: block; color: white; padding: 15px 25px; text-decoration: none; font-weight: 700; font-size: 0.8rem; border-bottom: 1px solid #111; }
         .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.8); display: none; z-index: 9500; }
         .overlay.active { display: block; }
+
         .navigation-area { background: #111; border-bottom: 2px solid #ffe800; flex-shrink: 0; }
         .month-row { display: flex; align-items: center; padding: 10px 15px; gap: 15px; }
         .month-selector { display: flex; gap: 8px; overflow-x: auto; white-space: nowrap; scrollbar-width: none; flex-grow: 1; }
@@ -24,8 +26,7 @@
         .month-btn.active { background: #ffe800; color: #000; border-color: #ffe800; }
         .admin-controls { display: flex; align-items: center; gap: 10px; border-left: 1px solid #333; padding-left: 15px; }
         .norm-input { width: 65px; background: #000; color: #ffe800; border: 1px solid #ffe800; text-align: center; font-weight: 900; padding: 4px; font-size: 0.8rem; border-radius: 4px; }
-        .btn-gen { background: #ffe800; color: #000; border: none; padding: 8px 15px; font-weight: 900; border-radius: 20px; cursor: pointer; font-size: 0.7rem; }
-        .btn-settings { background: #333; color: #ffe800; border: 1px solid #ffe800; padding: 8px 15px; font-weight: 900; border-radius: 20px; cursor: pointer; font-size: 0.7rem; }
+        
         .table-container { flex-grow: 1; overflow: auto; }
         table { border-collapse: collapse; width: 100%; table-layout: fixed; }
         thead th { background: #080808; position: sticky; top: 0; z-index: 500; padding: 10px 2px; border-bottom: 2px solid #222; }
@@ -33,16 +34,26 @@
         .worker-name { font-size: 0.5rem; font-weight: 900; text-transform: uppercase; }
         .date-col { position: sticky; left: 0; background: #080808; z-index: 600; width: 80px; font-size: 0.65rem; font-weight: 700; color: #777; text-align: center; border-right: 2px solid #ffe800; }
         .obsada-col { width: 90px; color: #ffe800; font-weight: 900; font-size: 0.6rem; background: #111; text-align: center; border-left: 2px solid #ffe800; }
+        
         td { border-bottom: 1px solid #151515; border-right: 1px solid #151515; height: 38px; }
         td input { width: 100%; height: 100%; background: transparent; border: none; color: white; text-align: center; font-weight: 700; font-size: 0.75rem; outline: none; }
-        .sun { background: #300 !important; } .sat { background: #110 !important; }
-        tfoot td { background: #111; color: #ffe800; font-weight: 900; font-size: 0.7rem; text-align: center; position: sticky; bottom: 0; border-top: 2px solid #ffe800; height: 35px; z-index: 501; }
+        
+        .sun { background: #300 !important; } 
+        .sat { background: #110 !important; }
+        .wish-cell { background: #300060 !important; } /* Podświetlenie życzeń */
+
+        tfoot { position: sticky; bottom: 0; z-index: 700; }
+        tfoot td { background: #111; color: #ffe800; font-weight: 900; font-size: 0.7rem; text-align: center; border-top: 2px solid #ffe800; height: 35px; }
+
         .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 11000; align-items: center; justify-content: center; padding: 20px; }
         .modal-content { background: #0a0a0a; border: 2px solid #ffe800; padding: 20px; width: 100%; max-width: 800px; border-radius: 15px; }
         .worker-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 10px; margin-top: 15px; }
         .worker-card { background: #151515; padding: 10px; border-radius: 8px; border: 1px solid #333; }
         .worker-card label { display: block; font-size: 0.5rem; color: #888; margin-top: 5px; }
         .worker-card input { width: 100%; background: #000; border: 1px solid #444; color: #fff; padding: 3px; font-size: 0.7rem; }
+        
+        .btn-gen { background: #ffe800; color: #000; border: none; padding: 8px 15px; font-weight: 900; border-radius: 20px; cursor: pointer; font-size: 0.7rem; }
+        .btn-settings { background: #333; color: #ffe800; border: 1px solid #ffe800; padding: 8px 15px; font-weight: 900; border-radius: 20px; cursor: pointer; font-size: 0.7rem; }
     </style>
 </head>
 <body>
@@ -86,7 +97,17 @@
 <div class="modal" id="settingsModal">
     <div class="modal-content">
         <h3 style="color:#ffe800; margin-bottom:10px; font-size:1rem;">USTAWIENIA SKLEPU</h3>
-        <label style="font-size:0.6rem; color:#888;">DOSTĘPNE GODZINY (np. 10-20, 12-20, 10-18):</label>
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-bottom:15px;">
+            <div>
+                <label style="font-size:0.6rem; color:#888;">GODZINA OTWARCIA:</label>
+                <input id="storeOpen" type="number" style="width:100%; background:#000; border:1px solid #ffe800; color:#fff; padding:8px;" value="10">
+            </div>
+            <div>
+                <label style="font-size:0.6rem; color:#888;">GODZINA ZAMKNIĘCIA:</label>
+                <input id="storeClose" type="number" style="width:100%; background:#000; border:1px solid #ffe800; color:#fff; padding:8px;" value="20">
+            </div>
+        </div>
+        <label style="font-size:0.6rem; color:#888;">DOSTĘPNE ZMIANY (NP. 10-20, 12-20, 10-18):</label>
         <input id="globalShifts" style="width:100%; background:#000; border:1px solid #ffe800; color:#fff; padding:8px; margin-bottom:15px;" value="10-20, 12-20, 10-18">
         
         <div class="worker-grid" id="workerGrid"></div>
@@ -129,9 +150,11 @@ function getStreak(name, day) {
 function startGeneration() {
     const baseNorm = parseInt(document.getElementById('hourNormInput').value);
     const shifts = document.getElementById('globalShifts').value.split(',').map(s => s.trim());
+    const openH = document.getElementById('storeOpen').value;
+    const closeH = document.getElementById('storeClose').value;
+    const satShift = `${openH}-${closeH}`;
     const days = new Date(year, curM + 1, 0).getDate();
 
-    // Resetuj tylko godziny pracy i zwykłe WOLNE, zostaw URLOP i ŻYCZENIA (Ż)
     employees.forEach(e => { 
         for(let d=1; d<=days; d++) { 
             let v=getV(e.n, d); 
@@ -139,7 +162,6 @@ function startGeneration() {
         }
     });
 
-    // 1. Soboty (jedna wolna max)
     let sats = [];
     for(let d=1; d<=days; d++) if(new Date(year, curM, d).getDay() === 6) sats.push(d);
     
@@ -147,55 +169,48 @@ function startGeneration() {
         if(e.n === "PAWEŁ") return;
         let hasFixedFree = false;
         sats.forEach(s => { let v=getV(e.n, s); if(v==="Ż" || v==="URLOP") hasFixedFree = true; });
-        
         if(!hasFixedFree) {
             let rs = sats[Math.floor(Math.random()*sats.length)];
             saveV(e.n, rs, "WOLNE");
         }
     });
 
-    // 2. Obsada 3+1 (Działy + POK)
     for(let d=1; d<=days; d++) {
-        if(new Date(year, curM, d).getDay() === 0) continue;
+        let dayObj = new Date(year, curM, d);
+        if(dayObj.getDay() === 0) continue;
         let pool = employees.filter(e => e.n !== "PAWEŁ").sort(() => Math.random() - 0.5);
         
         let oD=0, zD=0, oP=0, zP=0;
         pool.forEach(e => {
             let cur = getV(e.n, d);
             if(cur === "" && getStreak(e.n, d) < 5) {
+                let assignedShift = (dayObj.getDay() === 6) ? satShift : shifts[Math.floor(Math.random()*shifts.length)];
                 if(e.p) { 
-                    if(oP < 1) { saveV(e.n, d, shifts[0]); oP++; }
-                    else if(zP < 1) { saveV(e.n, d, shifts[shifts.length-1]); zP++; }
+                    if(oP < 1) { saveV(e.n, d, assignedShift); oP++; }
+                    else if(zP < 1) { saveV(e.n, d, assignedShift); zP++; }
                 } else { 
-                    if(oD < 3) { saveV(e.n, d, shifts[0]); oD++; }
-                    else if(zD < 3) { saveV(e.n, d, shifts[shifts.length-1]); zD++; }
+                    if(oD < 3) { saveV(e.n, d, assignedShift); oD++; }
+                    else if(zD < 3) { saveV(e.n, d, assignedShift); zD++; }
                 }
             }
         });
     }
 
-    // 3. SZTYWNE DOCIĄGANIE DO NORMY
     employees.forEach(e => {
         if(e.n === "PAWEŁ") return;
         let urlops = 0;
         for(let d=1; d<=days; d++) if(getV(e.n, d) === "URLOP") urlops++;
-        
-        // Życzenia (Ż) nie odejmują godzin - cel pozostaje pełny (minus tylko urlop)
         let target = baseNorm - (urlops * 8);
-        
         let limit = 0;
         while(calcH(e.n) !== target && limit < 3000) {
             let d = Math.floor(Math.random()*days)+1;
-            if(new Date(year, curM, d).getDay() === 0) { limit++; continue; }
-            
+            let dayObj = new Date(year, curM, d);
+            if(dayObj.getDay() === 0) { limit++; continue; }
             let curV = getV(e.n, d);
             let diff = target - calcH(e.n);
-
             if(diff > 0 && curV === "" && getStreak(e.n, d) < 5) {
-                // Brakuje godzin - dodaj zmianę (losową z listy)
-                saveV(e.n, d, shifts[Math.floor(Math.random()*shifts.length)]);
+                saveV(e.n, d, (dayObj.getDay() === 6) ? satShift : shifts[0]);
             } else if(diff < 0 && curV.includes('-')) {
-                // Za dużo godzin - usuń zmianę
                 saveV(e.n, d, "");
             }
             limit++;
@@ -224,25 +239,28 @@ function render() {
         let o=0, z=0;
         employees.forEach(e => {
             let v = getV(e.n, d);
-            if(v.startsWith('10')) o++; if(v.endsWith('20')) z++;
-            html += `<td><input value="${v}" onchange="saveV('${e.n}',${d},this.value);render()"></td>`;
+            let cellClass = (v === "Ż") ? 'class="wish-cell"' : '';
+            if(v.includes('-')) {
+                let p = v.split('-');
+                if(parseInt(p[0]) <= 10) o++;
+                if(parseInt(p[1]) >= 20) z++;
+            }
+            html += `<td ${cellClass}><input value="${v}" onchange="saveV('${e.n}',${d},this.value);render()"></td>`;
         });
         html += `<td class="obsada-col">${o}|${z}</td>`;
         tr.innerHTML = html; body.appendChild(tr);
     }
 
-    // Stopka: Godziny
     const fSum = document.getElementById('sumRow');
-    fSum.innerHTML = '<td class="date-col">DO WYRÓB.</td>';
+    fSum.innerHTML = '<td class="date-col">GODZINY</td>';
     employees.forEach(e => {
         let urlops = 0;
         for(let d=1; d<=days; d++) if(getV(e.n, d) === "URLOP") urlops++;
         let target = baseNorm - (urlops * 8);
         let h = calcH(e.n);
-        fSum.innerHTML += `<td style="color:${h==target?'#0f0':'#f44'}">${h}/${target}h</td>`;
+        fSum.innerHTML += `<td style="color:${h==target?'#0f0':'#f44'}">${h}/${target}</td>`;
     });
 
-    // Stopka: Licznik Sobót
     const fSat = document.getElementById('satCountRow');
     fSat.innerHTML = '<td class="date-col">WOLNE SB</td>';
     employees.forEach(e => {
@@ -264,7 +282,7 @@ function renderSettings() {
         grid.innerHTML += `<div class="worker-card">
             <div style="color:#ffe800; font-weight:900; font-size:0.7rem;">${e.n}</div>
             <label>ŻYCZENIA (Dni np. 5,12):</label><input id="z_${e.n}">
-            <label>URLOP (Dni od-do np. 1-7):</label>
+            <label>URLOP (Od-Do np. 1-7):</label>
             <div style="display:flex; gap:2px"><input id="u1_${e.n}" placeholder="Od"><input id="u2_${e.n}" placeholder="Do"></div>
         </div>`;
     });

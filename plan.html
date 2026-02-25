@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Media Expert - Plan Pracy ULTRA PRECISION</title>
+    <title>Media Expert - Plan Pracy ULTRA PRECISION V7</title>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Montserrat', sans-serif; }
@@ -98,9 +98,20 @@ function calcH(name) {
         if(v.includes('-')) {
             let p = v.split('-');
             total += (parseInt(p[1]) - parseInt(p[0]));
-        }
+        } else if (v === "URLOP") total += 8;
     }
     return total;
+}
+
+// Sprawdza ile dni pod rząd ktoś pracuje (wliczając URLOP)
+function getStreak(name, day) {
+    let streak = 0;
+    for (let d = day - 1; d >= 1; d--) {
+        let v = getV(name, d);
+        if (v.includes('-') || v === "URLOP") streak++;
+        else break;
+    }
+    return streak;
 }
 
 function startGeneration() {
@@ -108,19 +119,21 @@ function startGeneration() {
     let success = false;
     let attempts = 0;
 
-    while(!success && attempts < 50) {
+    while(!success && attempts < 100) {
         success = runEngine(target);
         attempts++;
     }
-    if(!success) alert("Nie udało się dopasować normy idealnie. Spróbuj jeszcze raz.");
+    if(!success) alert("Trudny układ! Spróbuj jeszcze raz (wymagana duża precyzja dla zasady 5 dni).");
     render();
 }
 
 function runEngine(target) {
-    // Czyścimy wszystko
-    employees.forEach(e => { for(let d=1; d<=daysInMonth; d++) saveV(e.n, d, ""); });
+    // Czyścimy wszystko poza URLOPAMI/ŻYCZENIAMI (jeśli by były)
+    employees.forEach(e => { for(let d=1; d<=daysInMonth; d++) {
+        if(getV(e.n,d) !== "URLOP" && getV(e.n,d) !== "Ż") saveV(e.n, d, ""); 
+    }});
 
-    // 1. Rozdaj soboty (każdy dokładnie jedna wolna)
+    // 1. Soboty (1 wolna)
     let satPool = [...employees.filter(e => e.n !== "PAWEŁ")];
     satPool.sort(() => Math.random() - 0.5);
     satPool.forEach((e, i) => {
@@ -129,47 +142,51 @@ function runEngine(target) {
         sats.forEach(s => { if(getV(e.n, s) === "") saveV(e.n, s, "10-20"); });
     });
 
-    // 2. Obsada 3+1 w dni powszednie
+    // 2. Dni powszednie - Zasada 3+1 i Max 5 dni pracy
     for(let d=1; d<=daysInMonth; d++) {
         let date = new Date(2026, 1, d);
         if(date.getDay() === 0 || date.getDay() === 6) continue;
 
-        // POK
-        saveV("NATALIA", d, "10-18");
-        saveV("MAGDA", d, "12-20");
+        // POK (Natalia i Magda)
+        if(getStreak("NATALIA", d) < 5) saveV("NATALIA", d, "10-18");
+        if(getStreak("MAGDA", d) < 5) saveV("MAGDA", d, "12-20");
 
-        // Działy (dokładnie 3 osoby na otwarcie i 3 na zamknięcie)
+        // Działy
         let pool = employees.filter(e => !e.pok && e.n !== "PAWEŁ");
         pool.sort(() => Math.random() - 0.5);
         
-        for(let i=0; i<3; i++) saveV(pool[i].n, d, "10-18");
-        for(let i=3; i<6; i++) saveV(pool[i].n, d, "12-20");
+        let oCount = 0, zCount = 0;
+        pool.forEach(e => {
+            if(getStreak(e.n, d) < 5) {
+                if(oCount < 3) { saveV(e.n, d, "10-18"); oCount++; }
+                else if(zCount < 3) { saveV(e.n, d, "12-20"); zCount++; }
+            }
+        });
     }
 
-    // 3. Brutalne dociąganie do normy
+    // 3. Iteracyjne dociąganie do normy (Brutal force z kontrolą streaka)
     employees.forEach(e => {
         if(e.n === "PAWEŁ") return;
         let limit = 0;
-        while(calcH(e.n) !== target && limit < 300) {
+        while(calcH(e.n) !== target && limit < 500) {
             let d = Math.floor(Math.random() * daysInMonth) + 1;
             let date = new Date(2026, 1, d);
-            if(date.getDay() === 0 || date.getDay() === 6) { limit++; continue; }
+            if(date.getDay() === 0) { limit++; continue; }
 
             let current = getV(e.n, d);
             let diff = target - calcH(e.n);
 
-            if(diff > 0 && current === "") {
-                saveV(e.n, d, "10-20"); // +10h
+            if(diff > 0 && current === "" && getStreak(e.n, d) < 5) {
+                saveV(e.n, d, "10-20");
             } else if (diff < 0 && current === "10-20") {
-                saveV(e.n, d, "10-18"); // -2h
-            } else if (diff < 0 && current !== "" && current !== "WOLNE") {
-                saveV(e.n, d, ""); // -8h lub -10h
+                saveV(e.n, d, "10-18");
+            } else if (diff < 0 && current !== "" && current !== "WOLNE" && current !== "URLOP") {
+                saveV(e.n, d, "");
             }
             limit++;
         }
     });
 
-    // Walidacja finalna
     return employees.every(e => e.n === "PAWEŁ" || calcH(e.n) === target);
 }
 
@@ -211,7 +228,7 @@ function render() {
 
     employees.forEach(e => {
         let h = calcH(e.n);
-        let s = 0; sats.forEach(day => { if(!getV(e.n, day).includes('-')) s++; });
+        let s = 0; sats.forEach(day => { if(getV(e.n, day) === "WOLNE" || getV(e.n, day) === "") s++; });
         sumRow.innerHTML += `<td style="color:${h==target?'#0f0':'#f44'}">${h}h</td>`;
         satRow.innerHTML += `<td style="color:${s==1?'#0f0':'#f44'}">${s}</td>`;
     });

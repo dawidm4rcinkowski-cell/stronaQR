@@ -12,11 +12,13 @@
         .logo { color: #000; font-weight: 900; font-size: 1.4rem; text-transform: uppercase; }
         .logo span { background: #000; color: #ffe800; padding: 0 4px; border-radius: 3px; }
         .menu-btn { position: absolute; left: 15px; cursor: pointer; color: #000; font-size: 1.5rem; }
+        
         .sidebar { position: fixed; left: -280px; top: 0; width: 260px; height: 100%; background: #0a0a0a; border-right: 3px solid #ffe800; transition: 0.4s; z-index: 10000; padding-top: 60px; }
         .sidebar.active { left: 0; }
         .sidebar-link { display: block; color: white; padding: 15px 25px; text-decoration: none; font-weight: 700; font-size: 0.8rem; border-bottom: 1px solid #111; }
         .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.8); display: none; z-index: 9500; }
         .overlay.active { display: block; }
+
         .navigation-area { background: #111; border-bottom: 2px solid #ffe800; flex-shrink: 0; }
         .month-row { display: flex; align-items: center; padding: 10px 15px; gap: 15px; }
         .month-selector { display: flex; gap: 8px; overflow-x: auto; white-space: nowrap; scrollbar-width: none; flex-grow: 1; }
@@ -24,8 +26,7 @@
         .month-btn.active { background: #ffe800; color: #000; border-color: #ffe800; }
         .admin-controls { display: flex; align-items: center; gap: 10px; border-left: 1px solid #333; padding-left: 15px; }
         .norm-input { width: 65px; background: #000; color: #ffe800; border: 1px solid #ffe800; text-align: center; font-weight: 900; padding: 4px; font-size: 0.8rem; border-radius: 4px; }
-        .btn-gen { background: #ffe800; color: #000; border: none; padding: 8px 15px; font-weight: 900; border-radius: 20px; cursor: pointer; font-size: 0.7rem; }
-        .btn-settings { background: #333; color: #ffe800; border: 1px solid #ffe800; padding: 8px 15px; font-weight: 900; border-radius: 20px; cursor: pointer; font-size: 0.7rem; }
+        
         .table-container { flex-grow: 1; overflow: auto; position: relative; }
         table { border-collapse: collapse; width: 100%; table-layout: fixed; }
         thead th { background: #080808; position: sticky; top: 0; z-index: 500; padding: 10px 2px; border-bottom: 2px solid #222; }
@@ -33,18 +34,26 @@
         .worker-name { font-size: 0.5rem; font-weight: 900; text-transform: uppercase; }
         .date-col { position: sticky; left: 0; background: #080808; z-index: 600; width: 80px; font-size: 0.65rem; font-weight: 700; color: #777; text-align: center; border-right: 2px solid #ffe800; }
         .obsada-col { width: 90px; color: #ffe800; font-weight: 900; font-size: 0.6rem; background: #111; text-align: center; border-left: 2px solid #ffe800; }
+        
         td { border-bottom: 1px solid #151515; border-right: 1px solid #151515; height: 38px; }
         td input { width: 100%; height: 100%; background: transparent; border: none; color: white; text-align: center; font-weight: 700; font-size: 0.75rem; outline: none; }
-        .sun { background: #300 !important; } .sat { background: #110 !important; }
+        
+        .sun { background: #300 !important; } 
+        .sat { background: #110 !important; }
         .wish-cell { background: #300060 !important; } 
+
         tfoot { position: sticky; bottom: 0; z-index: 700; }
         tfoot td { background: #111; color: #ffe800; font-weight: 900; font-size: 0.7rem; text-align: center; border-top: 2px solid #ffe800; height: 35px; }
+
         .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 11000; align-items: center; justify-content: center; padding: 20px; }
         .modal-content { background: #0a0a0a; border: 2px solid #ffe800; padding: 20px; width: 100%; max-width: 800px; border-radius: 15px; }
         .worker-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 10px; margin-top: 15px; }
         .worker-card { background: #151515; padding: 10px; border-radius: 8px; border: 1px solid #333; }
         .worker-card label { display: block; font-size: 0.5rem; color: #888; margin-top: 5px; }
         .worker-card input { width: 100%; background: #000; border: 1px solid #444; color: #fff; padding: 3px; font-size: 0.7rem; }
+        
+        .btn-gen { background: #ffe800; color: #000; border: none; padding: 8px 15px; font-weight: 900; border-radius: 20px; cursor: pointer; font-size: 0.7rem; }
+        .btn-settings { background: #333; color: #ffe800; border: 1px solid #ffe800; padding: 8px 15px; font-weight: 900; border-radius: 20px; cursor: pointer; font-size: 0.7rem; }
     </style>
 </head>
 <body>
@@ -100,6 +109,7 @@
         </div>
         <label style="font-size:0.6rem; color:#888;">DOSTĘPNE ZMIANY (NP. 10-20, 12-20, 10-18):</label>
         <input id="globalShifts" style="width:100%; background:#000; border:1px solid #ffe800; color:#fff; padding:8px; margin-bottom:15px;" value="10-20, 12-20, 10-18">
+        
         <div class="worker-grid" id="workerGrid"></div>
         <button class="btn-gen" style="width:100%; margin-top:20px; height:45px;" onclick="saveSettings()">ZAPISZ I ZAMKNIJ</button>
     </div>
@@ -113,7 +123,7 @@ const employees = [
     {n: "ILONA", i: "I", p: false}, {n: "ARIEL", i: "A", p: false}
 ];
 const months = ["STYCZEŃ", "LUTY", "MARZEC", "KWIECIEŃ", "MAJ", "CZERWIEC", "LIPIEC", "SIERPIEŃ", "WRZESIEŃ", "PAŹDZIERNIK", "LISTOPAD", "GRUDZIEŃ"];
-let curM = new Date().getMonth(); const year = 2026;
+let curM = 1; const year = 2026;
 
 function getV(n, d) { return localStorage.getItem(`pl_${curM}_${n}_${d}`) || ""; }
 function saveV(n, d, v) { localStorage.setItem(`pl_${curM}_${n}_${d}`, v.toUpperCase()); }
@@ -132,8 +142,10 @@ function calcH(name) {
 
 function getStreak(name, day) {
     let s = 0;
-    for (let d = day-1; d >= 1; d--) { let v=getV(name, d); if(v.includes('-')||v==="URLOP") s++; else break; }
-    for (let d = day+1; d <= 31; d++) { let v=getV(name, d); if(v.includes('-')||v==="URLOP") s++; else break; }
+    for (let d = day-1; d >= 1; d--) { 
+        let v = getV(name, d); 
+        if(v.includes('-') || v === "URLOP") s++; else break; 
+    }
     return s;
 }
 
@@ -147,8 +159,8 @@ function startGeneration() {
 
     employees.forEach(e => { 
         for(let d=1; d<=days; d++) { 
-            let v=getV(e.n, d); 
-            if(v.includes('-') || v==="WOLNE") saveV(e.n, d, ""); 
+            let v = getV(e.n, d); 
+            if(v.includes('-') || v === "WOLNE") saveV(e.n, d, ""); 
         }
     });
 
@@ -158,9 +170,9 @@ function startGeneration() {
     employees.forEach(e => {
         if(e.n === "PAWEŁ") return;
         let hasFixedFree = false;
-        sats.forEach(s => { let v=getV(e.n, s); if(v==="Ż" || v==="URLOP") hasFixedFree = true; });
+        sats.forEach(s => { let v = getV(e.n, s); if(v === "Ż" || v === "URLOP") hasFixedFree = true; });
         if(!hasFixedFree) {
-            let rs = sats[Math.floor(Math.random()*sats.length)];
+            let rs = sats[Math.floor(Math.random() * sats.length)];
             saveV(e.n, rs, "WOLNE");
         }
     });
@@ -169,37 +181,42 @@ function startGeneration() {
         let dayObj = new Date(year, curM, d);
         if(dayObj.getDay() === 0) continue;
 
-        let pokStaff = employees.filter(e => e.p);
-        let workingPOK = pokStaff.filter(e => getV(e.n, d).includes('-')).length;
-        if(workingPOK === 0) {
-            let p = pokStaff[Math.floor(Math.random()*pokStaff.length)];
-            if(getV(p.n, d) === "" && getStreak(p.n, d) < 5) saveV(p.n, d, (dayObj.getDay() === 6) ? satShift : shifts[0]);
+        // 1. OBSADA POK (Minimum 1 osoba)
+        let poks = employees.filter(e => e.p);
+        let pokWorking = poks.find(e => getV(e.n, d).includes('-'));
+        if(!pokWorking) {
+            let availablePok = poks.filter(e => getV(e.n, d) === "" && getStreak(e.n, d) < 5);
+            if(availablePok.length > 0) {
+                let p = availablePok[Math.floor(Math.random() * availablePok.length)];
+                saveV(p.n, d, (dayObj.getDay() === 6) ? satShift : shifts[0]);
+            }
         }
 
-        let pool = employees.filter(e => e.n !== "PAWEŁ").sort(() => Math.random() - 0.5);
-        let oD=0, zD=0;
+        // 2. RESZTA OBSADY (3 osoby z innych działów)
+        let pool = employees.filter(e => !e.p && e.n !== "PAWEŁ").sort(() => Math.random() - 0.5);
+        let count = employees.filter(e => getV(e.n, d).includes('-')).length;
+        
         pool.forEach(e => {
-            let cur = getV(e.n, d);
-            if(getStreak(e.n, d) >= 5 && cur === "") { saveV(e.n, d, "WOLNE"); return; }
-            if(cur === "" && !e.p) {
-                let assignedShift = (dayObj.getDay() === 6) ? satShift : shifts[Math.floor(Math.random()*shifts.length)];
-                if(oD < 3) { saveV(e.n, d, assignedShift); oD++; }
-                else if(zD < 3) { saveV(e.n, d, assignedShift); zD++; }
+            if(count < 4 && getV(e.n, d) === "" && getStreak(e.n, d) < 5) {
+                saveV(e.n, d, (dayObj.getDay() === 6) ? satShift : shifts[Math.floor(Math.random() * shifts.length)]);
+                count++;
+            } else if (getStreak(e.n, d) >= 5 && getV(e.n, d) === "") {
+                saveV(e.n, d, "WOLNE");
             }
         });
     }
 
+    // Dopełnienie do normy tam gdzie brakuje
     employees.forEach(e => {
         if(e.n === "PAWEŁ") return;
         let urlops = 0;
         for(let d=1; d<=days; d++) if(getV(e.n, d) === "URLOP") urlops++;
         let target = baseNorm - (urlops * 8);
         let limit = 0;
-        while(calcH(e.n) < target && limit < 3000) {
-            let d = Math.floor(Math.random()*days)+1;
-            let dayObj = new Date(year, curM, d);
-            if(dayObj.getDay() !== 0 && getV(e.n, d) === "" && getStreak(e.n, d) < 5) {
-                saveV(e.n, d, (dayObj.getDay() === 6) ? satShift : shifts[0]);
+        while(calcH(e.n) < target && limit < 2000) {
+            let d = Math.floor(Math.random() * days) + 1;
+            if(new Date(year, curM, d).getDay() !== 0 && getV(e.n, d) === "" && getStreak(e.n, d) < 5) {
+                saveV(e.n, d, (new Date(year, curM, d).getDay() === 6) ? satShift : shifts[0]);
             }
             limit++;
         }

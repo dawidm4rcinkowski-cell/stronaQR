@@ -33,21 +33,21 @@
         .avatar { width: 26px; height: 26px; border-radius: 50%; border: 2px solid #ffe800; display: flex; align-items: center; justify-content: center; margin: 0 auto 3px; font-weight: 900; color: #ffe800; font-size: 0.6rem; }
         .worker-name { font-size: 0.5rem; font-weight: 900; text-transform: uppercase; }
         .date-col { position: sticky; left: 0; background: #080808; z-index: 600; width: 80px; font-size: 0.65rem; font-weight: 700; color: #777; text-align: center; border-right: 2px solid #ffe800; }
-        .obsada-col { width: 90px; color: #ffe800; font-weight: 900; font-size: 0.6rem; background: #111; text-align: center; border-left: 2px solid #ffe800; }
+        .obsada-col { width: 105px; color: #ffe800; font-weight: 900; font-size: 0.6rem; background: #111; text-align: center; border-left: 2px solid #ffe800; }
         
         td { border-bottom: 1px solid #151515; border-right: 1px solid #151515; height: 38px; }
         td input { width: 100%; height: 100%; background: transparent; border: none; color: white; text-align: center; font-weight: 700; font-size: 0.75rem; outline: none; }
         
         .sun { background: #300 !important; } 
         .sat { background: #110 !important; }
-        .wish-cell { background: #300060 !important; } /* Podświetlenie życzeń */
+        .wish-cell { background: #300060 !important; }
 
         tfoot { position: sticky; bottom: 0; z-index: 700; }
-        tfoot td { background: #111; color: #ffe800; font-weight: 900; font-size: 0.7rem; text-align: center; border-top: 2px solid #ffe800; height: 35px; }
+        tfoot td { background: #111; color: #ffe800; font-weight: 900; font-size: 0.65rem; text-align: center; border-top: 2px solid #ffe800; height: 35px; }
 
         .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 11000; align-items: center; justify-content: center; padding: 20px; }
         .modal-content { background: #0a0a0a; border: 2px solid #ffe800; padding: 20px; width: 100%; max-width: 800px; border-radius: 15px; }
-        .worker-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 10px; margin-top: 15px; }
+        .worker-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 10px; margin-top: 15px; max-height: 60vh; overflow-y: auto; }
         .worker-card { background: #151515; padding: 10px; border-radius: 8px; border: 1px solid #333; }
         .worker-card label { display: block; font-size: 0.5rem; color: #888; margin-top: 5px; }
         .worker-card input { width: 100%; background: #000; border: 1px solid #444; color: #fff; padding: 3px; font-size: 0.7rem; }
@@ -97,18 +97,8 @@
 <div class="modal" id="settingsModal">
     <div class="modal-content">
         <h3 style="color:#ffe800; margin-bottom:10px; font-size:1rem;">USTAWIENIA SKLEPU</h3>
-        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-bottom:15px;">
-            <div>
-                <label style="font-size:0.6rem; color:#888;">GODZINA OTWARCIA:</label>
-                <input id="storeOpen" type="number" style="width:100%; background:#000; border:1px solid #ffe800; color:#fff; padding:8px;" value="10">
-            </div>
-            <div>
-                <label style="font-size:0.6rem; color:#888;">GODZINA ZAMKNIĘCIA:</label>
-                <input id="storeClose" type="number" style="width:100%; background:#000; border:1px solid #ffe800; color:#fff; padding:8px;" value="20">
-            </div>
-        </div>
-        <label style="font-size:0.6rem; color:#888;">DOSTĘPNE ZMIANY (NP. 10-20, 12-20, 10-18):</label>
-        <input id="globalShifts" style="width:100%; background:#000; border:1px solid #ffe800; color:#fff; padding:8px; margin-bottom:15px;" value="10-20, 12-20, 10-18">
+        <label style="font-size:0.6rem; color:#888;">DOSTĘPNE ZMIANY (NP. 10-18, 12-20, 10-20):</label>
+        <input id="globalShifts" style="width:100%; background:#000; border:1px solid #ffe800; color:#fff; padding:8px; margin-bottom:15px;" value="10-18, 12-20, 10-20">
         
         <div class="worker-grid" id="workerGrid"></div>
         <button class="btn-gen" style="width:100%; margin-top:20px; height:45px;" onclick="saveSettings()">ZAPISZ I ZAMKNIJ</button>
@@ -116,6 +106,7 @@
 </div>
 
 <script>
+// Tablica pracowników (Zgodnie z Twoim screenem)
 const employees = [
     {n: "PAWEŁ", i: "P", p: false}, {n: "MICHAŁ", i: "M", p: false}, {n: "NATALIA", i: "N", p: true}, 
     {n: "MAGDA", i: "M", p: true}, {n: "JAKUB", i: "J", p: false}, {n: "ADRIAN", i: "A", p: false}, 
@@ -123,38 +114,60 @@ const employees = [
     {n: "ILONA", i: "I", p: false}, {n: "ARIEL", i: "A", p: false}
 ];
 const months = ["STYCZEŃ", "LUTY", "MARZEC", "KWIECIEŃ", "MAJ", "CZERWIEC", "LIPIEC", "SIERPIEŃ", "WRZESIEŃ", "PAŹDZIERNIK", "LISTOPAD", "GRUDZIEŃ"];
-let curM = 1; const year = 2026;
+let curM = 1; // 1 = Luty
+const year = 2026;
+
+// Święta i Niedziele Handlowe 2026 w formacie Miesiąc-Dzień (bez zera)
+const holidays2026 = ["1-1", "1-6", "4-5", "4-6", "5-1", "5-3", "5-24", "6-4", "8-15", "11-1", "11-11", "12-25", "12-26"];
+const tradingSundays2026 = ["1-25", "3-29", "4-26", "6-28", "8-30", "12-13", "12-20"]; 
+
+function isWorkDay(d) {
+    let date = new Date(year, curM, d);
+    let ds = `${curM+1}-${d}`;
+    if (holidays2026.includes(ds)) return false; // Dzień ustawowo wolny
+    if (date.getDay() === 0 && !tradingSundays2026.includes(ds)) return false; // Niedziela niehandlowa
+    return true;
+}
 
 function getV(n, d) { return localStorage.getItem(`pl_${curM}_${n}_${d}`) || ""; }
 function saveV(n, d, v) { localStorage.setItem(`pl_${curM}_${n}_${d}`, v.toUpperCase()); }
 
-function calcH(name) {
+// Oblicza rzeczywiste przepracowane godziny
+function calcRealH(name) {
     let h = 0;
     for(let d=1; d<=31; d++) {
         let v = getV(name, d);
         if(v.includes('-')) {
             let p = v.split('-');
-            h += (parseInt(p[1]) - parseInt(p[0]));
+            h += (parseInt(p[1]) || 0) - (parseInt(p[0]) || 0);
         }
     }
     return h;
 }
 
+// Sprawdza ciągłość pracy w tył i w przód (wlicza urlop i szkolenia)
 function getStreak(name, day) {
     let s = 0;
-    for (let d = day-1; d >= 1; d--) { let v=getV(name, d); if(v.includes('-')||v==="URLOP") s++; else break; }
-    for (let d = day+1; d <= 31; d++) { let v=getV(name, d); if(v.includes('-')||v==="URLOP") s++; else break; }
+    for (let d = day-1; d >= 1; d--) {
+        let v=getV(name, d);
+        if(v.includes('-') || v==="URLOP" || v.toLowerCase()==="szk.") s++; else break;
+    }
+    for (let d = day+1; d <= 31; d++) {
+        let v=getV(name, d);
+        if(v.includes('-') || v==="URLOP" || v.toLowerCase()==="szk.") s++; else break;
+    }
     return s;
 }
 
 function startGeneration() {
     const baseNorm = parseInt(document.getElementById('hourNormInput').value);
     const shifts = document.getElementById('globalShifts').value.split(',').map(s => s.trim());
-    const openH = document.getElementById('storeOpen').value;
-    const closeH = document.getElementById('storeClose').value;
-    const satShift = `${openH}-${closeH}`;
+    const openShift = shifts[0] || "10-18";
+    const closeShift = shifts.length > 1 ? shifts[1] : "12-20";
+    const fullShift = shifts.length > 2 ? shifts[2] : "10-20";
     const days = new Date(year, curM + 1, 0).getDate();
 
+    // 1. Wyczyszczenie siatki przed losowaniem (Zostawia Ż, URLOP i szk.)
     employees.forEach(e => { 
         for(let d=1; d<=days; d++) { 
             let v=getV(e.n, d); 
@@ -162,60 +175,88 @@ function startGeneration() {
         }
     });
 
-    let sats = [];
-    for(let d=1; d<=days; d++) if(new Date(year, curM, d).getDay() === 6) sats.push(d);
-    
+    // 2. Wpisanie min. 1 wolnej soboty dla każdego
     employees.forEach(e => {
-        if(e.n === "PAWEŁ") return;
-        let hasFixedFree = false;
-        sats.forEach(s => { let v=getV(e.n, s); if(v==="Ż" || v==="URLOP") hasFixedFree = true; });
-        if(!hasFixedFree) {
+        let sats = [];
+        for(let d=1; d<=days; d++) if(new Date(year, curM, d).getDay() === 6) sats.push(d);
+        let hasFreeSat = sats.some(s => { let v=getV(e.n, s); return v==="Ż" || v==="URLOP" || v.toLowerCase()==="szk."; });
+        if(!hasFreeSat && sats.length > 0) {
             let rs = sats[Math.floor(Math.random()*sats.length)];
             saveV(e.n, rs, "WOLNE");
         }
     });
 
+    // 3. Wypełnianie "Złotego Szkieletu" dnia
     for(let d=1; d<=days; d++) {
-        let dayObj = new Date(year, curM, d);
-        if(dayObj.getDay() === 0) continue;
-        let pool = employees.filter(e => e.n !== "PAWEŁ").sort(() => Math.random() - 0.5);
+        if(!isWorkDay(d)) continue; // Sklep zamknięty
         
-        let oD=0, zD=0, oP=0, zP=0;
-        pool.forEach(e => {
-            let cur = getV(e.n, d);
-            if(cur === "" && getStreak(e.n, d) < 5) {
-                let assignedShift = (dayObj.getDay() === 6) ? satShift : shifts[Math.floor(Math.random()*shifts.length)];
-                if(e.p) { 
-                    if(oP < 1) { saveV(e.n, d, assignedShift); oP++; }
-                    else if(zP < 1) { saveV(e.n, d, assignedShift); zP++; }
-                } else { 
-                    if(oD < 3) { saveV(e.n, d, assignedShift); oD++; }
-                    else if(zD < 3) { saveV(e.n, d, assignedShift); zD++; }
-                }
-            }
-        });
+        let isSat = (new Date(year, curM, d).getDay() === 6);
+        let shiftOtw = isSat ? fullShift : openShift;
+        let shiftZam = isSat ? fullShift : closeShift;
+
+        // Pula dostępnych (nic nie wpisane i nie naruszą zasady 5 dni pracy)
+        let available = employees.filter(e => getV(e.n, d) === "" && getStreak(e.n, d) < 5);
+        
+        // Dziewczyna z POK musi zamykać
+        let pok = available.find(e => e.p);
+        if(pok) {
+            saveV(pok.n, d, shiftZam);
+            available = available.filter(e => e.n !== pok.n);
+        }
+
+        // Sortujemy dostępnych od najmniejszej ilości godzin (żeby po równo rozkładać graf)
+        available.sort((a,b) => calcRealH(a.n) - calcRealH(b.n));
+
+        // 3 osoby na Otwarcie
+        let otwCount = 0;
+        while(otwCount < 3 && available.length > 0) {
+            saveV(available.shift().n, d, shiftOtw);
+            otwCount++;
+        }
+
+        // 3 osoby na Zamknięcie (Poza POKiem)
+        let zamCount = 0;
+        while(zamCount < 3 && available.length > 0) {
+            saveV(available.shift().n, d, shiftZam);
+            zamCount++;
+        }
     }
 
+    // 4. Dobijanie do miesięcznej normy
     employees.forEach(e => {
-        if(e.n === "PAWEŁ") return;
         let urlops = 0;
-        for(let d=1; d<=days; d++) if(getV(e.n, d) === "URLOP") urlops++;
-        let target = baseNorm - (urlops * 8);
-        let limit = 0;
-        while(calcH(e.n) !== target && limit < 3000) {
+        for(let d=1; d<=days; d++) {
+            let v = getV(e.n, d);
+            if(v === "URLOP" || v.toLowerCase() === "szk.") urlops++;
+        }
+        let targetHours = baseNorm - (urlops * 8); // Oczekiwana ilość po odjęciu urlopu
+        
+        // Dodawanie godzin
+        let safety = 0;
+        while(calcRealH(e.n) < targetHours && safety < 1000) {
             let d = Math.floor(Math.random()*days)+1;
-            let dayObj = new Date(year, curM, d);
-            if(dayObj.getDay() === 0) { limit++; continue; }
-            let curV = getV(e.n, d);
-            let diff = target - calcH(e.n);
-            if(diff > 0 && curV === "" && getStreak(e.n, d) < 5) {
-                saveV(e.n, d, (dayObj.getDay() === 6) ? satShift : shifts[0]);
-            } else if(diff < 0 && curV.includes('-')) {
-                saveV(e.n, d, "");
+            if(isWorkDay(d) && getV(e.n, d) === "" && getStreak(e.n, d) < 5) {
+                saveV(e.n, d, openShift);
             }
-            limit++;
+            if(calcRealH(e.n) < targetHours) {
+                let v = getV(e.n, d);
+                // Przekonwertowanie krótkiej na pełną zmianę (10-20), jeśli wciąż brakuje
+                if((v === openShift || v === closeShift) && getStreak(e.n, d) < 5) saveV(e.n, d, fullShift);
+            }
+            safety++;
+        }
+
+        // Obcinanie z nadmiaru
+        safety = 0;
+        while(calcRealH(e.n) > targetHours && safety < 1000) {
+            let d = Math.floor(Math.random()*days)+1;
+            let v = getV(e.n, d);
+            if(v === fullShift) saveV(e.n, d, openShift); // Degradacja zmiany
+            else if (v.includes('-') && !e.p) saveV(e.n, d, ""); // Kasowanie zmiany (z pominięciem POK by nie psuć obsady)
+            safety++;
         }
     });
+
     render();
 }
 
@@ -227,27 +268,30 @@ function render() {
 
     head.innerHTML = '<th class="date-col">DATA</th>';
     employees.forEach(e => head.innerHTML += `<th><div class="avatar">${e.i}</div><div class="worker-name">${e.n}</div></th>`);
-    head.innerHTML += '<th class="obsada-col">OTW|ZAM</th>';
+    head.innerHTML += '<th class="obsada-col">OTW|ZAM|SUMA</th>';
 
     body.innerHTML = "";
     for(let d=1; d<=days; d++) {
         let date = new Date(year, curM, d);
         let tr = document.createElement('tr');
-        if(date.getDay() === 0) tr.className = 'sun';
-        if(date.getDay() === 6) tr.className = 'sat';
+        if(!isWorkDay(d)) tr.className = 'sun';
+        else if(date.getDay() === 6) tr.className = 'sat';
+        
         let html = `<td class="date-col">${d} ${['ND','PN','WT','ŚR','CZ','PT','SB'][date.getDay()]}</td>`;
-        let o=0, z=0;
+        let o=0, z=0, suma=0;
+        
         employees.forEach(e => {
             let v = getV(e.n, d);
             let cellClass = (v === "Ż") ? 'class="wish-cell"' : '';
             if(v.includes('-')) {
+                suma++;
                 let p = v.split('-');
                 if(parseInt(p[0]) <= 10) o++;
                 if(parseInt(p[1]) >= 20) z++;
             }
             html += `<td ${cellClass}><input value="${v}" onchange="saveV('${e.n}',${d},this.value);render()"></td>`;
         });
-        html += `<td class="obsada-col">${o}|${z}</td>`;
+        html += `<td class="obsada-col">${o} | ${z} | ${suma}</td>`;
         tr.innerHTML = html; body.appendChild(tr);
     }
 
@@ -255,10 +299,14 @@ function render() {
     fSum.innerHTML = '<td class="date-col">GODZINY</td>';
     employees.forEach(e => {
         let urlops = 0;
-        for(let d=1; d<=days; d++) if(getV(e.n, d) === "URLOP") urlops++;
-        let target = baseNorm - (urlops * 8);
-        let h = calcH(e.n);
-        fSum.innerHTML += `<td style="color:${h==target?'#0f0':'#f44'}">${h}/${target}</td>`;
+        for(let d=1; d<=days; d++) {
+            let v = getV(e.n, d);
+            if(v === "URLOP" || v.toLowerCase() === "szk.") urlops++;
+        }
+        let target = baseNorm - (urlops * 8); // Norma z uwzględnieniem urlopu
+        let h = calcRealH(e.n); // Rzeczywiste ramy czasowe do przepracowania
+        
+        fSum.innerHTML += `<td style="color:${h==target?'#0f0':'#f44'}; font-size: 0.55rem;">${h} / ${target}</td>`;
     });
 
     const fSat = document.getElementById('satCountRow');
@@ -268,7 +316,7 @@ function render() {
         for(let d=1; d<=days; d++) {
             if(new Date(year, curM, d).getDay() === 6) {
                 let v = getV(e.n, d);
-                if(v === "WOLNE" || v === "URLOP" || v === "Ż") count++;
+                if(v === "WOLNE" || v === "URLOP" || v === "Ż" || v === "") count++;
             }
         }
         fSat.innerHTML += `<td style="color:${count>=1?'#ffe800':'#f44'}">${count}</td>`;
@@ -278,7 +326,6 @@ function render() {
 function renderSettings() {
     const grid = document.getElementById('workerGrid'); grid.innerHTML = "";
     employees.forEach(e => {
-        if(e.n === "PAWEŁ") return;
         grid.innerHTML += `<div class="worker-card">
             <div style="color:#ffe800; font-weight:900; font-size:0.7rem;">${e.n}</div>
             <label>ŻYCZENIA (Dni np. 5,12):</label><input id="z_${e.n}">
@@ -295,8 +342,8 @@ function saveSettings() {
         let u1 = document.getElementById(`u1_${e.n}`)?.value;
         let u2 = document.getElementById(`u2_${e.n}`)?.value;
         if(u1 && u2) for(let d=parseInt(u1); d<=parseInt(u2); d++) {
-            let di = new Date(year, curM, d).getDay();
-            if(di !== 0 && di !== 6) saveV(e.n, d, "URLOP");
+            // Skrypt wpisze urlop tylko w dni robocze/niedziele handlowe
+            if(isWorkDay(d)) saveV(e.n, d, "URLOP");
         }
     });
     toggleModal(false); render();

@@ -37,6 +37,7 @@
         
         td { border-bottom: 1px solid #151515; border-right: 1px solid #151515; height: 38px; }
         td input { width: 100%; height: 100%; background: transparent; border: none; color: white; text-align: center; font-weight: 700; font-size: 0.75rem; outline: none; }
+        td input:disabled { color: #888; cursor: not-allowed; }
         
         .sun { background: #300 !important; } 
         .sat { background: #110 !important; }
@@ -52,8 +53,8 @@
         .worker-card label { display: block; font-size: 0.5rem; color: #888; margin-top: 5px; }
         .worker-card input { width: 100%; background: #000; border: 1px solid #444; color: #fff; padding: 3px; font-size: 0.7rem; }
         
-        .btn-gen { background: #ffe800; color: #000; border: none; padding: 8px 15px; font-weight: 900; border-radius: 20px; cursor: pointer; font-size: 0.7rem; }
-        .btn-settings { background: #333; color: #ffe800; border: 1px solid #ffe800; padding: 8px 15px; font-weight: 900; border-radius: 20px; cursor: pointer; font-size: 0.7rem; }
+        .btn-gen { background: #ffe800; color: #000; border: none; padding: 8px 15px; font-weight: 900; border-radius: 20px; cursor: pointer; font-size: 0.7rem; transition: 0.3s; }
+        .btn-settings { background: #333; color: #ffe800; border: 1px solid #ffe800; padding: 8px 15px; font-weight: 900; border-radius: 20px; cursor: pointer; font-size: 0.7rem; transition: 0.3s; }
     </style>
 </head>
 <body>
@@ -76,9 +77,10 @@
         <div class="month-selector" id="monthSelector"></div>
         <div class="admin-controls">
             <span style="font-size:0.55rem; font-weight:900; color:#888;">NORMA H:</span>
-            <input type="number" id="hourNormInput" class="norm-input" value="160">
+            <input type="number" id="hourNormInput" class="norm-input" value="160" onchange="saveNorm(this.value)">
             <button class="btn-settings" onclick="toggleModal(true)">⚙️ USTAWIENIA</button>
-            <button class="btn-gen" onclick="startGeneration()">🚀 GENERUJ</button>
+            <button class="btn-gen" onclick="startGeneration()" id="genBtn">🚀 GENERUJ</button>
+            <button class="btn-settings" id="approveBtn" style="background:#0a0; color:#fff; border-color:#0a0;" onclick="toggleApprove()">✅ ZATWIERDŹ PLAN</button>
         </div>
     </div>
 </div>
@@ -127,8 +129,20 @@ function isWorkDay(d) {
     return true;
 }
 
-function getV(n, d) { return localStorage.getItem(`pl_${curM}_${n}_${d}`) || ""; }
-function saveV(n, d, v) { localStorage.setItem(`pl_${curM}_${n}_${d}`, v.toUpperCase()); }
+function getV(n, d) { return localStorage.getItem(`pl_${year}_${curM}_${n}_${d}`) || ""; }
+function saveV(n, d, v) { localStorage.setItem(`pl_${year}_${curM}_${n}_${d}`, v.toUpperCase()); }
+
+function saveNorm(v) { localStorage.setItem(`norm_${year}_${curM}`, v); render(); }
+function loadNorm() {
+    let v = localStorage.getItem(`norm_${year}_${curM}`);
+    document.getElementById('hourNormInput').value = v ? v : 160;
+}
+
+function toggleApprove() {
+    let locked = localStorage.getItem(`locked_${year}_${curM}`) === 'true';
+    localStorage.setItem(`locked_${year}_${curM}`, !locked);
+    render();
+}
 
 function calcRealH(name) {
     let h = 0;
@@ -155,7 +169,6 @@ function getStreak(name, day) {
     return s;
 }
 
-// Magiczna funkcja tasowania, która gwarantuje różne wyniki za każdym razem
 function shuffle(array) {
     for (let i = array.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
@@ -165,14 +178,17 @@ function shuffle(array) {
 }
 
 function startGeneration() {
+    if(localStorage.getItem(`locked_${year}_${curM}`) === 'true') return; // Zablokowane
+
     const baseNorm = parseInt(document.getElementById('hourNormInput').value);
     const shifts = document.getElementById('globalShifts').value.split(',').map(s => s.trim());
     const openShift = shifts[0] || "10-18";
     const closeShift = shifts.length > 1 ? shifts[1] : "12-20";
     const fullShift = shifts.length > 2 ? shifts[2] : "10-20";
+    const satShift = "10-20"; // Sztywna zmiana 10 godzinna w sobotę
     const days = new Date(year, curM + 1, 0).getDate();
 
-    // 1. Czyszczenie starych zmian (Życzenia i Urlopy zostają)
+    // 1. Czyszczenie (Zniknęło wpisywanie WOLNE, po prostu zostaje pusto)
     employees.forEach(e => { 
         for(let d=1; d<=days; d++) { 
             let v=getV(e.n, d); 
@@ -180,7 +196,7 @@ function startGeneration() {
         }
     });
 
-    // 2. GWARANCJA MAKS. 2 WOLNYCH SOBÓT (Rozkładane IDEALNIE)
+    // 2. Soboty (Sztywno 10-20, brak słowa WOLNE)
     let sats = [];
     for(let d=1; d<=days; d++) {
         if(new Date(year, curM, d).getDay() === 6 && isWorkDay(d)) sats.push(d);
@@ -188,67 +204,57 @@ function startGeneration() {
 
     sats.forEach(d => {
         let available = employees.filter(e => getV(e.n, d) === "");
-        shuffle(available); // Tasujemy dla całkowitej losowości
+        shuffle(available);
 
-        // Osoby, które miały więcej WOLNE/Ż/URLOP w inne soboty, mają priorytet by pracować w tę.
         available.sort((a,b) => {
             let aOff = 0, bOff = 0;
-            sats.forEach(s => { let v = getV(a.n, s); if(v==="WOLNE"||v==="Ż"||v==="URLOP") aOff++; });
-            sats.forEach(s => { let v = getV(b.n, s); if(v==="WOLNE"||v==="Ż"||v==="URLOP") bOff++; });
+            sats.forEach(s => { let v = getV(a.n, s); if(v===""||v==="Ż"||v==="URLOP") aOff++; });
+            sats.forEach(s => { let v = getV(b.n, s); if(v===""||v==="Ż"||v==="URLOP") bOff++; });
             return bOff - aOff; 
         });
 
         let toWork = [];
         
-        // POK na zamknięcie (Sztywno 1)
         let pokIndex = available.findIndex(e => e.p);
         if(pokIndex !== -1) {
-            toWork.push({ e: available[pokIndex], shift: closeShift });
+            toWork.push({ e: available[pokIndex], shift: satShift });
             available.splice(pokIndex, 1);
         }
 
-        // Reszta zamknięcia (Do 3 łącznie)
         let zamNeeded = pokIndex !== -1 ? 2 : 3;
         for(let i=0; i<zamNeeded && available.length > 0; i++) {
-            toWork.push({ e: available[0], shift: closeShift });
+            toWork.push({ e: available[0], shift: satShift });
             available.splice(0, 1);
         }
 
-        // Otwarcia (Dokładnie 3)
         let otwNeeded = 3;
         for(let i=0; i<otwNeeded && available.length > 0; i++) {
-            toWork.push({ e: available[0], shift: openShift });
+            toWork.push({ e: available[0], shift: satShift });
             available.splice(0, 1);
         }
 
-        // Zapisujemy przypisane zmiany
         toWork.forEach(w => saveV(w.e.n, d, w.shift));
-
-        // Reszta z automatu dostaje "WOLNE" (Co wylosuje maks 1-2 sztuki na głowę)
-        available.forEach(emp => saveV(emp.n, d, "WOLNE"));
+        // UWAGA: Reszta "available" po prostu zostaje pusta, nie wpisujemy im "WOLNE"
     });
 
-    // 3. Budowanie minimalnego szkieletu na dni robocze
+    // 3. Budowanie szkieletu na dni robocze
     for(let d=1; d<=days; d++) {
-        if(new Date(year, curM, d).getDay() === 6) continue; // Soboty mamy załatwione
+        if(new Date(year, curM, d).getDay() === 6) continue;
         if(!isWorkDay(d)) continue;
         
         let available = employees.filter(e => getV(e.n, d) === "" && getStreak(e.n, d) < 5);
-        shuffle(available); // Tasujemy by wyniki zawsze były odmienne
-        available.sort((a,b) => calcRealH(a.n) - calcRealH(b.n)); // Preferuj tych z mniejszą ilością godzin
+        shuffle(available);
+        available.sort((a,b) => calcRealH(a.n) - calcRealH(b.n));
         
-        // POK ZAM
         let pok = available.find(e => e.p);
         if(pok) { saveV(pok.n, d, closeShift); available = available.filter(e => e.n !== pok.n); }
 
-        // 2 inne ZAM
         let zamNeeded = pok ? 2 : 3;
         for(let i=0; i<available.length && zamNeeded>0; i++) {
             saveV(available[i].n, d, closeShift);
             available.splice(i, 1); i--; zamNeeded--;
         }
 
-        // 3 OTW
         let otwNeeded = 3;
         for(let i=0; i<available.length && otwNeeded>0; i++) {
             saveV(available[i].n, d, openShift);
@@ -256,7 +262,7 @@ function startGeneration() {
         }
     }
 
-    // 4. Bilansowanie Normy - DOKŁADANIE I ZDEJMOWANIE W TYGODNIU
+    // 4. Bilansowanie Normy
     let allBalanced = false;
     let iterations = 0;
 
@@ -274,7 +280,7 @@ function startGeneration() {
             return { e, target, current, diff: target - current };
         });
 
-        shuffle(status); // Tasujemy osoby o takich samych brakach by wybierać losowo
+        shuffle(status);
         status.sort((a,b) => Math.abs(b.diff) - Math.abs(a.diff));
 
         for(let st of status) {
@@ -282,7 +288,7 @@ function startGeneration() {
             allBalanced = false;
             let emp = st.e;
             
-            if(st.diff > 0) { // Brakuje godzin -> dodajemy pracę PN-PT
+            if(st.diff > 0) { 
                 let added = false;
                 if(st.diff >= 8) {
                     let possibleDays = [];
@@ -295,13 +301,13 @@ function startGeneration() {
                     }
                     if(possibleDays.length > 0) {
                         shuffle(possibleDays);
-                        possibleDays.sort((a,b) => a.staff - b.staff); // wciśnij tam gdzie jest mniej ludzi
+                        possibleDays.sort((a,b) => a.staff - b.staff); 
                         saveV(emp.n, possibleDays[0].d, (Math.random()>0.5 ? openShift : closeShift));
                         added = true;
                     }
                 }
                 
-                if(!added && st.diff >= 2) { // Wydłuż do 10h
+                if(!added && st.diff >= 2) { 
                     let possibleDays = [];
                     for(let d=1; d<=days; d++) {
                         let v = getV(emp.n, d);
@@ -314,7 +320,7 @@ function startGeneration() {
                 }
                 break; 
                 
-            } else if (st.diff < 0) { // Za dużo godzin -> tniemy pracę PN-PT
+            } else if (st.diff < 0) { 
                 let removed = false;
                 if(st.diff <= -8) {
                     let possibleDays = [];
@@ -322,7 +328,6 @@ function startGeneration() {
                         let v = getV(emp.n, d);
                         let isWknd = new Date(year, curM, d).getDay() === 0 || new Date(year, curM, d).getDay() === 6;
                         
-                        // Zdejmujemy tylko z tygodnia, by nie psuć weekendu
                         if(!isWknd && (v === openShift || v === closeShift || v === fullShift)) {
                             let otw = 0, zam = 0, pok = 0;
                             employees.forEach(em => {
@@ -351,13 +356,13 @@ function startGeneration() {
                     }
                     if(possibleDays.length > 0) {
                         shuffle(possibleDays);
-                        possibleDays.sort((a,b) => b.staff - a.staff); // Zdejmij z dnia gdzie jest tłok
+                        possibleDays.sort((a,b) => b.staff - a.staff);
                         saveV(emp.n, possibleDays[0].d, "");
                         removed = true;
                     }
                 }
                 
-                if(!removed && st.diff <= -2) { // Skróć z 10h do 8h
+                if(!removed && st.diff <= -2) { 
                     let possibleDays = [];
                     for(let d=1; d<=days; d++) {
                         let v = getV(emp.n, d);
@@ -382,6 +387,19 @@ function render() {
     const body = document.getElementById('daysBody');
     const head = document.getElementById('workerRow');
     const baseNorm = parseInt(document.getElementById('hourNormInput').value);
+    
+    // Sprawdzenie blokady planu
+    const isLocked = localStorage.getItem(`locked_${year}_${curM}`) === 'true';
+    const genBtn = document.getElementById('genBtn');
+    const appBtn = document.getElementById('approveBtn');
+    
+    genBtn.disabled = isLocked;
+    genBtn.style.opacity = isLocked ? '0.3' : '1';
+    genBtn.style.cursor = isLocked ? 'not-allowed' : 'pointer';
+    
+    appBtn.innerText = isLocked ? '🔓 ODBLOKUJ PLAN' : '✅ ZATWIERDŹ PLAN';
+    appBtn.style.background = isLocked ? '#a00' : '#0a0';
+    appBtn.style.borderColor = isLocked ? '#a00' : '#0a0';
 
     head.innerHTML = '<th class="date-col">DATA</th>';
     employees.forEach(e => head.innerHTML += `<th><div class="avatar">${e.i}</div><div class="worker-name">${e.n}</div></th>`);
@@ -406,7 +424,8 @@ function render() {
                 if(parseInt(p[0]) <= 10) o++;
                 if(parseInt(p[1]) >= 20) z++;
             }
-            html += `<td ${cellClass}><input value="${v}" onchange="saveV('${e.n}',${d},this.value);render()"></td>`;
+            let disabledAttr = isLocked ? 'disabled' : '';
+            html += `<td ${cellClass}><input value="${v}" ${disabledAttr} onchange="saveV('${e.n}',${d},this.value);render()"></td>`;
         });
         html += `<td class="obsada-col">${o} | ${z} | ${suma}</td>`;
         tr.innerHTML = html; body.appendChild(tr);
@@ -431,9 +450,10 @@ function render() {
     employees.forEach(e => {
         let count = 0;
         for(let d=1; d<=days; d++) {
-            if(new Date(year, curM, d).getDay() === 6) {
+            // Zlicza puste pola ("") i inne oznaki wolnego
+            if(new Date(year, curM, d).getDay() === 6 && isWorkDay(d)) {
                 let v = getV(e.n, d);
-                if(v === "WOLNE" || v === "URLOP" || v === "Ż") count++;
+                if(v === "" || v === "URLOP" || v === "Ż") count++;
             }
         }
         fSat.innerHTML += `<td style="color:${count>=1 && count<=2 ?'#ffe800':'#f44'}">${count}</td>`;
@@ -465,13 +485,20 @@ function saveSettings() {
     toggleModal(false); render();
 }
 
+function setMonth(i) {
+    curM = i;
+    loadNorm();
+    renderMonths();
+    render();
+}
+
 function renderMonths() {
     const div = document.getElementById('monthSelector'); div.innerHTML = "";
     months.forEach((m, i) => {
         const b = document.createElement('button');
         b.className = `month-btn ${i === curM ? 'active' : ''}`;
         b.innerText = m;
-        b.onclick = () => { curM = i; renderMonths(); render(); };
+        b.onclick = () => setMonth(i);
         div.appendChild(b);
     });
 }
@@ -479,7 +506,7 @@ function renderMonths() {
 function toggleNav() { document.getElementById('sidebar').classList.toggle('active'); document.getElementById('overlay').classList.toggle('active'); }
 function toggleModal(s) { document.getElementById('settingsModal').style.display = s ? 'flex' : 'none'; if(s) renderSettings(); }
 
-window.onload = () => { renderMonths(); render(); };
+window.onload = () => { setMonth(curM); };
 </script>
 </body>
 </html>

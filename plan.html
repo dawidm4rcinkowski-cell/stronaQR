@@ -3,27 +3,38 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Media Expert - Plan Pracy ULTRA PRECISION V8</title>
+    <title>Media Expert - Plan Pracy</title>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Montserrat', sans-serif; }
         body { background: #080808; color: white; display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
+        
+        /* Header */
         header { background: #ffe800; height: 50px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; z-index: 9999; position: relative; border-bottom: 2px solid #000; }
         .logo { color: #000; font-weight: 900; font-size: 1.4rem; text-transform: uppercase; }
         .logo span { background: #000; color: #ffe800; padding: 0 4px; border-radius: 3px; }
         .menu-btn { position: absolute; left: 15px; cursor: pointer; color: #000; font-size: 1.5rem; }
         
+        /* Sidebar */
         .sidebar { position: fixed; left: -280px; top: 0; width: 260px; height: 100%; background: #0a0a0a; border-right: 3px solid #ffe800; transition: 0.4s; z-index: 10000; padding-top: 60px; }
         .sidebar.active { left: 0; }
         .sidebar-link { display: block; color: white; padding: 15px 25px; text-decoration: none; font-weight: 700; font-size: 0.8rem; border-bottom: 1px solid #111; }
         .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.8); display: none; z-index: 9500; }
         .overlay.active { display: block; }
 
-        .navigation-area { background: #111; border-bottom: 2px solid #ffe800; padding: 10px 15px; display: flex; align-items: center; justify-content: space-between; }
-        .admin-controls { display: flex; align-items: center; gap: 10px; }
-        .norm-input { width: 70px; background: #000; color: #ffe800; border: 1px solid #ffe800; text-align: center; font-weight: 900; padding: 5px; border-radius: 5px; }
-        .btn-gen { background: #ffe800; color: #000; border: none; padding: 8px 18px; font-weight: 900; border-radius: 20px; cursor: pointer; font-size: 0.75rem; }
+        /* Nawigacja i Sterowanie */
+        .navigation-area { background: #111; border-bottom: 2px solid #ffe800; flex-shrink: 0; display: flex; flex-direction: column; }
+        .month-row { display: flex; align-items: center; padding: 10px 15px; gap: 15px; }
+        .month-selector { display: flex; gap: 8px; overflow-x: auto; white-space: nowrap; scrollbar-width: none; flex-grow: 1; }
+        .month-btn { padding: 6px 12px; border-radius: 20px; border: 1px solid #222; background: #000; color: #666; font-size: 0.65rem; font-weight: 700; cursor: pointer; }
+        .month-btn.active { background: #ffe800; color: #000; border-color: #ffe800; }
+        
+        .admin-controls { display: flex; align-items: center; gap: 10px; border-left: 1px solid #333; padding-left: 15px; }
+        .norm-input { width: 65px; background: #000; color: #ffe800; border: 1px solid #ffe800; text-align: center; font-weight: 900; padding: 4px; font-size: 0.8rem; border-radius: 4px; }
+        .btn-gen { background: #ffe800; color: #000; border: none; padding: 8px 15px; font-weight: 900; border-radius: 20px; cursor: pointer; font-size: 0.7rem; }
+        .btn-settings { background: #333; color: #ffe800; border: 1px solid #ffe800; padding: 8px 15px; font-weight: 900; border-radius: 20px; cursor: pointer; font-size: 0.7rem; }
 
+        /* Tabela */
         .table-container { flex-grow: 1; overflow: auto; position: relative; }
         table { border-collapse: collapse; width: 100%; table-layout: fixed; }
         thead th { background: #080808; position: sticky; top: 0; z-index: 500; padding: 10px 2px; border-bottom: 2px solid #222; }
@@ -39,14 +50,23 @@
         .sun { background: #330000 !important; }
         .sat { background: #1a1a00 !important; }
         
-        tfoot td { background: #111; color: #ffe800; font-weight: 900; font-size: 0.75rem; text-align: center; position: sticky; bottom: 0; border-top: 2px solid #ffe800; height: 35px; }
+        tfoot td { background: #111; color: #ffe800; font-weight: 900; font-size: 0.75rem; text-align: center; position: sticky; bottom: 0; border-top: 2px solid #ffe800; height: 35px; z-index: 501; }
+
+        /* Modal Ustawienia */
+        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 11000; align-items: center; justify-content: center; padding: 20px; }
+        .modal-content { background: #0a0a0a; border: 2px solid #ffe800; padding: 20px; width: 100%; max-width: 800px; border-radius: 15px; max-height: 90vh; overflow-y: auto; }
+        .modal-header { color: #ffe800; font-weight: 900; margin-bottom: 20px; text-transform: uppercase; border-bottom: 1px solid #333; padding-bottom: 10px; display: flex; justify-content: space-between; }
+        .worker-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 15px; }
+        .worker-card { background: #151515; padding: 10px; border-radius: 8px; border: 1px solid #222; }
+        .worker-card label { display: block; font-size: 0.6rem; color: #888; font-weight: 900; margin-bottom: 5px; }
+        .worker-card input { width: 100%; background: #000; border: 1px solid #333; color: #fff; padding: 5px; border-radius: 4px; font-size: 0.7rem; }
     </style>
 </head>
 <body>
 
 <header>
     <div class="menu-btn" onclick="toggleNav()">☰</div>
-    <div class="logo">MEDIA <span>EXPERT</span> PRECISION</div>
+    <div class="logo">MEDIA <span>EXPERT</span></div>
 </header>
 
 <div class="sidebar" id="sidebar">
@@ -58,12 +78,14 @@
 <div class="overlay" id="overlay" onclick="toggleNav()"></div>
 
 <div class="navigation-area">
-    <span style="font-weight:900; color:#ffe800; font-size:0.8rem;">LUTY 2026</span>
-    <div class="admin-controls">
-        <span style="font-size:0.6rem; font-weight:900;">NORMA H:</span>
-        <input type="number" id="hourNormInput" class="norm-input" value="160">
-        <button class="btn-gen" onclick="startGeneration()">🚀 GENERUJ IDEALNIE</button>
-        <button class="btn-gen" style="background:#333; color:#fff" onclick="clearAll()">CZYŚĆ</button>
+    <div class="month-row">
+        <div class="month-selector" id="monthSelector"></div>
+        <div class="admin-controls">
+            <span style="font-size:0.55rem; font-weight:900; color:#888;">NORMA H:</span>
+            <input type="number" id="hourNormInput" class="norm-input" value="160">
+            <button class="btn-settings" onclick="toggleModal(true)">⚙️ USTAWIENIA</button>
+            <button class="btn-gen" onclick="startGeneration()">🚀 GENERUJ</button>
+        </div>
     </div>
 </div>
 
@@ -78,6 +100,17 @@
     </table>
 </div>
 
+<div class="modal" id="settingsModal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <span>Urlopy i Życzenia</span>
+            <span style="cursor:pointer" onclick="toggleModal(false)">✕</span>
+        </div>
+        <div class="worker-grid" id="workerGrid"></div>
+        <button class="btn-gen" style="width:100%; margin-top:20px; height:45px;" onclick="saveSettings()">ZAPISZ I ZAMKNIJ</button>
+    </div>
+</div>
+
 <script>
 const employees = [
     {n: "PAWEŁ", i: "P", pok: false}, {n: "MICHAŁ", i: "M", pok: false}, {n: "NATALIA", i: "N", pok: true}, 
@@ -85,15 +118,21 @@ const employees = [
     {n: "DAWID", i: "D", pok: false}, {n: "DAREK", i: "D", pok: false}, {n: "ŁUKASZ", i: "Ł", pok: false}, 
     {n: "ILONA", i: "I", pok: false}, {n: "ARIEL", i: "A", pok: false}
 ];
-const daysInMonth = 28;
-const sats = [7, 14, 21, 28];
 
-function getV(n, d) { return localStorage.getItem(`p_${n}_${d}`) || ""; }
-function saveV(n, d, v) { localStorage.setItem(`p_${n}_${d}`, v); }
+const months = ["STYCZEŃ", "LUTY", "MARZEC", "KWIECIEŃ", "MAJ", "CZERWIEC", "LIPIEC", "SIERPIEŃ", "WRZESIEŃ", "PAŹDZIERNIK", "LISTOPAD", "GRUDZIEŃ"];
+let currentMonthIdx = 1; // Domyślnie Luty
+const year = 2026;
+
+function getM() { return months[currentMonthIdx]; }
+function getV(n, d) { return localStorage.getItem(`plan_${getM()}_${n}_${d}`) || ""; }
+function saveV(n, d, v) { localStorage.setItem(`plan_${getM()}_${n}_${d}`, v.toUpperCase()); }
+
+function getDaysInMonth() { return new Date(year, currentMonthIdx + 1, 0).getDate(); }
 
 function calcH(name) {
     let total = 0;
-    for(let d=1; d<=daysInMonth; d++) {
+    const dCount = getDaysInMonth();
+    for(let d=1; d<=dCount; d++) {
         let v = getV(name, d);
         if(v.includes('-')) {
             let p = v.split('-');
@@ -103,17 +142,14 @@ function calcH(name) {
     return total;
 }
 
-// Funkcja sprawdzająca streak z rygorem blokady 6. dnia
 function getStreak(name, day) {
     let streak = 0;
-    // Sprawdzanie wstecz
     for (let d = day - 1; d >= 1; d--) {
         let v = getV(name, d);
         if (v.includes('-') || v === "URLOP") streak++;
         else break;
     }
-    // Sprawdzanie w przód (ważne przy korektach losowych)
-    for (let d = day + 1; d <= daysInMonth; d++) {
+    for (let d = day + 1; d <= getDaysInMonth(); d++) {
         let v = getV(name, d);
         if (v.includes('-') || v === "URLOP") streak++;
         else break;
@@ -125,21 +161,24 @@ function startGeneration() {
     const target = parseInt(document.getElementById('hourNormInput').value);
     let success = false;
     let attempts = 0;
-
-    while(!success && attempts < 150) {
+    while(!success && attempts < 100) {
         success = runEngine(target);
         attempts++;
     }
-    if(!success) alert("Próba nieudana. Zmniejsz normę lub spróbuj ponownie (Zasada 5 dni jest bardzo rygorystyczna).");
+    if(!success) alert("Nie udało się dopasować normy przy zasadzie 5 dni. Spróbuj ponownie.");
     render();
 }
 
 function runEngine(target) {
-    employees.forEach(e => { for(let d=1; d<=daysInMonth; d++) {
-        if(getV(e.n,d) !== "URLOP") saveV(e.n, d, ""); 
+    const dCount = getDaysInMonth();
+    employees.forEach(e => { for(let d=1; d<=dCount; d++) {
+        let current = getV(e.n, d);
+        if(current !== "URLOP" && current !== "Ż") saveV(e.n, d, ""); 
     }});
 
-    // 1. Soboty (każdy 1 wolna)
+    let sats = [];
+    for(let d=1; d<=dCount; d++) if(new Date(year, currentMonthIdx, d).getDay() === 6) sats.push(d);
+
     let satPool = [...employees.filter(e => e.n !== "PAWEŁ")];
     satPool.sort(() => Math.random() - 0.5);
     satPool.forEach((e, i) => {
@@ -148,18 +187,15 @@ function runEngine(target) {
         sats.forEach(s => { if(getV(e.n, s) === "") saveV(e.n, s, "10-20"); });
     });
 
-    // 2. Dni powszednie - Szkielet 3+1
-    for(let d=1; d<=daysInMonth; d++) {
-        let date = new Date(2026, 1, d);
+    for(let d=1; d<=dCount; d++) {
+        let date = new Date(year, currentMonthIdx, d);
         if(date.getDay() === 0 || date.getDay() === 6) continue;
 
-        // POK
-        if(getStreak("NATALIA", d) < 5) saveV("NATALIA", d, "10-18");
-        if(getStreak("MAGDA", d) < 5) saveV("MAGDA", d, "12-20");
+        if(getStreak("NATALIA", d) < 5 && getV("NATALIA", d) === "") saveV("NATALIA", d, "10-18");
+        if(getStreak("MAGDA", d) < 5 && getV("MAGDA", d) === "") saveV("MAGDA", d, "12-20");
 
         let pool = employees.filter(e => !e.pok && e.n !== "PAWEŁ");
         pool.sort(() => Math.random() - 0.5);
-        
         let oCount = 0, zCount = 0;
         pool.forEach(e => {
             if(getStreak(e.n, d) < 5 && getV(e.n, d) === "") {
@@ -169,51 +205,33 @@ function runEngine(target) {
         });
     }
 
-    // 3. Krytyczna korekta normy z ABSOLUTNĄ blokadą 6. dnia
     employees.forEach(e => {
         if(e.n === "PAWEŁ") return;
         let limit = 0;
-        while(calcH(e.n) !== target && limit < 1000) {
-            let d = Math.floor(Math.random() * daysInMonth) + 1;
-            let date = new Date(2026, 1, d);
-            if(date.getDay() === 0) { limit++; continue; }
-
+        while(calcH(e.n) !== target && limit < 800) {
+            let d = Math.floor(Math.random() * dCount) + 1;
+            if(new Date(year, currentMonthIdx, d).getDay() === 0) { limit++; continue; }
             let current = getV(e.n, d);
             let diff = target - calcH(e.n);
-
-            // Dodawanie godzin tylko jeśli streak < 5
             if(diff > 0 && current === "" && getStreak(e.n, d) < 5) {
-                // Jeśli dodanie tu pracy stworzy ciąg 6 dni, pominie to
                 saveV(e.n, d, "10-20");
                 if(getStreak(e.n, d) >= 6) saveV(e.n, d, ""); 
-            } 
-            // Podbijanie z 8h na 10h (nie zmienia streaka, pomaga dobić normę)
-            else if (diff >= 2 && (current === "10-18" || current === "12-20")) {
+            } else if (diff >= 2 && (current === "10-18" || current === "12-20")) {
                 saveV(e.n, d, "10-20");
-            }
-            // Zbijanie godzin
-            else if (diff < 0 && current === "10-20") {
+            } else if (diff < 0 && current === "10-20") {
                 saveV(e.n, d, "10-18");
-            } else if (diff < 0 && current !== "" && current !== "WOLNE" && current !== "URLOP") {
+            } else if (diff < 0 && current.includes('-')) {
                 saveV(e.n, d, "");
             }
             limit++;
         }
     });
 
-    // Finalna weryfikacja wszystkich zasad
-    return employees.every(e => {
-        if(e.n === "PAWEŁ") return true;
-        let hOk = calcH(e.n) === target;
-        let streakOk = true;
-        for(let d=1; d<=daysInMonth; d++) {
-            if(getStreak(e.n, d) >= 6) streakOk = false;
-        }
-        return hOk && streakOk;
-    });
+    return employees.every(e => e.n === "PAWEŁ" || calcH(e.n) === target);
 }
 
 function render() {
+    const dCount = getDaysInMonth();
     const workerRow = document.getElementById('workerRow');
     const daysBody = document.getElementById('daysBody');
     const target = parseInt(document.getElementById('hourNormInput').value);
@@ -225,8 +243,8 @@ function render() {
     workerRow.innerHTML += '<th class="obsada-col">OTW | ZAM</th>';
 
     daysBody.innerHTML = "";
-    for(let d=1; d<=daysInMonth; d++) {
-        let date = new Date(2026, 1, d);
+    for(let d=1; d<=dCount; d++) {
+        let date = new Date(year, currentMonthIdx, d);
         let tr = document.createElement('tr');
         if(date.getDay() === 0) tr.className = 'sun';
         if(date.getDay() === 6) tr.className = 'sat';
@@ -249,18 +267,63 @@ function render() {
     sumRow.innerHTML = '<td class="date-col">SUMA H</td>';
     satRow.innerHTML = '<td class="date-col">WOLNE SB</td>';
 
+    let sats = [];
+    for(let d=1; d<=dCount; d++) if(new Date(year, currentMonthIdx, d).getDay() === 6) sats.push(d);
+
     employees.forEach(e => {
         let h = calcH(e.n);
-        let s = 0; sats.forEach(day => { if(getV(e.n, day) === "WOLNE" || getV(e.n, day) === "") s++; });
+        let s = 0; sats.forEach(day => { let v = getV(e.n, day); if(!v.includes('-')) s++; });
         sumRow.innerHTML += `<td style="color:${h==target?'#0f0':'#f44'}">${h}h</td>`;
         satRow.innerHTML += `<td style="color:${s==1?'#0f0':'#f44'}">${s}</td>`;
     });
 }
 
-function toggleNav() { document.getElementById('sidebar').classList.toggle('active'); document.getElementById('overlay').classList.toggle('active'); }
-function clearAll() { localStorage.clear(); location.reload(); }
+function renderMonths() {
+    const div = document.getElementById('monthSelector'); div.innerHTML = "";
+    months.forEach((m, i) => {
+        const b = document.createElement('button');
+        b.className = `month-btn ${i === currentMonthIdx ? 'active' : ''}`;
+        b.innerText = m;
+        b.onclick = () => { currentMonthIdx = i; renderMonths(); render(); renderSettingsGrid(); };
+        div.appendChild(b);
+    });
+}
 
-window.onload = render;
+function renderSettingsGrid() {
+    const grid = document.getElementById('workerGrid'); grid.innerHTML = "";
+    employees.forEach(e => {
+        if(e.n === "PAWEŁ") return;
+        grid.innerHTML += `<div class="worker-card">
+            <div style="color:#ffe800; font-weight:900; font-size:0.7rem; margin-bottom:10px;">${e.n}</div>
+            <label>DZIEŃ ŻYCZENIA (Ż):</label>
+            <input type="number" id="z_${e.n}" placeholder="np. 5">
+            <label>URLOP (OD - DO):</label>
+            <div style="display:flex; gap:5px">
+                <input type="number" id="u1_${e.n}" placeholder="od">
+                <input type="number" id="u2_${e.n}" placeholder="do">
+            </div>
+        </div>`;
+    });
+}
+
+function saveSettings() {
+    employees.forEach(e => {
+        const z = document.getElementById(`z_${e.n}`)?.value;
+        const u1 = document.getElementById(`u1_${e.n}`)?.value;
+        const u2 = document.getElementById(`u2_${e.n}`)?.value;
+        if(z) saveV(e.n, z, "Ż");
+        if(u1 && u2) {
+            for(let d=parseInt(u1); d<=parseInt(u2); d++) saveV(e.n, d, "URLOP");
+        }
+    });
+    toggleModal(false); render();
+}
+
+function toggleNav() { document.getElementById('sidebar').classList.toggle('active'); document.getElementById('overlay').classList.toggle('active'); }
+function toggleModal(s) { document.getElementById('settingsModal').style.display = s ? 'flex' : 'none'; }
+function clearAll() { if(confirm("CZYŚCIĆ MIESIĄC?")) { localStorage.clear(); location.reload(); } }
+
+window.onload = () => { renderMonths(); render(); renderSettingsGrid(); };
 </script>
 </body>
 </html>

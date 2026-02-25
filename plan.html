@@ -66,7 +66,7 @@
     <div class="month-row">
         <div class="month-selector" id="monthSelector"></div>
         <div class="admin-controls">
-            <span style="font-size:0.55rem; font-weight:900; color:#888;">NORMA H:</span>
+            <span style="font-size:0.55rem; font-weight:900; color:#888;">NORMA:</span>
             <input type="number" id="hourNormInput" class="norm-input" value="160">
             <button class="btn-settings" onclick="toggleModal(true)">⚙️ USTAWIENIA</button>
             <button class="btn-gen" onclick="startGeneration()">🚀 GENERUJ</button>
@@ -88,7 +88,7 @@
 <div class="modal" id="settingsModal">
     <div class="modal-content">
         <div class="modal-header">
-            <span>Urlopy i Życzenia (2 Dni)</span>
+            <span>Urlopy i Życzenia (Redukcja Normy)</span>
             <span style="cursor:pointer" onclick="toggleModal(false)">✕</span>
         </div>
         <div class="worker-grid" id="workerGrid"></div>
@@ -113,6 +113,7 @@ function saveV(n, d, v) { localStorage.setItem(`plan_${getM()}_${n}_${d}`, v.toU
 
 function getDaysInMonth() { return new Date(year, currentMonthIdx + 1, 0).getDate(); }
 
+// OBLICZA REALNIE PRZEPRACOWANE GODZINY (bez dopisywania 8h za urlop)
 function calcH(name) {
     let total = 0;
     for(let d=1; d<=getDaysInMonth(); d++) {
@@ -120,9 +121,18 @@ function calcH(name) {
         if(v.includes('-')) {
             let p = v.split('-');
             total += (parseInt(p[1]) - parseInt(p[0]));
-        } else if (v === "URLOP") total += 8;
+        }
     }
     return total;
+}
+
+// OBLICZA INDYWIDUALNY CEL (Norma - 8h za każdy dzień urlopu)
+function getWorkerTarget(name, baseNorm) {
+    let urlopCount = 0;
+    for(let d=1; d<=getDaysInMonth(); d++) {
+        if(getV(name, d) === "URLOP") urlopCount++;
+    }
+    return baseNorm - (urlopCount * 8);
 }
 
 function getStreak(name, day) {
@@ -139,20 +149,19 @@ function getStreak(name, day) {
 }
 
 function startGeneration() {
-    const target = parseInt(document.getElementById('hourNormInput').value);
+    const baseNorm = parseInt(document.getElementById('hourNormInput').value);
     let success = false;
     let attempts = 0;
-    while(!success && attempts < 150) {
-        success = runEngine(target);
+    while(!success && attempts < 200) {
+        success = runEngine(baseNorm);
         attempts++;
     }
-    if(!success) alert("Spróbuj jeszcze raz. Ustawienia życzeń/urlopów są bardzo restrykcyjne.");
+    if(!success) alert("Próba nieudana. Zbyt dużo urlopów naraz blokuje obsadę 3/3.");
     render();
 }
 
-function runEngine(target) {
+function runEngine(baseNorm) {
     const dCount = getDaysInMonth();
-    // Czyścimy TYLKO stare godziny pracy, zostawiając Ż i URLOP
     employees.forEach(e => { 
         for(let d=1; d<=dCount; d++) {
             let cur = getV(e.n, d);
@@ -160,73 +169,80 @@ function runEngine(target) {
         }
     });
 
+    // 1. Soboty (każdy jedna wolna, urlop w sobotę liczy się jako ta wolna)
     let sats = [];
     for(let d=1; d<=dCount; d++) if(new Date(year, currentMonthIdx, d).getDay() === 6) sats.push(d);
-
-    let satPool = [...employees.filter(e => e.n !== "PAWEŁ")];
-    satPool.sort(() => Math.random() - 0.5);
-    satPool.forEach((e, i) => {
-        let freeSat = sats[i % sats.length];
-        // Jeśli sobota ma URLOP/Ż, nie wpisuj WOLNE (to już jest wolne)
-        if(getV(e.n, freeSat) === "") saveV(e.n, freeSat, "WOLNE");
-        sats.forEach(s => { 
-            if(getV(e.n, s) === "" && getStreak(e.n, s) < 5) saveV(e.n, s, "10-20"); 
-        });
+    
+    employees.forEach(e => {
+        if(e.n === "PAWEŁ") return;
+        let hasFreeSat = false;
+        sats.forEach(s => { if(getV(e.n, s) === "URLOP" || getV(e.n, s) === "Ż") hasFreeSat = true; });
+        if(!hasFreeSat) {
+            let rs = sats[Math.floor(Math.random()*sats.length)];
+            saveV(e.n, rs, "WOLNE");
+        }
     });
 
+    // 2. Obsada 3 Otwarcie / 3 Zamknięcie
     for(let d=1; d<=dCount; d++) {
         let date = new Date(year, currentMonthIdx, d);
-        if(date.getDay() === 0 || date.getDay() === 6) continue;
+        if(date.getDay() === 0) continue;
 
-        // POK
-        ["NATALIA", "MAGDA"].forEach((name, idx) => {
-            if(getV(name, d) === "" && getStreak(name, d) < 5) {
-                saveV(name, d, idx === 0 ? "10-18" : "12-20");
-            }
-        });
-
-        let pool = employees.filter(e => !e.pok && e.n !== "PAWEŁ");
+        let pool = employees.filter(e => e.n !== "PAWEŁ");
         pool.sort(() => Math.random() - 0.5);
-        let o=0, z=0;
+
+        let otw = 0, zam = 0;
+        
+        // Najpierw POK (Natalia/Magda) o ile nie mają urlopu
+        if(getV("NATALIA", d) === "" && getStreak("NATALIA", d) < 5) { saveV("NATALIA", d, "10-18"); otw++; }
+        if(getV("MAGDA", d) === "" && getStreak("MAGDA", d) < 5) { saveV("MAGDA", d, "12-20"); zam++; }
+
+        // Reszta zespołu - dopychanie do 3 osób
         pool.forEach(e => {
-            if(getV(e.n, d) === "" && getStreak(e.n, d) < 5) {
-                if(o < 3) { saveV(e.n, d, "10-18"); o++; }
-                else if(z < 3) { saveV(e.n, d, "12-20"); z++; }
+            if(!e.pok && getV(e.n, d) === "" && getStreak(e.n, d) < 5) {
+                if(otw < 3) { saveV(e.n, d, "10-18"); otw++; }
+                else if(zam < 3) { saveV(e.n, d, "12-20"); zam++; }
             }
         });
     }
 
-    // Dociąganie do normy
+    // 3. Dociąganie do Indywidualnych Norm (Norma - Urlop)
     employees.forEach(e => {
         if(e.n === "PAWEŁ") return;
+        let myTarget = getWorkerTarget(e.n, baseNorm);
         let limit = 0;
-        while(calcH(e.n) !== target && limit < 1000) {
+        while(calcH(e.n) < myTarget && limit < 1500) {
             let d = Math.floor(Math.random() * dCount) + 1;
             if(new Date(year, currentMonthIdx, d).getDay() === 0) { limit++; continue; }
             let cur = getV(e.n, d);
-            let diff = target - calcH(e.n);
-
-            if(diff > 0 && cur === "" && getStreak(e.n, d) < 5) {
+            
+            if(cur === "" && getStreak(e.n, d) < 5) {
                 saveV(e.n, d, "10-20");
                 if(getStreak(e.n, d) >= 6) saveV(e.n, d, "");
-            } else if (diff >= 2 && (cur === "10-18" || cur === "12-20")) {
+            } else if(cur === "10-18" || cur === "12-20") {
                 saveV(e.n, d, "10-20");
-            } else if (diff < 0 && cur === "10-20") {
-                saveV(e.n, d, "10-18");
-            } else if (diff < 0 && cur.includes('-')) {
-                saveV(e.n, d, "");
             }
             limit++;
         }
+        // Jeśli przekroczono - zbijamy
+        limit = 0;
+        while(calcH(e.n) > myTarget && limit < 500) {
+            let d = Math.floor(Math.random() * dCount) + 1;
+            let cur = getV(e.n, d);
+            if(cur === "10-20") saveV(e.n, d, "10-18");
+            else if(cur.includes('-')) saveV(e.n, d, "");
+            limit++;
+        }
     });
-    return employees.every(e => e.n === "PAWEŁ" || calcH(e.n) === target);
+
+    return employees.every(e => e.n === "PAWEŁ" || calcH(e.n) === getWorkerTarget(e.n, baseNorm));
 }
 
 function render() {
     const dCount = getDaysInMonth();
     const daysBody = document.getElementById('daysBody');
     const workerRow = document.getElementById('workerRow');
-    const target = parseInt(document.getElementById('hourNormInput').value);
+    const baseNorm = parseInt(document.getElementById('hourNormInput').value);
 
     workerRow.innerHTML = '<th class="date-col">DATA</th>';
     employees.forEach(e => workerRow.innerHTML += `<th><div class="avatar">${e.i}</div><div class="worker-name">${e.n}</div></th>`);
@@ -252,19 +268,20 @@ function render() {
 
     const sumRow = document.getElementById('sumRow');
     const satRow = document.getElementById('satRow');
-    sumRow.innerHTML = '<td class="date-col">SUMA H</td>';
+    sumRow.innerHTML = '<td class="date-col">DO WYRÓB.</td>';
     satRow.innerHTML = '<td class="date-col">WOLNE SB</td>';
 
     employees.forEach(e => {
         let h = calcH(e.n);
-        let s = 0; 
+        let target = getWorkerTarget(e.n, baseNorm);
+        sumRow.innerHTML += `<td style="color:${h==target?'#0f0':'#f44'}">${h} / ${target}h</td>`;
+        let sCount = 0;
         for(let d=1; d<=dCount; d++) {
             if(new Date(year, currentMonthIdx, d).getDay() === 6) {
-                let v = getV(e.n, d); if(v === "WOLNE" || v === "URLOP" || v === "Ż") s++;
+                let v = getV(e.n, d); if(v === "WOLNE" || v === "URLOP") sCount++;
             }
         }
-        sumRow.innerHTML += `<td style="color:${h==target?'#0f0':'#f44'}">${h}h</td>`;
-        satRow.innerHTML += `<td style="color:${s==1?'#0f0':'#f44'}">${s}</td>`;
+        satRow.innerHTML += `<td style="color:${sCount>=1?'#0f0':'#f44'}">${sCount}</td>`;
     });
 }
 
@@ -287,8 +304,8 @@ function renderSettingsGrid() {
             <div style="color:#ffe800; font-weight:900; font-size:0.7rem; margin-bottom:10px;">${e.n}</div>
             <label>ŻYCZENIA (Dni):</label>
             <div style="display:flex; gap:5px">
-                <input type="number" id="z1_${e.n}" placeholder="Dzień 1">
-                <input type="number" id="z2_${e.n}" placeholder="Dzień 2">
+                <input type="number" id="z1_${e.n}" placeholder="D1">
+                <input type="number" id="z2_${e.n}" placeholder="D2">
             </div>
             <label>URLOP (Zakres):</label>
             <div style="display:flex; gap:5px">

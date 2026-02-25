@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Media Expert - Plan Pracy ULTRA PRECISION V7</title>
+    <title>Media Expert - Plan Pracy ULTRA PRECISION V8</title>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Montserrat', sans-serif; }
@@ -103,10 +103,17 @@ function calcH(name) {
     return total;
 }
 
-// Sprawdza ile dni pod rząd ktoś pracuje (wliczając URLOP)
+// Funkcja sprawdzająca streak z rygorem blokady 6. dnia
 function getStreak(name, day) {
     let streak = 0;
+    // Sprawdzanie wstecz
     for (let d = day - 1; d >= 1; d--) {
+        let v = getV(name, d);
+        if (v.includes('-') || v === "URLOP") streak++;
+        else break;
+    }
+    // Sprawdzanie w przód (ważne przy korektach losowych)
+    for (let d = day + 1; d <= daysInMonth; d++) {
         let v = getV(name, d);
         if (v.includes('-') || v === "URLOP") streak++;
         else break;
@@ -119,21 +126,20 @@ function startGeneration() {
     let success = false;
     let attempts = 0;
 
-    while(!success && attempts < 100) {
+    while(!success && attempts < 150) {
         success = runEngine(target);
         attempts++;
     }
-    if(!success) alert("Trudny układ! Spróbuj jeszcze raz (wymagana duża precyzja dla zasady 5 dni).");
+    if(!success) alert("Próba nieudana. Zmniejsz normę lub spróbuj ponownie (Zasada 5 dni jest bardzo rygorystyczna).");
     render();
 }
 
 function runEngine(target) {
-    // Czyścimy wszystko poza URLOPAMI/ŻYCZENIAMI (jeśli by były)
     employees.forEach(e => { for(let d=1; d<=daysInMonth; d++) {
-        if(getV(e.n,d) !== "URLOP" && getV(e.n,d) !== "Ż") saveV(e.n, d, ""); 
+        if(getV(e.n,d) !== "URLOP") saveV(e.n, d, ""); 
     }});
 
-    // 1. Soboty (1 wolna)
+    // 1. Soboty (każdy 1 wolna)
     let satPool = [...employees.filter(e => e.n !== "PAWEŁ")];
     satPool.sort(() => Math.random() - 0.5);
     satPool.forEach((e, i) => {
@@ -142,33 +148,32 @@ function runEngine(target) {
         sats.forEach(s => { if(getV(e.n, s) === "") saveV(e.n, s, "10-20"); });
     });
 
-    // 2. Dni powszednie - Zasada 3+1 i Max 5 dni pracy
+    // 2. Dni powszednie - Szkielet 3+1
     for(let d=1; d<=daysInMonth; d++) {
         let date = new Date(2026, 1, d);
         if(date.getDay() === 0 || date.getDay() === 6) continue;
 
-        // POK (Natalia i Magda)
+        // POK
         if(getStreak("NATALIA", d) < 5) saveV("NATALIA", d, "10-18");
         if(getStreak("MAGDA", d) < 5) saveV("MAGDA", d, "12-20");
 
-        // Działy
         let pool = employees.filter(e => !e.pok && e.n !== "PAWEŁ");
         pool.sort(() => Math.random() - 0.5);
         
         let oCount = 0, zCount = 0;
         pool.forEach(e => {
-            if(getStreak(e.n, d) < 5) {
+            if(getStreak(e.n, d) < 5 && getV(e.n, d) === "") {
                 if(oCount < 3) { saveV(e.n, d, "10-18"); oCount++; }
                 else if(zCount < 3) { saveV(e.n, d, "12-20"); zCount++; }
             }
         });
     }
 
-    // 3. Iteracyjne dociąganie do normy (Brutal force z kontrolą streaka)
+    // 3. Krytyczna korekta normy z ABSOLUTNĄ blokadą 6. dnia
     employees.forEach(e => {
         if(e.n === "PAWEŁ") return;
         let limit = 0;
-        while(calcH(e.n) !== target && limit < 500) {
+        while(calcH(e.n) !== target && limit < 1000) {
             let d = Math.floor(Math.random() * daysInMonth) + 1;
             let date = new Date(2026, 1, d);
             if(date.getDay() === 0) { limit++; continue; }
@@ -176,9 +181,18 @@ function runEngine(target) {
             let current = getV(e.n, d);
             let diff = target - calcH(e.n);
 
+            // Dodawanie godzin tylko jeśli streak < 5
             if(diff > 0 && current === "" && getStreak(e.n, d) < 5) {
+                // Jeśli dodanie tu pracy stworzy ciąg 6 dni, pominie to
                 saveV(e.n, d, "10-20");
-            } else if (diff < 0 && current === "10-20") {
+                if(getStreak(e.n, d) >= 6) saveV(e.n, d, ""); 
+            } 
+            // Podbijanie z 8h na 10h (nie zmienia streaka, pomaga dobić normę)
+            else if (diff >= 2 && (current === "10-18" || current === "12-20")) {
+                saveV(e.n, d, "10-20");
+            }
+            // Zbijanie godzin
+            else if (diff < 0 && current === "10-20") {
                 saveV(e.n, d, "10-18");
             } else if (diff < 0 && current !== "" && current !== "WOLNE" && current !== "URLOP") {
                 saveV(e.n, d, "");
@@ -187,7 +201,16 @@ function runEngine(target) {
         }
     });
 
-    return employees.every(e => e.n === "PAWEŁ" || calcH(e.n) === target);
+    // Finalna weryfikacja wszystkich zasad
+    return employees.every(e => {
+        if(e.n === "PAWEŁ") return true;
+        let hOk = calcH(e.n) === target;
+        let streakOk = true;
+        for(let d=1; d<=daysInMonth; d++) {
+            if(getStreak(e.n, d) >= 6) streakOk = false;
+        }
+        return hOk && streakOk;
+    });
 }
 
 function render() {

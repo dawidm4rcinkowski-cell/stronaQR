@@ -36,7 +36,7 @@
         td { border-bottom: 1px solid #151515; border-right: 1px solid #151515; height: 38px; }
         td input { width: 100%; height: 100%; background: transparent; border: none; color: white; text-align: center; font-weight: 700; font-size: 0.75rem; outline: none; }
         .sun { background: #300 !important; } .sat { background: #110 !important; }
-        tfoot td { background: #111; color: #ffe800; font-weight: 900; font-size: 0.75rem; text-align: center; position: sticky; bottom: 0; border-top: 2px solid #ffe800; height: 40px; z-index: 501; }
+        tfoot td { background: #111; color: #ffe800; font-weight: 900; font-size: 0.7rem; text-align: center; position: sticky; bottom: 0; border-top: 2px solid #ffe800; height: 35px; z-index: 501; }
         .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 11000; align-items: center; justify-content: center; padding: 20px; }
         .modal-content { background: #0a0a0a; border: 2px solid #ffe800; padding: 20px; width: 100%; max-width: 800px; border-radius: 15px; }
         .worker-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 10px; margin-top: 15px; }
@@ -76,14 +76,17 @@
     <table id="planTable">
         <thead><tr id="workerRow"></tr></thead>
         <tbody id="daysBody"></tbody>
-        <tfoot><tr id="sumRow"></tr></tfoot>
+        <tfoot>
+            <tr id="sumRow"></tr>
+            <tr id="satCountRow"></tr>
+        </tfoot>
     </table>
 </div>
 
 <div class="modal" id="settingsModal">
     <div class="modal-content">
         <h3 style="color:#ffe800; margin-bottom:10px; font-size:1rem;">USTAWIENIA SKLEPU</h3>
-        <label style="font-size:0.6rem; color:#888;">GODZINY PRACY (np. 10-20, 12-20, 10-18):</label>
+        <label style="font-size:0.6rem; color:#888;">DOSTĘPNE GODZINY (np. 10-20, 12-20, 10-18):</label>
         <input id="globalShifts" style="width:100%; background:#000; border:1px solid #ffe800; color:#fff; padding:8px; margin-bottom:15px;" value="10-20, 12-20, 10-18">
         
         <div class="worker-grid" id="workerGrid"></div>
@@ -128,30 +131,42 @@ function startGeneration() {
     const shifts = document.getElementById('globalShifts').value.split(',').map(s => s.trim());
     const days = new Date(year, curM + 1, 0).getDate();
 
-    // 1. Reset
-    employees.forEach(e => { for(let d=1; d<=days; d++) { let v=getV(e.n, d); if(v.includes('-')||v==="WOLNE") saveV(e.n, d, ""); }});
-
-    // 2. Soboty (jedna wolna)
-    let sats = [];
-    for(let d=1; d<=days; d++) if(new Date(year, curM, d).getDay() === 6) sats.push(d);
-    employees.forEach(e => {
-        if(e.n === "PAWEŁ") return;
-        let freeSat = sats[Math.floor(Math.random()*sats.length)];
-        if(getV(e.n, freeSat) === "") saveV(e.n, freeSat, "WOLNE");
+    // Resetuj tylko godziny pracy i zwykłe WOLNE, zostaw URLOP i ŻYCZENIA (Ż)
+    employees.forEach(e => { 
+        for(let d=1; d<=days; d++) { 
+            let v=getV(e.n, d); 
+            if(v.includes('-') || v==="WOLNE") saveV(e.n, d, ""); 
+        }
     });
 
-    // 3. Obsada 3+1 (Działy + POK)
+    // 1. Soboty (jedna wolna max)
+    let sats = [];
+    for(let d=1; d<=days; d++) if(new Date(year, curM, d).getDay() === 6) sats.push(d);
+    
+    employees.forEach(e => {
+        if(e.n === "PAWEŁ") return;
+        let hasFixedFree = false;
+        sats.forEach(s => { let v=getV(e.n, s); if(v==="Ż" || v==="URLOP") hasFixedFree = true; });
+        
+        if(!hasFixedFree) {
+            let rs = sats[Math.floor(Math.random()*sats.length)];
+            saveV(e.n, rs, "WOLNE");
+        }
+    });
+
+    // 2. Obsada 3+1 (Działy + POK)
     for(let d=1; d<=days; d++) {
         if(new Date(year, curM, d).getDay() === 0) continue;
         let pool = employees.filter(e => e.n !== "PAWEŁ").sort(() => Math.random() - 0.5);
         
         let oD=0, zD=0, oP=0, zP=0;
         pool.forEach(e => {
-            if(getV(e.n, d) === "" && getStreak(e.n, d) < 5) {
-                if(e.p) { // POK
+            let cur = getV(e.n, d);
+            if(cur === "" && getStreak(e.n, d) < 5) {
+                if(e.p) { 
                     if(oP < 1) { saveV(e.n, d, shifts[0]); oP++; }
                     else if(zP < 1) { saveV(e.n, d, shifts[shifts.length-1]); zP++; }
-                } else { // DZIAŁY
+                } else { 
                     if(oD < 3) { saveV(e.n, d, shifts[0]); oD++; }
                     else if(zD < 3) { saveV(e.n, d, shifts[shifts.length-1]); zD++; }
                 }
@@ -159,24 +174,29 @@ function startGeneration() {
         });
     }
 
-    // 4. Sztywne dociąganie do Normy (Indywidualne)
+    // 3. SZTYWNE DOCIĄGANIE DO NORMY
     employees.forEach(e => {
         if(e.n === "PAWEŁ") return;
-        let urlopD = 0;
-        for(let d=1; d<=days; d++) if(getV(e.n, d) === "URLOP") urlopD++;
-        let target = baseNorm - (urlopD * 8);
+        let urlops = 0;
+        for(let d=1; d<=days; d++) if(getV(e.n, d) === "URLOP") urlops++;
+        
+        // Życzenia (Ż) nie odejmują godzin - cel pozostaje pełny (minus tylko urlop)
+        let target = baseNorm - (urlops * 8);
         
         let limit = 0;
-        while(calcH(e.n) !== target && limit < 2000) {
+        while(calcH(e.n) !== target && limit < 3000) {
             let d = Math.floor(Math.random()*days)+1;
             if(new Date(year, curM, d).getDay() === 0) { limit++; continue; }
+            
             let curV = getV(e.n, d);
             let diff = target - calcH(e.n);
 
             if(diff > 0 && curV === "" && getStreak(e.n, d) < 5) {
-                saveV(e.n, d, shifts[0]); // Daj zmianę jeśli brakuje
+                // Brakuje godzin - dodaj zmianę (losową z listy)
+                saveV(e.n, d, shifts[Math.floor(Math.random()*shifts.length)]);
             } else if(diff < 0 && curV.includes('-')) {
-                saveV(e.n, d, ""); // Usuń zmianę jeśli za dużo
+                // Za dużo godzin - usuń zmianę
+                saveV(e.n, d, "");
             }
             limit++;
         }
@@ -211,6 +231,7 @@ function render() {
         tr.innerHTML = html; body.appendChild(tr);
     }
 
+    // Stopka: Godziny
     const fSum = document.getElementById('sumRow');
     fSum.innerHTML = '<td class="date-col">DO WYRÓB.</td>';
     employees.forEach(e => {
@@ -219,6 +240,20 @@ function render() {
         let target = baseNorm - (urlops * 8);
         let h = calcH(e.n);
         fSum.innerHTML += `<td style="color:${h==target?'#0f0':'#f44'}">${h}/${target}h</td>`;
+    });
+
+    // Stopka: Licznik Sobót
+    const fSat = document.getElementById('satCountRow');
+    fSat.innerHTML = '<td class="date-col">WOLNE SB</td>';
+    employees.forEach(e => {
+        let count = 0;
+        for(let d=1; d<=days; d++) {
+            if(new Date(year, curM, d).getDay() === 6) {
+                let v = getV(e.n, d);
+                if(v === "WOLNE" || v === "URLOP" || v === "Ż") count++;
+            }
+        }
+        fSat.innerHTML += `<td style="color:${count>=1?'#ffe800':'#f44'}">${count}</td>`;
     });
 }
 
@@ -238,11 +273,12 @@ function renderSettings() {
 function saveSettings() {
     employees.forEach(e => {
         let z = document.getElementById(`z_${e.n}`)?.value;
-        if(z) z.split(',').forEach(d => saveV(e.n, d.trim(), "WOLNE"));
+        if(z) z.split(',').forEach(d => saveV(e.n, d.trim(), "Ż"));
         let u1 = document.getElementById(`u1_${e.n}`)?.value;
         let u2 = document.getElementById(`u2_${e.n}`)?.value;
         if(u1 && u2) for(let d=parseInt(u1); d<=parseInt(u2); d++) {
-            if(new Date(year, curM, d).getDay() !== 0 && new Date(year, curM, d).getDay() !== 6) saveV(e.n, d, "URLOP");
+            let di = new Date(year, curM, d).getDay();
+            if(di !== 0 && di !== 6) saveV(e.n, d, "URLOP");
         }
     });
     toggleModal(false); render();

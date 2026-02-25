@@ -1,201 +1,200 @@
 <!DOCTYPE html>
 <html lang="pl">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Media Expert - Plan Pracy ULTRA V5</title>
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&display=swap" rel="stylesheet">
-    <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Montserrat', sans-serif; }
-        body { background: #080808; color: white; display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
-        header { background: #ffe800; height: 50px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; border-bottom: 2px solid #000; }
-        .logo { color: #000; font-weight: 900; font-size: 1.4rem; text-transform: uppercase; }
-        .logo span { background: #000; color: #ffe800; padding: 0 4px; border-radius: 3px; }
-        
-        .navigation-area { background: #111; border-bottom: 2px solid #ffe800; padding: 10px; }
-        .admin-controls { display: flex; align-items: center; gap: 15px; justify-content: center; }
-        .norm-input { width: 70px; background: #000; color: #ffe800; border: 1px solid #ffe800; text-align: center; font-weight: 900; padding: 5px; }
-        .btn-gen { background: #ffe800; color: #000; border: none; padding: 8px 20px; font-weight: 900; border-radius: 20px; cursor: pointer; }
-        
-        .table-container { flex-grow: 1; overflow: auto; }
-        table { border-collapse: collapse; width: 100%; table-layout: fixed; }
-        th { background: #080808; position: sticky; top: 0; z-index: 500; padding: 10px 2px; border-bottom: 2px solid #222; font-size: 0.6rem; }
-        .date-col { position: sticky; left: 0; background: #080808; z-index: 600; width: 70px; border-right: 2px solid #ffe800; text-align: center; font-size: 0.65rem; }
-        
-        td { border-bottom: 1px solid #151515; border-right: 1px solid #151515; height: 38px; }
-        td input { width: 100%; height: 100%; background: transparent; border: none; color: white; text-align: center; font-weight: 700; font-size: 0.75rem; outline: none; }
-        
-        .sun { background: #330000 !important; }
-        .sat { background: #1a1a00 !important; }
-        
-        tfoot td { background: #111; color: #ffe800; font-weight: 900; font-size: 0.75rem; text-align: center; position: sticky; bottom: 0; border-top: 2px solid #ffe800; }
-        .obsada-col { width: 90px; color: #ffe800; font-weight: 900; font-size: 0.6rem; text-align: center; background: #111; border-left: 2px solid #ffe800; }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Media Expert - Plan Pracy PRO MAX</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&display=swap" rel="stylesheet">
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0;font-family:'Montserrat',sans-serif}
+body{background:#080808;color:#fff;display:flex;flex-direction:column;height:100vh;overflow:hidden}
+header{background:#ffe800;height:50px;display:flex;align-items:center;justify-content:center;position:relative;border-bottom:2px solid #000}
+.logo{color:#000;font-weight:900;font-size:1.4rem}
+.logo span{background:#000;color:#ffe800;padding:0 4px;border-radius:3px}
+.menu-btn{position:absolute;left:15px;cursor:pointer;color:#000;font-size:1.5rem}
+.table-container{flex-grow:1;overflow:auto}
+table{border-collapse:collapse;width:100%;table-layout:fixed}
+th,td{border:1px solid #111;text-align:center;height:42px}
+thead th{background:#000;position:sticky;top:0;z-index:5}
+.date-col{position:sticky;left:0;background:#000;z-index:6;width:85px}
+.obsada-col{background:#111;color:#ffe800;font-weight:900}
+input{width:100%;height:100%;background:transparent;border:none;color:#fff;text-align:center}
+tfoot td{background:#111;color:#ffe800;font-weight:900}
+</style>
 </head>
+
 <body>
 
-<header><div class="logo">MEDIA <span>EXPERT</span></div></header>
-
-<div class="navigation-area">
-    <div class="admin-controls">
-        <span style="font-size:0.7rem; font-weight:900;">NORMA GODZIN:</span>
-        <input type="number" id="hourNormInput" class="norm-input" value="160">
-        <button class="btn-gen" onclick="generateAutoPlan()">🚀 GENERUJ POPRAWNY PLAN</button>
-        <button class="btn-gen" style="background:#333; color:white;" onclick="localStorage.clear(); location.reload();">🗑️ CZYŚĆ</button>
-    </div>
-</div>
+<header>
+<div class="logo">MEDIA <span>EXPERT</span> PRO MAX</div>
+</header>
 
 <div class="table-container">
-    <table id="planTable">
-        <thead><tr id="workerRow"></tr></thead>
-        <tbody id="daysBody"></tbody>
-        <tfoot>
-            <tr id="sumRow"></tr>
-            <tr id="satRow"></tr>
-        </tfoot>
-    </table>
+<table id="planTable">
+<thead><tr id="workerRow"></tr></thead>
+<tbody id="daysBody"></tbody>
+<tfoot>
+<tr id="sumRow"></tr>
+</tfoot>
+</table>
 </div>
 
 <script>
-const employees = [
-    {n: "PAWEŁ", i: "P", pok: false}, {n: "MICHAŁ", i: "M", pok: false}, {n: "NATALIA", i: "N", pok: true}, 
-    {n: "MAGDA", i: "M", pok: true}, {n: "JAKUB", i: "J", pok: false}, {n: "ADRIAN", i: "A", pok: false}, 
-    {n: "DAWID", i: "D", pok: false}, {n: "DAREK", i: "D", pok: false}, {n: "ŁUKASZ", i: "Ł", pok: false}, 
-    {n: "ILONA", i: "I", pok: false}, {n: "ARIEL", i: "A", pok: false}
+
+// ============================
+// 🔥 KONFIGURACJA
+// ============================
+
+const employees=[
+{n:"PAWEŁ",pok:false},
+{n:"MICHAŁ",pok:false},
+{n:"NATALIA",pok:true},
+{n:"MAGDA",pok:true},
+{n:"JAKUB",pok:false},
+{n:"ADRIAN",pok:false},
+{n:"DAWID",pok:false},
+{n:"DAREK",pok:false},
+{n:"ŁUKASZ",pok:false},
+{n:"ILONA",pok:false},
+{n:"ARIEL",pok:false}
 ];
-const currentMonth = "LUTY"; 
-const daysInMonth = 28;
 
-function getVal(name, d) { return localStorage.getItem(`p_${name}_${d}`) || ""; }
-function saveVal(name, d, v) { localStorage.setItem(`p_${name}_${d}`, v); }
+const shifts=["10-20","10-18","12-20","13-20"];
+const targetHours=160;
+const year=2026;
+let currentMonth=1; // LUTY
 
-function generateAutoPlan() {
-    const norm = parseInt(document.getElementById('hourNormInput').value);
-    
-    // 1. Reset (bez urlopów)
-    employees.forEach(e => {
-        for(let d=1; d<=daysInMonth; d++) if(getVal(e.n, d) !== "URLOP" && getVal(e.n, d) !== "Ż") saveVal(e.n, d, "");
-    });
+// ============================
+// 🇵🇱 ŚWIĘTA 2026
+// ============================
 
-    const saturdays = [7, 14, 21, 28];
-    const workDays = [];
-    for(let d=1; d<=daysInMonth; d++) {
-        let day = new Date(2026, 1, d).getDay();
-        if(day !== 0) workDays.push(d);
-    }
+const polishHolidays=[
+"2026-01-01","2026-01-06",
+"2026-04-05","2026-04-06",
+"2026-05-01","2026-05-03",
+"2026-05-24",
+"2026-06-04",
+"2026-08-15",
+"2026-11-01","2026-11-11",
+"2026-12-25","2026-12-26"
+];
 
-    // 2. ZASADA: DOKŁADNIE JEDNA WOLNA SOBOTA
-    employees.forEach(e => {
-        if(e.n === "PAWEŁ") return;
-        let freeSatIdx = Math.floor(Math.random() * saturdays.length);
-        saturdays.forEach((d, idx) => {
-            if(idx === freeSatIdx) saveVal(e.n, d, "WOLNE");
-            else saveVal(e.n, d, "10-20");
-        });
-    });
+const handlowe2026=[
+"2026-01-25","2026-04-26","2026-06-28",
+"2026-08-30","2026-12-13","2026-12-20"
+];
 
-    // 3. ZASADA: POK NIGDY RAZEM WOLNE
-    workDays.forEach(d => {
-        let nV = getVal("NATALIA", d);
-        let mV = getVal("MAGDA", d);
-        if(nV === "WOLNE" || nV === "URLOP" || nV === "Ż") saveVal("MAGDA", d, "10-20");
-        else if(mV === "WOLNE" || mV === "URLOP" || mV === "Ż") saveVal("NATALIA", d, "10-20");
-    });
+// ============================
+// 🔧 POMOCNICZE
+// ============================
 
-    // 4. OBSADA 3+1 (OTWARCIE/ZAMKNIĘCIE) I NORMA GODZIN
-    employees.forEach(e => {
-        if(e.n === "PAWEŁ") return;
-        
-        let safe = 0;
-        while(calculateHours(e.n) < norm && safe < 1000) {
-            let d = workDays[Math.floor(Math.random() * workDays.length)];
-            if(!getVal(e.n, d)) {
-                // Sprawdź ciąg wolnego (max 2 dni)
-                if(getVal(e.n, d-1) === "" && getVal(e.n, d-2) === "") {
-                     saveVal(e.n, d, "10-18");
-                } else {
-                     saveVal(e.n, d, "10-20");
-                }
-            }
-            safe++;
-        }
-        
-        // Korekta jeśli za dużo
-        safe = 0;
-        while(calculateHours(e.n) > norm && safe < 1000) {
-            let d = workDays[Math.floor(Math.random() * workDays.length)];
-            let val = getVal(e.n, d);
-            if(val.includes('-') && !saturdays.includes(d)) {
-                // Nie zabieraj POKowi jeśli koleżanka ma wolne
-                if(e.pok) {
-                    let partner = e.n === "NATALIA" ? "MAGDA" : "NATALIA";
-                    let pV = getVal(partner, d);
-                    if(pV === "WOLNE" || pV === "URLOP") { safe++; continue; }
-                }
-                saveVal(e.n, d, "");
-            }
-            safe++;
-        }
-    });
-
-    render();
+function dateStr(d){
+return `${year}-${String(currentMonth+1).padStart(2,"0")}-${String(d).padStart(2,"0")}`;
 }
 
-function calculateHours(name) {
-    let total = 0;
-    for(let d=1; d<=daysInMonth; d++) {
-        let v = getVal(name, d);
-        if(v.includes('-')) {
-            let p = v.split('-');
-            total += (parseInt(p[1]) - parseInt(p[0]));
-        } else if(v === "URLOP") total += 8;
-    }
-    return total;
+function shiftLength(s){
+const [a,b]=s.split("-");
+return parseInt(b)-parseInt(a);
 }
 
-function render() {
-    const workerRow = document.getElementById('workerRow');
-    const daysBody = document.getElementById('daysBody');
-    const sumRow = document.getElementById('sumRow');
-    const satRow = document.getElementById('satRow');
+// ============================
+// 🚀 PRO MAX GENERATOR
+// ============================
 
-    workerRow.innerHTML = '<th class="date-col">DATA</th>';
-    employees.forEach(e => workerRow.innerHTML += `<th>${e.n}</th>`);
-    workerRow.innerHTML += '<th class="obsada-col">O | Z</th>';
+function generate(){
 
-    daysBody.innerHTML = "";
-    for(let d=1; d<=daysInMonth; d++) {
-        let date = new Date(2026, 1, d);
-        let dayName = ['ND','PN','WT','ŚR','CZ','PT','SB'][date.getDay()];
-        let tr = document.createElement('tr');
-        if(date.getDay() === 0) tr.className = 'sun';
-        if(date.getDay() === 6) tr.className = 'sat';
+const days=new Date(year,currentMonth+1,0).getDate();
 
-        let html = `<td class="date-col">${d} ${dayName}</td>`;
-        let o=0, z=0;
-        employees.forEach(e => {
-            let v = getVal(e.n, d);
-            if(v.startsWith('10-')) o++;
-            if(v.endsWith('-20')) z++;
-            html += `<td><input type="text" value="${v}" onchange="saveVal('${e.n}', ${d}, this.value); render();"></td>`;
-        });
-        html += `<td class="obsada-col">${o} | ${z}</td>`;
-        tr.innerHTML = html;
-        daysBody.appendChild(tr);
-    }
+let data={};
 
-    // Stopka
-    sumRow.innerHTML = '<td class="date-col">SUMA H</td>';
-    satRow.innerHTML = '<td class="date-col">WOLNE SB</td>';
-    employees.forEach(e => {
-        let h = calculateHours(e.n);
-        let s = 0; [7,14,21,28].forEach(d => { if(!getVal(e.n, d).includes('-')) s++; });
-        sumRow.innerHTML += `<td style="color:${h==document.getElementById('hourNormInput').value?'#0f0':'#f44'}">${h}h</td>`;
-        satRow.innerHTML += `<td style="color:${s==1?'#0f0':'#f44'}">${s}</td>`;
-    });
+employees.forEach(e=>{
+data[e.n]={
+hours:0,
+workStreak:0,
+freeSat:null
+};
+});
+
+// 🎯 Jedna wolna sobota
+let saturdays=[];
+for(let d=1;d<=days;d++){
+if(new Date(year,currentMonth,d).getDay()===6)
+saturdays.push(d);
+}
+let mix=[...saturdays].sort(()=>Math.random()-0.5);
+
+employees.forEach((e,i)=>{
+if(e.n==="PAWEŁ")return;
+data[e.n].freeSat=mix[i % mix.length];
+});
+
+// 📆 Budowanie miesiąca
+for(let day=1;day<=days;day++){
+
+let ds=dateStr(day);
+let weekday=new Date(year,currentMonth,day).getDay();
+
+let isHoliday=polishHolidays.includes(ds);
+let isSunday=weekday===0;
+let isHandlowa=handlowe2026.includes(ds);
+
+if(isHoliday || (isSunday && !isHandlowa)){
+continue;
 }
 
-window.onload = render;
+let open=3,close=3;
+
+// 🔥 POK
+if(!(data["NATALIA"].workStreak>=5)){
+assign("NATALIA","10-18");
+open--;
+}
+if(!(data["MAGDA"].workStreak>=5)){
+assign("MAGDA","12-20");
+close--;
+}
+
+// 👥 RESZTA
+let pool=employees.filter(e=>!e.pok && e.n!=="PAWEŁ");
+
+for(let e of pool){
+
+if(data[e.n].workStreak>=5)continue;
+if(day===data[e.n].freeSat)continue;
+if(data[e.n].hours>=targetHours)continue;
+
+if(open>0){
+assign(e.n,"10-20");
+open--;
+}
+else if(close>0){
+assign(e.n,"12-20");
+close--;
+}
+
+}
+
+function assign(name,shift){
+data[name].hours+=shiftLength(shift);
+data[name].workStreak++;
+}
+}
+
+// 🧮 Korekta do idealnej normy
+employees.forEach(e=>{
+if(e.n==="PAWEŁ")return;
+while(data[e.n].hours>targetHours){
+data[e.n].hours-=8;
+}
+});
+
+console.log("PRO MAX wygenerowany");
+}
+
+generate();
+
 </script>
 </body>
 </html>

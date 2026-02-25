@@ -27,7 +27,7 @@
         .admin-controls { display: flex; align-items: center; gap: 10px; border-left: 1px solid #333; padding-left: 15px; }
         .norm-input { width: 65px; background: #000; color: #ffe800; border: 1px solid #ffe800; text-align: center; font-weight: 900; padding: 4px; font-size: 0.8rem; border-radius: 4px; }
         
-        .table-container { flex-grow: 1; overflow: auto; position: relative; }
+        .table-container { flex-grow: 1; overflow: auto; }
         table { border-collapse: collapse; width: 100%; table-layout: fixed; }
         thead th { background: #080808; position: sticky; top: 0; z-index: 500; padding: 10px 2px; border-bottom: 2px solid #222; }
         .avatar { width: 26px; height: 26px; border-radius: 50%; border: 2px solid #ffe800; display: flex; align-items: center; justify-content: center; margin: 0 auto 3px; font-weight: 900; color: #ffe800; font-size: 0.6rem; }
@@ -40,7 +40,7 @@
         
         .sun { background: #300 !important; } 
         .sat { background: #110 !important; }
-        .wish-cell { background: #300060 !important; }
+        .wish-cell { background: #300060 !important; } /* Podświetlenie życzeń */
 
         tfoot { position: sticky; bottom: 0; z-index: 700; }
         tfoot td { background: #111; color: #ffe800; font-weight: 900; font-size: 0.7rem; text-align: center; border-top: 2px solid #ffe800; height: 35px; }
@@ -142,10 +142,8 @@ function calcH(name) {
 
 function getStreak(name, day) {
     let s = 0;
-    for (let d = day - 1; d >= 1; d--) {
-        let v = getV(name, d);
-        if (v.includes('-') || v === "URLOP") s++; else break;
-    }
+    for (let d = day-1; d >= 1; d--) { let v=getV(name, d); if(v.includes('-')||v==="URLOP") s++; else break; }
+    for (let d = day+1; d <= 31; d++) { let v=getV(name, d); if(v.includes('-')||v==="URLOP") s++; else break; }
     return s;
 }
 
@@ -157,73 +155,67 @@ function startGeneration() {
     const satShift = `${openH}-${closeH}`;
     const days = new Date(year, curM + 1, 0).getDate();
 
-    // Wyczyszczenie starego grafiku (zostawiamy Życzenia i Urlopy)
-    employees.forEach(e => {
-        for(let d=1; d<=days; d++) {
-            let v = getV(e.n, d);
-            if(v.includes('-') || v === "WOLNE") saveV(e.n, d, "");
+    employees.forEach(e => { 
+        for(let d=1; d<=days; d++) { 
+            let v=getV(e.n, d); 
+            if(v.includes('-') || v==="WOLNE") saveV(e.n, d, ""); 
         }
     });
 
-    // 1. Gwarantowana wolna sobota dla każdego
     let sats = [];
     for(let d=1; d<=days; d++) if(new Date(year, curM, d).getDay() === 6) sats.push(d);
+    
     employees.forEach(e => {
         if(e.n === "PAWEŁ") return;
-        let rs = sats[Math.floor(Math.random() * sats.length)];
-        if(getV(e.n, rs) === "") saveV(e.n, rs, "WOLNE");
+        let hasFixedFree = false;
+        sats.forEach(s => { let v=getV(e.n, s); if(v==="Ż" || v==="URLOP") hasFixedFree = true; });
+        if(!hasFixedFree) {
+            let rs = sats[Math.floor(Math.random()*sats.length)];
+            saveV(e.n, rs, "WOLNE");
+        }
     });
 
-    // 2. Generowanie zmian dzień po dniu
     for(let d=1; d<=days; d++) {
         let dayObj = new Date(year, curM, d);
-        if(dayObj.getDay() === 0) continue; // Niedziele wolne
-
-        // Obsada POK (min 1 osoba)
-        let poks = employees.filter(e => e.p);
-        let currentPok = poks.find(e => getV(e.n, d).includes('-') || getV(e.n, d) === "URLOP" || getV(e.n, d) === "Ż");
-        
-        if(!currentPok) {
-            let p = poks[Math.floor(Math.random() * poks.length)];
-            if(getStreak(p.n, d) < 5 && getV(p.n, d) === "") {
-                saveV(p.n, d, (dayObj.getDay() === 6) ? satShift : shifts[0]);
-            }
-        }
-
-        // Obsada reszty (3 osoby)
+        if(dayObj.getDay() === 0) continue;
         let pool = employees.filter(e => e.n !== "PAWEŁ").sort(() => Math.random() - 0.5);
-        let workingCount = employees.filter(e => getV(e.n, d).includes('-')).length;
-
+        
+        let oD=0, zD=0, oP=0, zP=0;
         pool.forEach(e => {
-            if(getStreak(e.n, d) >= 5 && getV(e.n, d) === "") {
-                saveV(e.n, d, "WOLNE");
-                return;
-            }
-            if(workingCount < 4 && getV(e.n, d) === "" && getStreak(e.n, d) < 5) {
-                saveV(e.n, d, (dayObj.getDay() === 6) ? satShift : shifts[Math.floor(Math.random() * shifts.length)]);
-                workingCount++;
+            let cur = getV(e.n, d);
+            if(cur === "" && getStreak(e.n, d) < 5) {
+                let assignedShift = (dayObj.getDay() === 6) ? satShift : shifts[Math.floor(Math.random()*shifts.length)];
+                if(e.p) { 
+                    if(oP < 1) { saveV(e.n, d, assignedShift); oP++; }
+                    else if(zP < 1) { saveV(e.n, d, assignedShift); zP++; }
+                } else { 
+                    if(oD < 3) { saveV(e.n, d, assignedShift); oD++; }
+                    else if(zD < 3) { saveV(e.n, d, assignedShift); zD++; }
+                }
             }
         });
     }
 
-    // 3. Dociąganie do normy godzin (BEZWZGLĘDNIE)
     employees.forEach(e => {
         if(e.n === "PAWEŁ") return;
         let urlops = 0;
         for(let d=1; d<=days; d++) if(getV(e.n, d) === "URLOP") urlops++;
         let target = baseNorm - (urlops * 8);
-        
         let limit = 0;
-        while(calcH(e.n) < target && limit < 3000) {
-            let d = Math.floor(Math.random() * days) + 1;
+        while(calcH(e.n) !== target && limit < 3000) {
+            let d = Math.floor(Math.random()*days)+1;
             let dayObj = new Date(year, curM, d);
-            if(dayObj.getDay() !== 0 && getV(e.n, d) === "" && getStreak(e.n, d) < 5) {
+            if(dayObj.getDay() === 0) { limit++; continue; }
+            let curV = getV(e.n, d);
+            let diff = target - calcH(e.n);
+            if(diff > 0 && curV === "" && getStreak(e.n, d) < 5) {
                 saveV(e.n, d, (dayObj.getDay() === 6) ? satShift : shifts[0]);
+            } else if(diff < 0 && curV.includes('-')) {
+                saveV(e.n, d, "");
             }
             limit++;
         }
     });
-
     render();
 }
 

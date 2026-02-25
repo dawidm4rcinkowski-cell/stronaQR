@@ -30,44 +30,39 @@
         .greeting h1 { color: #fff; font-size: 1.5rem; }
         .greeting span { color: #ffe800; }
 
-        /* ZEGAR KAFELKOWY */
-        .clock-container { display: flex; justify-content: center; gap: 10px; margin-bottom: 30px; }
-        .time-box { background: #151515; border: 2px solid #333; border-radius: 10px; padding: 15px 20px; display: flex; flex-direction: column; align-items: center; min-width: 80px; box-shadow: 0 10px 20px rgba(0,0,0,0.5); }
+        /* ZEGAR KAFELKOWY (Flip Clock 3D) */
+        .clock-container { display: flex; justify-content: center; gap: 15px; margin-bottom: 30px; perspective: 1000px; }
+        .time-box { background: #151515; border: 2px solid #333; border-radius: 10px; padding: 15px 20px; display: flex; flex-direction: column; align-items: center; min-width: 90px; box-shadow: 0 10px 20px rgba(0,0,0,0.6); transform-style: preserve-3d; }
         .time-box .label { font-size: 0.5rem; color: #888; font-weight: 900; letter-spacing: 2px; margin-bottom: 5px; }
-        .time-box .digits { font-size: 2.5rem; font-weight: 900; color: #ffe800; overflow: hidden; height: 45px; display: flex; justify-content: center; align-items: center; }
-        .digit { display: inline-block; }
-        .flip { animation: slideDown 0.4s cubic-bezier(0.4, 0.0, 0.2, 1); }
+        .time-box .digits { font-size: 2.5rem; font-weight: 900; color: #ffe800; height: 45px; display: flex; justify-content: center; align-items: center; }
         
-        @keyframes slideDown {
-            0% { transform: translateY(-100%); opacity: 0; }
-            50% { opacity: 1; }
-            100% { transform: translateY(0); opacity: 1; }
+        .flip-anim { animation: fullFlip 0.5s ease-in-out; }
+        
+        @keyframes fullFlip {
+            0% { transform: rotateX(0deg); background: #151515; }
+            50% { transform: rotateX(-90deg); background: #222; } /* W połowie obrotu ciemnieje */
+            100% { transform: rotateX(0deg); background: #151515; }
         }
 
         /* SKRÓTY (KAFELKI) */
         .section-title { font-size: 0.8rem; color: #666; font-weight: 900; margin-bottom: 15px; letter-spacing: 1px; border-bottom: 1px solid #222; padding-bottom: 5px; }
         
-        .shortcuts-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 15px; margin-bottom: 30px; }
+        .shortcuts-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 15px; margin-bottom: 35px; }
         .shortcut-card { background: linear-gradient(145deg, #1a1a1a, #111); border: 1px solid #333; border-radius: 12px; padding: 20px; text-align: center; cursor: pointer; text-decoration: none; color: white; transition: 0.3s; display: flex; flex-direction: column; align-items: center; gap: 10px; }
-        .shortcut-card:hover { transform: translateY(-5px); border-color: #ffe800; box-shadow: 0 5px 15px rgba(255, 232, 0, 0.1); }
+        .shortcut-card:hover { transform: translateY(-5px); border-color: #ffe800; box-shadow: 0 5px 15px rgba(255, 232, 0, 0.15); }
         .shortcut-icon { font-size: 2rem; }
         .shortcut-title { font-weight: 900; font-size: 0.8rem; }
 
-        /* NASZA EKIPA */
-        .team-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; }
-        .team-card { background: #0a0a0a; border: 1px solid #222; border-radius: 10px; padding: 12px; display: flex; align-items: center; gap: 12px; transition: 0.3s; }
-        .team-card:hover { background: #111; border-color: #444; }
-        .team-avatar { width: 40px; height: 40px; border-radius: 50%; background: #1a1a1a; border: 2px solid #ffe800; display: flex; align-items: center; justify-content: center; font-weight: 900; color: #ffe800; font-size: 1.2rem; flex-shrink: 0; }
-        .team-info { display: flex; flex-direction: column; }
-        .team-name { font-weight: 900; font-size: 0.8rem; color: #fff; }
-        .team-dept { font-size: 0.6rem; color: #888; font-weight: 700; margin-top: 2px; }
+        /* NASZA EKIPA (Powiększone i spójne kolorystycznie) */
+        .team-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; }
+        .team-card { background: #0a0a0a; border: 1px solid #222; border-radius: 12px; padding: 18px; display: flex; align-items: center; gap: 15px; transition: 0.3s; }
+        .team-card:hover { background: #111; border-color: #ffe800; box-shadow: 0 5px 15px rgba(255, 232, 0, 0.05); }
         
-        /* Kolory działów */
-        .dept-pok { color: #ff4757; }
-        .dept-it { color: #2ed573; }
-        .dept-agd { color: #1e90ff; }
-        .dept-rtv { color: #ffa502; }
-        .dept-kss { color: #a4b0be; }
+        .team-avatar { width: 50px; height: 50px; border-radius: 50%; background: #1a1a1a; border: 2px solid #ffe800; display: flex; align-items: center; justify-content: center; font-weight: 900; color: #ffe800; font-size: 1.5rem; flex-shrink: 0; }
+        
+        .team-info { display: flex; flex-direction: column; }
+        .team-name { font-weight: 900; font-size: 1rem; color: #fff; letter-spacing: 0.5px; }
+        .team-dept { font-size: 0.75rem; color: #ffe800; font-weight: 900; margin-top: 4px; }
 
     </style>
 </head>
@@ -93,17 +88,17 @@
     </div>
 
     <div class="clock-container">
-        <div class="time-box">
+        <div class="time-box" id="box-hours">
             <div class="label">GODZINA</div>
-            <div class="digits"><span id="hours" class="digit">00</span></div>
+            <div class="digits" id="hours">00</div>
         </div>
-        <div class="time-box">
+        <div class="time-box" id="box-minutes">
             <div class="label">MINUTA</div>
-            <div class="digits"><span id="minutes" class="digit">00</span></div>
+            <div class="digits" id="minutes">00</div>
         </div>
-        <div class="time-box">
+        <div class="time-box" id="box-seconds">
             <div class="label">SEKUNDA</div>
-            <div class="digits"><span id="seconds" class="digit">00</span></div>
+            <div class="digits" id="seconds">00</div>
         </div>
     </div>
 
@@ -130,52 +125,56 @@
 </div>
 
 <script>
-    // --- OBSŁUGA ZEGARA Z ANIMACJĄ ---
+    // --- OBSŁUGA ZEGARA Z ANIMACJĄ CAŁEGO KAFELKA ---
     function updateClock() {
         const now = new Date();
         const h = String(now.getHours()).padStart(2, '0');
         const m = String(now.getMinutes()).padStart(2, '0');
         const s = String(now.getSeconds()).padStart(2, '0');
 
-        updateDigit('hours', h);
-        updateDigit('minutes', m);
-        updateDigit('seconds', s);
+        updateTile('hours', 'box-hours', h);
+        updateTile('minutes', 'box-minutes', m);
+        updateTile('seconds', 'box-seconds', s);
     }
 
-    function updateDigit(id, newValue) {
-        const el = document.getElementById(id);
-        if (el.innerText !== newValue) {
-            el.classList.remove('flip');
-            // Wymuszenie reflow dla restartu animacji
-            void el.offsetWidth;
-            el.innerText = newValue;
-            el.classList.add('flip');
+    function updateTile(textId, boxId, newValue) {
+        const textEl = document.getElementById(textId);
+        const boxEl = document.getElementById(boxId);
+        
+        if (textEl.innerText !== newValue) {
+            boxEl.classList.remove('flip-anim');
+            void boxEl.offsetWidth; // Wymuszenie restartu animacji
+            boxEl.classList.add('flip-anim');
+            
+            // Podmiana tekstu w połowie obrotu (po 250ms z 500ms), żeby cyfra zmieniła się, gdy kafelek jest "płaski" względem oczu
+            setTimeout(() => {
+                textEl.innerText = newValue;
+            }, 250); 
         }
     }
 
     setInterval(updateClock, 1000);
     updateClock(); // Odpalenie od razu
 
-    // --- OBSŁUGA MENU BOZNEGO ---
+    // --- OBSŁUGA MENU BOCZNEGO ---
     function toggleNav() { 
         document.getElementById('sidebar').classList.toggle('active'); 
         document.getElementById('overlay').classList.toggle('active'); 
     }
 
     // --- GENEROWANIE EKIPY (Wizytówka) ---
-    // Twoja ekipa wzięta z "suchego" planu pracy:
     const mockTeam = [
-        { name: "PAWEŁ", initial: "P", dept: "KSS", class: "dept-kss" },
-        { name: "MICHAŁ", initial: "M", dept: "KSS", class: "dept-kss" },
-        { name: "NATALIA", initial: "N", dept: "POK", class: "dept-pok" },
-        { name: "MAGDA", initial: "M", dept: "POK", class: "dept-pok" },
-        { name: "JAKUB", initial: "J", dept: "IT", class: "dept-it" },
-        { name: "ADRIAN", initial: "A", dept: "IT", class: "dept-it" },
-        { name: "DAWID", initial: "D", dept: "IT", class: "dept-it" },
-        { name: "DAREK", initial: "D", dept: "IT", class: "dept-it" },
-        { name: "ŁUKASZ", initial: "Ł", dept: "AGD", class: "dept-agd" },
-        { name: "ILONA", initial: "I", dept: "AGD", class: "dept-agd" },
-        { name: "ARIEL", initial: "A", dept: "RTV", class: "dept-rtv" }
+        { name: "PAWEŁ", initial: "P", dept: "KSS" },
+        { name: "MICHAŁ", initial: "M", dept: "KSS" },
+        { name: "NATALIA", initial: "N", dept: "POK" },
+        { name: "MAGDA", initial: "M", dept: "POK" },
+        { name: "JAKUB", initial: "J", dept: "IT" },
+        { name: "ADRIAN", initial: "A", dept: "IT" },
+        { name: "DAWID", initial: "D", dept: "IT" },
+        { name: "DAREK", initial: "D", dept: "IT" },
+        { name: "ŁUKASZ", initial: "Ł", dept: "AGD" },
+        { name: "ILONA", initial: "I", dept: "AGD" },
+        { name: "ARIEL", initial: "A", dept: "RTV" }
     ];
 
     const teamContainer = document.getElementById('teamContainer');
@@ -187,7 +186,7 @@
             <div class="team-avatar">${member.initial}</div>
             <div class="team-info">
                 <span class="team-name">${member.name}</span>
-                <span class="team-dept ${member.class}">${member.dept}</span>
+                <span class="team-dept">${member.dept}</span>
             </div>
         `;
         teamContainer.appendChild(card);

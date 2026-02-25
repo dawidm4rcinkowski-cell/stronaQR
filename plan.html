@@ -1,200 +1,229 @@
 <!DOCTYPE html>
 <html lang="pl">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Media Expert - Plan Pracy PRO MAX</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Media Expert - Plan Pracy PRO MAX V6</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Montserrat', sans-serif; }
+        body { background: #080808; color: white; display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
+        
+        header { background: #ffe800; height: 50px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; z-index: 9999; position: relative; border-bottom: 2px solid #000; }
+        .logo { color: #000; font-weight: 900; font-size: 1.4rem; text-transform: uppercase; }
+        .logo span { background: #000; color: #ffe800; padding: 0 4px; border-radius: 3px; }
+        .menu-btn { position: absolute; left: 15px; cursor: pointer; color: #000; font-size: 1.5rem; }
+        
+        .sidebar { position: fixed; left: -280px; top: 0; width: 260px; height: 100%; background: #0a0a0a; border-right: 3px solid #ffe800; transition: 0.4s; z-index: 10000; padding-top: 60px; }
+        .sidebar.active { left: 0; }
+        .sidebar-link { display: block; color: white; padding: 15px 25px; text-decoration: none; font-weight: 700; font-size: 0.8rem; border-bottom: 1px solid #111; }
+        .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.8); display: none; z-index: 9500; }
+        .overlay.active { display: block; }
 
-<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&display=swap" rel="stylesheet">
+        .navigation-area { background: #111; border-bottom: 2px solid #ffe800; flex-shrink: 0; display: flex; flex-direction: column; }
+        .month-row { display: flex; align-items: center; padding: 10px 15px; gap: 10px; }
+        .admin-controls { display: flex; align-items: center; gap: 12px; margin-left: auto; }
+        .norm-input { width: 65px; background: #000; color: #ffe800; border: 1px solid #ffe800; text-align: center; font-weight: 900; padding: 4px; font-size: 0.8rem; }
+        .btn-gen { background: #ffe800; color: #000; border: none; padding: 8px 15px; font-weight: 900; border-radius: 20px; cursor: pointer; font-size: 0.7rem; }
 
-<style>
-*{box-sizing:border-box;margin:0;padding:0;font-family:'Montserrat',sans-serif}
-body{background:#080808;color:#fff;display:flex;flex-direction:column;height:100vh;overflow:hidden}
-header{background:#ffe800;height:50px;display:flex;align-items:center;justify-content:center;position:relative;border-bottom:2px solid #000}
-.logo{color:#000;font-weight:900;font-size:1.4rem}
-.logo span{background:#000;color:#ffe800;padding:0 4px;border-radius:3px}
-.menu-btn{position:absolute;left:15px;cursor:pointer;color:#000;font-size:1.5rem}
-.table-container{flex-grow:1;overflow:auto}
-table{border-collapse:collapse;width:100%;table-layout:fixed}
-th,td{border:1px solid #111;text-align:center;height:42px}
-thead th{background:#000;position:sticky;top:0;z-index:5}
-.date-col{position:sticky;left:0;background:#000;z-index:6;width:85px}
-.obsada-col{background:#111;color:#ffe800;font-weight:900}
-input{width:100%;height:100%;background:transparent;border:none;color:#fff;text-align:center}
-tfoot td{background:#111;color:#ffe800;font-weight:900}
-</style>
+        .table-container { flex-grow: 1; overflow: auto; position: relative; }
+        table { border-collapse: collapse; width: 100%; table-layout: fixed; }
+        thead th { background: #080808; position: sticky; top: 0; z-index: 500; padding: 10px 5px; border-bottom: 2px solid #222; }
+        .avatar { width: 28px; height: 28px; border-radius: 50%; border: 2px solid #ffe800; display: flex; align-items: center; justify-content: center; margin: 0 auto 3px; font-weight: 900; color: #ffe800; font-size: 0.65rem; }
+        .worker-name { font-size: 0.5rem; font-weight: 900; text-transform: uppercase; }
+        
+        .date-col { position: sticky; left: 0; background: #080808; z-index: 600; width: 80px; font-size: 0.65rem; font-weight: 700; color: #777; text-align: center; border-right: 2px solid #ffe800; }
+        .obsada-col { width: 100px; color: #ffe800; font-weight: 900; font-size: 0.6rem; background: #111; text-align: center; border-left: 2px solid #ffe800; }
+        
+        td { border-bottom: 1px solid #151515; border-right: 1px solid #151515; height: 40px; }
+        td input { width: 100%; height: 100%; background: transparent; border: none; color: white; text-align: center; font-weight: 700; font-size: 0.75rem; outline: none; }
+        
+        .sunday-red { background: #330000 !important; }
+        .sat-yellow { background: #1a1a00 !important; }
+        
+        tfoot td { background: #111; color: #ffe800; font-weight: 900; font-size: 0.75rem; text-align: center; position: sticky; bottom: 0; z-index: 500; border-top: 2px solid #ffe800; }
+    </style>
 </head>
-
 <body>
 
 <header>
-<div class="logo">MEDIA <span>EXPERT</span> PRO MAX</div>
+    <div class="menu-btn" onclick="toggleNav()">☰</div>
+    <div class="logo">MEDIA <span>EXPERT</span> PRO MAX</div>
 </header>
 
+<div class="sidebar" id="sidebar">
+    <a href="index.html" class="sidebar-link">Strona główna</a>
+    <a href="plan.html" class="sidebar-link" style="color:#ffe800">Plan pracy</a>
+    <a href="inwentury.html" class="sidebar-link">Inwentury</a>
+    <a href="kodqr.html" class="sidebar-link">Kod QR</a>
+</div>
+<div class="overlay" id="overlay" onclick="toggleNav()"></div>
+
+<div class="navigation-area">
+    <div class="month-row">
+        <span style="font-weight:900; color:#ffe800">LUTY 2026</span>
+        <div class="admin-controls">
+            <span style="font-size:0.6rem; font-weight:900;">NORMA:</span>
+            <input type="number" id="hourNormInput" class="norm-input" value="160">
+            <button class="btn-gen" onclick="generateProMax()">🚀 GENERUJ PRO MAX</button>
+            <button class="btn-gen" style="background:#333; color:#fff" onclick="clearData()">CZYŚĆ</button>
+        </div>
+    </div>
+</div>
+
 <div class="table-container">
-<table id="planTable">
-<thead><tr id="workerRow"></tr></thead>
-<tbody id="daysBody"></tbody>
-<tfoot>
-<tr id="sumRow"></tr>
-</tfoot>
-</table>
+    <table id="planTable">
+        <thead><tr id="workerRow"></tr></thead>
+        <tbody id="daysBody"></tbody>
+        <tfoot>
+            <tr id="sumRow"></tr>
+            <tr id="satRow"></tr>
+        </tfoot>
+    </table>
 </div>
 
 <script>
-
-// ============================
-// 🔥 KONFIGURACJA
-// ============================
-
-const employees=[
-{n:"PAWEŁ",pok:false},
-{n:"MICHAŁ",pok:false},
-{n:"NATALIA",pok:true},
-{n:"MAGDA",pok:true},
-{n:"JAKUB",pok:false},
-{n:"ADRIAN",pok:false},
-{n:"DAWID",pok:false},
-{n:"DAREK",pok:false},
-{n:"ŁUKASZ",pok:false},
-{n:"ILONA",pok:false},
-{n:"ARIEL",pok:false}
+const employees = [
+    {n: "PAWEŁ", i: "P", pok: false}, {n: "MICHAŁ", i: "M", pok: false}, {n: "NATALIA", i: "N", pok: true}, 
+    {n: "MAGDA", i: "M", pok: true}, {n: "JAKUB", i: "J", pok: false}, {n: "ADRIAN", i: "A", pok: false}, 
+    {n: "DAWID", i: "D", pok: false}, {n: "DAREK", i: "D", pok: false}, {n: "ŁUKASZ", i: "Ł", pok: false}, 
+    {n: "ILONA", i: "I", pok: false}, {n: "ARIEL", i: "A", pok: false}
 ];
 
-const shifts=["10-20","10-18","12-20","13-20"];
-const targetHours=160;
-const year=2026;
-let currentMonth=1; // LUTY
+const year = 2026;
+const month = 1; // Luty
+const daysInMonth = 28;
 
-// ============================
-// 🇵🇱 ŚWIĘTA 2026
-// ============================
+function getVal(n, d) { return localStorage.getItem(`plan_${n}_${d}`) || ""; }
+function saveVal(n, d, v) { localStorage.setItem(`plan_${n}_${d}`, v); }
 
-const polishHolidays=[
-"2026-01-01","2026-01-06",
-"2026-04-05","2026-04-06",
-"2026-05-01","2026-05-03",
-"2026-05-24",
-"2026-06-04",
-"2026-08-15",
-"2026-11-01","2026-11-11",
-"2026-12-25","2026-12-26"
-];
+function generateProMax() {
+    const target = parseInt(document.getElementById('hourNormInput').value);
+    
+    // 1. Reset
+    employees.forEach(e => {
+        for(let d=1; d<=daysInMonth; d++) saveVal(e.n, d, "");
+    });
 
-const handlowe2026=[
-"2026-01-25","2026-04-26","2026-06-28",
-"2026-08-30","2026-12-13","2026-12-20"
-];
+    // 2. Soboty (każdy dokładnie jedna wolna)
+    const sats = [7, 14, 21, 28];
+    let satAssignment = [...employees.filter(e => e.n !== "PAWEŁ")];
+    satAssignment.sort(() => Math.random() - 0.5);
 
-// ============================
-// 🔧 POMOCNICZE
-// ============================
+    satAssignment.forEach((e, idx) => {
+        let freeSat = sats[idx % sats.length];
+        saveVal(e.n, freeSat, "WOLNE");
+        sats.forEach(s => { if(getVal(e.n, s) === "") saveVal(e.n, s, "10-20"); });
+    });
 
-function dateStr(d){
-return `${year}-${String(currentMonth+1).padStart(2,"0")}-${String(d).padStart(2,"0")}`;
+    // 3. POK i Reszta (Obsada 3+1)
+    for(let d=1; d<=daysInMonth; d++) {
+        let date = new Date(year, month, d);
+        if(date.getDay() === 0) continue; // Niedziele wolne
+
+        // Logika POK
+        let nV = getVal("NATALIA", d);
+        let mV = getVal("MAGDA", d);
+        if(nV === "WOLNE") saveVal("MAGDA", d, "10-20");
+        else if(mV === "WOLNE") saveVal("NATALIA", d, "10-20");
+        else {
+            saveVal("NATALIA", d, "10-18");
+            saveVal("MAGDA", d, "12-20");
+        }
+
+        // Dopełnianie działów (min 3 osoby)
+        let dzialy = employees.filter(e => !e.pok && e.n !== "PAWEŁ");
+        dzialy.sort(() => Math.random() - 0.5);
+        
+        let assigned = 0;
+        dzialy.forEach(e => {
+            if(getVal(e.n, d) === "" && assigned < 3) {
+                saveVal(e.n, d, assigned % 2 === 0 ? "10-20" : "12-20");
+                assigned++;
+            }
+        });
+    }
+
+    // 4. Korekta do Normy
+    employees.forEach(e => {
+        if(e.n === "PAWEŁ") return;
+        let safe = 0;
+        while(calcH(e.n) < target && safe < 200) {
+            let d = Math.floor(Math.random() * daysInMonth) + 1;
+            if(new Date(year, month, d).getDay() !== 0 && getVal(e.n, d) === "") {
+                saveVal(e.n, d, "10-18");
+            }
+            safe++;
+        }
+    });
+
+    render();
 }
 
-function shiftLength(s){
-const [a,b]=s.split("-");
-return parseInt(b)-parseInt(a);
+function calcH(n) {
+    let total = 0;
+    for(let d=1; d<=daysInMonth; d++) {
+        let v = getVal(n, d);
+        if(v.includes('-')) {
+            let p = v.split('-');
+            total += (parseInt(p[1]) - parseInt(p[0]));
+        }
+    }
+    return total;
 }
 
-// ============================
-// 🚀 PRO MAX GENERATOR
-// ============================
+function render() {
+    const workerRow = document.getElementById('workerRow');
+    const daysBody = document.getElementById('daysBody');
+    const target = parseInt(document.getElementById('hourNormInput').value);
 
-function generate(){
+    workerRow.innerHTML = '<th class="date-col">DATA</th>';
+    employees.forEach(e => {
+        workerRow.innerHTML += `<th><div class="avatar">${e.i}</div><div class="worker-name">${e.n}</div></th>`;
+    });
+    workerRow.innerHTML += '<th class="obsada-col">O | Z</th>';
 
-const days=new Date(year,currentMonth+1,0).getDate();
+    daysBody.innerHTML = "";
+    for(let d=1; d<=daysInMonth; d++) {
+        let date = new Date(year, month, d);
+        let isSat = date.getDay() === 6;
+        let isSun = date.getDay() === 0;
+        
+        let tr = document.createElement('tr');
+        if(isSun) tr.className = 'sunday-red';
+        if(isSat) tr.className = 'sat-yellow';
 
-let data={};
+        let html = `<td class="date-col">${d} ${['ND','PN','WT','ŚR','CZ','PT','SB'][date.getDay()]}</td>`;
+        let o=0, z=0;
+        employees.forEach(e => {
+            let v = getVal(e.n, d);
+            if(v.startsWith('10')) o++;
+            if(v.endsWith('20')) z++;
+            html += `<td><input value="${v}" onchange="saveVal('${e.n}',${d},this.value);render()"></td>`;
+        });
+        html += `<td class="obsada-col">${o} | ${z}</td>`;
+        tr.innerHTML = html;
+        daysBody.appendChild(tr);
+    }
 
-employees.forEach(e=>{
-data[e.n]={
-hours:0,
-workStreak:0,
-freeSat:null
-};
-});
+    // Stopki
+    const sumRow = document.getElementById('sumRow');
+    const satRow = document.getElementById('satRow');
+    sumRow.innerHTML = '<td class="date-col">SUMA H</td>';
+    satRow.innerHTML = '<td class="date-col">WOLNE SB</td>';
 
-// 🎯 Jedna wolna sobota
-let saturdays=[];
-for(let d=1;d<=days;d++){
-if(new Date(year,currentMonth,d).getDay()===6)
-saturdays.push(d);
-}
-let mix=[...saturdays].sort(()=>Math.random()-0.5);
-
-employees.forEach((e,i)=>{
-if(e.n==="PAWEŁ")return;
-data[e.n].freeSat=mix[i % mix.length];
-});
-
-// 📆 Budowanie miesiąca
-for(let day=1;day<=days;day++){
-
-let ds=dateStr(day);
-let weekday=new Date(year,currentMonth,day).getDay();
-
-let isHoliday=polishHolidays.includes(ds);
-let isSunday=weekday===0;
-let isHandlowa=handlowe2026.includes(ds);
-
-if(isHoliday || (isSunday && !isHandlowa)){
-continue;
-}
-
-let open=3,close=3;
-
-// 🔥 POK
-if(!(data["NATALIA"].workStreak>=5)){
-assign("NATALIA","10-18");
-open--;
-}
-if(!(data["MAGDA"].workStreak>=5)){
-assign("MAGDA","12-20");
-close--;
+    employees.forEach(e => {
+        let h = calcH(e.n);
+        let s = 0; [7,14,21,28].forEach(day => { if(!getVal(e.n, day).includes('-')) s++; });
+        sumRow.innerHTML += `<td style="color:${h==target?'#0f0':'#f44'}">${h}h</td>`;
+        satRow.innerHTML += `<td style="color:${s==1?'#0f0':'#f44'}">${s}</td>`;
+    });
 }
 
-// 👥 RESZTA
-let pool=employees.filter(e=>!e.pok && e.n!=="PAWEŁ");
+function toggleNav() { document.getElementById('sidebar').classList.toggle('active'); document.getElementById('overlay').classList.toggle('active'); }
+function clearData() { if(confirm("CZYŚCIĆ?")) { localStorage.clear(); location.reload(); } }
 
-for(let e of pool){
-
-if(data[e.n].workStreak>=5)continue;
-if(day===data[e.n].freeSat)continue;
-if(data[e.n].hours>=targetHours)continue;
-
-if(open>0){
-assign(e.n,"10-20");
-open--;
-}
-else if(close>0){
-assign(e.n,"12-20");
-close--;
-}
-
-}
-
-function assign(name,shift){
-data[name].hours+=shiftLength(shift);
-data[name].workStreak++;
-}
-}
-
-// 🧮 Korekta do idealnej normy
-employees.forEach(e=>{
-if(e.n==="PAWEŁ")return;
-while(data[e.n].hours>targetHours){
-data[e.n].hours-=8;
-}
-});
-
-console.log("PRO MAX wygenerowany");
-}
-
-generate();
-
+window.onload = render;
 </script>
 </body>
 </html>

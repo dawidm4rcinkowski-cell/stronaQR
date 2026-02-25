@@ -172,68 +172,71 @@ function startGeneration() {
         }
     });
 
-    // 2. Sztywno: Dokładnie 1 wolna sobota per osoba
-    employees.forEach(e => {
-        let sats = [];
-        for(let d=1; d<=days; d++) if(new Date(year, curM, d).getDay() === 6 && isWorkDay(d)) sats.push(d);
-        
-        let offCount = 0;
-        sats.forEach(s => {
-            let v = getV(e.n, s);
-            if(v==="Ż" || v==="URLOP" || v.toLowerCase()==="szk.") offCount++;
-        });
-
-        if(offCount === 0 && sats.length > 0) {
-            let rs = sats[Math.floor(Math.random()*sats.length)];
-            saveV(e.n, rs, "WOLNE");
-        }
-    });
-
-    // 3. Obstawianie szkieletu dnia (3 Otw, 3 Zam + 1 POK Zam)
+    // 2. Budowanie Szkieletu (Dokładnie 6 osób na weekendy, minimalnie 6 na tygodniu)
     for(let d=1; d<=days; d++) {
         if(!isWorkDay(d)) continue;
         
+        let isWknd = new Date(year, curM, d).getDay() === 6 || new Date(year, curM, d).getDay() === 0;
         let available = employees.filter(e => getV(e.n, d) === "" && getStreak(e.n, d) < 5);
-        
-        // Na soboty priorytetowo bierzemy tych co nie mają WOLNE (żeby na 100% wylądowali w grafiku)
-        if(new Date(year, curM, d).getDay() === 6) {
-            available.forEach(e => { saveV(e.n, d, (Math.random()>0.5 ? fullShift : openShift)); });
-            continue; // Soboty obsadzone na maxa dla tych co mogą pracować, aby uniknąć przerw. Algorytm potem to skróci.
+
+        // Aby każdy dostał sprawiedliwą ilość weekendów pracujących i wolnych
+        if(isWknd) {
+            available.sort((a,b) => {
+                let aWknds = 0, bWknds = 0;
+                for(let x=1; x<=days; x++) {
+                    let isW = new Date(year, curM, x).getDay() === 6 || new Date(year, curM, x).getDay() === 0;
+                    if(isW && isWorkDay(x)) {
+                        if(getV(a.n, x).includes('-')) aWknds++;
+                        if(getV(b.n, x).includes('-')) bWknds++;
+                    }
+                }
+                return aWknds - bWknds; // Ci z najmniejszą ilością przepracowanych weekendów idą pierwsi
+            });
+        } else {
+            available.sort((a,b) => calcRealH(a.n) - calcRealH(b.n)); // W tygodniu wyrównujemy po godzinach
         }
 
-        // POK zamyka
-        let poks = available.filter(e => e.p).sort((a,b) => calcRealH(a.n) - calcRealH(b.n));
-        if(poks.length > 0) {
-            saveV(poks[0].n, d, closeShift);
-            available = available.filter(e => e.n !== poks[0].n);
+        // POK na zamknięcie (Sztywno 1 z dziewczyn)
+        let pok = available.find(e => e.p);
+        if(pok) {
+            saveV(pok.n, d, closeShift);
+            available = available.filter(e => e.n !== pok.n);
         }
 
-        // 3 Otwarcia
-        let otwNeeded = 3;
-        available.sort((a,b) => calcRealH(a.n) - calcRealH(b.n));
-        for(let i=0; i<available.length && otwNeeded>0; i++) {
-            saveV(available[i].n, d, openShift);
-            otwNeeded--;
-        }
-        available = available.filter(e => getV(e.n, d) === "");
-
-        // 3 Zamknięcia
-        let zamNeeded = 3;
-        available.sort((a,b) => calcRealH(a.n) - calcRealH(b.n));
+        // Reszta zamknięcia (Łącznie 3 osoby na ZAM)
+        let zamNeeded = pok ? 2 : 3;
         for(let i=0; i<available.length && zamNeeded>0; i++) {
             saveV(available[i].n, d, closeShift);
+            available[i].assigned = true;
             zamNeeded--;
+        }
+        available = available.filter(e => !e.assigned);
+
+        // Otwarcie (Łącznie 3 osoby na OTW)
+        let otwNeeded = 3;
+        for(let i=0; i<available.length && otwNeeded>0; i++) {
+            saveV(available[i].n, d, openShift);
+            available[i].assigned = true;
+            otwNeeded--;
+        }
+        available = available.filter(e => !e.assigned);
+
+        // Jeśli to weekend - reszta dostępnych bezwarunkowo dostaje WOLNE (nie pracują, więc mają wpisane "WOLNE")
+        if(isWknd) {
+            employees.forEach(e => {
+                let v = getV(e.n, d);
+                if(v === "") saveV(e.n, d, "WOLNE");
+            });
         }
     }
 
-    // 4. Zaawansowane docinanie i dokładanie godzin (Strict Balancing)
+    // 3. Bilansowanie Normy - DOKŁADANIE ZMIAN TYLKO W DNI ROBOCZE
     let allBalanced = false;
     let iterations = 0;
 
     while(!allBalanced && iterations < 4000) {
         allBalanced = true;
         
-        // Oblicz status każdego pracownika
         let status = employees.map(e => {
             let urlops = 0;
             for(let d=1; d<=days; d++) {
@@ -245,7 +248,6 @@ function startGeneration() {
             return { e, target, current, diff: target - current };
         });
 
-        // Sortuj po największym odchyleniu od normy
         status.sort((a,b) => Math.abs(b.diff) - Math.abs(a.diff));
 
         for(let st of status) {
@@ -255,12 +257,13 @@ function startGeneration() {
             
             if(st.diff > 0) { // Brakuje godzin
                 let added = false;
-                // Jeśli brakuje dużo godzin, dodajemy cały nowy dzień pracy (8h)
                 if(st.diff >= 8) {
                     let bestDay = -1;
                     let minStaff = 999;
                     for(let d=1; d<=days; d++) {
-                        if(isWorkDay(d) && getV(emp.n, d) === "" && getStreak(emp.n, d) < 5) {
+                        let isWknd = new Date(year, curM, d).getDay() === 0 || new Date(year, curM, d).getDay() === 6;
+                        // Dodaje nowe dniówki TYLKO w tygodniu, by nie psuć obsady weekendu
+                        if(isWorkDay(d) && !isWknd && getV(emp.n, d) === "" && getStreak(emp.n, d) < 5) {
                             let c = 0; employees.forEach(em => { if(getV(em.n, d).includes('-')) c++; });
                             if(c < minStaff) { minStaff = c; bestDay = d; }
                         }
@@ -271,7 +274,7 @@ function startGeneration() {
                     }
                 }
                 
-                // Jeśli brakuje mało lub nie dało się dodać całego dnia – podbijamy 8h do 10h
+                // Jeśli wciąż mało, wydłuża zmianę z 8h do 10h (Najpierw na tygodniu, w ostateczności gdzie indziej)
                 if(!added && st.diff >= 2) {
                     for(let d=1; d<=days; d++) {
                         let v = getV(emp.n, d);
@@ -281,11 +284,10 @@ function startGeneration() {
                         }
                     }
                 }
-                break; // Przerywamy by zaktualizować status wszystkich
+                break; 
                 
             } else if (st.diff < 0) { // Za dużo godzin
                 let removed = false;
-                // Jeśli za dużo o 8h+ – kasujemy cały dzień pracy
                 if(st.diff <= -8) {
                     let bestDay = -1;
                     let maxStaff = 0;
@@ -293,7 +295,7 @@ function startGeneration() {
                         let v = getV(emp.n, d);
                         if(v === openShift || v === closeShift || v === fullShift) {
                             
-                            // Weryfikacja, czy usunięcie zmiany nie położy minimalnej obsady sklepu!
+                            // Czy możemy usunąć, nie rozbijając MINIMALNEJ obsługi (3 OTW, 3 ZAM, 1 POK)
                             let otw = 0, zam = 0, pok = 0;
                             employees.forEach(em => {
                                 if(em.n === emp.n) return;
@@ -305,16 +307,13 @@ function startGeneration() {
                                 }
                             });
                             
-                            let isOtw = v.split('-')[0] <= 10;
-                            let isZam = v.split('-')[1] >= 20;
+                            let isOtw = parseInt(v.split('-')[0]) <= 10;
+                            let isZam = parseInt(v.split('-')[1]) >= 20;
                             let isSafe = true;
                             
-                            // Zabezpieczenie minimum (wyłączane dopiero gdy algorytm nie może sobie poradzić przez 3000 prób)
-                            if(iterations < 3000) {
-                                if(isOtw && otw < 3) isSafe = false;
-                                if(isZam && zam < 4) isSafe = false; // 3 zam + 1 pok
-                                if(isZam && emp.p && pok < 1) isSafe = false;
-                            }
+                            if(isOtw && otw < 3) isSafe = false;
+                            if(isZam && zam < 3) isSafe = false; 
+                            if(isZam && emp.p && pok < 1) isSafe = false;
 
                             if(isSafe) {
                                 let c = otw + zam;
@@ -328,7 +327,7 @@ function startGeneration() {
                     }
                 }
                 
-                // Zbijamy pojedyncze 10h do 8h
+                // Jeśli wciąż o parę godzin za dużo, skraca z 10h na 8h
                 if(!removed && st.diff <= -2) {
                     for(let d=1; d<=days; d++) {
                         let v = getV(emp.n, d);
@@ -406,7 +405,7 @@ function render() {
                 if(v === "WOLNE" || v === "URLOP" || v === "Ż" || v === "") count++;
             }
         }
-        fSat.innerHTML += `<td style="color:${count>1?'#f44':'#ffe800'}">${count}</td>`;
+        fSat.innerHTML += `<td style="color:${count>=1?'#ffe800':'#f44'}">${count}</td>`;
     });
 }
 

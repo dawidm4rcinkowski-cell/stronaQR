@@ -8,75 +8,84 @@
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Montserrat', sans-serif; }
         body { background: #080808; color: white; display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
-        header { background: #ffe800; height: 50px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; z-index: 9999; border-bottom: 2px solid #000; position: relative; }
+        header { background: #ffe800; height: 50px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; z-index: 9999; border-bottom: 2px solid #000; position: relative; box-shadow: 0 2px 10px rgba(255, 232, 0, 0.2); }
         .logo { color: #000; font-weight: 900; font-size: 1.4rem; text-transform: uppercase; }
         .logo span { background: #000; color: #ffe800; padding: 0 4px; border-radius: 3px; }
-        .menu-btn { position: absolute; left: 15px; cursor: pointer; color: #000; font-size: 1.5rem; }
+        .menu-btn { position: absolute; left: 15px; cursor: pointer; color: #000; font-size: 1.5rem; transition: 0.2s; }
+        .menu-btn:hover { transform: scale(1.1); }
         
-        .sidebar { position: fixed; left: -280px; top: 0; width: 260px; height: 100%; background: #0a0a0a; border-right: 3px solid #ffe800; transition: 0.4s; z-index: 10000; padding-top: 60px; }
+        .sidebar { position: fixed; left: -280px; top: 0; width: 260px; height: 100%; background: #0a0a0a; border-right: 3px solid #ffe800; transition: 0.4s; z-index: 10000; padding-top: 60px; box-shadow: 5px 0 15px rgba(0,0,0,0.8); }
         .sidebar.active { left: 0; }
         .sidebar-link { display: block; color: white; padding: 15px 25px; text-decoration: none; font-weight: 700; font-size: 0.8rem; border-bottom: 1px solid #111; transition: 0.2s; }
-        .sidebar-link:hover { background: #1a1a1a; color: #ffe800; }
+        .sidebar-link:hover { background: #1a1a1a; color: #ffe800; padding-left: 35px; }
         .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.8); display: none; z-index: 9500; }
         .overlay.active { display: block; }
 
-        .navigation-area { background: #111; border-bottom: 2px solid #ffe800; flex-shrink: 0; }
+        .navigation-area { background: #111; border-bottom: 2px solid #ffe800; flex-shrink: 0; box-shadow: 0 4px 10px rgba(0,0,0,0.5); z-index: 800; }
         .month-row { display: flex; align-items: center; padding: 10px 15px; gap: 10px; flex-wrap: wrap; }
-        .month-selector { display: flex; gap: 8px; overflow-x: auto; white-space: nowrap; scrollbar-width: none; flex-grow: 1; }
-        .month-btn { padding: 6px 12px; border-radius: 20px; border: 1px solid #222; background: #000; color: #666; font-size: 0.65rem; font-weight: 700; cursor: pointer; transition: 0.2s; }
-        .month-btn.active { background: #ffe800; color: #000; border-color: #ffe800; }
+        .month-selector { display: flex; gap: 8px; overflow-x: auto; white-space: nowrap; scrollbar-width: none; flex-grow: 1; padding-bottom: 2px; }
+        .month-btn { padding: 6px 12px; border-radius: 20px; border: 1px solid #333; background: #000; color: #666; font-size: 0.65rem; font-weight: 700; cursor: pointer; transition: 0.3s; }
+        .month-btn.active { background: #ffe800; color: #000; border-color: #ffe800; box-shadow: 0 0 10px rgba(255, 232, 0, 0.4); }
         .month-btn:hover:not(.active) { color: #fff; border-color: #555; }
         
         .admin-controls { display: flex; align-items: center; gap: 8px; border-left: 1px solid #333; padding-left: 10px; }
-        .norm-input { width: 55px; background: #000; color: #ffe800; border: 1px solid #ffe800; text-align: center; font-weight: 900; padding: 4px; font-size: 0.8rem; border-radius: 4px; }
+        .norm-input { width: 55px; background: #000; color: #ffe800; border: 1px solid #ffe800; text-align: center; font-weight: 900; padding: 4px; font-size: 0.8rem; border-radius: 4px; outline: none; }
         
         .table-container { flex-grow: 1; overflow: auto; background: #080808; }
         table { border-collapse: collapse; width: 100%; table-layout: fixed; }
-        thead th { background: #111; position: sticky; top: 0; z-index: 500; padding: 10px 2px; border-bottom: 2px solid #ffe800; border-right: 1px solid #222; }
-        .avatar { width: 26px; height: 26px; border-radius: 50%; border: 2px solid #ffe800; display: flex; align-items: center; justify-content: center; margin: 0 auto 3px; font-weight: 900; color: #ffe800; font-size: 0.6rem; background: #000; }
-        .worker-name { font-size: 0.5rem; font-weight: 900; text-transform: uppercase; line-height: 1.2; color: #eee; }
+        thead th { background: #151515; position: sticky; top: 0; z-index: 500; padding: 10px 2px; border-bottom: 3px solid #ffe800; border-right: 1px solid #222; }
+        .avatar { width: 28px; height: 28px; border-radius: 50%; border: 2px solid #ffe800; display: flex; align-items: center; justify-content: center; margin: 0 auto 5px; font-weight: 900; color: #ffe800; font-size: 0.65rem; background: #000; box-shadow: 0 0 5px rgba(255, 232, 0, 0.3); }
+        .worker-name { font-size: 0.5rem; font-weight: 900; text-transform: uppercase; line-height: 1.2; color: #fff; letter-spacing: 0.5px; }
         .dept-tag { font-size: 0.45rem; font-weight: 900; color: #888; }
-        .dept-me { color: #f44 !important; }
+        .dept-me { color: #f44 !important; text-shadow: 0 0 5px rgba(255, 0, 0, 0.5); }
 
-        .date-col { position: sticky; left: 0; background: #111; z-index: 600; width: 85px; font-size: 0.65rem; font-weight: 900; color: #aaa; text-align: center; border-right: 2px solid #ffe800; }
+        .date-col { position: sticky; left: 0; background: #111; z-index: 600; width: 85px; font-size: 0.65rem; font-weight: 900; color: #ccc; text-align: center; border-right: 2px solid #ffe800; }
         .obsada-col { width: 95px; color: #ffe800; font-weight: 900; font-size: 0.6rem; background: #111; text-align: center; border-left: 2px solid #ffe800; border-right: none; }
         
+        tbody tr { transition: background-color 0.2s; }
+        tbody tr:hover { background-color: rgba(255, 232, 0, 0.05); }
+
         td { border-bottom: 1px solid #222; border-right: 1px solid #222; height: 38px; }
-        td input { width: 100%; height: 100%; background: rgba(255,255,255,0.02); border: none; color: white; text-align: center; font-weight: 700; font-size: 0.8rem; outline: none; transition: 0.2s; }
-        td input:focus { background: rgba(255, 232, 0, 0.1); }
-        td input:disabled { color: #888; cursor: not-allowed; background: transparent; }
+        td input { width: 100%; height: 100%; background: transparent; border: none; color: white; text-align: center; font-weight: 700; font-size: 0.8rem; outline: none; transition: 0.2s; cursor: pointer; }
+        td input:focus { background: rgba(255, 232, 0, 0.15); }
+        td input:disabled { color: #888; cursor: not-allowed; }
         
         /* KOLORYSTYKA DNI */
-        .sun { background-color: #a00000 !important; } 
-        .sun .date-col { background-color: #d00000 !important; color: #fff; border-right-color: #fff; }
-        .sun td { border-bottom-color: #c00000; border-right-color: #c00000; }
+        .sun { background-color: #800000 !important; } 
+        .sun:hover { background-color: #a00000 !important; }
+        .sun .date-col { background-color: #a00000 !important; color: #fff; border-right-color: #ff4d4d; }
+        .sun td { border-bottom-color: #600000; border-right-color: #600000; }
         
         .sat { background-color: #ffe800 !important; }
-        .sat .date-col { background-color: #ffd000 !important; color: #000; border-right-color: #000; }
-        .sat input { color: #000 !important; font-weight: 900; }
-        .sat td { border-bottom-color: #e6c800; border-right-color: #e6c800; }
-        .sat .obsada-col { background-color: #ffd000 !important; color: #000; border-left-color: #000; }
+        .sat:hover { background-color: #ffed4a !important; }
+        .sat .date-col { background-color: #e6d100 !important; color: #000; border-right-color: #000; }
+        .sat input { color: #000 !important; font-weight: 900; text-shadow: none; }
+        .sat td { border-bottom-color: #cca600; border-right-color: #cca600; }
+        .sat .obsada-col { background-color: #e6d100 !important; color: #000; border-left-color: #000; }
 
         .wish-cell input { color: #d0a !important; font-weight: 900; background: rgba(221, 0, 170, 0.1); }
         
         /* AKTUALNY DZIEŃ */
-        .today-row { position: relative; }
-        .today-row::after { content: ''; position: absolute; inset: 0; border: 2px solid #0f0; pointer-events: none; z-index: 100; }
-        .today-row .date-col { color: #0f0; }
-        .today-row input { background: rgba(0, 255, 0, 0.05); }
+        .today-row { position: relative; background-color: rgba(0, 255, 0, 0.1) !important; }
+        .today-row::after { content: ''; position: absolute; inset: 0; border: 2px solid #0f0; pointer-events: none; z-index: 100; box-shadow: 0 0 10px rgba(0, 255, 0, 0.2) inset; }
+        .today-row .date-col { color: #0f0; background-color: #0a150a !important; border-right-color: #0f0; }
+        .today-row input { color: #fff; }
 
-        tfoot { position: sticky; bottom: 0; z-index: 700; }
-        tfoot td { background: #000; color: #ffe800; font-weight: 900; font-size: 0.65rem; text-align: center; border-top: 2px solid #ffe800; height: 35px; border-right: 1px solid #222; }
+        /* STOPKA PRAWIDŁOWY SZARY KOLOR */
+        tfoot { position: sticky; bottom: 0; z-index: 700; box-shadow: 0 -4px 10px rgba(0,0,0,0.5); }
+        tfoot td { background: #111; color: #ffe800; font-weight: 900; font-size: 0.65rem; text-align: center; border-top: 2px solid #ffe800; height: 35px; border-right: 1px solid #222; }
 
-        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 11000; align-items: center; justify-content: center; padding: 20px; }
-        .modal-content { background: #0a0a0a; border: 2px solid #ffe800; padding: 20px; width: 100%; max-width: 800px; border-radius: 15px; }
+        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 11000; align-items: center; justify-content: center; padding: 20px; backdrop-filter: blur(5px); }
+        .modal-content { background: #0a0a0a; border: 2px solid #ffe800; padding: 20px; width: 100%; max-width: 800px; border-radius: 15px; box-shadow: 0 0 30px rgba(255, 232, 0, 0.15); }
         .worker-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 10px; margin-top: 15px; max-height: 60vh; overflow-y: auto; }
-        .worker-card { background: #151515; padding: 10px; border-radius: 8px; border: 1px solid #333; }
+        .worker-card { background: #151515; padding: 10px; border-radius: 8px; border: 1px solid #333; transition: 0.3s; }
+        .worker-card:hover { border-color: #ffe800; }
         .worker-card label { display: block; font-size: 0.5rem; color: #888; margin-top: 5px; }
-        .worker-card input { width: 100%; background: #000; border: 1px solid #444; color: #fff; padding: 3px; font-size: 0.7rem; }
+        .worker-card input { width: 100%; background: #000; border: 1px solid #444; color: #fff; padding: 4px; font-size: 0.75rem; border-radius: 3px; outline: none; }
+        .worker-card input:focus { border-color: #ffe800; }
         
         .btn-gen { background: #ffe800; color: #000; border: none; padding: 8px 12px; font-weight: 900; border-radius: 20px; cursor: pointer; font-size: 0.65rem; transition: 0.3s; }
-        .btn-gen:hover { transform: scale(1.05); }
+        .btn-gen:hover { transform: scale(1.05); box-shadow: 0 0 10px rgba(255, 232, 0, 0.5); }
         .btn-settings { background: #333; color: #ffe800; border: 1px solid #ffe800; padding: 8px 12px; font-weight: 900; border-radius: 20px; cursor: pointer; font-size: 0.65rem; transition: 0.3s; }
         .btn-settings:hover { background: #ffe800; color: #000; }
     </style>
@@ -128,7 +137,7 @@
         <input id="globalShifts" style="width:100%; background:#000; border:1px solid #ffe800; color:#fff; padding:8px; margin-bottom:15px;" value="10-18, 12-20, 10-20">
         
         <div class="worker-grid" id="workerGrid"></div>
-        <button class="btn-gen" style="width:100%; margin-top:20px; height:45px;" onclick="saveSettings()">ZAPISZ I ZAMKNIJ</button>
+        <button class="btn-gen" style="width:100%; margin-top:20px; height:45px; font-size: 0.8rem;" onclick="saveSettings()">ZAPISZ I ZAMKNIJ</button>
     </div>
 </div>
 
@@ -245,7 +254,7 @@ function startGeneration() {
         }
     });
 
-    // 2. SOBOTY - Żelazna Reguła 6 Osób + 1 POK = Zawsze 4 osoby w domu. Każdy dostaje wymieszane max 2 wolne!
+    // 2. SOBOTY - Żelazna Reguła 6 Osób + 1 POK = Zawsze 4 osoby w domu na weekend!
     let sats = [];
     for(let d=1; d<=days; d++) {
         if(new Date(year, curM, d).getDay() === 6 && isWorkDay(d)) sats.push(d);
@@ -266,17 +275,14 @@ function startGeneration() {
         let poks = available.filter(e => e.p);
         let sales = available.filter(e => !e.p);
 
-        // 1 osoba z POK na 10-20
         if(poks.length > 0) {
             toWork.push({ e: poks[0], shift: satShift });
             sales = sales.filter(e => e.n !== poks[0].n);
         }
 
-        // 1 z IT
         let it = sales.find(e => e.dept === 'IT');
         if(it) { toWork.push({ e: it, shift: satShift }); sales = sales.filter(e => e.n !== it.n); }
 
-        // 1 z AGD
         let agd = sales.find(e => e.dept === 'AGD');
         if(agd) { toWork.push({ e: agd, shift: satShift }); sales = sales.filter(e => e.n !== agd.n); }
 
@@ -326,13 +332,13 @@ function startGeneration() {
         }
     }
 
-    // 4. BILANSOWANIE NORM - Z TRYBEM PANIKI DLA IDEALNEGO WYNIKU
+    // 4. BEZWZGLĘDNE BILANSOWANIE NORM
     let allBalanced = false;
     let iterations = 0;
 
-    while(!allBalanced && iterations < 3000) {
+    while(!allBalanced && iterations < 5000) {
         allBalanced = true;
-        let strictMode = iterations < 1500; // Poniżej 1500 prób trzyma się sztywno reguł działowych
+        let strictMode = iterations < 1500; // Po 1500 próbach uwalnia restrykcje, żeby za wszelką cenę dopiąć godziny
         
         let status = employees.map(e => {
             let urlops = 0;
@@ -352,14 +358,13 @@ function startGeneration() {
             if(st.diff === 0 || st.e.dept === 'ME') continue;
             allBalanced = false;
             let emp = st.e;
+            let actionTaken = false;
             
             if(st.diff > 0) { 
-                let added = false;
-                if(st.diff >= 8) {
+                if(st.diff >= 6) {
                     let possibleDays = [];
                     for(let d=1; d<=days; d++) {
                         let isWknd = new Date(year, curM, d).getDay() === 0 || new Date(year, curM, d).getDay() === 6;
-                        // Nigdy nie dokładamy zmian w weekendy
                         if(isWorkDay(d) && !isWknd && getV(emp.n, d) === "" && getStreak(emp.n, d) < 5) {
                             let c = 0; employees.forEach(em => { if(em.dept !== 'ME' && getV(em.n, d).includes('-')) c++; });
                             possibleDays.push({ d, staff: c });
@@ -369,28 +374,26 @@ function startGeneration() {
                         shuffle(possibleDays);
                         possibleDays.sort((a,b) => a.staff - b.staff); 
                         saveV(emp.n, possibleDays[0].d, (Math.random()>0.5 ? openShift : closeShift));
-                        added = true;
+                        actionTaken = true;
                     }
                 }
                 
-                if(!added && st.diff >= 2) { 
+                if(!actionTaken && st.diff >= 2) { 
                     let possibleDays = [];
                     for(let d=1; d<=days; d++) {
                         let isWknd = new Date(year, curM, d).getDay() === 0 || new Date(year, curM, d).getDay() === 6;
                         let v = getV(emp.n, d);
-                        // Tylko w tygodniu PN-PT podbijamy zmianę!
-                        if(!isWknd && (v === openShift || v === closeShift) && getStreak(emp.n, d) < 5) possibleDays.push(d);
+                        if(!isWknd && (v === openShift || v === closeShift)) possibleDays.push(d);
                     }
                     if(possibleDays.length > 0) {
                         shuffle(possibleDays);
                         saveV(emp.n, possibleDays[0], fullShift);
+                        actionTaken = true;
                     }
                 }
-                break; 
                 
             } else if (st.diff < 0) { 
-                let removed = false;
-                if(st.diff <= -8) {
+                if(st.diff <= -4) {
                     let possibleDays = [];
                     for(let d=1; d<=days; d++) {
                         let v = getV(emp.n, d);
@@ -422,9 +425,9 @@ function startGeneration() {
                                 if(isZam && (zamSales < 3 || zamPok < 1)) isSafe = false;
                                 if(itCount < 1 || agdCount < 1) isSafe = false;
                             } else {
-                                // Tryb paniki: pilnujemy tylko żeby sklep nie został sam
-                                if(isOtw && (otwSales + otwPok < 1)) isSafe = false;
-                                if(isZam && (zamSales + zamPok < 1)) isSafe = false;
+                                // Tryb paniki: pozwala wyrzucić zmianę, o ile na sklepie ktoś w ogóle zostaje
+                                if(isOtw && (otwSales + otwPok <= 1)) isSafe = false;
+                                if(isZam && (zamSales + zamPok <= 1)) isSafe = false;
                             }
 
                             if(isSafe) possibleDays.push({ d, staff: otwSales + zamSales });
@@ -434,25 +437,27 @@ function startGeneration() {
                         shuffle(possibleDays);
                         possibleDays.sort((a,b) => b.staff - a.staff);
                         saveV(emp.n, possibleDays[0].d, "");
-                        removed = true;
+                        actionTaken = true;
                     }
                 }
                 
-                if(!removed && st.diff <= -2) { 
+                if(!actionTaken && st.diff <= -2) { 
                     let possibleDays = [];
                     for(let d=1; d<=days; d++) {
                         let isWknd = new Date(year, curM, d).getDay() === 0 || new Date(year, curM, d).getDay() === 6;
                         let v = getV(emp.n, d);
-                        // NIGDY NIE SKRACAJ SOBOTY Z 10 DO 8 GODZIN!
+                        // NIGDY NIE SKRACAJ SOBOTY!
                         if(!isWknd && v === fullShift) possibleDays.push(d);
                     }
                     if(possibleDays.length > 0) {
                         shuffle(possibleDays);
                         saveV(emp.n, possibleDays[0], (Math.random()>0.5 ? openShift : closeShift));
+                        actionTaken = true;
                     }
                 }
-                break;
             }
+            // Jeśli podjęto akcję (np. usunięto godzinę), przerwij i policz normy od nowa! Gwarantuje brak zapętleń
+            if(actionTaken) break; 
         }
         iterations++;
     }
@@ -490,7 +495,8 @@ function render() {
             <div class="worker-name">${e.n}<br><span class="dept-tag ${deptClass}">${e.dept}</span></div>
         </th>`;
     });
-    head.innerHTML += '<th class="obsada-col">OTW|ZAM|SUMA</th>';
+    // Zmieniona kolejność OTW | SUMA | ZAM
+    head.innerHTML += '<th class="obsada-col">OTW|SUMA|ZAM</th>';
 
     body.innerHTML = "";
     const today = new Date();
@@ -522,7 +528,9 @@ function render() {
             let disabledAttr = isLocked ? 'disabled' : '';
             html += `<td ${cellClass}><input value="${v}" ${disabledAttr} onchange="saveV('${e.n}',${d},this.value);render()"></td>`;
         });
-        html += `<td class="obsada-col">${o} | ${z} | ${suma}</td>`;
+        
+        // Zmieniona kolejność obliczeń dla prawej kolumny
+        html += `<td class="obsada-col">${o} | ${suma} | ${z}</td>`;
         tr.innerHTML = html; body.appendChild(tr);
     }
 
@@ -538,6 +546,7 @@ function render() {
         let h = calcRealH(e.n); 
         fSum.innerHTML += `<td style="color:${h==target?'#0f0':'#f44'}; font-size: 0.55rem;">${h} / ${target}</td>`;
     });
+    fSum.innerHTML += '<td class="obsada-col"></td>'; // Pusta komórka dopełniająca szerokość tabeli
 
     const fSat = document.getElementById('satCountRow');
     fSat.innerHTML = '<td class="date-col">WOLNE SB</td>';
@@ -553,6 +562,7 @@ function render() {
         }
         fSat.innerHTML += `<td style="color:${count>=1 && count<=2 ?'#ffe800':'#666'}">${e.dept==='ME'?'-':count}</td>`;
     });
+    fSat.innerHTML += '<td class="obsada-col"></td>'; // Pusta komórka dopełniająca szerokość tabeli
 }
 
 function renderSettings() {

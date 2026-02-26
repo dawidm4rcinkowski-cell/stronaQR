@@ -38,7 +38,6 @@
         .admin-controls { display: flex; align-items: center; gap: 8px; border-left: 1px solid #333; padding-left: 10px; }
         .norm-input { width: 55px; background: #000; color: #ffe800; border: 1px solid #ffe800; text-align: center; font-weight: 900; padding: 4px; font-size: 0.8rem; border-radius: 4px; outline: none; }
         
-        /* TABELA */
         .table-container { flex: 1; overflow: auto; background: #080808; width: 100vw; max-width: 100%; display: block; }
         table { border-collapse: collapse; width: 100%; min-width: max-content; background: #080808; }
         
@@ -59,27 +58,33 @@
         td { border-bottom: 1px solid #222; border-right: 1px solid #222; height: 48px; text-align: center; vertical-align: middle; transition: background-color 0.2s; cursor: pointer; }
         td:last-child { border-right: none; } 
         
-        /* NAPRAWIONY EFEKT HOVER DLA KOMÓREK (Brak czarnego kwadratu) */
+        /* HOVER DLA ZWYKŁYCH DNI */
         td:hover { background-color: rgba(255, 255, 255, 0.08); }
-        .sat td:hover { background-color: rgba(0, 0, 0, 0.06) !important; }
-        .sun td:hover { background-color: rgba(0, 0, 0, 0.15) !important; }
         
         /* STYLIZACJA KOMÓREK Z ROLAMI */
         .cell-shift { font-weight: 900; font-size: 0.8rem; color: #fff; }
         .cell-icons { font-size: 0.7rem; letter-spacing: 2px; margin-top: 3px; }
         
-        /* KOLORYSTYKA DNI */
-        .sun { background-color: #800000 !important; } 
-        .sun:hover { background-color: #a00000 !important; }
-        .sun .date-col { background-color: #a00000 !important; color: #fff; border-right-color: #ff4d4d; }
-        .sun td { border-bottom-color: #600000; border-right-color: #600000; }
-        
-        .sat { background-color: #ffe800 !important; }
-        .sat:hover { background-color: #ffed4a !important; }
-        .sat .date-col { background-color: #e6d100 !important; color: #000; border-right-color: #000; }
-        .sat .cell-shift { color: #000 !important; }
-        .sat td { border-bottom-color: #cca600; border-right-color: #cca600; }
-        .sat .obsada-col { background-color: #e6d100 !important; color: #000; border-left-color: #000; }
+        /* =========================================
+           ZGASZONA KOLORYSTYKA WEEKENDÓW I POPRAWIONE HOVERY
+           ========================================= */
+
+        /* NIEDZIELA (Zgaszone bordo) */
+        .sun { background-color: #4a1111 !important; } 
+        .sun .date-col { background-color: #5c1616 !important; color: #ff9999; border-right-color: #ff4d4d; }
+        .sun td { border-bottom-color: #330b0b; border-right-color: #330b0b; }
+        /* Prawidłowy hover niedzieli - rozjaśnia na biało, nie robi czarnego kwadratu */
+        .sun td:hover { background-color: rgba(255, 255, 255, 0.1) !important; }
+
+        /* SOBOTA (Zgaszony, elegancki musztardowy) */
+        .sat { background-color: #8c7311 !important; }
+        .sat .date-col { background-color: #a68814 !important; color: #fff; border-right-color: #ffe800; }
+        /* Wymuszenie białego tekstu w soboty, by był czytelny na musztardowym tle */
+        .sat .cell-shift { color: #ffffff !important; text-shadow: 1px 1px 2px rgba(0,0,0,0.5); }
+        .sat td { border-bottom-color: #6b580d; border-right-color: #6b580d; }
+        .sat .obsada-col { background-color: #a68814 !important; color: #fff; border-left-color: #ffe800; }
+        /* Prawidłowy hover soboty - lekko rozjaśnia komórkę */
+        .sat td:hover { background-color: rgba(255, 255, 255, 0.15) !important; }
 
         .wish-cell { background: rgba(221, 0, 170, 0.15); }
         .wish-cell .cell-shift { color: #f0f !important; }
@@ -206,7 +211,7 @@
         
         <div style="display:flex; gap:10px; margin-top:20px;">
             <button class="btn-settings" style="flex:1;" onclick="closeCellModal()">ANULUJ</button>
-            <button class="btn-settings" style="background:#a00; color:white; border-color:#a00; flex:1;" onclick="clearCell()">WYCZYŚĆ DZIEŃ</button>
+            <button class="btn-settings" style="background:#a00; color:white; border-color:#a00; flex:1;" onclick="clearCell()">WYCZYŚĆ</button>
             <button class="btn-gen" style="flex:2;" onclick="saveCellModal()">ZAPISZ ZMIANY</button>
         </div>
     </div>
@@ -397,7 +402,6 @@ function startGeneration() {
         if(e.dept === 'ME') return;
         for(let d=1; d<=days; d++) { 
             let s = getShiftOnly(e.n, d); 
-            // Wyczyść wszystko co nie jest urlopem/życzeniem (czyści również przypisane role)
             if(s.includes('-') || s==="WOLNE") saveVRaw(e.n, d, ""); 
         }
     });

@@ -39,28 +39,27 @@
         .norm-input { width: 55px; background: #000; color: #ffe800; border: 1px solid #ffe800; text-align: center; font-weight: 900; padding: 4px; font-size: 0.8rem; border-radius: 4px; outline: none; }
         
         /* GWARANCJA PEŁNEJ SZEROKOŚCI TABELI */
-        .table-container { flex: 1; overflow: auto; background: #080808; width: 100%; display: block; }
-        table { border-collapse: collapse; width: 100%; min-width: 1200px; table-layout: auto; background: #080808; }
+        .table-container { flex: 1; overflow: auto; background: #080808; width: 100vw; max-width: 100%; display: block; }
+        table { border-collapse: collapse; width: 100%; min-width: max-content; background: #080808; }
         
-        thead th { background: #151515; position: sticky; top: 0; z-index: 500; padding: 10px 2px; border-bottom: 3px solid #ffe800; border-right: 1px solid #222; }
-        thead th:last-child { border-right: none; } 
+        thead th { background: #151515; position: sticky; top: 0; z-index: 500; padding: 10px 2px; border-bottom: 3px solid #ffe800; border-right: 1px solid #222; min-width: 75px; }
+        thead th:last-child { border-right: none; min-width: 130px; } 
         
         .avatar { width: 28px; height: 28px; border-radius: 50%; border: 2px solid #ffe800; display: flex; align-items: center; justify-content: center; margin: 0 auto 5px; font-weight: 900; color: #ffe800; font-size: 0.65rem; background: #000; box-shadow: 0 0 5px rgba(255, 232, 0, 0.3); }
         .worker-name { font-size: 0.5rem; font-weight: 900; text-transform: uppercase; line-height: 1.2; color: #fff; letter-spacing: 0.5px; }
         .dept-tag { font-size: 0.45rem; font-weight: 900; color: #888; }
         .dept-me { color: #f44 !important; text-shadow: 0 0 5px rgba(255, 0, 0, 0.5); }
 
-        .date-col { position: sticky; left: 0; background: #111; z-index: 600; width: 85px; min-width: 85px; font-size: 0.65rem; font-weight: 900; color: #ccc; text-align: center; border-right: 2px solid #ffe800; border-left: 2px solid #ffe800; }
-        .obsada-col { width: 130px; min-width: 130px; color: #ffe800; font-weight: 900; font-size: 0.65rem; background: #111; text-align: center; border-left: 2px solid #ffe800; } 
+        .date-col { position: sticky; left: 0; background: #111; z-index: 600; min-width: 90px; font-size: 0.65rem; font-weight: 900; color: #ccc; text-align: center; border-right: 2px solid #ffe800; border-left: 2px solid #ffe800; }
+        .obsada-col { min-width: 130px; color: #ffe800; font-weight: 900; font-size: 0.65rem; background: #111; text-align: center; border-left: 2px solid #ffe800; border-right: none !important; } 
         
-        tbody tr { transition: background-color 0.2s; }
-        tbody tr:hover { background-color: rgba(255, 255, 255, 0.05); }
-
-        td { border-bottom: 1px solid #222; border-right: 1px solid #222; height: 38px; }
+        td { border-bottom: 1px solid #222; border-right: 1px solid #222; height: 48px; text-align: center; vertical-align: middle; transition: 0.2s; position: relative; }
+        td:hover { background-color: rgba(255, 255, 255, 0.05); }
         td:last-child { border-right: none; } 
-        td input { width: 100%; height: 100%; background: transparent; border: none; color: white; text-align: center; font-weight: 700; font-size: 0.8rem; outline: none; transition: 0.2s; cursor: pointer; }
-        td input:focus, td input:hover { background: rgba(255, 232, 0, 0.15); }
-        td input:disabled { color: #888; cursor: not-allowed; background: transparent; }
+        
+        /* STYLIZACJA KOMÓREK Z ROLAMI */
+        .cell-shift { font-weight: 900; font-size: 0.8rem; color: #fff; }
+        .cell-icons { font-size: 0.7rem; letter-spacing: 2px; margin-top: 3px; }
         
         /* KOLORYSTYKA DNI */
         .sun { background-color: #800000 !important; } 
@@ -71,28 +70,42 @@
         .sat { background-color: #ffe800 !important; }
         .sat:hover { background-color: #ffed4a !important; }
         .sat .date-col { background-color: #e6d100 !important; color: #000; border-right-color: #000; }
-        .sat input { color: #000 !important; font-weight: 900; text-shadow: none; }
-        .sat input:focus, .sat input:hover { background: rgba(0, 0, 0, 0.1); }
+        .sat .cell-shift { color: #000 !important; }
         .sat td { border-bottom-color: #cca600; border-right-color: #cca600; }
         .sat .obsada-col { background-color: #e6d100 !important; color: #000; border-left-color: #000; }
 
-        .wish-cell input { color: #d0a !important; font-weight: 900; background: rgba(221, 0, 170, 0.1); }
+        .wish-cell { background: rgba(221, 0, 170, 0.15); }
+        .wish-cell .cell-shift { color: #f0f !important; }
         
         /* AKTUALNY DZIEŃ */
         .today-row { position: relative; background-color: rgba(0, 255, 0, 0.1) !important; }
         .today-row::after { content: ''; position: absolute; inset: 0; border: 2px solid #0f0; pointer-events: none; z-index: 100; box-shadow: 0 0 10px rgba(0, 255, 0, 0.2) inset; }
         .today-row .date-col { color: #0f0; background-color: #0a150a !important; border-right-color: #0f0; }
-        .today-row input { color: #fff; }
 
-        /* STOPKA PRAWIDŁOWY SZARY KOLOR (#111) */
+        /* STOPKA */
         tfoot { position: sticky; bottom: 0; z-index: 700; box-shadow: 0 -4px 10px rgba(0,0,0,0.5); }
         tfoot td { background: #111; color: #ffe800; font-weight: 900; font-size: 0.65rem; text-align: center; border-top: 2px solid #ffe800; height: 35px; border-right: 1px solid #222; }
         tfoot td:last-child { border-right: none; }
         tfoot .date-col { background: #111; }
-        tfoot .obsada-col { background: #111; }
+        tfoot .obsada-col { background: #111; border-right: none; }
 
+        /* LEGENDA */
+        .legend-bar { display: flex; justify-content: center; gap: 20px; background: #0a0a0a; padding: 10px; border-top: 1px solid #222; font-size: 0.7rem; font-weight: bold; color: #888; flex-shrink: 0; z-index: 800; }
+        .legend-bar span { display: flex; align-items: center; gap: 5px; }
+
+        /* MODALE */
         .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 11000; align-items: center; justify-content: center; padding: 20px; backdrop-filter: blur(5px); }
         .modal-content { background: #0a0a0a; border: 2px solid #ffe800; padding: 20px; width: 100%; max-width: 800px; border-radius: 15px; box-shadow: 0 0 30px rgba(255, 232, 0, 0.15); }
+        
+        /* EDYTOR KOMÓREK */
+        .edit-grid { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-bottom: 15px; }
+        .btn-shift { background: #151515; border: 1px solid #444; color: #fff; padding: 10px 15px; border-radius: 5px; cursor: pointer; font-weight: bold; transition: 0.2s; }
+        .btn-shift:hover { border-color: #ffe800; color: #ffe800; }
+        .btn-shift.active { background: #ffe800; color: #000; border-color: #ffe800; }
+        .role-checkboxes { background: #111; border: 1px solid #333; padding: 15px; border-radius: 8px; display: flex; flex-direction: column; gap: 10px; }
+        .role-label { color: #fff; font-size: 0.85rem; display: flex; align-items: center; gap: 10px; cursor: pointer; }
+        .role-label input { width: 18px; height: 18px; cursor: pointer; }
+
         .worker-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 10px; margin-top: 15px; max-height: 60vh; overflow-y: auto; }
         .worker-card { background: #151515; padding: 10px; border-radius: 8px; border: 1px solid #333; transition: 0.3s; }
         .worker-card:hover { border-color: #ffe800; }
@@ -104,6 +117,8 @@
         .btn-gen:hover { transform: scale(1.05); box-shadow: 0 0 10px rgba(255, 232, 0, 0.5); }
         .btn-settings { background: #333; color: #ffe800; border: 1px solid #ffe800; padding: 8px 12px; font-weight: 900; border-radius: 20px; cursor: pointer; font-size: 0.65rem; transition: 0.3s; }
         .btn-settings:hover { background: #ffe800; color: #000; }
+        .btn-roles { background: #3498db; color: #fff; border: 1px solid #2980b9; padding: 8px 12px; font-weight: 900; border-radius: 20px; cursor: pointer; font-size: 0.65rem; transition: 0.3s; }
+        .btn-roles:hover { background: #2980b9; transform: scale(1.05); }
     </style>
 </head>
 <body>
@@ -129,7 +144,8 @@
             <input type="number" id="hourNormInput" class="norm-input" value="160" onchange="saveNorm(this.value)">
             <button class="btn-settings" onclick="toggleModal(true)">⚙️ USTAWIENIA</button>
             <button class="btn-settings" style="background:#a00; color:#fff; border-color:#a00;" onclick="clearMonth()" id="clearBtn">🗑️ WYCZYŚĆ</button>
-            <button class="btn-gen" onclick="startGeneration()" id="genBtn">🚀 GENERUJ</button>
+            <button class="btn-gen" onclick="startGeneration()" id="genBtn">🚀 GENERUJ PLAN</button>
+            <button class="btn-roles" onclick="generateRoles()" id="rolesBtn">🎲 PRZYDZIEL ROLE</button>
             <button class="btn-settings" id="approveBtn" style="background:#0a0; color:#fff; border-color:#0a0;" onclick="toggleApprove()">✅ ZATWIERDŹ</button>
         </div>
     </div>
@@ -146,6 +162,12 @@
     </table>
 </div>
 
+<div class="legend-bar">
+    <span><span style="font-size:1rem;">🔑</span> KLUCZE (Zamyka i otwiera jutro)</span>
+    <span><span style="font-size:1rem;">📦</span> DOSTAWA (Od 10:00)</span>
+    <span><span style="font-size:1rem;">☕</span> SOCJALNY (Wyznaczona na cały tydzień)</span>
+</div>
+
 <div class="modal" id="settingsModal">
     <div class="modal-content">
         <h3 style="color:#ffe800; margin-bottom:10px; font-size:1rem;">USTAWIENIA SKLEPU</h3>
@@ -154,6 +176,35 @@
         
         <div class="worker-grid" id="workerGrid"></div>
         <button class="btn-gen" style="width:100%; margin-top:20px; height:45px; font-size: 0.8rem;" onclick="saveSettings()">ZAPISZ I ZAMKNIJ</button>
+    </div>
+</div>
+
+<div class="modal" id="cellEditModal">
+    <div class="modal-content" style="max-width: 450px;">
+        <h3 id="cellModalTitle" style="color:#ffe800; margin-bottom:15px; text-align:center;">EDYTUJ DZIEŃ</h3>
+        
+        <div class="edit-grid" id="modalShiftButtons">
+            <button class="btn-shift" onclick="setModalShift('10-18', this)">10-18</button>
+            <button class="btn-shift" onclick="setModalShift('12-20', this)">12-20</button>
+            <button class="btn-shift" onclick="setModalShift('10-20', this)">10-20</button>
+            <button class="btn-shift" onclick="setModalShift('WOLNE', this)">WOLNE</button>
+            <button class="btn-shift" onclick="setModalShift('URLOP', this)">URLOP</button>
+            <button class="btn-shift" onclick="setModalShift('Ż', this)">ŻYCZENIE</button>
+        </div>
+        
+        <input type="text" id="modalCustomShift" style="width:100%; background:#000; color:#fff; border:1px solid #444; padding:10px; text-align:center; font-weight:bold; margin-bottom:15px; border-radius:5px;" placeholder="Lub wpisz ręcznie (np. 8-16)" oninput="clearShiftButtons()">
+        
+        <div class="role-checkboxes">
+            <label class="role-label"><input type="checkbox" id="modalRoleK"> 🔑 Przejmuje Klucze (Zamyka)</label>
+            <label class="role-label"><input type="checkbox" id="modalRoleD"> 📦 Odpowiada za Dostawę</label>
+            <label class="role-label"><input type="checkbox" id="modalRoleS"> ☕ Dział Socjalny</label>
+        </div>
+        
+        <div style="display:flex; gap:10px; margin-top:20px;">
+            <button class="btn-settings" style="flex:1;" onclick="closeCellModal()">ANULUJ</button>
+            <button class="btn-settings" style="background:#a00; color:white; border-color:#a00; flex:1;" onclick="clearCell()">WYCZYŚĆ DZIEŃ</button>
+            <button class="btn-gen" style="flex:2;" onclick="saveCellModal()">ZAPISZ ZMIANY</button>
+        </div>
     </div>
 </div>
 
@@ -179,6 +230,7 @@ const year = 2026;
 const holidays2026 = ["1-1", "1-6", "4-5", "4-6", "5-1", "5-3", "5-24", "6-4", "8-15", "11-1", "11-11", "12-25", "12-26"];
 const tradingSundays2026 = ["1-25", "3-29", "4-26", "6-28", "8-30", "12-13", "12-20"]; 
 
+// ZMIANA LOGIKI ODCZYTU: Teraz zapisy to "10-20|K,D"
 function isWorkDay(d) {
     let date = new Date(year, curM, d);
     let ds = `${curM+1}-${d}`;
@@ -187,9 +239,147 @@ function isWorkDay(d) {
     return true;
 }
 
-function getV(n, d) { return localStorage.getItem(`pl_${year}_${curM}_${n}_${d}`) || ""; }
-function saveV(n, d, v) { localStorage.setItem(`pl_${year}_${curM}_${n}_${d}`, v.toUpperCase()); }
+function getVRaw(n, d) { return localStorage.getItem(`pl_${year}_${curM}_${n}_${d}`) || ""; }
+function saveVRaw(n, d, v) { localStorage.setItem(`pl_${year}_${curM}_${n}_${d}`, v.toUpperCase()); }
 
+function getShiftOnly(n, d) {
+    let v = getVRaw(n, d);
+    return v.split('|')[0] || "";
+}
+
+function getRolesOnly(n, d) {
+    let v = getVRaw(n, d);
+    return v.split('|')[1] ? v.split('|')[1].split(',') : [];
+}
+
+// LOGIKA EDYTORA (MODALA)
+let currentEditEmp = null;
+let currentEditDay = null;
+
+function openEditModal(emp, day) {
+    if(localStorage.getItem(`locked_${year}_${curM}`) === 'true') return;
+    currentEditEmp = emp;
+    currentEditDay = day;
+    
+    let shift = getShiftOnly(emp, day);
+    let roles = getRolesOnly(emp, day);
+    
+    document.getElementById('cellModalTitle').innerText = `${emp} - DZIEŃ ${day}`;
+    document.getElementById('modalCustomShift').value = shift;
+    
+    document.querySelectorAll('.btn-shift').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.btn-shift').forEach(b => {
+        if(b.innerText === shift) b.classList.add('active');
+    });
+
+    document.getElementById('modalRoleK').checked = roles.includes('K');
+    document.getElementById('modalRoleD').checked = roles.includes('D');
+    document.getElementById('modalRoleS').checked = roles.includes('S');
+    
+    document.getElementById('cellEditModal').style.display = 'flex';
+}
+
+function setModalShift(val, btn) {
+    document.getElementById('modalCustomShift').value = val;
+    document.querySelectorAll('.btn-shift').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+}
+
+function clearShiftButtons() {
+    document.querySelectorAll('.btn-shift').forEach(b => b.classList.remove('active'));
+}
+
+function clearCell() {
+    saveVRaw(currentEditEmp, currentEditDay, "");
+    closeCellModal();
+    render();
+}
+
+function closeCellModal() {
+    document.getElementById('cellEditModal').style.display = 'none';
+}
+
+function saveCellModal() {
+    let shift = document.getElementById('modalCustomShift').value.trim().toUpperCase();
+    let roles = [];
+    if(document.getElementById('modalRoleK').checked) roles.push('K');
+    if(document.getElementById('modalRoleD').checked) roles.push('D');
+    if(document.getElementById('modalRoleS').checked) roles.push('S');
+    
+    let finalVal = shift;
+    if(roles.length > 0 && shift !== "" && shift !== "WOLNE" && shift !== "URLOP" && shift !== "Ż") {
+        finalVal += '|' + roles.join(',');
+    }
+    
+    saveVRaw(currentEditEmp, currentEditDay, finalVal);
+    closeCellModal();
+    render();
+}
+
+// LOGIKA GENEROWANIA RÓL (Automatyczna)
+function generateRoles() {
+    if(localStorage.getItem(`locked_${year}_${curM}`) === 'true') return;
+    const days = new Date(year, curM + 1, 0).getDate();
+    
+    // Czyszczenie starych ról przed nałożeniem nowych
+    employees.forEach(e => {
+        for(let d=1; d<=days; d++) {
+            let s = getShiftOnly(e.n, d);
+            saveVRaw(e.n, d, s); // Zapisuje samą zmianę, usuwając |K,D,S
+        }
+    });
+
+    const womenForSocial = ["NATALIA", "MAGDA", "ILONA"];
+    let currentSocialWoman = womenForSocial[Math.floor(Math.random() * womenForSocial.length)];
+
+    for(let d=1; d<=days; d++) {
+        if(!isWorkDay(d)) continue;
+        let date = new Date(year, curM, d);
+        
+        // Zmiana tygodnia (poniedziałek) = nowa Pani na Socjal
+        if(date.getDay() === 1) {
+            currentSocialWoman = womenForSocial[Math.floor(Math.random() * womenForSocial.length)];
+        }
+
+        let workingToday = employees.filter(e => getShiftOnly(e.n, d).includes('-'));
+
+        // 1. DOSTAWA (Ktoś od 10:00)
+        let potentialDostawa = workingToday.filter(e => getShiftOnly(e.n, d).startsWith('10-'));
+        if(potentialDostawa.length > 0) {
+            let chosen = potentialDostawa[Math.floor(Math.random() * potentialDostawa.length)];
+            appendRoleToCell(chosen.n, d, 'D');
+        }
+
+        // 2. KLUCZE (Zamyka dziś i otwiera jutro)
+        if(d < days) {
+            let potentialKlucze = workingToday.filter(e => {
+                let sToday = getShiftOnly(e.n, d);
+                let sTomor = getShiftOnly(e.n, d+1);
+                return sToday.endsWith('-20') && sTomor.startsWith('10-');
+            });
+            if(potentialKlucze.length > 0) {
+                let chosen = potentialKlucze[Math.floor(Math.random() * potentialKlucze.length)];
+                appendRoleToCell(chosen.n, d, 'K');
+            }
+        }
+
+        // 3. SOCJAL (Tylko przypisana Pani na dany tydzień)
+        let socjalWorker = workingToday.find(e => e.n === currentSocialWoman);
+        if(socjalWorker) {
+            appendRoleToCell(socjalWorker.n, d, 'S');
+        }
+    }
+    render();
+}
+
+function appendRoleToCell(emp, day, roleChar) {
+    let s = getShiftOnly(emp, day);
+    let r = getRolesOnly(emp, day);
+    if(!r.includes(roleChar)) r.push(roleChar);
+    saveVRaw(emp, day, s + '|' + r.join(','));
+}
+
+// RESZTA STANDARDOWYCH FUNKCJI OBLICZENIOWYCH
 function saveNorm(v) { localStorage.setItem(`norm_${year}_${curM}`, v); render(); }
 function loadNorm() {
     let v = localStorage.getItem(`norm_${year}_${curM}`);
@@ -209,8 +399,8 @@ function clearMonth() {
         employees.forEach(e => {
             if(e.dept === 'ME') return; 
             for(let d=1; d<=days; d++) {
-                let v = getV(e.n, d);
-                if(v !== "URLOP" && v !== "Ż") saveV(e.n, d, "");
+                let s = getShiftOnly(e.n, d);
+                if(s !== "URLOP" && s !== "Ż") saveVRaw(e.n, d, "");
             }
         });
         render();
@@ -220,9 +410,9 @@ function clearMonth() {
 function calcRealH(name) {
     let h = 0;
     for(let d=1; d<=31; d++) {
-        let v = getV(name, d);
-        if(v.includes('-')) {
-            let p = v.split('-');
+        let s = getShiftOnly(name, d);
+        if(s.includes('-')) {
+            let p = s.split('-');
             h += (parseInt(p[1]) || 0) - (parseInt(p[0]) || 0);
         }
     }
@@ -232,12 +422,12 @@ function calcRealH(name) {
 function getStreak(name, day) {
     let s = 0;
     for (let d = day-1; d >= 1; d--) {
-        let v = getV(name, d);
-        if(v.includes('-') || v==="URLOP" || v.toLowerCase()==="szk.") s++; else break;
+        let st = getShiftOnly(name, d);
+        if(st.includes('-') || st==="URLOP" || st.toLowerCase()==="szk.") s++; else break;
     }
     for (let d = day+1; d <= 31; d++) {
-        let v = getV(name, d);
-        if(v.includes('-') || v==="URLOP" || v.toLowerCase()==="szk.") s++; else break;
+        let st = getShiftOnly(name, d);
+        if(st.includes('-') || st==="URLOP" || st.toLowerCase()==="szk.") s++; else break;
     }
     return s;
 }
@@ -264,25 +454,24 @@ function startGeneration() {
     employees.forEach(e => { 
         if(e.dept === 'ME') return;
         for(let d=1; d<=days; d++) { 
-            let v=getV(e.n, d); 
-            if(v.includes('-') || v==="WOLNE") saveV(e.n, d, ""); 
+            let s = getShiftOnly(e.n, d); 
+            if(s.includes('-') || s==="WOLNE") saveVRaw(e.n, d, ""); 
         }
     });
 
-    // SOBOTY: 1 POK, 1 IT, 1 AGD + 3 INNYCH (RAZEM 6)
     let sats = [];
     for(let d=1; d<=days; d++) {
         if(new Date(year, curM, d).getDay() === 6 && isWorkDay(d)) sats.push(d);
     }
 
     sats.forEach(d => {
-        let available = employees.filter(e => getV(e.n, d) === "" && e.dept !== 'ME');
+        let available = employees.filter(e => getShiftOnly(e.n, d) === "" && e.dept !== 'ME');
         shuffle(available);
 
         available.sort((a,b) => {
             let aWork = 0, bWork = 0;
-            sats.forEach(s => { if(getV(a.n, s).includes('-')) aWork++; });
-            sats.forEach(s => { if(getV(b.n, s).includes('-')) bWork++; });
+            sats.forEach(s => { if(getShiftOnly(a.n, s).includes('-')) aWork++; });
+            sats.forEach(s => { if(getShiftOnly(b.n, s).includes('-')) bWork++; });
             return aWork - bWork; 
         });
 
@@ -294,7 +483,6 @@ function startGeneration() {
 
         if(poks.length > 0) { 
             toWork.push({ e: poks[0], shift: satShift }); 
-            // Wrzucamy drugą osobę z POK do ogólnej puli losowania, żeby też mogła pracować i wyrównać dni!
             if(poks.length > 1) sales.push(poks[1]); 
             totalNeeded--; 
         }
@@ -310,30 +498,29 @@ function startGeneration() {
             sales.shift();
         }
 
-        toWork.forEach(w => saveV(w.e.n, d, w.shift));
+        toWork.forEach(w => saveVRaw(w.e.n, d, w.shift));
     });
 
-    // DNI ROBOCZE
     for(let d=1; d<=days; d++) {
         if(new Date(year, curM, d).getDay() === 6) continue;
         if(!isWorkDay(d)) continue;
         
-        let available = employees.filter(e => getV(e.n, d) === "" && getStreak(e.n, d) < 5 && e.dept !== 'ME');
+        let available = employees.filter(e => getShiftOnly(e.n, d) === "" && getStreak(e.n, d) < 5 && e.dept !== 'ME');
         shuffle(available);
         available.sort((a,b) => calcRealH(a.n) - calcRealH(b.n));
         
         let poks = available.filter(e => e.p);
         let sales = available.filter(e => !e.p);
 
-        if(poks.length > 0) saveV(poks[0].n, d, openShift);
-        if(poks.length > 1) saveV(poks[1].n, d, closeShift);
+        if(poks.length > 0) saveVRaw(poks[0].n, d, openShift);
+        if(poks.length > 1) saveVRaw(poks[1].n, d, closeShift);
 
         let otwNeeded = 3;
         let zamNeeded = 3;
 
         let assignSale = (emp, isOtw) => {
-            if(isOtw) { saveV(emp.n, d, openShift); otwNeeded--; }
-            else { saveV(emp.n, d, closeShift); zamNeeded--; }
+            if(isOtw) { saveVRaw(emp.n, d, openShift); otwNeeded--; }
+            else { saveVRaw(emp.n, d, closeShift); zamNeeded--; }
             sales = sales.filter(e => e.n !== emp.n);
         };
 
@@ -349,104 +536,8 @@ function startGeneration() {
         }
     }
 
-    // BILANSOWANIE NORM
     let allBalanced = false;
     let iterations = 0;
-
-    const tryAddShift = (emp) => {
-        let possibleDays = [];
-        for(let d=1; d<=days; d++) {
-            let isWknd = new Date(year, curM, d).getDay() === 0 || new Date(year, curM, d).getDay() === 6;
-            if(isWorkDay(d) && !isWknd && getV(emp.n, d) === "" && getStreak(emp.n, d) < 5) {
-                let c = 0; employees.forEach(em => { if(em.dept !== 'ME' && getV(em.n, d).includes('-')) c++; });
-                possibleDays.push({ d, staff: c });
-            }
-        }
-        if(possibleDays.length > 0) {
-            shuffle(possibleDays);
-            possibleDays.sort((a,b) => a.staff - b.staff); 
-            saveV(emp.n, possibleDays[0].d, (Math.random()>0.5 ? openShift : closeShift));
-            return true;
-        }
-        return false;
-    };
-
-    const tryExtendShift = (emp) => {
-        let possibleDays = [];
-        for(let d=1; d<=days; d++) {
-            let isWknd = new Date(year, curM, d).getDay() === 0 || new Date(year, curM, d).getDay() === 6;
-            let v = getV(emp.n, d);
-            if(!isWknd && (v === openShift || v === closeShift) && getStreak(emp.n, d) < 5) possibleDays.push(d);
-        }
-        if(possibleDays.length > 0) {
-            shuffle(possibleDays);
-            saveV(emp.n, possibleDays[0], fullShift);
-            return true;
-        }
-        return false;
-    };
-
-    const tryRemoveShift = (emp, strict) => {
-        let possibleDays = [];
-        for(let d=1; d<=days; d++) {
-            let v = getV(emp.n, d);
-            let isWknd = new Date(year, curM, d).getDay() === 0 || new Date(year, curM, d).getDay() === 6;
-            
-            if(!isWknd && (v === openShift || v === closeShift || v === fullShift)) {
-                let otwSales = 0, zamSales = 0, otwPok = 0, zamPok = 0, itCount = 0, agdCount = 0;
-                employees.forEach(em => {
-                    if(em.n === emp.n || em.dept === 'ME') return;
-                    let ev = getV(em.n, d);
-                    if(ev.includes('-')) {
-                        let p = ev.split('-');
-                        let isO = parseInt(p[0]) <= 10;
-                        let isZ = parseInt(p[1]) >= 20;
-                        if(isO) { if(em.p) otwPok++; else otwSales++; }
-                        if(isZ) { if(em.p) zamPok++; else zamSales++; }
-                        if(em.dept === 'IT') itCount++;
-                        if(em.dept === 'AGD') agdCount++;
-                    }
-                });
-                
-                let isOtw = parseInt(v.split('-')[0]) <= 10;
-                let isZam = parseInt(v.split('-')[1]) >= 20;
-                let isSafe = true;
-                
-                if(strict) {
-                    if(isOtw && (otwSales < 3 || otwPok < 1)) isSafe = false;
-                    if(isZam && (zamSales < 3 || zamPok < 1)) isSafe = false;
-                    if(itCount < 1 || agdCount < 1) isSafe = false;
-                } else {
-                    if(isOtw && (otwSales + otwPok <= 1)) isSafe = false;
-                    if(isZam && (zamSales + zamPok <= 1)) isSafe = false;
-                }
-
-                if(isSafe) possibleDays.push({ d, staff: otwSales + zamSales });
-            }
-        }
-        if(possibleDays.length > 0) {
-            shuffle(possibleDays);
-            possibleDays.sort((a,b) => b.staff - a.staff);
-            saveV(emp.n, possibleDays[0].d, "");
-            return true;
-        }
-        return false;
-    };
-
-    const tryShortenShift = (emp) => {
-        let possibleDays = [];
-        for(let d=1; d<=days; d++) {
-            let isWknd = new Date(year, curM, d).getDay() === 0 || new Date(year, curM, d).getDay() === 6;
-            let v = getV(emp.n, d);
-            if(!isWknd && v === fullShift) possibleDays.push(d);
-        }
-        if(possibleDays.length > 0) {
-            shuffle(possibleDays);
-            saveV(emp.n, possibleDays[0], (Math.random()>0.5 ? openShift : closeShift));
-            return true;
-        }
-        return false;
-    };
 
     while(!allBalanced && iterations < 4000) {
         allBalanced = true;
@@ -455,8 +546,8 @@ function startGeneration() {
         let status = employees.map(e => {
             let urlops = 0;
             for(let d=1; d<=days; d++) {
-                let v = getV(e.n, d);
-                if(v === "URLOP" || v.toLowerCase() === "szk.") urlops++;
+                let s = getShiftOnly(e.n, d);
+                if(s === "URLOP" || s.toLowerCase() === "szk.") urlops++;
             }
             let target = baseNorm - (urlops * 8);
             let current = calcRealH(e.n);
@@ -470,18 +561,115 @@ function startGeneration() {
             if(st.diff === 0 || st.e.dept === 'ME') continue;
             allBalanced = false;
             let actionTaken = false;
+            let emp = st.e;
             
             if(st.diff > 0) { 
-                if(st.diff >= 8) actionTaken = tryAddShift(st.e);
-                if(!actionTaken && st.diff >= 2) actionTaken = tryExtendShift(st.e);
-                if(!actionTaken) actionTaken = tryAddShift(st.e);
+                if(st.diff >= 8) {
+                    let possibleDays = [];
+                    for(let d=1; d<=days; d++) {
+                        let isWknd = new Date(year, curM, d).getDay() === 0 || new Date(year, curM, d).getDay() === 6;
+                        if(isWorkDay(d) && !isWknd && getShiftOnly(emp.n, d) === "" && getStreak(emp.n, d) < 5) {
+                            let c = 0; employees.forEach(em => { if(em.dept !== 'ME' && getShiftOnly(em.n, d).includes('-')) c++; });
+                            possibleDays.push({ d, staff: c });
+                        }
+                    }
+                    if(possibleDays.length > 0) {
+                        shuffle(possibleDays);
+                        possibleDays.sort((a,b) => a.staff - b.staff); 
+                        saveVRaw(emp.n, possibleDays[0].d, (Math.random()>0.5 ? openShift : closeShift));
+                        actionTaken = true;
+                    }
+                }
+                
+                if(!actionTaken && st.diff >= 2) { 
+                    let possibleDays = [];
+                    for(let d=1; d<=days; d++) {
+                        let isWknd = new Date(year, curM, d).getDay() === 0 || new Date(year, curM, d).getDay() === 6;
+                        let s = getShiftOnly(emp.n, d);
+                        if(!isWknd && (s === openShift || s === closeShift) && getStreak(emp.n, d) < 5) possibleDays.push(d);
+                    }
+                    if(possibleDays.length > 0) {
+                        shuffle(possibleDays);
+                        saveVRaw(emp.n, possibleDays[0], fullShift);
+                        actionTaken = true;
+                    }
+                }
+                
+                // BRUTE FORCE: Jeśli wciąż brakuje, wymuś dodanie
+                if(!actionTaken && !strictMode) {
+                     for(let d=1; d<=days; d++) {
+                        let isWknd = new Date(year, curM, d).getDay() === 0 || new Date(year, curM, d).getDay() === 6;
+                        if(isWorkDay(d) && !isWknd && getShiftOnly(emp.n, d) === "" && getStreak(emp.n, d) < 5) {
+                            saveVRaw(emp.n, d, openShift); actionTaken = true; break;
+                        }
+                     }
+                }
                 
             } else if (st.diff < 0) { 
-                if(st.diff <= -8) actionTaken = tryRemoveShift(st.e, strictMode);
-                if(!actionTaken && st.diff <= -2) actionTaken = tryShortenShift(st.e);
-                if(!actionTaken) actionTaken = tryRemoveShift(st.e, strictMode);
+                if(st.diff <= -8) {
+                    let possibleDays = [];
+                    for(let d=1; d<=days; d++) {
+                        let s = getShiftOnly(emp.n, d);
+                        let isWknd = new Date(year, curM, d).getDay() === 0 || new Date(year, curM, d).getDay() === 6;
+                        if(!isWknd && (s === openShift || s === closeShift || s === fullShift)) {
+                            let otwSales = 0, zamSales = 0, otwPok = 0, zamPok = 0;
+                            employees.forEach(em => {
+                                if(em.n === emp.n || em.dept === 'ME') return;
+                                let es = getShiftOnly(em.n, d);
+                                if(es.includes('-')) {
+                                    let p = es.split('-');
+                                    if(parseInt(p[0]) <= 10) { if(em.p) otwPok++; else otwSales++; }
+                                    if(parseInt(p[1]) >= 20) { if(em.p) zamPok++; else zamSales++; }
+                                }
+                            });
+                            
+                            let isOtw = parseInt(s.split('-')[0]) <= 10;
+                            let isZam = parseInt(s.split('-')[1]) >= 20;
+                            let isSafe = true;
+                            
+                            if(strictMode) {
+                                if(isOtw && (otwSales < 3 || otwPok < 1)) isSafe = false;
+                                if(isZam && (zamSales < 3 || zamPok < 1)) isSafe = false;
+                            } else {
+                                if(isOtw && (otwSales + otwPok <= 1)) isSafe = false;
+                                if(isZam && (zamSales + zamPok <= 1)) isSafe = false;
+                            }
+
+                            if(isSafe) possibleDays.push({ d, staff: otwSales + zamSales });
+                        }
+                    }
+                    if(possibleDays.length > 0) {
+                        shuffle(possibleDays);
+                        possibleDays.sort((a,b) => b.staff - a.staff);
+                        saveVRaw(emp.n, possibleDays[0].d, "");
+                        actionTaken = true;
+                    }
+                }
+                
+                if(!actionTaken && st.diff <= -2) { 
+                    let possibleDays = [];
+                    for(let d=1; d<=days; d++) {
+                        let isWknd = new Date(year, curM, d).getDay() === 0 || new Date(year, curM, d).getDay() === 6;
+                        if(!isWknd && getShiftOnly(emp.n, d) === fullShift) possibleDays.push(d);
+                    }
+                    if(possibleDays.length > 0) {
+                        shuffle(possibleDays);
+                        saveVRaw(emp.n, possibleDays[0], (Math.random()>0.5 ? openShift : closeShift));
+                        actionTaken = true;
+                    }
+                }
+                
+                // BRUTE FORCE: Wymuś skrócenie żeby się zgadzało
+                if(!actionTaken && !strictMode) {
+                     for(let d=1; d<=days; d++) {
+                        let isWknd = new Date(year, curM, d).getDay() === 0 || new Date(year, curM, d).getDay() === 6;
+                        let s = getShiftOnly(emp.n, d);
+                        if(!isWknd && (s === openShift || s === closeShift)) {
+                            saveVRaw(emp.n, d, ""); actionTaken = true; break;
+                        }
+                     }
+                }
             }
-            
             if(actionTaken) break; 
         }
         iterations++;
@@ -499,14 +687,15 @@ function render() {
     const isLocked = localStorage.getItem(`locked_${year}_${curM}`) === 'true';
     const genBtn = document.getElementById('genBtn');
     const clrBtn = document.getElementById('clearBtn');
+    const rolesBtn = document.getElementById('rolesBtn');
     const appBtn = document.getElementById('approveBtn');
     
     genBtn.disabled = isLocked;
     clrBtn.disabled = isLocked;
+    rolesBtn.disabled = isLocked;
     genBtn.style.opacity = isLocked ? '0.3' : '1';
     clrBtn.style.opacity = isLocked ? '0.3' : '1';
-    genBtn.style.cursor = isLocked ? 'not-allowed' : 'pointer';
-    clrBtn.style.cursor = isLocked ? 'not-allowed' : 'pointer';
+    rolesBtn.style.opacity = isLocked ? '0.3' : '1';
     
     appBtn.innerText = isLocked ? '🔓 ODBLOKUJ' : '✅ ZATWIERDŹ';
     appBtn.style.background = isLocked ? '#a00' : '#0a0';
@@ -541,16 +730,30 @@ function render() {
         let o=0, z=0, suma=0;
         
         employees.forEach(e => {
-            let v = getV(e.n, d);
-            let cellClass = (v === "Ż") ? 'class="wish-cell"' : '';
-            if(v.includes('-')) {
+            let shift = getShiftOnly(e.n, d);
+            let roles = getRolesOnly(e.n, d);
+            
+            let cellClass = (shift === "Ż") ? 'wish-cell' : '';
+            
+            if(shift.includes('-')) {
                 suma++;
-                let p = v.split('-');
+                let p = shift.split('-');
                 if(parseInt(p[0]) <= 10) o++;
                 if(parseInt(p[1]) >= 20) z++;
             }
-            let disabledAttr = isLocked ? 'disabled' : '';
-            html += `<td ${cellClass}><input value="${v}" ${disabledAttr} onchange="saveV('${e.n}',${d},this.value);render()"></td>`;
+            
+            let iconsHtml = '';
+            if(roles.includes('K')) iconsHtml += '🔑';
+            if(roles.includes('D')) iconsHtml += '📦';
+            if(roles.includes('S')) iconsHtml += '☕';
+            
+            let displayHtml = `<div class="cell-shift">${shift}</div>`;
+            if(iconsHtml) displayHtml += `<div class="cell-icons">${iconsHtml}</div>`;
+            
+            let clickAttr = isLocked ? '' : `onclick="openEditModal('${e.n}', ${d})"`;
+            let cursorStyle = isLocked ? 'cursor:not-allowed;' : 'cursor:pointer;';
+            
+            html += `<td class="${cellClass}" ${clickAttr} style="${cursorStyle}">${displayHtml}</td>`;
         });
         
         html += `<td class="obsada-col">${o} - ${suma} - ${z}</td>`;
@@ -562,8 +765,8 @@ function render() {
     employees.forEach(e => {
         let urlops = 0;
         for(let d=1; d<=days; d++) {
-            let v = getV(e.n, d);
-            if(v === "URLOP" || v.toLowerCase() === "szk.") urlops++;
+            let s = getShiftOnly(e.n, d);
+            if(s === "URLOP" || s.toLowerCase() === "szk.") urlops++;
         }
         let target = baseNorm - (urlops * 8); 
         let h = calcRealH(e.n); 
@@ -578,8 +781,8 @@ function render() {
         if(e.dept !== 'ME') {
             for(let d=1; d<=days; d++) {
                 if(new Date(year, curM, d).getDay() === 6 && isWorkDay(d)) {
-                    let v = getV(e.n, d);
-                    if(v === "" || v === "URLOP" || v === "Ż") count++;
+                    let s = getShiftOnly(e.n, d);
+                    if(s === "" || s === "URLOP" || s === "Ż") count++;
                 }
             }
         }
@@ -613,8 +816,8 @@ function saveSettings() {
     
     employees.forEach(e => {
         for(let d=1; d<=days; d++) {
-            let v = getV(e.n, d);
-            if(v === "URLOP" || v === "Ż") saveV(e.n, d, "");
+            let s = getShiftOnly(e.n, d);
+            if(s === "URLOP" || s === "Ż") saveVRaw(e.n, d, "");
         }
     });
 
@@ -630,7 +833,7 @@ function saveSettings() {
         if(z) {
             z.split(',').forEach(d => {
                 let dayNum = parseInt(d.trim());
-                if(!isNaN(dayNum) && dayNum >= 1 && dayNum <= days) saveV(e.n, dayNum, "Ż");
+                if(!isNaN(dayNum) && dayNum >= 1 && dayNum <= days) saveVRaw(e.n, dayNum, "Ż");
             });
         }
         
@@ -639,7 +842,7 @@ function saveSettings() {
             let end = parseInt(u2);
             if(!isNaN(start) && !isNaN(end)) {
                 for(let d=start; d<=end; d++) {
-                    if(d >= 1 && d <= days && isWorkDay(d)) saveV(e.n, d, "URLOP");
+                    if(d >= 1 && d <= days && isWorkDay(d)) saveVRaw(e.n, d, "URLOP");
                 }
             }
         }

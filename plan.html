@@ -7,7 +7,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Montserrat', sans-serif; }
-        body { background: #111; color: white; display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
+        html, body { background: #080808; color: white; display: flex; flex-direction: column; width: 100%; height: 100vh; overflow: hidden; }
         
         /* CUSTOM SCROLLBAR */
         ::-webkit-scrollbar { width: 12px; height: 12px; }
@@ -28,7 +28,7 @@
         .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.8); display: none; z-index: 9500; }
         .overlay.active { display: block; }
 
-        .navigation-area { background: #111; border-bottom: 2px solid #ffe800; flex-shrink: 0; box-shadow: 0 4px 10px rgba(0,0,0,0.5); z-index: 800; }
+        .navigation-area { background: #111; border-bottom: 2px solid #ffe800; flex-shrink: 0; box-shadow: 0 4px 10px rgba(0,0,0,0.5); z-index: 800; width: 100%; }
         .month-row { display: flex; align-items: center; padding: 10px 15px; gap: 10px; flex-wrap: wrap; }
         .month-selector { display: flex; gap: 8px; overflow-x: auto; white-space: nowrap; scrollbar-width: none; flex-grow: 1; padding-bottom: 2px; }
         .month-btn { padding: 6px 12px; border-radius: 20px; border: 1px solid #333; background: #000; color: #666; font-size: 0.65rem; font-weight: 700; cursor: pointer; transition: 0.3s; }
@@ -38,26 +38,26 @@
         .admin-controls { display: flex; align-items: center; gap: 8px; border-left: 1px solid #333; padding-left: 10px; }
         .norm-input { width: 55px; background: #000; color: #ffe800; border: 1px solid #ffe800; text-align: center; font-weight: 900; padding: 4px; font-size: 0.8rem; border-radius: 4px; outline: none; }
         
-        /* POPRAWKA ROZCIĄGANIA TABELI - KONIEC Z CZARNYM PASKIEM */
-        .table-container { flex-grow: 1; overflow: auto; background: #111; width: 100%; display: block; }
-        table { border-collapse: collapse; width: 100%; min-width: 1100px; table-layout: fixed; background: #080808; }
+        /* GWARANCJA PEŁNEJ SZEROKOŚCI TABELI */
+        .table-container { flex: 1; overflow: auto; background: #080808; width: 100%; display: block; }
+        table { border-collapse: collapse; width: 100%; min-width: 1200px; table-layout: auto; background: #080808; }
         
         thead th { background: #151515; position: sticky; top: 0; z-index: 500; padding: 10px 2px; border-bottom: 3px solid #ffe800; border-right: 1px solid #222; }
-        thead th:last-child { border-right: none; } /* Brak kreski na samym końcu */
+        thead th:last-child { border-right: none; } 
         
         .avatar { width: 28px; height: 28px; border-radius: 50%; border: 2px solid #ffe800; display: flex; align-items: center; justify-content: center; margin: 0 auto 5px; font-weight: 900; color: #ffe800; font-size: 0.65rem; background: #000; box-shadow: 0 0 5px rgba(255, 232, 0, 0.3); }
         .worker-name { font-size: 0.5rem; font-weight: 900; text-transform: uppercase; line-height: 1.2; color: #fff; letter-spacing: 0.5px; }
         .dept-tag { font-size: 0.45rem; font-weight: 900; color: #888; }
         .dept-me { color: #f44 !important; text-shadow: 0 0 5px rgba(255, 0, 0, 0.5); }
 
-        .date-col { position: sticky; left: 0; background: #111; z-index: 600; width: 85px; font-size: 0.65rem; font-weight: 900; color: #ccc; text-align: center; border-right: 2px solid #ffe800; border-left: 2px solid #ffe800; }
-        .obsada-col { width: 110px; color: #ffe800; font-weight: 900; font-size: 0.6rem; background: #111; text-align: center; border-left: 2px solid #ffe800; border-right: none !important; } /* Przykleja się do scrolla */
+        .date-col { position: sticky; left: 0; background: #111; z-index: 600; width: 85px; min-width: 85px; font-size: 0.65rem; font-weight: 900; color: #ccc; text-align: center; border-right: 2px solid #ffe800; border-left: 2px solid #ffe800; }
+        .obsada-col { width: 130px; min-width: 130px; color: #ffe800; font-weight: 900; font-size: 0.65rem; background: #111; text-align: center; border-left: 2px solid #ffe800; } 
         
         tbody tr { transition: background-color 0.2s; }
         tbody tr:hover { background-color: rgba(255, 255, 255, 0.05); }
 
         td { border-bottom: 1px solid #222; border-right: 1px solid #222; height: 38px; }
-        td:last-child { border-right: none; } /* Brak prawej ramki na końcu ekranu */
+        td:last-child { border-right: none; } 
         td input { width: 100%; height: 100%; background: transparent; border: none; color: white; text-align: center; font-weight: 700; font-size: 0.8rem; outline: none; transition: 0.2s; cursor: pointer; }
         td input:focus, td input:hover { background: rgba(255, 232, 0, 0.15); }
         td input:disabled { color: #888; cursor: not-allowed; background: transparent; }
@@ -261,7 +261,6 @@ function startGeneration() {
     const satShift = "10-20"; 
     const days = new Date(year, curM + 1, 0).getDate();
 
-    // 1. CZYSZCZENIE
     employees.forEach(e => { 
         if(e.dept === 'ME') return;
         for(let d=1; d<=days; d++) { 
@@ -270,7 +269,7 @@ function startGeneration() {
         }
     });
 
-    // 2. SOBOTY (Dokładnie 6 osób pracujących, 4 wolne = idealny mix 1/2 wolne sb na msc)
+    // SOBOTY: 1 POK, 1 IT, 1 AGD + 3 INNYCH (RAZEM 6)
     let sats = [];
     for(let d=1; d<=days; d++) {
         if(new Date(year, curM, d).getDay() === 6 && isWorkDay(d)) sats.push(d);
@@ -293,7 +292,12 @@ function startGeneration() {
 
         let totalNeeded = 6;
 
-        if(poks.length > 0) { toWork.push({ e: poks[0], shift: satShift }); sales = sales.filter(e => e.n !== poks[0].n); totalNeeded--; }
+        if(poks.length > 0) { 
+            toWork.push({ e: poks[0], shift: satShift }); 
+            // Wrzucamy drugą osobę z POK do ogólnej puli losowania, żeby też mogła pracować i wyrównać dni!
+            if(poks.length > 1) sales.push(poks[1]); 
+            totalNeeded--; 
+        }
         
         let it = sales.find(e => e.dept === 'IT');
         if(it) { toWork.push({ e: it, shift: satShift }); sales = sales.filter(e => e.n !== it.n); totalNeeded--; }
@@ -309,7 +313,7 @@ function startGeneration() {
         toWork.forEach(w => saveV(w.e.n, d, w.shift));
     });
 
-    // 3. DNI ROBOCZE (3+1 OTW, 3+1 ZAM)
+    // DNI ROBOCZE
     for(let d=1; d<=days; d++) {
         if(new Date(year, curM, d).getDay() === 6) continue;
         if(!isWorkDay(d)) continue;
@@ -345,7 +349,7 @@ function startGeneration() {
         }
     }
 
-    // 4. INTELIGENTNE BILANSOWANIE NORM Z "DEADLOCK BREAKER"
+    // BILANSOWANIE NORM
     let allBalanced = false;
     let iterations = 0;
 

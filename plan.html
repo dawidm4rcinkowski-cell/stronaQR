@@ -21,12 +21,12 @@
         .overlay.active { display: block; }
 
         .navigation-area { background: #111; border-bottom: 2px solid #ffe800; flex-shrink: 0; }
-        .month-row { display: flex; align-items: center; padding: 10px 15px; gap: 15px; }
+        .month-row { display: flex; align-items: center; padding: 10px 15px; gap: 10px; flex-wrap: wrap; }
         .month-selector { display: flex; gap: 8px; overflow-x: auto; white-space: nowrap; scrollbar-width: none; flex-grow: 1; }
         .month-btn { padding: 6px 12px; border-radius: 20px; border: 1px solid #222; background: #000; color: #666; font-size: 0.65rem; font-weight: 700; cursor: pointer; }
         .month-btn.active { background: #ffe800; color: #000; border-color: #ffe800; }
-        .admin-controls { display: flex; align-items: center; gap: 10px; border-left: 1px solid #333; padding-left: 15px; }
-        .norm-input { width: 65px; background: #000; color: #ffe800; border: 1px solid #ffe800; text-align: center; font-weight: 900; padding: 4px; font-size: 0.8rem; border-radius: 4px; }
+        .admin-controls { display: flex; align-items: center; gap: 8px; border-left: 1px solid #333; padding-left: 10px; }
+        .norm-input { width: 55px; background: #000; color: #ffe800; border: 1px solid #ffe800; text-align: center; font-weight: 900; padding: 4px; font-size: 0.8rem; border-radius: 4px; }
         
         .table-container { flex-grow: 1; overflow: auto; }
         table { border-collapse: collapse; width: 100%; table-layout: fixed; }
@@ -46,6 +46,10 @@
         .sun { background: #300 !important; } 
         .sat { background: #110 !important; }
         .wish-cell { background: #300060 !important; }
+        
+        /* Podświetlenie dzisiejszego dnia */
+        .today-row { background-color: rgba(0, 255, 0, 0.15) !important; }
+        .today-row .date-col { background-color: rgba(0, 255, 0, 0.2) !important; color: #0f0; border-right: 2px solid #0f0; }
 
         tfoot { position: sticky; bottom: 0; z-index: 700; }
         tfoot td { background: #111; color: #ffe800; font-weight: 900; font-size: 0.65rem; text-align: center; border-top: 2px solid #ffe800; height: 35px; }
@@ -57,8 +61,8 @@
         .worker-card label { display: block; font-size: 0.5rem; color: #888; margin-top: 5px; }
         .worker-card input { width: 100%; background: #000; border: 1px solid #444; color: #fff; padding: 3px; font-size: 0.7rem; }
         
-        .btn-gen { background: #ffe800; color: #000; border: none; padding: 8px 15px; font-weight: 900; border-radius: 20px; cursor: pointer; font-size: 0.7rem; transition: 0.3s; }
-        .btn-settings { background: #333; color: #ffe800; border: 1px solid #ffe800; padding: 8px 15px; font-weight: 900; border-radius: 20px; cursor: pointer; font-size: 0.7rem; transition: 0.3s; }
+        .btn-gen { background: #ffe800; color: #000; border: none; padding: 8px 12px; font-weight: 900; border-radius: 20px; cursor: pointer; font-size: 0.65rem; transition: 0.3s; }
+        .btn-settings { background: #333; color: #ffe800; border: 1px solid #ffe800; padding: 8px 12px; font-weight: 900; border-radius: 20px; cursor: pointer; font-size: 0.65rem; transition: 0.3s; }
     </style>
 </head>
 <body>
@@ -83,8 +87,9 @@
             <span style="font-size:0.55rem; font-weight:900; color:#888;">NORMA H:</span>
             <input type="number" id="hourNormInput" class="norm-input" value="160" onchange="saveNorm(this.value)">
             <button class="btn-settings" onclick="toggleModal(true)">⚙️ USTAWIENIA</button>
+            <button class="btn-settings" style="background:#a00; color:#fff; border-color:#a00;" onclick="clearMonth()" id="clearBtn">🗑️ WYCZYŚĆ</button>
             <button class="btn-gen" onclick="startGeneration()" id="genBtn">🚀 GENERUJ</button>
-            <button class="btn-settings" id="approveBtn" style="background:#0a0; color:#fff; border-color:#0a0;" onclick="toggleApprove()">✅ ZATWIERDŹ PLAN</button>
+            <button class="btn-settings" id="approveBtn" style="background:#0a0; color:#fff; border-color:#0a0;" onclick="toggleApprove()">✅ ZATWIERDŹ</button>
         </div>
     </div>
 </div>
@@ -103,7 +108,7 @@
 <div class="modal" id="settingsModal">
     <div class="modal-content">
         <h3 style="color:#ffe800; margin-bottom:10px; font-size:1rem;">USTAWIENIA SKLEPU</h3>
-        <label style="font-size:0.6rem; color:#888;">DOSTĘPNE ZMIANY (NP. 10-18, 12-20, 10-20):</label>
+        <label style="font-size:0.6rem; color:#888;">DOSTĘPNE ZMIANY DLA DNI ROBOCZYCH (NP. 10-18, 12-20, 10-20):</label>
         <input id="globalShifts" style="width:100%; background:#000; border:1px solid #ffe800; color:#fff; padding:8px; margin-bottom:15px;" value="10-18, 12-20, 10-20">
         
         <div class="worker-grid" id="workerGrid"></div>
@@ -112,7 +117,6 @@
 </div>
 
 <script>
-// Dodane działy dla logiki obsady
 const employees = [
     {n: "PAWEŁ", i: "P", p: false, dept: "ME"},
     {n: "MICHAŁ", i: "M", p: false, dept: "KSS"},
@@ -128,7 +132,7 @@ const employees = [
 ];
 
 const months = ["STYCZEŃ", "LUTY", "MARZEC", "KWIECIEŃ", "MAJ", "CZERWIEC", "LIPIEC", "SIERPIEŃ", "WRZESIEŃ", "PAŹDZIERNIK", "LISTOPAD", "GRUDZIEŃ"];
-let curM = 1; // 1 = Luty
+let curM = new Date().getMonth(); // Domyślnie ładujemy aktualny miesiąc
 const year = 2026;
 
 const holidays2026 = ["1-1", "1-6", "4-5", "4-6", "5-1", "5-3", "5-24", "6-4", "8-15", "11-1", "11-11", "12-25", "12-26"];
@@ -155,6 +159,22 @@ function toggleApprove() {
     let locked = localStorage.getItem(`locked_${year}_${curM}`) === 'true';
     localStorage.setItem(`locked_${year}_${curM}`, !locked);
     render();
+}
+
+// Funkcja czyszczenia miesiąca (Bez usuwania urlopów i życzeń)
+function clearMonth() {
+    if(localStorage.getItem(`locked_${year}_${curM}`) === 'true') return;
+    if(confirm("Czy na pewno chcesz usunąć wygenerowany grafik? (Urlopy z ustawień zostaną nienaruszone)")) {
+        const days = new Date(year, curM + 1, 0).getDate();
+        employees.forEach(e => {
+            if(e.dept === 'ME') return; // Nie ruszamy ewentualnych wpisów kierownika
+            for(let d=1; d<=days; d++) {
+                let v = getV(e.n, d);
+                if(v !== "URLOP" && v !== "Ż") saveV(e.n, d, "");
+            }
+        });
+        render();
+    }
 }
 
 function calcRealH(name) {
@@ -198,19 +218,19 @@ function startGeneration() {
     const openShift = shifts[0] || "10-18";
     const closeShift = shifts.length > 1 ? shifts[1] : "12-20";
     const fullShift = shifts.length > 2 ? shifts[2] : "10-20";
-    const satShift = "10-20";
+    const satShift = "10-20"; // Sztywna zmiana dla każdego w Sobotę
     const days = new Date(year, curM + 1, 0).getDate();
 
-    // 1. Czyszczenie (Omijamy PAWŁA - ręczne zmiany kierownika zostają nienaruszone)
+    // 1. Czyszczenie (Omijamy PAWŁA)
     employees.forEach(e => { 
-        if(e.dept === 'ME') return; // Kierownik ignorowany przez auto-plan
+        if(e.dept === 'ME') return;
         for(let d=1; d<=days; d++) { 
             let v=getV(e.n, d); 
             if(v.includes('-') || v==="WOLNE") saveV(e.n, d, ""); 
         }
     });
 
-    // 2. SOBOTY (1 POK, 3 Sprzedaż)
+    // 2. SOBOTY - Żelazna Reguła 7 Osób (1 POK, 1 IT, 1 AGD + 4 Sprzedaż = Zawsze tylko 3 wolne = Nikt nie dostanie 3 wolnych sobót)
     let sats = [];
     for(let d=1; d<=days; d++) {
         if(new Date(year, curM, d).getDay() === 6 && isWorkDay(d)) sats.push(d);
@@ -220,32 +240,34 @@ function startGeneration() {
         let available = employees.filter(e => getV(e.n, d) === "" && e.dept !== 'ME');
         shuffle(available);
 
+        // Sortowanie by osoby, które miały mało sobót pracujących, teraz szły do pracy
         available.sort((a,b) => {
-            let aOff = 0, bOff = 0;
-            sats.forEach(s => { let v = getV(a.n, s); if(v===""||v==="Ż"||v==="URLOP") aOff++; });
-            sats.forEach(s => { let v = getV(b.n, s); if(v===""||v==="Ż"||v==="URLOP") bOff++; });
-            return bOff - aOff; 
+            let aWork = 0, bWork = 0;
+            sats.forEach(s => { if(getV(a.n, s).includes('-')) aWork++; });
+            sats.forEach(s => { if(getV(b.n, s).includes('-')) bWork++; });
+            return aWork - bWork; 
         });
 
         let toWork = [];
         let poks = available.filter(e => e.p);
         let sales = available.filter(e => !e.p);
 
-        // Zawsze 1 osoba z POK na całą sobotę
+        // Zawsze 1 osoba z POK na 10-20
         if(poks.length > 0) {
             toWork.push({ e: poks[0], shift: satShift });
             sales = sales.filter(e => e.n !== poks[0].n);
         }
 
-        // Faworyzowanie IT i AGD na sobotę
+        // 1 z IT
         let it = sales.find(e => e.dept === 'IT');
         if(it) { toWork.push({ e: it, shift: satShift }); sales = sales.filter(e => e.n !== it.n); }
 
+        // 1 z AGD
         let agd = sales.find(e => e.dept === 'AGD');
         if(agd) { toWork.push({ e: agd, shift: satShift }); sales = sales.filter(e => e.n !== agd.n); }
 
-        // Dopełnienie do 3 osób ze sprzedaży
-        let salesNeeded = 3 - toWork.filter(w => !w.e.p).length;
+        // Dopełnienie sprzedawcami tak, by łącznie na sklepie było DOKŁADNIE 7 osób (6 sprzedawców + 1 POK)
+        let salesNeeded = 6 - toWork.filter(w => !w.e.p).length;
         for(let i=0; i<salesNeeded && sales.length>0; i++) {
             toWork.push({ e: sales[0], shift: satShift });
             sales.shift();
@@ -266,14 +288,12 @@ function startGeneration() {
         let poks = available.filter(e => e.p);
         let sales = available.filter(e => !e.p);
 
-        // ZAWSZE ktoś z POK na otwarcie i zamknięcie
         if(poks.length > 0) saveV(poks[0].n, d, openShift);
         if(poks.length > 1) saveV(poks[1].n, d, closeShift);
 
-        let otwNeeded = 3; // 3 sprzedaż na OTW
-        let zamNeeded = 3; // 3 sprzedaż na ZAM
+        let otwNeeded = 3;
+        let zamNeeded = 3;
 
-        // Gwarancja IT i AGD na dany dzień
         let assignSale = (emp, isOtw) => {
             if(isOtw) { saveV(emp.n, d, openShift); otwNeeded--; }
             else { saveV(emp.n, d, closeShift); zamNeeded--; }
@@ -281,24 +301,18 @@ function startGeneration() {
         };
 
         let it = sales.find(e => e.dept === 'IT');
-        if(it) assignSale(it, true); // IT rzucony np. na otwarcie
+        if(it) assignSale(it, true); 
 
         let agd = sales.find(e => e.dept === 'AGD');
-        if(agd) assignSale(agd, false); // AGD rzucony np. na zamknięcie
+        if(agd) assignSale(agd, false); 
 
-        // Wypełnianie reszty obsady 3+3
         for(let i=0; i<sales.length && (otwNeeded>0 || zamNeeded>0); i++) {
-            if(otwNeeded > 0) {
-                assignSale(sales[i], true);
-                i--; // Tablica się zmniejsza po przypisaniu, cofamy indeks
-            } else if (zamNeeded > 0) {
-                assignSale(sales[i], false);
-                i--;
-            }
+            if(otwNeeded > 0) { assignSale(sales[i], true); i--; }
+            else if (zamNeeded > 0) { assignSale(sales[i], false); i--; }
         }
     }
 
-    // 4. Bilansowanie Normy
+    // 4. Bilansowanie Normy - TUTAJ ZABLOKOWANO MOŻLIWOŚĆ DOTYKANIA SOBÓT!
     let allBalanced = false;
     let iterations = 0;
 
@@ -320,7 +334,7 @@ function startGeneration() {
         status.sort((a,b) => Math.abs(b.diff) - Math.abs(a.diff));
 
         for(let st of status) {
-            if(st.diff === 0 || st.e.dept === 'ME') continue; // ME omijany w bilansowaniu
+            if(st.diff === 0 || st.e.dept === 'ME') continue;
             allBalanced = false;
             let emp = st.e;
             
@@ -330,6 +344,7 @@ function startGeneration() {
                     let possibleDays = [];
                     for(let d=1; d<=days; d++) {
                         let isWknd = new Date(year, curM, d).getDay() === 0 || new Date(year, curM, d).getDay() === 6;
+                        // Dodajemy godziny tylko w dni robocze
                         if(isWorkDay(d) && !isWknd && getV(emp.n, d) === "" && getStreak(emp.n, d) < 5) {
                             let c = 0; employees.forEach(em => { if(em.dept !== 'ME' && getV(em.n, d).includes('-')) c++; });
                             possibleDays.push({ d, staff: c });
@@ -346,8 +361,10 @@ function startGeneration() {
                 if(!added && st.diff >= 2) { 
                     let possibleDays = [];
                     for(let d=1; d<=days; d++) {
+                        let isWknd = new Date(year, curM, d).getDay() === 0 || new Date(year, curM, d).getDay() === 6;
                         let v = getV(emp.n, d);
-                        if((v === openShift || v === closeShift) && getStreak(emp.n, d) < 5) possibleDays.push(d);
+                        // Zabezpieczenie przed podbijaniem innych rzeczy w weekendy
+                        if(!isWknd && (v === openShift || v === closeShift) && getStreak(emp.n, d) < 5) possibleDays.push(d);
                     }
                     if(possibleDays.length > 0) {
                         shuffle(possibleDays);
@@ -364,8 +381,8 @@ function startGeneration() {
                         let v = getV(emp.n, d);
                         let isWknd = new Date(year, curM, d).getDay() === 0 || new Date(year, curM, d).getDay() === 6;
                         
+                        // Zabezpieczenie: algorytm nigdy nie usunie ci zmiany, jeśli jest to sobota!
                         if(!isWknd && (v === openShift || v === closeShift || v === fullShift)) {
-                            // Liczenie obsady bez osoby, którą chcemy wyrzucić (Zabezpieczenie 3+1)
                             let otwSales = 0, zamSales = 0, otwPok = 0, zamPok = 0, itCount = 0, agdCount = 0;
                             employees.forEach(em => {
                                 if(em.n === emp.n || em.dept === 'ME') return;
@@ -386,7 +403,6 @@ function startGeneration() {
                             let isZam = parseInt(v.split('-')[1]) >= 20;
                             let isSafe = true;
                             
-                            // Twarde warunki bezpieczeństwa ucięcia zmiany
                             if(isOtw && (otwSales < 3 || otwPok < 1)) isSafe = false;
                             if(isZam && (zamSales < 3 || zamPok < 1)) isSafe = false;
                             if(itCount < 1 || agdCount < 1) isSafe = false;
@@ -405,8 +421,10 @@ function startGeneration() {
                 if(!removed && st.diff <= -2) { 
                     let possibleDays = [];
                     for(let d=1; d<=days; d++) {
+                        let isWknd = new Date(year, curM, d).getDay() === 0 || new Date(year, curM, d).getDay() === 6;
                         let v = getV(emp.n, d);
-                        if(v === fullShift) possibleDays.push(d);
+                        // Zabezpieczenie przed skracaniem sobotniego 10-20 do 8 godzin!
+                        if(!isWknd && v === fullShift) possibleDays.push(d);
                     }
                     if(possibleDays.length > 0) {
                         shuffle(possibleDays);
@@ -430,13 +448,17 @@ function render() {
     
     const isLocked = localStorage.getItem(`locked_${year}_${curM}`) === 'true';
     const genBtn = document.getElementById('genBtn');
+    const clrBtn = document.getElementById('clearBtn');
     const appBtn = document.getElementById('approveBtn');
     
     genBtn.disabled = isLocked;
+    clrBtn.disabled = isLocked;
     genBtn.style.opacity = isLocked ? '0.3' : '1';
+    clrBtn.style.opacity = isLocked ? '0.3' : '1';
     genBtn.style.cursor = isLocked ? 'not-allowed' : 'pointer';
+    clrBtn.style.cursor = isLocked ? 'not-allowed' : 'pointer';
     
-    appBtn.innerText = isLocked ? '🔓 ODBLOKUJ PLAN' : '✅ ZATWIERDŹ PLAN';
+    appBtn.innerText = isLocked ? '🔓 ODBLOKUJ' : '✅ ZATWIERDŹ';
     appBtn.style.background = isLocked ? '#a00' : '#0a0';
     appBtn.style.borderColor = isLocked ? '#a00' : '#0a0';
 
@@ -452,11 +474,20 @@ function render() {
     head.innerHTML += '<th class="obsada-col">OTW|ZAM|SUMA</th>';
 
     body.innerHTML = "";
+    const today = new Date();
+    const isCurrentMonth = today.getFullYear() === year && today.getMonth() === curM;
+
     for(let d=1; d<=days; d++) {
         let date = new Date(year, curM, d);
         let tr = document.createElement('tr');
+        
         if(!isWorkDay(d)) tr.className = 'sun';
         else if(date.getDay() === 6) tr.className = 'sat';
+        
+        // Podświetlenie dzisiejszego dnia
+        if(isCurrentMonth && today.getDate() === d) {
+            tr.classList.add('today-row');
+        }
         
         let html = `<td class="date-col">${d} ${['ND','PN','WT','ŚR','CZ','PT','SB'][date.getDay()]}</td>`;
         let o=0, z=0, suma=0;
@@ -494,13 +525,15 @@ function render() {
     fSat.innerHTML = '<td class="date-col">WOLNE SB</td>';
     employees.forEach(e => {
         let count = 0;
-        for(let d=1; d<=days; d++) {
-            if(new Date(year, curM, d).getDay() === 6 && isWorkDay(d)) {
-                let v = getV(e.n, d);
-                if(v === "" || v === "URLOP" || v === "Ż") count++;
+        if(e.dept !== 'ME') { // ME nie wliczamy do statystyki wolnych sobót
+            for(let d=1; d<=days; d++) {
+                if(new Date(year, curM, d).getDay() === 6 && isWorkDay(d)) {
+                    let v = getV(e.n, d);
+                    if(v === "" || v === "URLOP" || v === "Ż") count++;
+                }
             }
         }
-        fSat.innerHTML += `<td style="color:${count>=1 && count<=2 ?'#ffe800':'#f44'}">${count}</td>`;
+        fSat.innerHTML += `<td style="color:${count>=1 && count<=2 ?'#ffe800':'#666'}">${e.dept==='ME'?'-':count}</td>`;
     });
 }
 

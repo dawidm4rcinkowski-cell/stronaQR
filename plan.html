@@ -38,7 +38,7 @@
         .admin-controls { display: flex; align-items: center; gap: 8px; border-left: 1px solid #333; padding-left: 10px; }
         .norm-input { width: 55px; background: #000; color: #ffe800; border: 1px solid #ffe800; text-align: center; font-weight: 900; padding: 4px; font-size: 0.8rem; border-radius: 4px; outline: none; }
         
-        /* GWARANCJA PEŁNEJ SZEROKOŚCI TABELI */
+        /* TABELA */
         .table-container { flex: 1; overflow: auto; background: #080808; width: 100vw; max-width: 100%; display: block; }
         table { border-collapse: collapse; width: 100%; min-width: max-content; background: #080808; }
         
@@ -53,9 +53,16 @@
         .date-col { position: sticky; left: 0; background: #111; z-index: 600; min-width: 90px; font-size: 0.65rem; font-weight: 900; color: #ccc; text-align: center; border-right: 2px solid #ffe800; border-left: 2px solid #ffe800; }
         .obsada-col { min-width: 130px; color: #ffe800; font-weight: 900; font-size: 0.65rem; background: #111; text-align: center; border-left: 2px solid #ffe800; border-right: none !important; } 
         
-        td { border-bottom: 1px solid #222; border-right: 1px solid #222; height: 48px; text-align: center; vertical-align: middle; transition: 0.2s; position: relative; }
-        td:hover { background-color: rgba(255, 255, 255, 0.05); }
+        tbody tr { transition: background-color 0.2s; }
+        tbody tr:hover { background-color: rgba(255, 255, 255, 0.03); }
+
+        td { border-bottom: 1px solid #222; border-right: 1px solid #222; height: 48px; text-align: center; vertical-align: middle; transition: background-color 0.2s; cursor: pointer; }
         td:last-child { border-right: none; } 
+        
+        /* NAPRAWIONY EFEKT HOVER DLA KOMÓREK (Brak czarnego kwadratu) */
+        td:hover { background-color: rgba(255, 255, 255, 0.08); }
+        .sat td:hover { background-color: rgba(0, 0, 0, 0.06) !important; }
+        .sun td:hover { background-color: rgba(0, 0, 0, 0.15) !important; }
         
         /* STYLIZACJA KOMÓREK Z ROLAMI */
         .cell-shift { font-weight: 900; font-size: 0.8rem; color: #fff; }
@@ -117,8 +124,6 @@
         .btn-gen:hover { transform: scale(1.05); box-shadow: 0 0 10px rgba(255, 232, 0, 0.5); }
         .btn-settings { background: #333; color: #ffe800; border: 1px solid #ffe800; padding: 8px 12px; font-weight: 900; border-radius: 20px; cursor: pointer; font-size: 0.65rem; transition: 0.3s; }
         .btn-settings:hover { background: #ffe800; color: #000; }
-        .btn-roles { background: #3498db; color: #fff; border: 1px solid #2980b9; padding: 8px 12px; font-weight: 900; border-radius: 20px; cursor: pointer; font-size: 0.65rem; transition: 0.3s; }
-        .btn-roles:hover { background: #2980b9; transform: scale(1.05); }
     </style>
 </head>
 <body>
@@ -145,7 +150,6 @@
             <button class="btn-settings" onclick="toggleModal(true)">⚙️ USTAWIENIA</button>
             <button class="btn-settings" style="background:#a00; color:#fff; border-color:#a00;" onclick="clearMonth()" id="clearBtn">🗑️ WYCZYŚĆ</button>
             <button class="btn-gen" onclick="startGeneration()" id="genBtn">🚀 GENERUJ PLAN</button>
-            <button class="btn-roles" onclick="generateRoles()" id="rolesBtn">🎲 PRZYDZIEL ROLE</button>
             <button class="btn-settings" id="approveBtn" style="background:#0a0; color:#fff; border-color:#0a0;" onclick="toggleApprove()">✅ ZATWIERDŹ</button>
         </div>
     </div>
@@ -163,9 +167,9 @@
 </div>
 
 <div class="legend-bar">
-    <span><span style="font-size:1rem;">🔑</span> KLUCZE (Zamyka i otwiera jutro)</span>
-    <span><span style="font-size:1rem;">📦</span> DOSTAWA (Od 10:00)</span>
-    <span><span style="font-size:1rem;">☕</span> SOCJALNY (Wyznaczona na cały tydzień)</span>
+    <span><span style="font-size:1rem;">🔑</span> KLUCZE (Ręczne przypisanie)</span>
+    <span><span style="font-size:1rem;">📦</span> DOSTAWA (Ręczne przypisanie)</span>
+    <span><span style="font-size:1rem;">☕</span> SOCJALNY (Ręczne przypisanie)</span>
 </div>
 
 <div class="modal" id="settingsModal">
@@ -230,7 +234,6 @@ const year = 2026;
 const holidays2026 = ["1-1", "1-6", "4-5", "4-6", "5-1", "5-3", "5-24", "6-4", "8-15", "11-1", "11-11", "12-25", "12-26"];
 const tradingSundays2026 = ["1-25", "3-29", "4-26", "6-28", "8-30", "12-13", "12-20"]; 
 
-// ZMIANA LOGIKI ODCZYTU: Teraz zapisy to "10-20|K,D"
 function isWorkDay(d) {
     let date = new Date(year, curM, d);
     let ds = `${curM+1}-${d}`;
@@ -239,6 +242,7 @@ function isWorkDay(d) {
     return true;
 }
 
+// Obsługa zapisu danych (Godziny|Role)
 function getVRaw(n, d) { return localStorage.getItem(`pl_${year}_${curM}_${n}_${d}`) || ""; }
 function saveVRaw(n, d, v) { localStorage.setItem(`pl_${year}_${curM}_${n}_${d}`, v.toUpperCase()); }
 
@@ -252,7 +256,7 @@ function getRolesOnly(n, d) {
     return v.split('|')[1] ? v.split('|')[1].split(',') : [];
 }
 
-// LOGIKA EDYTORA (MODALA)
+// --- LOGIKA EDYTORA KOMÓREK ---
 let currentEditEmp = null;
 let currentEditDay = null;
 
@@ -316,70 +320,8 @@ function saveCellModal() {
     render();
 }
 
-// LOGIKA GENEROWANIA RÓL (Automatyczna)
-function generateRoles() {
-    if(localStorage.getItem(`locked_${year}_${curM}`) === 'true') return;
-    const days = new Date(year, curM + 1, 0).getDate();
-    
-    // Czyszczenie starych ról przed nałożeniem nowych
-    employees.forEach(e => {
-        for(let d=1; d<=days; d++) {
-            let s = getShiftOnly(e.n, d);
-            saveVRaw(e.n, d, s); // Zapisuje samą zmianę, usuwając |K,D,S
-        }
-    });
+// --- KONIEC LOGIKI EDYTORA ---
 
-    const womenForSocial = ["NATALIA", "MAGDA", "ILONA"];
-    let currentSocialWoman = womenForSocial[Math.floor(Math.random() * womenForSocial.length)];
-
-    for(let d=1; d<=days; d++) {
-        if(!isWorkDay(d)) continue;
-        let date = new Date(year, curM, d);
-        
-        // Zmiana tygodnia (poniedziałek) = nowa Pani na Socjal
-        if(date.getDay() === 1) {
-            currentSocialWoman = womenForSocial[Math.floor(Math.random() * womenForSocial.length)];
-        }
-
-        let workingToday = employees.filter(e => getShiftOnly(e.n, d).includes('-'));
-
-        // 1. DOSTAWA (Ktoś od 10:00)
-        let potentialDostawa = workingToday.filter(e => getShiftOnly(e.n, d).startsWith('10-'));
-        if(potentialDostawa.length > 0) {
-            let chosen = potentialDostawa[Math.floor(Math.random() * potentialDostawa.length)];
-            appendRoleToCell(chosen.n, d, 'D');
-        }
-
-        // 2. KLUCZE (Zamyka dziś i otwiera jutro)
-        if(d < days) {
-            let potentialKlucze = workingToday.filter(e => {
-                let sToday = getShiftOnly(e.n, d);
-                let sTomor = getShiftOnly(e.n, d+1);
-                return sToday.endsWith('-20') && sTomor.startsWith('10-');
-            });
-            if(potentialKlucze.length > 0) {
-                let chosen = potentialKlucze[Math.floor(Math.random() * potentialKlucze.length)];
-                appendRoleToCell(chosen.n, d, 'K');
-            }
-        }
-
-        // 3. SOCJAL (Tylko przypisana Pani na dany tydzień)
-        let socjalWorker = workingToday.find(e => e.n === currentSocialWoman);
-        if(socjalWorker) {
-            appendRoleToCell(socjalWorker.n, d, 'S');
-        }
-    }
-    render();
-}
-
-function appendRoleToCell(emp, day, roleChar) {
-    let s = getShiftOnly(emp, day);
-    let r = getRolesOnly(emp, day);
-    if(!r.includes(roleChar)) r.push(roleChar);
-    saveVRaw(emp, day, s + '|' + r.join(','));
-}
-
-// RESZTA STANDARDOWYCH FUNKCJI OBLICZENIOWYCH
 function saveNorm(v) { localStorage.setItem(`norm_${year}_${curM}`, v); render(); }
 function loadNorm() {
     let v = localStorage.getItem(`norm_${year}_${curM}`);
@@ -455,6 +397,7 @@ function startGeneration() {
         if(e.dept === 'ME') return;
         for(let d=1; d<=days; d++) { 
             let s = getShiftOnly(e.n, d); 
+            // Wyczyść wszystko co nie jest urlopem/życzeniem (czyści również przypisane role)
             if(s.includes('-') || s==="WOLNE") saveVRaw(e.n, d, ""); 
         }
     });
@@ -539,6 +482,101 @@ function startGeneration() {
     let allBalanced = false;
     let iterations = 0;
 
+    const tryAddShift = (emp) => {
+        let possibleDays = [];
+        for(let d=1; d<=days; d++) {
+            let isWknd = new Date(year, curM, d).getDay() === 0 || new Date(year, curM, d).getDay() === 6;
+            if(isWorkDay(d) && !isWknd && getShiftOnly(emp.n, d) === "" && getStreak(emp.n, d) < 5) {
+                let c = 0; employees.forEach(em => { if(em.dept !== 'ME' && getShiftOnly(em.n, d).includes('-')) c++; });
+                possibleDays.push({ d, staff: c });
+            }
+        }
+        if(possibleDays.length > 0) {
+            shuffle(possibleDays);
+            possibleDays.sort((a,b) => a.staff - b.staff); 
+            saveVRaw(emp.n, possibleDays[0].d, (Math.random()>0.5 ? openShift : closeShift));
+            return true;
+        }
+        return false;
+    };
+
+    const tryExtendShift = (emp) => {
+        let possibleDays = [];
+        for(let d=1; d<=days; d++) {
+            let isWknd = new Date(year, curM, d).getDay() === 0 || new Date(year, curM, d).getDay() === 6;
+            let v = getShiftOnly(emp.n, d);
+            if(!isWknd && (v === openShift || v === closeShift) && getStreak(emp.n, d) < 5) possibleDays.push(d);
+        }
+        if(possibleDays.length > 0) {
+            shuffle(possibleDays);
+            saveVRaw(emp.n, possibleDays[0], fullShift);
+            return true;
+        }
+        return false;
+    };
+
+    const tryRemoveShift = (emp, strict) => {
+        let possibleDays = [];
+        for(let d=1; d<=days; d++) {
+            let v = getShiftOnly(emp.n, d);
+            let isWknd = new Date(year, curM, d).getDay() === 0 || new Date(year, curM, d).getDay() === 6;
+            
+            if(!isWknd && (v === openShift || v === closeShift || v === fullShift)) {
+                let otwSales = 0, zamSales = 0, otwPok = 0, zamPok = 0, itCount = 0, agdCount = 0;
+                employees.forEach(em => {
+                    if(em.n === emp.n || em.dept === 'ME') return;
+                    let ev = getShiftOnly(em.n, d);
+                    if(ev.includes('-')) {
+                        let p = ev.split('-');
+                        let isO = parseInt(p[0]) <= 10;
+                        let isZ = parseInt(p[1]) >= 20;
+                        if(isO) { if(em.p) otwPok++; else otwSales++; }
+                        if(isZ) { if(em.p) zamPok++; else zamSales++; }
+                        if(em.dept === 'IT') itCount++;
+                        if(em.dept === 'AGD') agdCount++;
+                    }
+                });
+                
+                let isOtw = parseInt(v.split('-')[0]) <= 10;
+                let isZam = parseInt(v.split('-')[1]) >= 20;
+                let isSafe = true;
+                
+                if(strict) {
+                    if(isOtw && (otwSales < 3 || otwPok < 1)) isSafe = false;
+                    if(isZam && (zamSales < 3 || zamPok < 1)) isSafe = false;
+                    if(itCount < 1 || agdCount < 1) isSafe = false;
+                } else {
+                    if(isOtw && (otwSales + otwPok <= 1)) isSafe = false;
+                    if(isZam && (zamSales + zamPok <= 1)) isSafe = false;
+                }
+
+                if(isSafe) possibleDays.push({ d, staff: otwSales + zamSales });
+            }
+        }
+        if(possibleDays.length > 0) {
+            shuffle(possibleDays);
+            possibleDays.sort((a,b) => b.staff - a.staff);
+            saveVRaw(emp.n, possibleDays[0].d, "");
+            return true;
+        }
+        return false;
+    };
+
+    const tryShortenShift = (emp) => {
+        let possibleDays = [];
+        for(let d=1; d<=days; d++) {
+            let isWknd = new Date(year, curM, d).getDay() === 0 || new Date(year, curM, d).getDay() === 6;
+            let v = getShiftOnly(emp.n, d);
+            if(!isWknd && v === fullShift) possibleDays.push(d);
+        }
+        if(possibleDays.length > 0) {
+            shuffle(possibleDays);
+            saveVRaw(emp.n, possibleDays[0], (Math.random()>0.5 ? openShift : closeShift));
+            return true;
+        }
+        return false;
+    };
+
     while(!allBalanced && iterations < 4000) {
         allBalanced = true;
         let strictMode = iterations < 1500; 
@@ -564,38 +602,9 @@ function startGeneration() {
             let emp = st.e;
             
             if(st.diff > 0) { 
-                if(st.diff >= 8) {
-                    let possibleDays = [];
-                    for(let d=1; d<=days; d++) {
-                        let isWknd = new Date(year, curM, d).getDay() === 0 || new Date(year, curM, d).getDay() === 6;
-                        if(isWorkDay(d) && !isWknd && getShiftOnly(emp.n, d) === "" && getStreak(emp.n, d) < 5) {
-                            let c = 0; employees.forEach(em => { if(em.dept !== 'ME' && getShiftOnly(em.n, d).includes('-')) c++; });
-                            possibleDays.push({ d, staff: c });
-                        }
-                    }
-                    if(possibleDays.length > 0) {
-                        shuffle(possibleDays);
-                        possibleDays.sort((a,b) => a.staff - b.staff); 
-                        saveVRaw(emp.n, possibleDays[0].d, (Math.random()>0.5 ? openShift : closeShift));
-                        actionTaken = true;
-                    }
-                }
+                if(st.diff >= 8) actionTaken = tryAddShift(emp);
+                if(!actionTaken && st.diff >= 2) actionTaken = tryExtendShift(emp);
                 
-                if(!actionTaken && st.diff >= 2) { 
-                    let possibleDays = [];
-                    for(let d=1; d<=days; d++) {
-                        let isWknd = new Date(year, curM, d).getDay() === 0 || new Date(year, curM, d).getDay() === 6;
-                        let s = getShiftOnly(emp.n, d);
-                        if(!isWknd && (s === openShift || s === closeShift) && getStreak(emp.n, d) < 5) possibleDays.push(d);
-                    }
-                    if(possibleDays.length > 0) {
-                        shuffle(possibleDays);
-                        saveVRaw(emp.n, possibleDays[0], fullShift);
-                        actionTaken = true;
-                    }
-                }
-                
-                // BRUTE FORCE: Jeśli wciąż brakuje, wymuś dodanie
                 if(!actionTaken && !strictMode) {
                      for(let d=1; d<=days; d++) {
                         let isWknd = new Date(year, curM, d).getDay() === 0 || new Date(year, curM, d).getDay() === 6;
@@ -606,65 +615,14 @@ function startGeneration() {
                 }
                 
             } else if (st.diff < 0) { 
-                if(st.diff <= -8) {
-                    let possibleDays = [];
-                    for(let d=1; d<=days; d++) {
-                        let s = getShiftOnly(emp.n, d);
-                        let isWknd = new Date(year, curM, d).getDay() === 0 || new Date(year, curM, d).getDay() === 6;
-                        if(!isWknd && (s === openShift || s === closeShift || s === fullShift)) {
-                            let otwSales = 0, zamSales = 0, otwPok = 0, zamPok = 0;
-                            employees.forEach(em => {
-                                if(em.n === emp.n || em.dept === 'ME') return;
-                                let es = getShiftOnly(em.n, d);
-                                if(es.includes('-')) {
-                                    let p = es.split('-');
-                                    if(parseInt(p[0]) <= 10) { if(em.p) otwPok++; else otwSales++; }
-                                    if(parseInt(p[1]) >= 20) { if(em.p) zamPok++; else zamSales++; }
-                                }
-                            });
-                            
-                            let isOtw = parseInt(s.split('-')[0]) <= 10;
-                            let isZam = parseInt(s.split('-')[1]) >= 20;
-                            let isSafe = true;
-                            
-                            if(strictMode) {
-                                if(isOtw && (otwSales < 3 || otwPok < 1)) isSafe = false;
-                                if(isZam && (zamSales < 3 || zamPok < 1)) isSafe = false;
-                            } else {
-                                if(isOtw && (otwSales + otwPok <= 1)) isSafe = false;
-                                if(isZam && (zamSales + zamPok <= 1)) isSafe = false;
-                            }
-
-                            if(isSafe) possibleDays.push({ d, staff: otwSales + zamSales });
-                        }
-                    }
-                    if(possibleDays.length > 0) {
-                        shuffle(possibleDays);
-                        possibleDays.sort((a,b) => b.staff - a.staff);
-                        saveVRaw(emp.n, possibleDays[0].d, "");
-                        actionTaken = true;
-                    }
-                }
+                if(st.diff <= -8) actionTaken = tryRemoveShift(emp, strictMode);
+                if(!actionTaken && st.diff <= -2) actionTaken = tryShortenShift(emp);
                 
-                if(!actionTaken && st.diff <= -2) { 
-                    let possibleDays = [];
-                    for(let d=1; d<=days; d++) {
-                        let isWknd = new Date(year, curM, d).getDay() === 0 || new Date(year, curM, d).getDay() === 6;
-                        if(!isWknd && getShiftOnly(emp.n, d) === fullShift) possibleDays.push(d);
-                    }
-                    if(possibleDays.length > 0) {
-                        shuffle(possibleDays);
-                        saveVRaw(emp.n, possibleDays[0], (Math.random()>0.5 ? openShift : closeShift));
-                        actionTaken = true;
-                    }
-                }
-                
-                // BRUTE FORCE: Wymuś skrócenie żeby się zgadzało
                 if(!actionTaken && !strictMode) {
                      for(let d=1; d<=days; d++) {
                         let isWknd = new Date(year, curM, d).getDay() === 0 || new Date(year, curM, d).getDay() === 6;
                         let s = getShiftOnly(emp.n, d);
-                        if(!isWknd && (s === openShift || s === closeShift)) {
+                        if(!isWknd && (s === openShift || s === closeShift || s === fullShift)) {
                             saveVRaw(emp.n, d, ""); actionTaken = true; break;
                         }
                      }
@@ -687,15 +645,14 @@ function render() {
     const isLocked = localStorage.getItem(`locked_${year}_${curM}`) === 'true';
     const genBtn = document.getElementById('genBtn');
     const clrBtn = document.getElementById('clearBtn');
-    const rolesBtn = document.getElementById('rolesBtn');
     const appBtn = document.getElementById('approveBtn');
     
     genBtn.disabled = isLocked;
     clrBtn.disabled = isLocked;
-    rolesBtn.disabled = isLocked;
     genBtn.style.opacity = isLocked ? '0.3' : '1';
     clrBtn.style.opacity = isLocked ? '0.3' : '1';
-    rolesBtn.style.opacity = isLocked ? '0.3' : '1';
+    genBtn.style.cursor = isLocked ? 'not-allowed' : 'pointer';
+    clrBtn.style.cursor = isLocked ? 'not-allowed' : 'pointer';
     
     appBtn.innerText = isLocked ? '🔓 ODBLOKUJ' : '✅ ZATWIERDŹ';
     appBtn.style.background = isLocked ? '#a00' : '#0a0';
@@ -751,9 +708,8 @@ function render() {
             if(iconsHtml) displayHtml += `<div class="cell-icons">${iconsHtml}</div>`;
             
             let clickAttr = isLocked ? '' : `onclick="openEditModal('${e.n}', ${d})"`;
-            let cursorStyle = isLocked ? 'cursor:not-allowed;' : 'cursor:pointer;';
             
-            html += `<td class="${cellClass}" ${clickAttr} style="${cursorStyle}">${displayHtml}</td>`;
+            html += `<td class="${cellClass}" ${clickAttr}>${displayHtml}</td>`;
         });
         
         html += `<td class="obsada-col">${o} - ${suma} - ${z}</td>`;

@@ -7,7 +7,14 @@
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Montserrat', sans-serif; }
-        body { background: #080808; color: white; display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
+        body { background: #111; color: white; display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
+        
+        /* CUSTOM SCROLLBAR - KONIEC Z CZARNYM PASKIEM */
+        ::-webkit-scrollbar { width: 12px; height: 12px; }
+        ::-webkit-scrollbar-track { background: #111; border-left: 1px solid #222; border-top: 1px solid #222; }
+        ::-webkit-scrollbar-thumb { background: #ffe800; border-radius: 2px; }
+        ::-webkit-scrollbar-thumb:hover { background: #e6d100; }
+        
         header { background: #ffe800; height: 50px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; z-index: 9999; border-bottom: 2px solid #000; position: relative; box-shadow: 0 2px 10px rgba(255, 232, 0, 0.2); }
         .logo { color: #000; font-weight: 900; font-size: 1.4rem; text-transform: uppercase; }
         .logo span { background: #000; color: #ffe800; padding: 0 4px; border-radius: 3px; }
@@ -31,16 +38,18 @@
         .admin-controls { display: flex; align-items: center; gap: 8px; border-left: 1px solid #333; padding-left: 10px; }
         .norm-input { width: 55px; background: #000; color: #ffe800; border: 1px solid #ffe800; text-align: center; font-weight: 900; padding: 4px; font-size: 0.8rem; border-radius: 4px; outline: none; }
         
-        .table-container { flex-grow: 1; overflow: auto; background: #080808; }
-        table { border-collapse: collapse; width: 100%; min-width: 1100px; table-layout: fixed; }
+        /* POPRAWKA ROZCIĄGANIA TABELI */
+        .table-container { flex-grow: 1; overflow: auto; background: #080808; width: 100%; display: flex; flex-direction: column; }
+        table { border-collapse: collapse; width: 100%; min-width: 1200px; table-layout: fixed; flex-grow: 1; }
+        
         thead th { background: #151515; position: sticky; top: 0; z-index: 500; padding: 10px 2px; border-bottom: 3px solid #ffe800; border-right: 1px solid #222; }
         .avatar { width: 28px; height: 28px; border-radius: 50%; border: 2px solid #ffe800; display: flex; align-items: center; justify-content: center; margin: 0 auto 5px; font-weight: 900; color: #ffe800; font-size: 0.65rem; background: #000; box-shadow: 0 0 5px rgba(255, 232, 0, 0.3); }
         .worker-name { font-size: 0.5rem; font-weight: 900; text-transform: uppercase; line-height: 1.2; color: #fff; letter-spacing: 0.5px; }
         .dept-tag { font-size: 0.45rem; font-weight: 900; color: #888; }
         .dept-me { color: #f44 !important; text-shadow: 0 0 5px rgba(255, 0, 0, 0.5); }
 
-        .date-col { position: sticky; left: 0; background: #111; z-index: 600; width: 85px; font-size: 0.65rem; font-weight: 900; color: #ccc; text-align: center; border-right: 2px solid #ffe800; border-left: 2px solid #ffe800; }
-        .obsada-col { width: 110px; color: #ffe800; font-weight: 900; font-size: 0.6rem; background: #111; text-align: center; border-left: 2px solid #ffe800; border-right: 2px solid #ffe800; }
+        .date-col { position: sticky; left: 0; background: #111; z-index: 600; width: 85px; font-size: 0.65rem; font-weight: 900; color: #ccc; text-align: center; border-right: 2px solid #ffe800; }
+        .obsada-col { width: 120px; color: #ffe800; font-weight: 900; font-size: 0.6rem; background: #111; text-align: center; border-left: 2px solid #ffe800; border-right: none; }
         
         tbody tr { transition: background-color 0.2s; }
         tbody tr:hover { background-color: rgba(255, 255, 255, 0.05); }
@@ -62,7 +71,7 @@
         .sat input { color: #000 !important; font-weight: 900; text-shadow: none; }
         .sat input:focus, .sat input:hover { background: rgba(0, 0, 0, 0.1); }
         .sat td { border-bottom-color: #cca600; border-right-color: #cca600; }
-        .sat .obsada-col { background-color: #e6d100 !important; color: #000; border-left-color: #000; border-right-color: #000; }
+        .sat .obsada-col { background-color: #e6d100 !important; color: #000; border-left-color: #000; }
 
         .wish-cell input { color: #d0a !important; font-weight: 900; background: rgba(221, 0, 170, 0.1); }
         
@@ -72,11 +81,11 @@
         .today-row .date-col { color: #0f0; background-color: #0a150a !important; border-right-color: #0f0; }
         .today-row input { color: #fff; }
 
-        /* STOPKA PRAWIDŁOWY SZARY KOLOR (#111) */
+        /* STOPKA */
         tfoot { position: sticky; bottom: 0; z-index: 700; box-shadow: 0 -4px 10px rgba(0,0,0,0.5); }
         tfoot td { background: #111; color: #ffe800; font-weight: 900; font-size: 0.65rem; text-align: center; border-top: 2px solid #ffe800; height: 35px; border-right: 1px solid #222; }
         tfoot .date-col { background: #111; }
-        tfoot .obsada-col { background: #111; }
+        tfoot .obsada-col { background: #111; border-right: none; }
 
         .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 11000; align-items: center; justify-content: center; padding: 20px; backdrop-filter: blur(5px); }
         .modal-content { background: #0a0a0a; border: 2px solid #ffe800; padding: 20px; width: 100%; max-width: 800px; border-radius: 15px; box-shadow: 0 0 30px rgba(255, 232, 0, 0.15); }
@@ -336,7 +345,6 @@ function startGeneration() {
     let allBalanced = false;
     let iterations = 0;
 
-    // Funkcje pomocnicze
     const tryAddShift = (emp) => {
         let possibleDays = [];
         for(let d=1; d<=days; d++) {
@@ -401,7 +409,6 @@ function startGeneration() {
                     if(isZam && (zamSales < 3 || zamPok < 1)) isSafe = false;
                     if(itCount < 1 || agdCount < 1) isSafe = false;
                 } else {
-                    // Tryb paniki: pozwala obciąć, byle ktoś w ogóle został w dziale
                     if(isOtw && (otwSales + otwPok <= 1)) isSafe = false;
                     if(isZam && (zamSales + zamPok <= 1)) isSafe = false;
                 }
@@ -460,17 +467,15 @@ function startGeneration() {
             if(st.diff > 0) { 
                 if(st.diff >= 8) actionTaken = tryAddShift(st.e);
                 if(!actionTaken && st.diff >= 2) actionTaken = tryExtendShift(st.e);
-                // Wymuszenie dodania jeśli wciąż brakuje (nawet jak spowoduje nadmiar - ścięty zostanie w nast. kroku)
                 if(!actionTaken) actionTaken = tryAddShift(st.e);
                 
             } else if (st.diff < 0) { 
                 if(st.diff <= -8) actionTaken = tryRemoveShift(st.e, strictMode);
                 if(!actionTaken && st.diff <= -2) actionTaken = tryShortenShift(st.e);
-                // Wymuszenie usunięcia (nawet z POK w trybie paniki)
                 if(!actionTaken) actionTaken = tryRemoveShift(st.e, strictMode);
             }
             
-            if(actionTaken) break; // Zawsze odświeża statusy po 1 akcji
+            if(actionTaken) break; 
         }
         iterations++;
     }
@@ -542,12 +547,11 @@ function render() {
             html += `<td ${cellClass}><input value="${v}" ${disabledAttr} onchange="saveV('${e.n}',${d},this.value);render()"></td>`;
         });
         
-        // PRAWA KOLUMNA: OTW - SUMA - ZAM
         html += `<td class="obsada-col">${o} - ${suma} - ${z}</td>`;
         tr.innerHTML = html; body.appendChild(tr);
     }
 
-    // STOPKI (Footer)
+    // STOPKI
     const fSum = document.getElementById('sumRow');
     fSum.innerHTML = '<td class="date-col">GODZINY</td>';
     employees.forEach(e => {
@@ -560,7 +564,7 @@ function render() {
         let h = calcRealH(e.n); 
         fSum.innerHTML += `<td style="color:${h==target?'#0f0':'#f44'}; font-size: 0.55rem;">${h} / ${target}</td>`;
     });
-    fSum.innerHTML += '<td class="obsada-col"></td>'; // Dopełnienie szerokości tabeli
+    fSum.innerHTML += '<td class="obsada-col"></td>';
 
     const fSat = document.getElementById('satCountRow');
     fSat.innerHTML = '<td class="date-col">WOLNE SB</td>';
@@ -576,7 +580,7 @@ function render() {
         }
         fSat.innerHTML += `<td style="color:${count>=1 && count<=2 ?'#ffe800':'#888'}">${e.dept==='ME'?'-':count}</td>`;
     });
-    fSat.innerHTML += '<td class="obsada-col"></td>'; // Dopełnienie szerokości tabeli
+    fSat.innerHTML += '<td class="obsada-col"></td>';
 }
 
 function renderSettings() {

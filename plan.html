@@ -10,7 +10,7 @@
         html, body { background: #080808; color: white; display: flex; flex-direction: column; width: 100%; height: 100vh; overflow: hidden; }
         
         /* CUSTOM SCROLLBAR */
-        ::-webkit-scrollbar { width: 12px; height: 12px; }
+        ::-webkit-scrollbar { width: 10px; height: 10px; }
         ::-webkit-scrollbar-track { background: #111; border-left: 1px solid #222; border-top: 1px solid #222; }
         ::-webkit-scrollbar-thumb { background: #ffe800; border-radius: 2px; }
         ::-webkit-scrollbar-thumb:hover { background: #e6d100; }
@@ -38,6 +38,7 @@
         .admin-controls { display: flex; align-items: center; gap: 8px; border-left: 1px solid #333; padding-left: 10px; }
         .norm-input { width: 55px; background: #000; color: #ffe800; border: 1px solid #ffe800; text-align: center; font-weight: 900; padding: 4px; font-size: 0.8rem; border-radius: 4px; outline: none; }
         
+        /* ROZWIĄZANIE PROBLEMU UCIĘTEJ TABELI */
         .table-container { flex: 1; overflow: auto; background: #080808; width: 100vw; max-width: 100%; display: block; }
         table { border-collapse: collapse; width: 100%; min-width: max-content; background: #080808; }
         
@@ -53,7 +54,7 @@
         .obsada-col { min-width: 130px; color: #ffe800; font-weight: 900; font-size: 0.65rem; background: #111; text-align: center; border-left: 2px solid #ffe800; border-right: none !important; } 
         
         tbody tr { transition: background-color 0.2s; }
-        tbody tr:hover { background-color: rgba(255, 255, 255, 0.03); }
+        tbody tr:hover { background-color: rgba(255, 255, 255, 0.05); }
 
         td { border-bottom: 1px solid #222; border-right: 1px solid #222; height: 48px; text-align: center; vertical-align: middle; transition: background-color 0.2s; cursor: pointer; }
         td:last-child { border-right: none; } 
@@ -66,24 +67,24 @@
         .cell-icons { font-size: 0.7rem; letter-spacing: 2px; margin-top: 3px; }
         
         /* =========================================
-           ZGASZONA KOLORYSTYKA WEEKENDÓW I POPRAWIONE HOVERY
+           ZGASZONA KOLORYSTYKA WEEKENDÓW I ŚWIĄT
            ========================================= */
 
-        /* NIEDZIELA (Zgaszone bordo) */
+        /* NIEDZIELA I ŚWIĘTA (Zgaszone bordo) */
         .sun { background-color: #4a1111 !important; } 
         .sun .date-col { background-color: #5c1616 !important; color: #ff9999; border-right-color: #ff4d4d; }
         .sun td { border-bottom-color: #330b0b; border-right-color: #330b0b; }
-        /* Prawidłowy hover niedzieli - rozjaśnia na biało, nie robi czarnego kwadratu */
+        .sun .obsada-col { background-color: #5c1616 !important; border-left-color: #ff4d4d; color: #ff9999; }
+        /* Prawidłowy hover niedzieli/świąt */
         .sun td:hover { background-color: rgba(255, 255, 255, 0.1) !important; }
 
         /* SOBOTA (Zgaszony, elegancki musztardowy) */
         .sat { background-color: #8c7311 !important; }
         .sat .date-col { background-color: #a68814 !important; color: #fff; border-right-color: #ffe800; }
-        /* Wymuszenie białego tekstu w soboty, by był czytelny na musztardowym tle */
         .sat .cell-shift { color: #ffffff !important; text-shadow: 1px 1px 2px rgba(0,0,0,0.5); }
         .sat td { border-bottom-color: #6b580d; border-right-color: #6b580d; }
         .sat .obsada-col { background-color: #a68814 !important; color: #fff; border-left-color: #ffe800; }
-        /* Prawidłowy hover soboty - lekko rozjaśnia komórkę */
+        /* Prawidłowy hover soboty */
         .sat td:hover { background-color: rgba(255, 255, 255, 0.15) !important; }
 
         .wish-cell { background: rgba(221, 0, 170, 0.15); }
@@ -129,6 +130,8 @@
         .btn-gen:hover { transform: scale(1.05); box-shadow: 0 0 10px rgba(255, 232, 0, 0.5); }
         .btn-settings { background: #333; color: #ffe800; border: 1px solid #ffe800; padding: 8px 12px; font-weight: 900; border-radius: 20px; cursor: pointer; font-size: 0.65rem; transition: 0.3s; }
         .btn-settings:hover { background: #ffe800; color: #000; }
+        .btn-roles { background: #3498db; color: #fff; border: 1px solid #2980b9; padding: 8px 12px; font-weight: 900; border-radius: 20px; cursor: pointer; font-size: 0.65rem; transition: 0.3s; }
+        .btn-roles:hover { background: #2980b9; transform: scale(1.05); }
     </style>
 </head>
 <body>
@@ -155,6 +158,7 @@
             <button class="btn-settings" onclick="toggleModal(true)">⚙️ USTAWIENIA</button>
             <button class="btn-settings" style="background:#a00; color:#fff; border-color:#a00;" onclick="clearMonth()" id="clearBtn">🗑️ WYCZYŚĆ</button>
             <button class="btn-gen" onclick="startGeneration()" id="genBtn">🚀 GENERUJ PLAN</button>
+            <button class="btn-roles" onclick="generateRoles()" id="rolesBtn">🎲 PRZYDZIEL ROLE</button>
             <button class="btn-settings" id="approveBtn" style="background:#0a0; color:#fff; border-color:#0a0;" onclick="toggleApprove()">✅ ZATWIERDŹ</button>
         </div>
     </div>
@@ -172,9 +176,9 @@
 </div>
 
 <div class="legend-bar">
-    <span><span style="font-size:1rem;">🔑</span> KLUCZE (Ręczne przypisanie)</span>
-    <span><span style="font-size:1rem;">📦</span> DOSTAWA (Ręczne przypisanie)</span>
-    <span><span style="font-size:1rem;">☕</span> SOCJALNY (Ręczne przypisanie)</span>
+    <span><span style="font-size:1rem;">🔑</span> KLUCZE (Zamyka i otwiera jutro)</span>
+    <span><span style="font-size:1rem;">📦</span> DOSTAWA (Od 10:00)</span>
+    <span><span style="font-size:1rem;">☕</span> SOCJALNY (Wyznaczona na cały tydzień)</span>
 </div>
 
 <div class="modal" id="settingsModal">
@@ -236,14 +240,16 @@ const months = ["STYCZEŃ", "LUTY", "MARZEC", "KWIECIEŃ", "MAJ", "CZERWIEC", "L
 let curM = new Date().getMonth(); 
 const year = 2026;
 
+// Święta ustawowe 2026
 const holidays2026 = ["1-1", "1-6", "4-5", "4-6", "5-1", "5-3", "5-24", "6-4", "8-15", "11-1", "11-11", "12-25", "12-26"];
+// Niedziele Handlowe 2026
 const tradingSundays2026 = ["1-25", "3-29", "4-26", "6-28", "8-30", "12-13", "12-20"]; 
 
 function isWorkDay(d) {
     let date = new Date(year, curM, d);
     let ds = `${curM+1}-${d}`;
-    if (holidays2026.includes(ds)) return false;
-    if (date.getDay() === 0 && !tradingSundays2026.includes(ds)) return false;
+    if (holidays2026.includes(ds)) return false; // Święto = wolne
+    if (date.getDay() === 0 && !tradingSundays2026.includes(ds)) return false; // Niehandlowa = wolne
     return true;
 }
 
@@ -325,8 +331,65 @@ function saveCellModal() {
     render();
 }
 
-// --- KONIEC LOGIKI EDYTORA ---
+// LOGIKA GENEROWANIA RÓL (Automatyczna)
+function generateRoles() {
+    if(localStorage.getItem(`locked_${year}_${curM}`) === 'true') return;
+    const days = new Date(year, curM + 1, 0).getDate();
+    
+    employees.forEach(e => {
+        for(let d=1; d<=days; d++) {
+            let s = getShiftOnly(e.n, d);
+            saveVRaw(e.n, d, s); 
+        }
+    });
 
+    const womenForSocial = ["NATALIA", "MAGDA", "ILONA"];
+    let currentSocialWoman = womenForSocial[Math.floor(Math.random() * womenForSocial.length)];
+
+    for(let d=1; d<=days; d++) {
+        if(!isWorkDay(d)) continue;
+        let date = new Date(year, curM, d);
+        
+        if(date.getDay() === 1) {
+            currentSocialWoman = womenForSocial[Math.floor(Math.random() * womenForSocial.length)];
+        }
+
+        let workingToday = employees.filter(e => getShiftOnly(e.n, d).includes('-'));
+
+        let potentialDostawa = workingToday.filter(e => getShiftOnly(e.n, d).startsWith('10-'));
+        if(potentialDostawa.length > 0) {
+            let chosen = potentialDostawa[Math.floor(Math.random() * potentialDostawa.length)];
+            appendRoleToCell(chosen.n, d, 'D');
+        }
+
+        if(d < days) {
+            let potentialKlucze = workingToday.filter(e => {
+                let sToday = getShiftOnly(e.n, d);
+                let sTomor = getShiftOnly(e.n, d+1);
+                return sToday.endsWith('-20') && sTomor.startsWith('10-');
+            });
+            if(potentialKlucze.length > 0) {
+                let chosen = potentialKlucze[Math.floor(Math.random() * potentialKlucze.length)];
+                appendRoleToCell(chosen.n, d, 'K');
+            }
+        }
+
+        let socjalWorker = workingToday.find(e => e.n === currentSocialWoman);
+        if(socjalWorker) {
+            appendRoleToCell(socjalWorker.n, d, 'S');
+        }
+    }
+    render();
+}
+
+function appendRoleToCell(emp, day, roleChar) {
+    let s = getShiftOnly(emp, day);
+    let r = getRolesOnly(emp, day);
+    if(!r.includes(roleChar)) r.push(roleChar);
+    saveVRaw(emp, day, s + '|' + r.join(','));
+}
+
+// RESZTA FUNKCJI
 function saveNorm(v) { localStorage.setItem(`norm_${year}_${curM}`, v); render(); }
 function loadNorm() {
     let v = localStorage.getItem(`norm_${year}_${curM}`);
@@ -649,14 +712,15 @@ function render() {
     const isLocked = localStorage.getItem(`locked_${year}_${curM}`) === 'true';
     const genBtn = document.getElementById('genBtn');
     const clrBtn = document.getElementById('clearBtn');
+    const rolesBtn = document.getElementById('rolesBtn');
     const appBtn = document.getElementById('approveBtn');
     
     genBtn.disabled = isLocked;
     clrBtn.disabled = isLocked;
+    rolesBtn.disabled = isLocked;
     genBtn.style.opacity = isLocked ? '0.3' : '1';
     clrBtn.style.opacity = isLocked ? '0.3' : '1';
-    genBtn.style.cursor = isLocked ? 'not-allowed' : 'pointer';
-    clrBtn.style.cursor = isLocked ? 'not-allowed' : 'pointer';
+    rolesBtn.style.opacity = isLocked ? '0.3' : '1';
     
     appBtn.innerText = isLocked ? '🔓 ODBLOKUJ' : '✅ ZATWIERDŹ';
     appBtn.style.background = isLocked ? '#a00' : '#0a0';
@@ -680,14 +744,22 @@ function render() {
         let date = new Date(year, curM, d);
         let tr = document.createElement('tr');
         
-        if(!isWorkDay(d)) tr.className = 'sun';
-        else if(date.getDay() === 6) tr.className = 'sat';
+        let ds = `${curM+1}-${d}`;
+        let isHol = holidays2026.includes(ds);
+        let isSun = date.getDay() === 0;
+        let isSat = date.getDay() === 6;
+        
+        if(isSun || isHol) tr.className = 'sun';
+        else if(isSat) tr.className = 'sat';
         
         if(isCurrentMonth && today.getDate() === d) {
             tr.classList.add('today-row');
         }
         
-        let html = `<td class="date-col">${d} ${['ND','PN','WT','ŚR','CZ','PT','SB'][date.getDay()]}</td>`;
+        let dayName = ['ND','PN','WT','ŚR','CZ','PT','SB'][date.getDay()];
+        let badge = (isHol && !isSun) ? `<div style="font-size:0.45rem; color:#ff9999; margin-top:2px;">(ŚWIĘTO)</div>` : '';
+        
+        let html = `<td class="date-col" style="line-height:1.2;">${d} ${dayName}${badge}</td>`;
         let o=0, z=0, suma=0;
         
         employees.forEach(e => {

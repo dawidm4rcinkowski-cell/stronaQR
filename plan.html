@@ -9,7 +9,7 @@
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Montserrat', sans-serif; }
         body { background: #111; color: white; display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
         
-        /* CUSTOM SCROLLBAR - KONIEC Z CZARNYM PASKIEM */
+        /* CUSTOM SCROLLBAR */
         ::-webkit-scrollbar { width: 12px; height: 12px; }
         ::-webkit-scrollbar-track { background: #111; border-left: 1px solid #222; border-top: 1px solid #222; }
         ::-webkit-scrollbar-thumb { background: #ffe800; border-radius: 2px; }
@@ -38,23 +38,26 @@
         .admin-controls { display: flex; align-items: center; gap: 8px; border-left: 1px solid #333; padding-left: 10px; }
         .norm-input { width: 55px; background: #000; color: #ffe800; border: 1px solid #ffe800; text-align: center; font-weight: 900; padding: 4px; font-size: 0.8rem; border-radius: 4px; outline: none; }
         
-        /* POPRAWKA ROZCIĄGANIA TABELI */
-        .table-container { flex-grow: 1; overflow: auto; background: #080808; width: 100%; display: flex; flex-direction: column; }
-        table { border-collapse: collapse; width: 100%; min-width: 1200px; table-layout: fixed; flex-grow: 1; }
+        /* POPRAWKA ROZCIĄGANIA TABELI - KONIEC Z CZARNYM PASKIEM */
+        .table-container { flex-grow: 1; overflow: auto; background: #111; width: 100%; display: block; }
+        table { border-collapse: collapse; width: 100%; min-width: 1100px; table-layout: fixed; background: #080808; }
         
         thead th { background: #151515; position: sticky; top: 0; z-index: 500; padding: 10px 2px; border-bottom: 3px solid #ffe800; border-right: 1px solid #222; }
+        thead th:last-child { border-right: none; } /* Brak kreski na samym końcu */
+        
         .avatar { width: 28px; height: 28px; border-radius: 50%; border: 2px solid #ffe800; display: flex; align-items: center; justify-content: center; margin: 0 auto 5px; font-weight: 900; color: #ffe800; font-size: 0.65rem; background: #000; box-shadow: 0 0 5px rgba(255, 232, 0, 0.3); }
         .worker-name { font-size: 0.5rem; font-weight: 900; text-transform: uppercase; line-height: 1.2; color: #fff; letter-spacing: 0.5px; }
         .dept-tag { font-size: 0.45rem; font-weight: 900; color: #888; }
         .dept-me { color: #f44 !important; text-shadow: 0 0 5px rgba(255, 0, 0, 0.5); }
 
-        .date-col { position: sticky; left: 0; background: #111; z-index: 600; width: 85px; font-size: 0.65rem; font-weight: 900; color: #ccc; text-align: center; border-right: 2px solid #ffe800; }
-        .obsada-col { width: 120px; color: #ffe800; font-weight: 900; font-size: 0.6rem; background: #111; text-align: center; border-left: 2px solid #ffe800; border-right: none; }
+        .date-col { position: sticky; left: 0; background: #111; z-index: 600; width: 85px; font-size: 0.65rem; font-weight: 900; color: #ccc; text-align: center; border-right: 2px solid #ffe800; border-left: 2px solid #ffe800; }
+        .obsada-col { width: 110px; color: #ffe800; font-weight: 900; font-size: 0.6rem; background: #111; text-align: center; border-left: 2px solid #ffe800; border-right: none !important; } /* Przykleja się do scrolla */
         
         tbody tr { transition: background-color 0.2s; }
         tbody tr:hover { background-color: rgba(255, 255, 255, 0.05); }
 
         td { border-bottom: 1px solid #222; border-right: 1px solid #222; height: 38px; }
+        td:last-child { border-right: none; } /* Brak prawej ramki na końcu ekranu */
         td input { width: 100%; height: 100%; background: transparent; border: none; color: white; text-align: center; font-weight: 700; font-size: 0.8rem; outline: none; transition: 0.2s; cursor: pointer; }
         td input:focus, td input:hover { background: rgba(255, 232, 0, 0.15); }
         td input:disabled { color: #888; cursor: not-allowed; background: transparent; }
@@ -81,11 +84,12 @@
         .today-row .date-col { color: #0f0; background-color: #0a150a !important; border-right-color: #0f0; }
         .today-row input { color: #fff; }
 
-        /* STOPKA */
+        /* STOPKA PRAWIDŁOWY SZARY KOLOR (#111) */
         tfoot { position: sticky; bottom: 0; z-index: 700; box-shadow: 0 -4px 10px rgba(0,0,0,0.5); }
         tfoot td { background: #111; color: #ffe800; font-weight: 900; font-size: 0.65rem; text-align: center; border-top: 2px solid #ffe800; height: 35px; border-right: 1px solid #222; }
+        tfoot td:last-child { border-right: none; }
         tfoot .date-col { background: #111; }
-        tfoot .obsada-col { background: #111; border-right: none; }
+        tfoot .obsada-col { background: #111; }
 
         .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 11000; align-items: center; justify-content: center; padding: 20px; backdrop-filter: blur(5px); }
         .modal-content { background: #0a0a0a; border: 2px solid #ffe800; padding: 20px; width: 100%; max-width: 800px; border-radius: 15px; box-shadow: 0 0 30px rgba(255, 232, 0, 0.15); }
@@ -257,7 +261,7 @@ function startGeneration() {
     const satShift = "10-20"; 
     const days = new Date(year, curM + 1, 0).getDate();
 
-    // 1. CZYSZCZENIE (Omijamy PAWŁA)
+    // 1. CZYSZCZENIE
     employees.forEach(e => { 
         if(e.dept === 'ME') return;
         for(let d=1; d<=days; d++) { 
@@ -266,7 +270,7 @@ function startGeneration() {
         }
     });
 
-    // 2. SOBOTY (1 POK, 1 IT, 1 AGD + 3 Sprzedaż = DOKŁADNIE 6 OSÓB W PRACY, 4 OSOBY WOLNE)
+    // 2. SOBOTY (Dokładnie 6 osób pracujących, 4 wolne = idealny mix 1/2 wolne sb na msc)
     let sats = [];
     for(let d=1; d<=days; d++) {
         if(new Date(year, curM, d).getDay() === 6 && isWorkDay(d)) sats.push(d);
@@ -440,7 +444,6 @@ function startGeneration() {
         return false;
     };
 
-    // Pętla główna bilansu
     while(!allBalanced && iterations < 4000) {
         allBalanced = true;
         let strictMode = iterations < 1500; 
@@ -505,7 +508,6 @@ function render() {
     appBtn.style.background = isLocked ? '#a00' : '#0a0';
     appBtn.style.borderColor = isLocked ? '#a00' : '#0a0';
 
-    // NAGŁÓWKI
     head.innerHTML = '<th class="date-col">DATA</th>';
     employees.forEach(e => {
         let deptClass = e.dept === 'ME' ? 'dept-me' : '';
@@ -551,7 +553,6 @@ function render() {
         tr.innerHTML = html; body.appendChild(tr);
     }
 
-    // STOPKI
     const fSum = document.getElementById('sumRow');
     fSum.innerHTML = '<td class="date-col">GODZINY</td>';
     employees.forEach(e => {

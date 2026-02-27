@@ -61,37 +61,47 @@
         .td-task { text-align: left; padding-left: 15px; font-size: 0.65rem; color: #ccc; font-weight: 600; line-height: 1.3; }
         .td-name { color: #ffe800; font-weight: 900; text-transform: uppercase; letter-spacing: 0.5px; }
         
-        /* 1:1 ODWZOROWANIE CZARNYCH PÓL Z PLIKU */
         .td-blocked { background-color: #000 !important; color: transparent !important; }
         .td-sign { background: #151515; } 
         
         .error-msg { text-align: center; color: #f44; font-weight: bold; margin-top: 20px; font-size: 1.2rem; display: none; }
 
+        /* =========================================
+           MAGIA CSS DO DRUKOWANIA (IDEALNE A4 JEDNA STRONA)
+           ========================================= */
         @media print {
-            @page { size: landscape; margin: 8mm; }
-            body { background: white; color: black; height: auto; overflow: visible; font-family: Arial, sans-serif; }
+            @page { size: A4 landscape; margin: 3mm 8mm; } /* Minimalne marginesy pionowe */
+            body { background: white; color: black; font-family: Arial, sans-serif; overflow: hidden; margin: 0; padding: 0; height: 100vh; }
             header, .sidebar, .overlay, .navigation-area, .menu-btn { display: none !important; }
             
-            .table-container { overflow: visible; padding: 0; }
-            .azs-title { color: black; margin-top: 0; font-size: 1rem; margin-bottom: 5px; }
-            .azs-dates { color: black; font-size: 0.8rem; font-weight: bold; margin-bottom: 10px; }
+            .table-container { overflow: hidden; padding: 0; height: 100%; width: 100%; display: flex; flex-direction: column; }
+            .azs-title { color: black; margin-top: 0; font-size: 13px; margin-bottom: 2px; }
+            .azs-dates { color: black; font-size: 10px; font-weight: bold; margin-bottom: 5px; }
             
-            table { min-width: 100%; border: 2px solid black; background: white; }
-            thead th { background: #eee !important; color: black !important; border: 1px solid black !important; position: static; font-size: 0.5rem; padding: 4px; }
-            .header-main-row th { border-bottom: 2px solid black !important; }
+            table { min-width: 100%; border: 2px solid black; background: white; table-layout: fixed; margin: 0; }
             
-            tbody tr { border-bottom: 1px solid black; }
-            td { border: 1px solid black !important; color: black !important; padding: 4px 2px; font-size: 0.55rem; }
+            thead th { background: #eee !important; color: black !important; border: 1px solid black !important; position: static; font-size: 6.5px !important; padding: 2px !important; }
+            .header-main-row th { border-bottom: 1px solid black !important; }
             
-            .td-task { font-weight: bold; font-size: 0.45rem; width: 35%; }
-            .td-name { font-weight: 900; font-size: 0.55rem; }
+            tbody tr { border-bottom: 1px solid black; height: auto !important; }
             
-            /* Drukuj czarne pola jako mocno szare kratki, żeby oszczędzić tusz, ale zachować czytelność blokady */
-            .td-blocked { background-color: #555 !important; -webkit-print-color-adjust: exact; } 
+            /* Twarde wymuszenie mikro rozmiarów dla 44 wierszy */
+            td { border: 1px solid black !important; color: black !important; padding: 1.5px 2px !important; font-size: 6.5px !important; line-height: 1 !important; }
+            
+            .th-task { width: 32%; } /* Rezerwujemy 32% szerokości na długie nazwy zadań */
+            .td-task { font-weight: bold; font-size: 5.5px !important; padding-left: 2px !important; word-wrap: break-word; }
+            .td-name { font-weight: 900; font-size: 6.5px !important; }
+            
+            .td-empty { color: transparent !important; background: #eee !important; } 
+            
+            /* Drukuj czarne pola jako szare */
+            .td-blocked { background-color: #777 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; } 
             
             .td-sign { background: white !important; }
+            .td-sign-empty { background: #eee !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
             
-            tr { page-break-inside: avoid; }
+            /* Zakaz łamania wierszy */
+            tr, td, th { page-break-inside: avoid !important; }
         }
     </style>
 </head>
@@ -168,7 +178,6 @@
     ];
 
     // ODWZOROWANIE 1:1 TWOJEGO PLIKU CSV
-    // dni: 1=PON, 2=WTO, 3=SRO, 4=CZW, 5=PIA, 6=SOB, 0=NIE
     const azsTasksData = [
         { name: "Reagowanie na SMS i KOMUNIKAT W MARKECIE informujący o złożeniu zamówienia OZG i SZS + wysłanie potwierdzenia max. do 15 minut", days: [1,2,3,4,5,6] },
         { name: "Zatwierdzanie OZG i SZS z NOCY do 15 minut od włączenia Marketu w sklepie", days: [1,2,3,4,5,6] },
@@ -192,19 +201,19 @@
         { name: "Kontrola listy OBECNOŚCI + Kontrola zeszytu WYJŚĆ + Kontrola grafików PRZERW/POSIŁKÓW", days: [1,2,3,4,5,6] },
         { name: "Praca z REKLAMACJAMI, w tym również WYSYŁKI, WYDANIA oraz BIEŻĄCY KONTAKT TELEFONICZNY Z KLIENTEM", days: [1,2,3,4,5,6] },
         { name: "INWENTARYZACJA cząstkowa kolejnych działów oraz kolejnych GRUP WYSOKIEGO RYZYKA (polecenie wykonania pracownikowi SALI + egzekwowanie)", days: [1,2,3,4,5,6] },
-        { name: "Kontrola wyrywkowa kazdego rodzaju ZABEZPIECZEŃ", days: [1,2,3,4,5] }, // Do piątku
+        { name: "Kontrola wyrywkowa kazdego rodzaju ZABEZPIECZEŃ", days: [1,2,3,4,5] }, 
         { name: "Wskazanie osób do BADANIA KONKURENCJI zgodnie z aktualnymi wytycznymi", days: [1,2,3,4,5] },
         { name: "Kontrola MESK i PWS (sprawność procesu + składowanie wg zasad + nieodebrane >1 dnia: czy wykonane telefony do klientów z komentarzem w PDS)", days: [1,2,3,4,5] },
         { name: "Kontrola wywołanych ZWROTÓW NIEODEBRANYCH MESK i PWS (RAPORT 507) + wystawienie na salę sprzedaży towarów pozostawionych na stanie sklepu", days: [1,2,3,4,5] },
-        { name: "Opróżnianie szafek i strefy MESK z zalegających towarów NIEODEBRANYCH (MESK, PWS, OZG)", days: [1] }, // Tylko PON
+        { name: "Opróżnianie szafek i strefy MESK z zalegających towarów NIEODEBRANYCH (MESK, PWS, OZG)", days: [1] }, 
         { name: "Kontrola czy nie ma zapisanych HASEŁ przy stanowiskach, SZCZEGÓLNIE RATALNE I SERWISOWE", days: [1] },
-        { name: "Kontrola PUSTE MAGAZYNY + podział na 10 stref (Puste, Pełne, Wartościówka, Internet, Zwroty, Wywózki, Reklamacje, Wyposażenie, Odpady, Dostawa)", days: [2] }, // Tylko WTO
-        { name: "Kontrola towarów NPW (Wystawienie 100% + Oznaczenie + Cena + Strategia sprzedaży)", days: [3] }, // Tylko SRO
+        { name: "Kontrola PUSTE MAGAZYNY + podział na 10 stref (Puste, Pełne, Wartościówka, Internet, Zwroty, Wywózki, Reklamacje, Wyposażenie, Odpady, Dostawa)", days: [2] }, 
+        { name: "Kontrola towarów NPW (Wystawienie 100% + Oznaczenie + Cena + Strategia sprzedaży)", days: [3] }, 
         { name: "Sprawdzenie CAŁEJ ekspozycji czy nie ma niezgłoszonych towarów NPW lub PSP i niezwłoczne zgłoszenie ich do KE/KSS", days: [3] },
         { name: "Kontrola towarów SLW (Wystawienie 100% + Oznaczenie + Cena + Strategia sprzedaży)", days: [3] },
         { name: "Kontrola towarów z kończącą się datą (wprowadzenie na NPW kat. T) + towarów już przeterminowanych (ZWROT)", days: [3] },
         { name: "Kontrola CZYSTOŚCI towaru i regałów", days: [3] },
-        { name: "Kontrola TOP (ZA POMOCĄ KOLEKTORA)", days: [4] }, // Tylko CZW
+        { name: "Kontrola TOP (ZA POMOCĄ KOLEKTORA)", days: [4] }, 
         { name: "Kontrola oznaczeń AKCJI PROMOCYJNYCH w całym sklepie", days: [4] },
         { name: "Kontrola NTOL LISTA VM - REKLAMACJE (zrealizuj w dniach od poniedziałku do czwartku)", days: [4] },
         { name: "Kontrola NTOL LISTA VM - DZIAŁ AGD DROBNE (zrealizuj w dniach od poniedziałku do czwartku)", days: [4] },
@@ -220,7 +229,7 @@
     const year = 2026;
     let currentWeeks = [];
 
-    // ODCZYT GRAFIKU - Wyciągamy twarde zmiany (np. "10-20") ignorując doczepione opcjonalnie role (np. "|K,D")
+    // ODCZYT GRAFIKU 
     function getShiftOnly(n, d, m) {
         let v = localStorage.getItem(`pl_${year}_${m}_${n}_${d}`) || "";
         return v.split('|')[0] || "";
@@ -283,14 +292,11 @@
         
         let hasAnyData = false;
 
-        // NOWY, LEPSZY SYSTEM PODZIAŁU DZIENNEGO
-        let dailyAssignments = {}; // Przechowuje kto robi jakie zadanie w dany dzień
+        let dailyAssignments = {}; 
 
-        // Przechodzimy dzień po dniu (od 1 do max 7 dni w tygodniu)
         weekDays.forEach(d => {
             let currentDayOfWeek = new Date(year, mIndex, d).getDay();
             
-            // Kto ma przypisane jakiekolwiek pracujące godziny tego dnia (z wykluczeniem WOLNE, URLOP i KIEROWNIKA)
             let workingToday = employees.filter(e => {
                 let shift = getShiftOnly(e.n, d, mIndex);
                 return shift !== "" && shift !== "WOLNE" && shift !== "URLOP" && shift !== "Ż" && e.dept !== 'ME';
@@ -298,38 +304,33 @@
 
             if(workingToday.length > 0) hasAnyData = true;
 
-            // Zerujemy dzienny licznik obciążenia dla pracowników ZMIANY
             let dayWorkload = {};
             workingToday.forEach(e => dayWorkload[e.n] = 0);
 
             dailyAssignments[d] = {};
 
-            // Rozdajemy zadania na ten konkretny dzień sprawiedliwie
             azsTasksData.forEach(task => {
                 if (task.days.includes(currentDayOfWeek)) {
                     if (workingToday.length > 0) {
-                        // Kto na zmianie ma najmniej zadań?
                         workingToday.sort((a, b) => dayWorkload[a.n] - dayWorkload[b.n]);
                         let assigned = workingToday[0];
-                        dayWorkload[assigned.n]++; // Obciążamy go
+                        dayWorkload[assigned.n]++; 
                         dailyAssignments[d][task.name] = assigned.n;
                     } else {
-                        dailyAssignments[d][task.name] = "BRAK"; // Nikt nie pracuje
+                        dailyAssignments[d][task.name] = "BRAK"; 
                     }
                 } else {
-                    dailyAssignments[d][task.name] = "BLOCKED"; // Zablokowane pole
+                    dailyAssignments[d][task.name] = "BLOCKED"; 
                 }
             });
         });
 
-        // Kontrola błędu jeśli wybrano tydzień bez wygenerowanego planu
         if(!hasAnyData) {
             document.getElementById('errorMsg').style.display = 'block';
         } else {
             document.getElementById('errorMsg').style.display = 'none';
         }
 
-        // GENEROWANIE TABELI HTML NA BAZIE ROZDANYCH ZADAŃ
         azsTasksData.forEach(task => {
             let tr = document.createElement('tr');
             let html = `<td class="td-task">${task.name}</td>`;
@@ -341,24 +342,21 @@
             let signaturesHtml = "";
             let dayCounter = 0;
 
-            // Puste komórki przed pierwszym dniem wybranego tygodnia
             for(let i=0; i<emptyDaysBefore; i++) {
                 activeDaysHtml += `<td class="td-blocked"></td>`;
                 signaturesHtml += `<td class="td-blocked"></td>`;
                 dayCounter++;
             }
 
-            // Komórki z danego tygodnia
             weekDays.forEach(d => {
                 let assignment = dailyAssignments[d][task.name];
 
                 if (assignment === "BLOCKED") {
-                    // ODWZOROWANIE CZARNYCH PÓL
                     activeDaysHtml += `<td class="td-blocked"></td>`;
                     signaturesHtml += `<td class="td-blocked"></td>`;
                 } else if (assignment === "BRAK") {
-                    activeDaysHtml += `<td style="color:#f44; font-size:0.6rem;">BRAK OBSŁUGI</td>`;
-                    signaturesHtml += `<td class="td-sign"></td>`;
+                    activeDaysHtml += `<td class="td-empty"></td>`;
+                    signaturesHtml += `<td class="td-sign-empty"></td>`;
                 } else {
                     activeDaysHtml += `<td class="td-name">${assignment}</td>`;
                     signaturesHtml += `<td class="td-sign"></td>`;
@@ -366,7 +364,6 @@
                 dayCounter++;
             });
 
-            // Puste komórki do końca tygodnia (np. jeśli miesiąc kończy się w środę)
             while(dayCounter < 7) {
                 activeDaysHtml += `<td class="td-blocked"></td>`;
                 signaturesHtml += `<td class="td-blocked"></td>`;

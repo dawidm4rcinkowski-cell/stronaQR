@@ -61,37 +61,40 @@
         tbody tr { border-bottom: 1px solid #222; transition: 0.2s; }
         tbody tr:hover { background-color: #151515; }
         
-        td { border: 1px solid #222; padding: 8px 5px; font-size: 0.75rem; font-weight: 700; color: #fff; text-align: center; }
-        .td-task { text-align: left; padding-left: 15px; font-size: 0.7rem; color: #ccc; font-weight: 500; }
+        td { border: 1px solid #222; padding: 6px 5px; font-size: 0.75rem; font-weight: 700; color: #fff; text-align: center; }
+        .td-task { text-align: left; padding-left: 15px; font-size: 0.65rem; color: #ccc; font-weight: 600; line-height: 1.2; }
         .td-name { color: #ffe800; font-weight: 900; text-transform: uppercase; }
-        .td-empty { color: #444; }
-        .td-sign { background: #0a0a0a; } /* Miejsce na podpis */
+        .td-empty { color: #333; background: #0a0a0a; }
+        .td-sign { background: #151515; } 
+        .td-sign-empty { background: #0a0a0a; } /* Zablokowane miejsce na podpis */
 
         /* =========================================
            MAGIA CSS DO DRUKOWANIA (A4 POZIOM)
            ========================================= */
         @media print {
-            @page { size: landscape; margin: 10mm; }
-            body { background: white; color: black; height: auto; overflow: visible; }
+            @page { size: landscape; margin: 8mm; }
+            body { background: white; color: black; height: auto; overflow: visible; font-family: Arial, sans-serif; }
             header, .sidebar, .overlay, .navigation-area, .menu-btn { display: none !important; }
             
             .table-container { overflow: visible; padding: 0; }
             .azs-title { color: black; margin-top: 0; font-size: 1.2rem; }
-            .azs-dates { color: #333; font-size: 0.9rem; }
+            .azs-dates { color: #333; font-size: 0.9rem; margin-bottom: 10px; }
             
             table { min-width: 100%; border: 2px solid black; background: white; }
-            thead th { background: #eee !important; color: black !important; border: 1px solid black !important; position: static; font-size: 0.6rem; }
+            thead th { background: #ddd !important; color: black !important; border: 1px solid black !important; position: static; font-size: 0.55rem; padding: 5px; }
             .header-main-row th { border-bottom: 2px solid black !important; }
             
             tbody tr { border-bottom: 1px solid black; }
-            td { border: 1px solid black !important; color: black !important; padding: 6px 3px; font-size: 0.6rem; }
+            td { border: 1px solid black !important; color: black !important; padding: 4px 2px; font-size: 0.55rem; }
             
-            .td-task { color: black !important; font-weight: 600; font-size: 0.55rem; width: 30%; }
-            .td-name { color: black !important; font-weight: 800; }
-            .td-empty { color: white !important; } /* Ukrywa myślniki na wydruku */
+            .td-task { color: black !important; font-weight: bold; font-size: 0.45rem; width: 45%; }
+            .td-name { color: black !important; font-weight: 900; font-size: 0.5rem; }
+            .td-empty { color: transparent !important; background: #eee !important; } 
+            
             .td-sign { background: white !important; }
+            .td-sign-empty { background: #eee !important; }
             
-            /* Zapobieganie ucinaniu wierszy w połowie strony */
+            /* Unikaj ucinania wierszy w połowie na wydruku */
             tr { page-break-inside: avoid; }
         }
     </style>
@@ -129,9 +132,9 @@
     <table id="azsTable">
         <thead>
             <tr>
-                <th rowspan="2" class="th-task">NAZWY OSÓB ODPOWIEDZIALNYCH ZA ZADANIE:</th>
+                <th rowspan="2" class="th-task">NAZWY ZADAŃ ORAZ OSOBY ODPOWIEDZIALNE:</th>
                 <th colspan="7" style="border-right: 2px solid #ffe800;">PRZYPISANE OSOBY</th>
-                <th colspan="7">MIEJSCE NA PODPIS (PO WYKONANIU ZADANIA)</th>
+                <th colspan="7">MIEJSCE NA PODPIS</th>
             </tr>
             <tr class="header-main-row">
                 <th class="th-day">PON</th><th class="th-day">WTO</th><th class="th-day">ŚRO</th>
@@ -154,7 +157,7 @@
         document.getElementById('overlay').classList.toggle('active');
     }
 
-    // --- BAZA PRACOWNIKÓW I ZADAŃ ---
+    // BAZA PRACOWNIKÓW - Odczytana i dostosowana z Twojego środowiska
     const employees = [
         {n: "PAWEŁ", p: false, dept: "ME"},
         {n: "MICHAŁ", p: false, dept: "KSS"},
@@ -169,29 +172,60 @@
         {n: "ARIEL", p: false, dept: "RTV"}
     ];
 
-    const azsTasks = [
-        "Reagowanie na SMS i KOMUNIKAT W MARKECIE informujący o złożeniu zamówienia OZG i SZS",
-        "Zatwierdzanie OZG i SZS z NOCY do 15 minut od włączenia Marketu",
-        "Odbieranie TELEFONÓW SKLEPOWYCH w ciągu dnia",
-        "Wydruk CENÓWEK + Wydruk RAPORTU WYWIESZEK KORZYŚCI",
-        "Porządek i bezpieczeństwo SOCJAL, MAGAZYN, OTOCZENIE",
-        "Kontrola towarów NPW (Wystawienie 100% + Oznaczenie + Cena)",
-        "Sprawdzenie CAŁEJ ekspozycji czy nie ma niezgłoszonych towarów NPW/PSP",
-        "Kontrola towarów SLW (Wystawienie 100% + Oznaczenie + Cena)",
-        "Kontrola towarów z kończącą się datą + przeterminowanych (ZWROT)",
-        "Kontrola CZYSTOŚCI towaru i regałów",
-        "Kontrola TOP (ZA POMOCĄ KOLEKTORA)",
-        "Kontrola oznaczeń AKCJI PROMOCYJNYCH w całym sklepie",
-        "Kontrola NTOL LISTA VM - REKLAMACJE",
-        "Kontrola NTOL LISTA VM - DZIAŁ AGD",
-        "Kontrola NTOL LISTA VM - DZIAŁ IT / RTV"
+    // BAZA ZADAŃ WPROST Z TWOJEGO EXCELA! 
+    // Indeksy dni: 1=PON, 2=WTO, 3=SRO, 4=CZW, 5=PIA, 6=SOB, 0=NIE
+    const azsTasksData = [
+        { name: "Reagowanie na SMS i KOMUNIKAT W MARKECIE informujący o złożeniu zamówienia OZG i SZS + wysłanie potwierdzenia max. do 15 minut", days: [1,2,3,4,5,6] },
+        { name: "Zatwierdzanie OZG i SZS z NOCY do 15 minut od włączenia Marketu w sklepie", days: [1,2,3,4,5,6] },
+        { name: "Osoba odpowiedzialna za odbieranie TELEFONÓW SKLEPOWYCH w ciągu dnia + za utrzymywanie ich maksymalnej głośności i naładowania baterii", days: [1,2,3,4,5,6] },
+        { name: "Wydruk CENÓWEK + Wydruk RAPORTU WYWIESZEK KORZYŚCI i sprawdzenie wszystkich WYWIESZEK KORZYŚCI do wywieszenia oraz tych do usunięcia", days: [1,2,3,4,5,6] },
+        { name: "Porządek i bezpieczeństwo SOCJAL, MAGAZYN, pozostałe pomieszczenia + OTOCZENIE SKLEPU i NAMIOTU, w tym kontrola FLAG i LOGO ŚWIETLNEGO", days: [1,2,3,4,5,6] },
+        { name: "Kontrola: Brak zalegających DOKUMENTÓW na widoku + PORZĄDEK POK, SERWIS, STANOWISKA KOMPUTEROWE + ODKURZANIE SALI SPRZEDAŻY", days: [1,2,3,4,5,6] },
+        { name: "Wystawienie POTYKACZY + uzupełnianie obowiązujących materiałów DRUKOWANYCH", days: [1,2,3,4,5,6] },
+        { name: "Uzupełnienie LODÓWKI Z NAPOJAMI (LAYOUT) + EKSPOZYCJI NA POK + KOSZYKA Z DROBNYM SLW NA POK (towar + zamówienia)", days: [1,2,3,4,5,6] },
+        { name: "Wykonanie FORMATEK zgodnie z datami podanymi na TOL", days: [1,2,3,4,5,6] },
+        { name: "Kontrola dokumentów MM przyjęcia zatwierdzonych w nocy + informacja o tym fakcie do KE/KSS", days: [1,2,3,4,5,6] },
+        { name: "Weryfikacja ilości i wartości zamówień OZG i MESK i PWS do dbioru w danym dniu + informacja do KE/KSS maksymalnie godzinę po otwarciu sklepu", days: [1,2,3,4,5,6] },
+        { name: "Przekazanie informacji Pracownikom POK na temat OZG i MESK O WARTOŚCI POWYŻEJ 500 ZŁ w celu zapewnienia dosprzedaży", days: [1,2,3,4,5,6] },
+        { name: "Kontrola: Włączony radiowęzeł oraz MUZYKA na wszystkich nośnikach + Przestrzeganie zakazu odtwarzania treści chron. prawem autorskim", days: [1,2,3,4,5,6] },
+        { name: "Kontrola: Włączone wszystkie TOWARY objęte obowiązkiem włączenia + Włączone i zapętlone wszystkie obowiązkowe prezentacje", days: [1,2,3,4,5,6] },
+        { name: "Kontrola: Na wszystkich SZCZYTACH, WYSPACH, KOSZACH i EKSPOZYTORACH Prawidłowe MODELE, CENY, WYWIESZKI i WYSTAWIENIE 100% SZTUK towarów", days: [1,2,3,4,5,6] },
+        { name: "Kontrola: Uzupełnione DZIURY towarowe we wszystkich DZIAŁACH + informacja o tym fakcie do KE/KSS", days: [1,2,3,4,5,6] },
+        { name: "Kontrola POPRAWNOŚCI CEN wg HARMONOGRAMU + w grupach, w których wystąpiła NIEZGODNA CENA SYSTEMOWA", days: [1,2,3,4,5,6] },
+        { name: "Przyjęcie TOWARU + wydruk z Marketu RAPORTU NOWYCH TOWARÓW, żeby wiedzieć co należy wystawić na półkę", days: [1,2,3,4,5,6] },
+        { name: "Kontrola Wystawienia Towaru (KWT) - rozłożenie kontroli na wszyskie dni tygodnia (razem wszystkie grupy muszą być skontrolowane w sklepie RAZ W TYGODNIU)", days: [1,2,3,4,5,6] },
+        { name: "Kontrola listy OBECNOŚCI + Kontrola zeszytu WYJŚĆ + Kontrola grafików PRZERW/POSIŁKÓW", days: [1,2,3,4,5,6] },
+        { name: "Praca z REKLAMACJAMI, w tym również WYSYŁKI, WYDANIA oraz BIEŻĄCY KONTAKT TELEFONICZNY Z KLIENTEM", days: [1,2,3,4,5,6] },
+        { name: "INWENTARYZACJA cząstkowa kolejnych działów oraz kolejnych GRUP WYSOKIEGO RYZYKA (polecenie wykonania pracownikowi SALI + egzekwowanie)", days: [1,2,3,4,5,6] },
+        { name: "Kontrola wyrywkowa kazdego rodzaju ZABEZPIECZEŃ", days: [1,2,3,4,5] },
+        { name: "Wskazanie osób do BADANIA KONKURENCJI zgodnie z aktualnymi wytycznymi", days: [1,2,3,4,5] },
+        { name: "Kontrola MESK i PWS (sprawność procesu + składowanie wg zasad + nieodebrane >1 dnia: czy wykonane telefony do klientów z komentarzem w PDS)", days: [1,2,3,4,5] },
+        { name: "Kontrola wywołanych ZWROTÓW NIEODEBRANYCH MESK i PWS (RAPORT 507) + wystawienie na salę sprzedaży towarów pozostawionych na stanie sklepu", days: [1,2,3,4,5] },
+        { name: "Opróżnianie szafek i strefy MESK z zalegających towarów NIEODEBRANYCH (MESK, PWS, OZG)", days: [1] },
+        { name: "Kontrola czy nie ma zapisanych HASEŁ przy stanowiskach, SZCZEGÓLNIE RATALNE I SERWISOWE", days: [1] },
+        { name: "Kontrola PUSTE MAGAZYNY + podział na 10 stref (Puste, Pełne, Wartościówka, Internet, Zwroty, Wywózki, Reklamacje, Wyposażenie, Odpady, Dostawa)", days: [2] },
+        { name: "Kontrola towarów NPW (Wystawienie 100% + Oznaczenie + Cena + Strategia sprzedaży)", days: [3] },
+        { name: "Sprawdzenie CAŁEJ ekspozycji czy nie ma niezgłoszonych towarów NPW lub PSP i niezwłoczne zgłoszenie ich do KE/KSS", days: [3] },
+        { name: "Kontrola towarów SLW (Wystawienie 100% + Oznaczenie + Cena + Strategia sprzedaży)", days: [3] },
+        { name: "Kontrola towarów z kończącą się datą (wprowadzenie na NPW kat. T) + towarów już przeterminowanych (ZWROT)", days: [3] },
+        { name: "Kontrola CZYSTOŚCI towaru i regałów", days: [3] },
+        { name: "Kontrola TOP (ZA POMOCĄ KOLEKTORA)", days: [4] },
+        { name: "Kontrola oznaczeń AKCJI PROMOCYJNYCH w całym sklepie", days: [4] },
+        { name: "Kontrola NTOL LISTA VM - REKLAMACJE (zrealizuj w dniach od poniedziałku do czwartku)", days: [4] },
+        { name: "Kontrola NTOL LISTA VM - DZIAŁ AGD DROBNE (zrealizuj w dniach od poniedziałku do czwartku)", days: [4] },
+        { name: "Kontrola NTOL LISTA VM - DZIAŁ AGD DUŻE (zrealizuj w dniach od poniedziałku do czwartku)", days: [4] },
+        { name: "Kontrola NTOL LISTA VM - DZIAŁ IT (zrealizuj w dniach od poniedziałku do czwartku)", days: [4] },
+        { name: "Kontrola NTOL LISTA VM - DZIAŁ RTV i ROZRYWKA (zrealizuj w dniach od poniedziałku do czwartku)", days: [4] },
+        { name: "Kontrola NTOL LISTA VM - DZIAŁ RS (zrealizuj w dniach od poniedziałku do czwartku)", days: [4] },
+        { name: "Kontrola NTOL LISTA VM - POK (zrealizuj w dniach od poniedziałku do czwartku)", days: [4] },
+        { name: "Kontrola NTOL LISTA VM - OGÓLNE (zrealizuj w dniach od poniedziałku do czwartku)", days: [4] }
     ];
 
     const months = ["STYCZEŃ", "LUTY", "MARZEC", "KWIECIEŃ", "MAJ", "CZERWIEC", "LIPIEC", "SIERPIEŃ", "WRZESIEŃ", "PAŹDZIERNIK", "LISTOPAD", "GRUDZIEŃ"];
     const year = 2026;
     let currentWeeks = [];
 
-    // --- FUNKCJE DANYCH (INTEGRACJA Z PLANEM PRACY) ---
+    // --- CZYTANIE Z PLANU PRACY ---
     function getShiftOnly(n, d, m) {
         let v = localStorage.getItem(`pl_${year}_${m}_${n}_${d}`) || "";
         return v.split('|')[0] || "";
@@ -209,7 +243,7 @@
         updateWeeks();
     }
 
-    // Kalkulacja tygodni (Od poniedziałku do niedzieli)
+    // Kalkulacja tygodni
     function updateWeeks() {
         const mIndex = parseInt(document.getElementById('monthSelect').value);
         const daysInMonth = new Date(year, mIndex + 1, 0).getDate();
@@ -221,9 +255,8 @@
             let date = new Date(year, mIndex, d);
             currentWeek.push(d);
             
-            // Jeśli Niedziela (0) lub koniec miesiąca, zamykamy tydzień
+            // Koniec tygodnia (Niedziela) lub koniec miesiąca
             if (date.getDay() === 0 || d === daysInMonth) {
-                // Dodaj tylko jeśli to pełny lub sensowny tydzień
                 currentWeeks.push([...currentWeek]);
                 currentWeek = [];
             }
@@ -234,18 +267,21 @@
         currentWeeks.forEach((week, i) => {
             let opt = document.createElement('option');
             opt.value = i;
-            opt.innerText = `Tydzień ${i + 1} (${week[0]}.${mIndex+1} - ${week[week.length-1]}.${mIndex+1})`;
+            let startD = String(week[0]).padStart(2, '0');
+            let endD = String(week[week.length-1]).padStart(2, '0');
+            let mStr = String(mIndex + 1).padStart(2, '0');
+            opt.innerText = `Tydzień ${i + 1} (${startD}.${mStr} - ${endD}.${mStr})`;
             wSel.appendChild(opt);
         });
     }
 
-    // GŁÓWNY SILNIK GENERUJĄCY TABELĘ
+    // --- GŁÓWNY SILNIK GENERUJĄCY TABELĘ AZS ---
     function generateAZS() {
         const mIndex = parseInt(document.getElementById('monthSelect').value);
         const wIndex = parseInt(document.getElementById('weekSelect').value);
         const weekDays = currentWeeks[wIndex];
 
-        // Formatowanie nagłówka dat
+        // Nagłówek dla wydruku
         let startD = String(weekDays[0]).padStart(2, '0');
         let endD = String(weekDays[weekDays.length - 1]).padStart(2, '0');
         let mStr = String(mIndex + 1).padStart(2, '0');
@@ -254,72 +290,76 @@
         const tbody = document.getElementById('azsBody');
         tbody.innerHTML = "";
 
-        // Tablica do śledzenia ile kto ma zadań, by rozdzielać sprawiedliwie
+        // Licznik obciążenia (żeby sprawiedliwie dzielić zadania)
         let workload = {};
         employees.forEach(e => workload[e.n] = 0);
 
-        azsTasks.forEach(task => {
+        azsTasksData.forEach(task => {
             let tr = document.createElement('tr');
-            let html = `<td class="td-task">${task}</td>`;
+            let html = `<td class="td-task">${task.name}</td>`;
             
-            // Mapowanie kolumn PON-NIE
-            // Ponieważ miesiąc może zaczynać się w środę, musimy przesunąć puste dni na początek
             let firstDayOfWeek = new Date(year, mIndex, weekDays[0]).getDay();
-            let emptyDaysBefore = firstDayOfWeek === 0 ? 6 : firstDayOfWeek - 1; // Ile dni przed początkiem tygodnia brakuje
+            let emptyDaysBefore = firstDayOfWeek === 0 ? 6 : firstDayOfWeek - 1; 
 
             let activeDaysHtml = "";
             let signaturesHtml = "";
-
             let dayCounter = 0;
 
-            // Puste dni przed
+            // Puste dni przed początkiem danego tygodnia
             for(let i=0; i<emptyDaysBefore; i++) {
                 activeDaysHtml += `<td class="td-empty">-</td>`;
-                signaturesHtml += `<td class="td-sign"></td>`;
+                signaturesHtml += `<td class="td-sign-empty"></td>`;
                 dayCounter++;
             }
 
-            // Dni z tygodnia
+            // Dni właściwe dla wybranego tygodnia
             weekDays.forEach(d => {
-                // Znajdź kto pracuje w ten dzień
-                let workingToday = employees.filter(e => {
-                    let shift = getShiftOnly(e.n, d, mIndex);
-                    return shift.includes('-'); // Tylko osoby które mają godziny np. 10-20
-                });
-
-                if (workingToday.length === 0) {
-                    activeDaysHtml += `<td class="td-empty">-</td>`;
-                } else {
-                    // Posortuj pracowników pracujących dzisiaj tak, aby brać tych co mają najmniej zadań
-                    workingToday.sort((a, b) => workload[a.n] - workload[b.n]);
-                    let assignedPerson = workingToday[0];
-                    workload[assignedPerson.n]++; // Zwiększamy licznik obciążenia
-                    
-                    activeDaysHtml += `<td class="td-name">${assignedPerson.n}</td>`;
-                }
+                let currentDayOfWeek = new Date(year, mIndex, d).getDay(); 
                 
-                signaturesHtml += `<td class="td-sign"></td>`;
+                // Sprawdzamy czy to zadanie wykonuje się w ten konkretny dzień tygodnia wg CSV
+                if(!task.days.includes(currentDayOfWeek)) {
+                    activeDaysHtml += `<td class="td-empty">-</td>`;
+                    signaturesHtml += `<td class="td-sign-empty"></td>`;
+                } else {
+                    // Znajdź kto aktualnie fizycznie PRACUJE tego dnia wg grafiku (omijaj Kierownika ME)
+                    let workingToday = employees.filter(e => {
+                        let shift = getShiftOnly(e.n, d, mIndex);
+                        return shift.includes('-') && e.dept !== 'ME';
+                    });
+
+                    if (workingToday.length === 0) {
+                        activeDaysHtml += `<td class="td-empty">BRAK OBS.</td>`;
+                        signaturesHtml += `<td class="td-sign"></td>`;
+                    } else {
+                        // Posortuj pracowników tak, by wybrać tego z najmniejszą ilością zadań dzisiaj
+                        workingToday.sort((a, b) => workload[a.n] - workload[b.n]);
+                        let assignedPerson = workingToday[0];
+                        
+                        workload[assignedPerson.n]++; // Dodaj mu obciążenie
+                        activeDaysHtml += `<td class="td-name">${assignedPerson.n}</td>`;
+                        signaturesHtml += `<td class="td-sign"></td>`;
+                    }
+                }
                 dayCounter++;
             });
 
-            // Puste dni po (jeśli tydzień urywa się np. we czwartek na koniec miesiąca)
+            // Puste dni na końcu tygodnia
             while(dayCounter < 7) {
                 activeDaysHtml += `<td class="td-empty">-</td>`;
-                signaturesHtml += `<td class="td-sign"></td>`;
+                signaturesHtml += `<td class="td-sign-empty"></td>`;
                 dayCounter++;
             }
 
-            html += activeDaysHtml;
-            html += signaturesHtml;
-            
+            html += activeDaysHtml + signaturesHtml;
             tr.innerHTML = html;
             tbody.appendChild(tr);
         });
     }
 
-    // Inicjalizacja
+    // Inicjalizacja przy wejściu na stronę
     window.onload = () => {
         initSelectors();
+        generateAZS(); // Automatycznie generuje pierwszy tydzień na start
     };
 </script>
 </body>

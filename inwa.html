@@ -9,13 +9,13 @@
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Montserrat', sans-serif; }
         body { background: #080808; color: white; display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
         
-        /* CUSTOM SCROLLBAR - ZGODNY Z RESZTĄ APLIKACJI */
+        /* CUSTOM SCROLLBAR */
         ::-webkit-scrollbar { width: 12px; height: 12px; }
         ::-webkit-scrollbar-track { background: #111; border-left: 1px solid #222; border-top: 1px solid #222; }
         ::-webkit-scrollbar-thumb { background: #ffe800; border-radius: 2px; }
         ::-webkit-scrollbar-thumb:hover { background: #e6d100; }
         
-        /* HEADER I MENU (TAKIE SAME JAK W PLANIE PRACY) */
+        /* HEADER I MENU */
         header { background: #ffe800; height: 50px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; z-index: 9999; border-bottom: 2px solid #000; position: relative; box-shadow: 0 2px 10px rgba(255, 232, 0, 0.2); }
         .logo { color: #000; font-weight: 900; font-size: 1.4rem; text-transform: uppercase; }
         .logo span { background: #000; color: #ffe800; padding: 0 4px; border-radius: 3px; }
@@ -54,12 +54,25 @@
         .item-card h3 { font-size: 1.1rem; font-weight: 900; text-transform: uppercase; margin-bottom: 15px; min-height: 2.5rem; color: #eee; line-height: 1.3; }
 
         /* STATUS Z KROPKĄ */
-        .status-row { display: flex; align-items: center; gap: 10px; margin-bottom: 20px; font-size: 0.75rem; font-weight: 800; color: #888; }
-        .dot { width: 10px; height: 10px; background: #ff4444; border-radius: 50%; box-shadow: 0 0 8px rgba(255, 68, 68, 0.6); }
+        .status-row { display: flex; align-items: center; gap: 10px; margin-bottom: 20px; font-size: 0.75rem; font-weight: 800; color: #888; transition: 0.3s; }
+        .dot { width: 10px; height: 10px; background: #ff4444; border-radius: 50%; box-shadow: 0 0 8px rgba(255, 68, 68, 0.6); transition: 0.3s; }
+        
+        .status-waiting .dot { background: #ffa502; box-shadow: 0 0 8px rgba(255, 165, 2, 0.6); }
+        .status-waiting { color: #ffa502; }
 
         /* PRZYCISK ZATWIERDŹ */
         .approve-btn { width: 100%; background: transparent; border: 2px solid #ffe800; color: #ffe800; padding: 10px; border-radius: 8px; font-weight: 900; cursor: pointer; transition: 0.3s; text-transform: uppercase; font-size: 0.8rem; }
-        .approve-btn:hover { background: #ffe800; color: #000; box-shadow: 0 0 10px rgba(255, 232, 0, 0.4); }
+        .approve-btn:hover:not(:disabled) { background: #ffe800; color: #000; box-shadow: 0 0 10px rgba(255, 232, 0, 0.4); }
+        .approve-btn:disabled { border-color: #555; color: #555; cursor: not-allowed; }
+
+        /* MODAL (WYSKAKUJĄCE OKIENKO) */
+        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 11000; align-items: center; justify-content: center; padding: 20px; backdrop-filter: blur(5px); }
+        .modal-content { background: #0a0a0a; border: 2px solid #ffe800; padding: 30px; width: 100%; max-width: 500px; border-radius: 15px; box-shadow: 0 0 30px rgba(255, 232, 0, 0.15); text-align: center; }
+        .modal-content h3 { color: #ffe800; margin-bottom: 15px; font-size: 1.2rem; text-transform: uppercase; letter-spacing: 1px; }
+        .modal-content p { color: #ccc; font-size: 0.9rem; line-height: 1.6; margin-bottom: 25px; font-weight: 500; }
+        .modal-content strong { color: #ffa502; }
+        .btn-modal { background: #ffe800; color: #000; border: none; padding: 12px 20px; font-weight: 900; border-radius: 8px; cursor: pointer; font-size: 0.9rem; transition: 0.3s; width: 100%; text-transform: uppercase; }
+        .btn-modal:hover { transform: scale(1.02); box-shadow: 0 0 15px rgba(255, 232, 0, 0.4); }
 
     </style>
 </head>
@@ -107,6 +120,17 @@
     </div>
 </div>
 
+<div class="modal" id="approvalModal">
+    <div class="modal-content">
+        <h3>INWENTURA ZGŁOSZONA</h3>
+        <p>
+            Powiadomienie o gotowości do sprawdzenia inwentury zostało wysłane do ME i KSS.<br><br>
+            Stan twojego zatwierdzenia zmienił się na <strong>OCZEKUJE</strong> do momentu, aż przełożony dokona weryfikacji. Otrzymasz informację zwrotną po sprawdzeniu.
+        </p>
+        <button class="btn-modal" onclick="closeApprovalModal()">ROZUMIEM</button>
+    </div>
+</div>
+
 <script>
     // --- OBSŁUGA MENU BOCZNEGO ---
     function toggleNav() {
@@ -135,7 +159,6 @@
 
     // --- LOGIKA ZMIANY DZIAŁÓW I RENDEROWANIA KAFELKÓW ---
     function switchDept(dept) {
-        // Aktualizacja wyglądu przycisków
         document.querySelectorAll('.tab-btn').forEach(btn => {
             btn.classList.remove('active');
             if(btn.innerText.includes(dept)) btn.classList.add('active');
@@ -145,7 +168,6 @@
         const grid2W = document.getElementById('grid2Weeks');
         const gridM = document.getElementById('gridMonthly');
 
-        // Renderowanie danych dla poszczególnych sekcji
         renderSection(gridW, inventoryData[dept].weekly, 'secWeekly');
         renderSection(grid2W, inventoryData[dept].twoWeeks, 'secTwoWeeks');
         renderSection(gridM, inventoryData[dept].monthly, 'secMonthly');
@@ -154,22 +176,51 @@
     function renderSection(grid, data, sectionId) {
         const section = document.getElementById(sectionId);
         
-        // Ukryj sekcję jeśli nie ma żadnych zadań (np. RTV tygodniowe)
         if (data.length === 0) {
             section.style.display = 'none';
         } else {
             section.style.display = 'block';
-            grid.innerHTML = data.map(item => `
+            grid.innerHTML = data.map((item, index) => {
+                // Tworzymy unikalne ID dla każdego kafelka, aby móc nim sterować (usuwamy spacje i polskie znaki)
+                let uniqueId = item.replace(/[^a-zA-Z0-9]/g, '') + index;
+                
+                return `
                 <div class="item-card">
                     <h3>${item}</h3>
-                    <div class="status-row">
+                    <div class="status-row" id="status-${uniqueId}">
                         <div class="dot"></div>
                         <span>DO SPRAWDZENIA</span>
                     </div>
-                    <button class="approve-btn">Zatwierdź</button>
+                    <button class="approve-btn" id="btn-${uniqueId}" onclick="submitApproval('${uniqueId}')">Zatwierdź</button>
                 </div>
-            `).join('');
+                `;
+            }).join('');
         }
+    }
+
+    // --- LOGIKA ZATWIERDZANIA I MODALA ---
+    function submitApproval(id) {
+        // 1. Zmiana wyglądu konkretnego kafelka na "OCZEKUJE"
+        const statusRow = document.getElementById(`status-${id}`);
+        const btn = document.getElementById(`btn-${id}`);
+        
+        if(statusRow && btn) {
+            statusRow.classList.add('status-waiting');
+            statusRow.innerHTML = `
+                <div class="dot"></div>
+                <span>OCZEKUJE NA ME/KSS</span>
+            `;
+            
+            btn.innerText = "Zgłoszono";
+            btn.disabled = true; // Zablokowanie przycisku
+        }
+
+        // 2. Wyświetlenie Modala
+        document.getElementById('approvalModal').style.display = 'flex';
+    }
+
+    function closeApprovalModal() {
+        document.getElementById('approvalModal').style.display = 'none';
     }
 
     // Odpalenie domyślnej zakładki przy załadowaniu strony

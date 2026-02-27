@@ -70,7 +70,7 @@
            MAGIA CSS DO DRUKOWANIA (IDEALNE A4 JEDNA STRONA)
            ========================================= */
         @media print {
-            @page { size: A4 landscape; margin: 3mm 8mm; } /* Minimalne marginesy pionowe */
+            @page { size: A4 landscape; margin: 3mm 8mm; } 
             body { background: white; color: black; font-family: Arial, sans-serif; overflow: hidden; margin: 0; padding: 0; height: 100vh; }
             header, .sidebar, .overlay, .navigation-area, .menu-btn { display: none !important; }
             
@@ -85,22 +85,15 @@
             
             tbody tr { border-bottom: 1px solid black; height: auto !important; }
             
-            /* Twarde wymuszenie mikro rozmiarów dla 44 wierszy */
             td { border: 1px solid black !important; color: black !important; padding: 1.5px 2px !important; font-size: 6.5px !important; line-height: 1 !important; }
             
-            .th-task { width: 32%; } /* Rezerwujemy 32% szerokości na długie nazwy zadań */
+            .th-task { width: 33%; } 
             .td-task { font-weight: bold; font-size: 5.5px !important; padding-left: 2px !important; word-wrap: break-word; }
             .td-name { font-weight: 900; font-size: 6.5px !important; }
             
-            .td-empty { color: transparent !important; background: #eee !important; } 
-            
-            /* Drukuj czarne pola jako szare */
-            .td-blocked { background-color: #777 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; } 
-            
+            .td-blocked { background-color: #666 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; color: transparent !important; } 
             .td-sign { background: white !important; }
-            .td-sign-empty { background: #eee !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
             
-            /* Zakaz łamania wierszy */
             tr, td, th { page-break-inside: avoid !important; }
         }
     </style>
@@ -177,7 +170,7 @@
         {n: "ARIEL", p: false, dept: "RTV"}
     ];
 
-    // ODWZOROWANIE 1:1 TWOJEGO PLIKU CSV
+    // Dni: 1=PON, 2=WTO, 3=SRO, 4=CZW, 5=PIA, 6=SOB, 0=NIE
     const azsTasksData = [
         { name: "Reagowanie na SMS i KOMUNIKAT W MARKECIE informujący o złożeniu zamówienia OZG i SZS + wysłanie potwierdzenia max. do 15 minut", days: [1,2,3,4,5,6] },
         { name: "Zatwierdzanie OZG i SZS z NOCY do 15 minut od włączenia Marketu w sklepie", days: [1,2,3,4,5,6] },
@@ -229,9 +222,12 @@
     const year = 2026;
     let currentWeeks = [];
 
-    // ODCZYT GRAFIKU 
-    function getShiftOnly(n, d, m) {
-        let v = localStorage.getItem(`pl_${year}_${m}_${n}_${d}`) || "";
+    // Inteligentny odczyt grafiku - radzi sobie ze zmianą miesięcy i lat!
+    function getShiftOnly(n, dayObj) {
+        let y = dayObj.getFullYear();
+        let m = dayObj.getMonth();
+        let d = dayObj.getDate();
+        let v = localStorage.getItem(`pl_${y}_${m}_${n}_${d}`) || "";
         return v.split('|')[0] || "";
     }
 
@@ -247,20 +243,27 @@
         updateWeeks();
     }
 
+    // PEŁNE TYGODNIE (PON-NIE) NAWET JEŚLI ZACZYNAJĄ/KOŃCZĄ SIĘ W INNYM MIESIĄCU
     function updateWeeks() {
         const mIndex = parseInt(document.getElementById('monthSelect').value);
-        const daysInMonth = new Date(year, mIndex + 1, 0).getDate();
+        
+        let firstDayOfMonth = new Date(year, mIndex, 1);
+        let diff = firstDayOfMonth.getDay() === 0 ? -6 : 1 - firstDayOfMonth.getDay();
+        let currentDate = new Date(year, mIndex, 1 + diff); // Ustawia na PONIEDZIAŁEK
         
         currentWeeks = [];
-        let currentWeek = [];
-
-        for (let d = 1; d <= daysInMonth; d++) {
-            let date = new Date(year, mIndex, d);
-            currentWeek.push(d);
+        
+        while (true) {
+            let week = [];
+            for (let i = 0; i < 7; i++) {
+                week.push(new Date(currentDate));
+                currentDate.setDate(currentDate.getDate() + 1);
+            }
+            currentWeeks.push(week);
             
-            if (date.getDay() === 0 || d === daysInMonth) {
-                currentWeeks.push([...currentWeek]);
-                currentWeek = [];
+            // Przerwij, jeśli PONIEDZIAŁEK następnego tygodnia wpada całkowicie w nowy miesiąc
+            if (currentDate.getMonth() !== mIndex && currentDate.getFullYear() >= year) {
+                break;
             }
         }
 
@@ -269,36 +272,35 @@
         currentWeeks.forEach((week, i) => {
             let opt = document.createElement('option');
             opt.value = i;
-            let startD = String(week[0]).padStart(2, '0');
-            let endD = String(week[week.length-1]).padStart(2, '0');
-            let mStr = String(mIndex + 1).padStart(2, '0');
-            opt.innerText = `Tydzień ${i + 1} (${startD}.${mStr} - ${endD}.${mStr})`;
+            
+            let startStr = `${String(week[0].getDate()).padStart(2, '0')}.${String(week[0].getMonth()+1).padStart(2, '0')}`;
+            let endStr = `${String(week[6].getDate()).padStart(2, '0')}.${String(week[6].getMonth()+1).padStart(2, '0')}`;
+            
+            opt.innerText = `Tydzień ${i + 1} (${startStr} - ${endStr})`;
             wSel.appendChild(opt);
         });
     }
 
     function generateAZS() {
-        const mIndex = parseInt(document.getElementById('monthSelect').value);
         const wIndex = parseInt(document.getElementById('weekSelect').value);
         const weekDays = currentWeeks[wIndex];
 
-        let startD = String(weekDays[0]).padStart(2, '0');
-        let endD = String(weekDays[weekDays.length - 1]).padStart(2, '0');
-        let mStr = String(mIndex + 1).padStart(2, '0');
-        document.getElementById('azsDates').innerText = `WPISZ DATY: OD ${startD}.${mStr} DO ${endD}.${mStr}`;
+        let startStr = `${String(weekDays[0].getDate()).padStart(2, '0')}.${String(weekDays[0].getMonth()+1).padStart(2, '0')}`;
+        let endStr = `${String(weekDays[6].getDate()).padStart(2, '0')}.${String(weekDays[6].getMonth()+1).padStart(2, '0')}`;
+        document.getElementById('azsDates').innerText = `WPISZ DATY: OD ${startStr} DO ${endStr}`;
 
         const tbody = document.getElementById('azsBody');
         tbody.innerHTML = "";
         
         let hasAnyData = false;
-
         let dailyAssignments = {}; 
 
-        weekDays.forEach(d => {
-            let currentDayOfWeek = new Date(year, mIndex, d).getDay();
+        weekDays.forEach(dayObj => {
+            let currentDayOfWeek = dayObj.getDay();
+            let dateIso = dayObj.toISOString();
             
             let workingToday = employees.filter(e => {
-                let shift = getShiftOnly(e.n, d, mIndex);
+                let shift = getShiftOnly(e.n, dayObj);
                 return shift !== "" && shift !== "WOLNE" && shift !== "URLOP" && shift !== "Ż" && e.dept !== 'ME';
             });
 
@@ -307,20 +309,25 @@
             let dayWorkload = {};
             workingToday.forEach(e => dayWorkload[e.n] = 0);
 
-            dailyAssignments[d] = {};
+            dailyAssignments[dateIso] = {};
 
+            // LOSOWANIE BEZ KLONOWANIA (GWARANCJA SPRAWIEDLIWEGO ROZDZIAŁU)
             azsTasksData.forEach(task => {
                 if (task.days.includes(currentDayOfWeek)) {
                     if (workingToday.length > 0) {
-                        workingToday.sort((a, b) => dayWorkload[a.n] - dayWorkload[b.n]);
-                        let assigned = workingToday[0];
+                        let minLoad = Math.min(...workingToday.map(e => dayWorkload[e.n]));
+                        let candidates = workingToday.filter(e => dayWorkload[e.n] === minLoad);
+                        
+                        // Losowy wybór tylko z puli osób o najmniejszej liczbie zadań!
+                        let assigned = candidates[Math.floor(Math.random() * candidates.length)];
+                        
                         dayWorkload[assigned.n]++; 
-                        dailyAssignments[d][task.name] = assigned.n;
+                        dailyAssignments[dateIso][task.name] = assigned.n;
                     } else {
-                        dailyAssignments[d][task.name] = "BRAK"; 
+                        dailyAssignments[dateIso][task.name] = "BRAK"; 
                     }
                 } else {
-                    dailyAssignments[d][task.name] = "BLOCKED"; 
+                    dailyAssignments[dateIso][task.name] = "BLOCKED"; 
                 }
             });
         });
@@ -335,40 +342,24 @@
             let tr = document.createElement('tr');
             let html = `<td class="td-task">${task.name}</td>`;
             
-            let firstDayOfWeek = new Date(year, mIndex, weekDays[0]).getDay();
-            let emptyDaysBefore = firstDayOfWeek === 0 ? 6 : firstDayOfWeek - 1; 
-
             let activeDaysHtml = "";
             let signaturesHtml = "";
-            let dayCounter = 0;
 
-            for(let i=0; i<emptyDaysBefore; i++) {
-                activeDaysHtml += `<td class="td-blocked"></td>`;
-                signaturesHtml += `<td class="td-blocked"></td>`;
-                dayCounter++;
-            }
-
-            weekDays.forEach(d => {
-                let assignment = dailyAssignments[d][task.name];
+            // TABELA ZAWSZE MA 7 DNI (PON-NIE)
+            weekDays.forEach(dayObj => {
+                let assignment = dailyAssignments[dayObj.toISOString()][task.name];
 
                 if (assignment === "BLOCKED") {
                     activeDaysHtml += `<td class="td-blocked"></td>`;
                     signaturesHtml += `<td class="td-blocked"></td>`;
                 } else if (assignment === "BRAK") {
-                    activeDaysHtml += `<td class="td-empty"></td>`;
-                    signaturesHtml += `<td class="td-sign-empty"></td>`;
+                    activeDaysHtml += `<td style="color:#f44; font-size:0.6rem;">BRAK</td>`;
+                    signaturesHtml += `<td class="td-sign"></td>`;
                 } else {
                     activeDaysHtml += `<td class="td-name">${assignment}</td>`;
                     signaturesHtml += `<td class="td-sign"></td>`;
                 }
-                dayCounter++;
             });
-
-            while(dayCounter < 7) {
-                activeDaysHtml += `<td class="td-blocked"></td>`;
-                signaturesHtml += `<td class="td-blocked"></td>`;
-                dayCounter++;
-            }
 
             html += activeDaysHtml + signaturesHtml;
             tr.innerHTML = html;

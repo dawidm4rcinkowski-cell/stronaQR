@@ -53,19 +53,17 @@
         .obsada-col { min-width: 130px; color: #ffe800; font-weight: 900; font-size: 0.65rem; background: #111; text-align: center; border-left: 2px solid #ffe800; border-right: none !important; } 
         
         tbody tr { transition: background-color 0.2s; }
-        tbody tr:hover { background-color: rgba(255, 255, 255, 0.05); }
+        tbody tr:hover { background-color: rgba(255, 255, 255, 0.03); }
 
         td { border-bottom: 1px solid #222; border-right: 1px solid #222; height: 48px; text-align: center; vertical-align: middle; transition: background-color 0.2s; cursor: pointer; }
         td:last-child { border-right: none; } 
         
-        /* HOVER DLA ZWYKŁYCH DNI */
         td:hover { background-color: rgba(255, 255, 255, 0.08); }
         
-        /* STYLIZACJA KOMÓREK Z ROLAMI */
         .cell-shift { font-weight: 900; font-size: 0.8rem; color: #fff; }
         .cell-icons { font-size: 0.7rem; letter-spacing: 2px; margin-top: 3px; }
         
-        /* KOLORYSTYKA DNI */
+        /* KOLORYSTYKA ŚWIĄT I WEEKENDÓW */
         .sun { background-color: #4a1111 !important; } 
         .sun .date-col { background-color: #5c1616 !important; color: #ff9999; border-right-color: #ff4d4d; }
         .sun td { border-bottom-color: #330b0b; border-right-color: #330b0b; }
@@ -82,7 +80,6 @@
         .wish-cell { background: rgba(221, 0, 170, 0.15); }
         .wish-cell .cell-shift { color: #f0f !important; }
         
-        /* AKTUALNY DZIEŃ */
         .today-row { position: relative; background-color: rgba(0, 255, 0, 0.1) !important; }
         .today-row::after { content: ''; position: absolute; inset: 0; border: 2px solid #0f0; pointer-events: none; z-index: 100; box-shadow: 0 0 10px rgba(0, 255, 0, 0.2) inset; }
         .today-row .date-col { color: #0f0; background-color: #0a150a !important; border-right-color: #0f0; }
@@ -102,7 +99,6 @@
         .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 11000; align-items: center; justify-content: center; padding: 20px; backdrop-filter: blur(5px); }
         .modal-content { background: #0a0a0a; border: 2px solid #ffe800; padding: 20px; width: 100%; max-width: 800px; border-radius: 15px; box-shadow: 0 0 30px rgba(255, 232, 0, 0.15); }
         
-        /* EDYTOR KOMÓREK */
         .edit-grid { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-bottom: 15px; }
         .btn-shift { background: #151515; border: 1px solid #444; color: #fff; padding: 10px 15px; border-radius: 5px; cursor: pointer; font-weight: bold; transition: 0.2s; }
         .btn-shift:hover { border-color: #ffe800; color: #ffe800; }
@@ -240,7 +236,6 @@ function isWorkDay(d) {
     return true;
 }
 
-// Obsługa zapisu danych (Godziny|Role)
 function getVRaw(n, d) { return localStorage.getItem(`pl_${year}_${curM}_${n}_${d}`) || ""; }
 function saveVRaw(n, d, v) { localStorage.setItem(`pl_${year}_${curM}_${n}_${d}`, v.toUpperCase()); }
 
@@ -254,7 +249,6 @@ function getRolesOnly(n, d) {
     return v.split('|')[1] ? v.split('|')[1].split(',') : [];
 }
 
-// --- LOGIKA EDYTORA KOMÓREK ---
 let currentEditEmp = null;
 let currentEditDay = null;
 
@@ -317,7 +311,6 @@ function saveCellModal() {
     closeCellModal();
     render();
 }
-// --- KONIEC LOGIKI EDYTORA ---
 
 function saveNorm(v) { localStorage.setItem(`norm_${year}_${curM}`, v); render(); }
 function loadNorm() {
@@ -451,8 +444,13 @@ function startGeneration() {
         let poks = available.filter(e => e.p);
         let sales = available.filter(e => !e.p);
 
-        if(poks.length > 0) saveVRaw(poks[0].n, d, openShift);
-        if(poks.length > 1) saveVRaw(poks[1].n, d, closeShift);
+        // ZABEZPIECZENIE: Pełne pokrycie jeśli tylko jedna z POK dostępna
+        if(poks.length === 1) {
+            saveVRaw(poks[0].n, d, fullShift);
+        } else if(poks.length > 1) {
+            saveVRaw(poks[0].n, d, openShift);
+            saveVRaw(poks[1].n, d, closeShift);
+        }
 
         let otwNeeded = 3;
         let zamNeeded = 3;
@@ -544,6 +542,9 @@ function startGeneration() {
                 } else {
                     if(isOtw && (otwSales + otwPok <= 1)) isSafe = false;
                     if(isZam && (zamSales + zamPok <= 1)) isSafe = false;
+                    
+                    // ŻELAZNA ZASADA POK: Nawet w panice nie zostawiamy dnia bez ŻADNEGO POKu!
+                    if(emp.p && (otwPok + zamPok === 0)) isSafe = false;
                 }
 
                 if(isSafe) possibleDays.push({ d, staff: otwSales + zamSales });
@@ -558,16 +559,53 @@ function startGeneration() {
         return false;
     };
 
-    const tryShortenShift = (emp) => {
+    const tryShortenShift = (emp, strict) => {
         let possibleDays = [];
         for(let d=1; d<=days; d++) {
             let isWknd = new Date(year, curM, d).getDay() === 0 || new Date(year, curM, d).getDay() === 6;
             let v = getShiftOnly(emp.n, d);
-            if(!isWknd && v === fullShift) possibleDays.push(d);
+            if(!isWknd && v === fullShift) {
+                let isSafe = true;
+                if(strict && emp.p) {
+                    let oP = 0, zP = 0;
+                    employees.forEach(em => {
+                        if(em.n !== emp.n && em.p) {
+                            let ev = getShiftOnly(em.n, d);
+                            if(ev.includes('-')) {
+                                let p = ev.split('-');
+                                if(parseInt(p[0])<=10) oP++;
+                                if(parseInt(p[1])>=20) zP++;
+                            }
+                        }
+                    });
+                    if(oP === 0 || zP === 0) isSafe = false;
+                }
+                if(isSafe) possibleDays.push(d);
+            }
         }
         if(possibleDays.length > 0) {
             shuffle(possibleDays);
-            saveVRaw(emp.n, possibleDays[0], (Math.random()>0.5 ? openShift : closeShift));
+            let targetD = possibleDays[0];
+            let newShift = Math.random() > 0.5 ? openShift : closeShift;
+            
+            // Inteligentne skracanie dla POK - sprawdza jakiej strony brakuje
+            if(emp.p) {
+                let oP=0, zP=0;
+                employees.forEach(em => {
+                    if(em.n !== emp.n && em.p) {
+                        let ev = getShiftOnly(em.n, targetD);
+                        if(ev.includes('-')) {
+                            let p = ev.split('-');
+                            if(parseInt(p[0])<=10) oP++;
+                            if(parseInt(p[1])>=20) zP++;
+                        }
+                    }
+                });
+                if(oP === 0 && zP > 0) newShift = openShift;
+                else if(zP === 0 && oP > 0) newShift = closeShift;
+            }
+            
+            saveVRaw(emp.n, targetD, newShift);
             return true;
         }
         return false;
@@ -612,14 +650,26 @@ function startGeneration() {
                 
             } else if (st.diff < 0) { 
                 if(st.diff <= -8) actionTaken = tryRemoveShift(emp, strictMode);
-                if(!actionTaken && st.diff <= -2) actionTaken = tryShortenShift(emp);
+                if(!actionTaken && st.diff <= -2) actionTaken = tryShortenShift(emp, strictMode);
                 
                 if(!actionTaken && !strictMode) {
                      for(let d=1; d<=days; d++) {
                         let isWknd = new Date(year, curM, d).getDay() === 0 || new Date(year, curM, d).getDay() === 6;
                         let s = getShiftOnly(emp.n, d);
                         if(!isWknd && (s === openShift || s === closeShift || s === fullShift)) {
-                            saveVRaw(emp.n, d, ""); actionTaken = true; break;
+                            // ŻELAZNA ZASADA POK: Upewniamy się, że to nie jest ostatni POK!
+                            let isLastPok = false;
+                            if(emp.p) {
+                                let otherPok = 0;
+                                employees.forEach(em => {
+                                    if(em.n !== emp.n && em.p && getShiftOnly(em.n, d).includes('-')) otherPok++;
+                                });
+                                if(otherPok === 0) isLastPok = true;
+                            }
+
+                            if(!isLastPok) {
+                                saveVRaw(emp.n, d, ""); actionTaken = true; break;
+                            }
                         }
                      }
                 }

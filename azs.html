@@ -9,13 +9,11 @@
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Montserrat', sans-serif; }
         body { background: #080808; color: white; display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
         
-        /* CUSTOM SCROLLBAR */
         ::-webkit-scrollbar { width: 12px; height: 12px; }
         ::-webkit-scrollbar-track { background: #111; border-left: 1px solid #222; border-top: 1px solid #222; }
         ::-webkit-scrollbar-thumb { background: #ffe800; border-radius: 2px; }
         ::-webkit-scrollbar-thumb:hover { background: #e6d100; }
         
-        /* HEADER I MENU */
         header { background: #ffe800; height: 50px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; z-index: 9999; border-bottom: 2px solid #000; position: relative; box-shadow: 0 2px 10px rgba(255, 232, 0, 0.2); }
         .logo { color: #000; font-weight: 900; font-size: 1.4rem; text-transform: uppercase; }
         .logo span { background: #000; color: #ffe800; padding: 0 4px; border-radius: 3px; }
@@ -29,9 +27,7 @@
         .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.8); display: none; z-index: 9500; }
         .overlay.active { display: block; }
 
-        /* PASEK NAWIGACJI (MIESIĄCE, TYGODNIE, DRUK) */
         .navigation-area { background: #111; border-bottom: 2px solid #ffe800; flex-shrink: 0; box-shadow: 0 4px 10px rgba(0,0,0,0.5); z-index: 800; width: 100%; padding: 10px 15px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; }
-        
         .controls-group { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
         
         select { background: #000; color: #fff; border: 1px solid #ffe800; padding: 8px 12px; font-weight: 900; border-radius: 8px; outline: none; cursor: pointer; font-size: 0.8rem; }
@@ -43,58 +39,58 @@
         .btn-print { background: #3498db; color: #fff; border: none; padding: 8px 15px; font-weight: 900; border-radius: 8px; cursor: pointer; font-size: 0.8rem; transition: 0.3s; text-transform: uppercase; }
         .btn-print:hover { background: #2980b9; transform: scale(1.05); box-shadow: 0 0 10px rgba(52, 152, 219, 0.5); }
 
-        /* KONTENER TABELI */
         .table-container { flex: 1; overflow: auto; background: #080808; width: 100%; display: block; padding: 10px; }
         
-        .azs-title { text-align: center; color: #ffe800; font-weight: 900; font-size: 1.5rem; margin-top: 10px; margin-bottom: 20px; text-transform: uppercase; letter-spacing: 2px; }
-        .azs-dates { text-align: center; color: #888; font-weight: 700; font-size: 1rem; margin-bottom: 20px; }
+        .azs-title { text-align: center; color: #ffe800; font-weight: 900; font-size: 1.5rem; margin-top: 10px; text-transform: uppercase; letter-spacing: 2px; }
+        .azs-dates { text-align: center; color: #888; font-weight: 700; font-size: 1rem; margin-bottom: 20px; margin-top: 5px;}
 
-        table { border-collapse: collapse; width: 100%; min-width: 1400px; background: #111; border: 2px solid #333; }
-        thead th { background: #1a1a1a; position: sticky; top: 0; padding: 12px 5px; border: 1px solid #333; font-size: 0.65rem; color: #ffe800; text-transform: uppercase; }
+        table { border-collapse: collapse; width: 100%; min-width: 1500px; background: #111; border: 2px solid #333; }
+        thead th { background: #1a1a1a; position: sticky; top: 0; padding: 10px 5px; border: 1px solid #333; font-size: 0.6rem; color: #ffe800; text-transform: uppercase; }
         
         .th-task { width: 350px; text-align: left; padding-left: 15px !important; }
-        .th-day { width: 80px; text-align: center; }
-        .th-sign { width: 60px; text-align: center; background: #0a0a0a; color: #888; }
+        .th-day { width: 75px; text-align: center; }
+        .th-sign { width: 75px; text-align: center; background: #0a0a0a; color: #888; border-bottom: 2px solid #444; }
         
         .header-main-row th { border-bottom: 3px solid #ffe800; }
         
-        tbody tr { border-bottom: 1px solid #222; transition: 0.2s; }
-        tbody tr:hover { background-color: #151515; }
+        tbody tr { border-bottom: 1px solid #222; transition: background-color 0.2s; }
+        tbody tr:hover { background-color: #1a1a1a; }
         
-        td { border: 1px solid #222; padding: 6px 5px; font-size: 0.75rem; font-weight: 700; color: #fff; text-align: center; }
-        .td-task { text-align: left; padding-left: 15px; font-size: 0.65rem; color: #ccc; font-weight: 600; line-height: 1.2; }
-        .td-name { color: #ffe800; font-weight: 900; text-transform: uppercase; }
-        .td-empty { color: #333; background: #0a0a0a; }
+        td { border: 1px solid #333; padding: 6px 4px; font-size: 0.75rem; font-weight: 700; color: #fff; text-align: center; vertical-align: middle; }
+        
+        .td-task { text-align: left; padding-left: 15px; font-size: 0.65rem; color: #ccc; font-weight: 600; line-height: 1.3; }
+        .td-name { color: #ffe800; font-weight: 900; text-transform: uppercase; letter-spacing: 0.5px; }
+        
+        /* 1:1 ODWZOROWANIE CZARNYCH PÓL Z PLIKU */
+        .td-blocked { background-color: #000 !important; color: transparent !important; }
         .td-sign { background: #151515; } 
-        .td-sign-empty { background: #0a0a0a; } /* Zablokowane miejsce na podpis */
+        
+        .error-msg { text-align: center; color: #f44; font-weight: bold; margin-top: 20px; font-size: 1.2rem; display: none; }
 
-        /* =========================================
-           MAGIA CSS DO DRUKOWANIA (A4 POZIOM)
-           ========================================= */
         @media print {
             @page { size: landscape; margin: 8mm; }
             body { background: white; color: black; height: auto; overflow: visible; font-family: Arial, sans-serif; }
             header, .sidebar, .overlay, .navigation-area, .menu-btn { display: none !important; }
             
             .table-container { overflow: visible; padding: 0; }
-            .azs-title { color: black; margin-top: 0; font-size: 1.2rem; }
-            .azs-dates { color: #333; font-size: 0.9rem; margin-bottom: 10px; }
+            .azs-title { color: black; margin-top: 0; font-size: 1rem; margin-bottom: 5px; }
+            .azs-dates { color: black; font-size: 0.8rem; font-weight: bold; margin-bottom: 10px; }
             
             table { min-width: 100%; border: 2px solid black; background: white; }
-            thead th { background: #ddd !important; color: black !important; border: 1px solid black !important; position: static; font-size: 0.55rem; padding: 5px; }
+            thead th { background: #eee !important; color: black !important; border: 1px solid black !important; position: static; font-size: 0.5rem; padding: 4px; }
             .header-main-row th { border-bottom: 2px solid black !important; }
             
             tbody tr { border-bottom: 1px solid black; }
             td { border: 1px solid black !important; color: black !important; padding: 4px 2px; font-size: 0.55rem; }
             
-            .td-task { color: black !important; font-weight: bold; font-size: 0.45rem; width: 45%; }
-            .td-name { color: black !important; font-weight: 900; font-size: 0.5rem; }
-            .td-empty { color: transparent !important; background: #eee !important; } 
+            .td-task { font-weight: bold; font-size: 0.45rem; width: 35%; }
+            .td-name { font-weight: 900; font-size: 0.55rem; }
+            
+            /* Drukuj czarne pola jako mocno szare kratki, żeby oszczędzić tusz, ale zachować czytelność blokady */
+            .td-blocked { background-color: #555 !important; -webkit-print-color-adjust: exact; } 
             
             .td-sign { background: white !important; }
-            .td-sign-empty { background: #eee !important; }
             
-            /* Unikaj ucinania wierszy w połowie na wydruku */
             tr { page-break-inside: avoid; }
         }
     </style>
@@ -128,13 +124,14 @@
 <div class="table-container">
     <div class="azs-title">AGENDA ZADAŃ SKLEPU (AZS)</div>
     <div class="azs-dates" id="azsDates">Wybierz tydzień i kliknij generuj...</div>
+    <div id="errorMsg" class="error-msg">⚠️ BRAK DANYCH GRAFIKU W TYM TYGODNIU! Wygeneruj Plan Pracy.</div>
 
     <table id="azsTable">
         <thead>
             <tr>
-                <th rowspan="2" class="th-task">NAZWY ZADAŃ ORAZ OSOBY ODPOWIEDZIALNE:</th>
-                <th colspan="7" style="border-right: 2px solid #ffe800;">PRZYPISANE OSOBY</th>
-                <th colspan="7">MIEJSCE NA PODPIS</th>
+                <th rowspan="2" class="th-task">NAZWISKA OSÓB ODPOWIEDZIALNYCH ZA WYKONANIE ZADANIA:</th>
+                <th colspan="7" style="border-right: 2px solid #ffe800; font-size:0.8rem;">PRZYPISANE OSOBY</th>
+                <th colspan="7" style="font-size:0.8rem;">TU PODPISUJĄ SIĘ OSOBY PO WYKONANIU ZADANIA:</th>
             </tr>
             <tr class="header-main-row">
                 <th class="th-day">PON</th><th class="th-day">WTO</th><th class="th-day">ŚRO</th>
@@ -151,13 +148,11 @@
 </div>
 
 <script>
-    // --- OBSŁUGA UI ---
     function toggleNav() {
         document.getElementById('sidebar').classList.toggle('active');
         document.getElementById('overlay').classList.toggle('active');
     }
 
-    // BAZA PRACOWNIKÓW - Odczytana i dostosowana z Twojego środowiska
     const employees = [
         {n: "PAWEŁ", p: false, dept: "ME"},
         {n: "MICHAŁ", p: false, dept: "KSS"},
@@ -172,8 +167,8 @@
         {n: "ARIEL", p: false, dept: "RTV"}
     ];
 
-    // BAZA ZADAŃ WPROST Z TWOJEGO EXCELA! 
-    // Indeksy dni: 1=PON, 2=WTO, 3=SRO, 4=CZW, 5=PIA, 6=SOB, 0=NIE
+    // ODWZOROWANIE 1:1 TWOJEGO PLIKU CSV
+    // dni: 1=PON, 2=WTO, 3=SRO, 4=CZW, 5=PIA, 6=SOB, 0=NIE
     const azsTasksData = [
         { name: "Reagowanie na SMS i KOMUNIKAT W MARKECIE informujący o złożeniu zamówienia OZG i SZS + wysłanie potwierdzenia max. do 15 minut", days: [1,2,3,4,5,6] },
         { name: "Zatwierdzanie OZG i SZS z NOCY do 15 minut od włączenia Marketu w sklepie", days: [1,2,3,4,5,6] },
@@ -197,19 +192,19 @@
         { name: "Kontrola listy OBECNOŚCI + Kontrola zeszytu WYJŚĆ + Kontrola grafików PRZERW/POSIŁKÓW", days: [1,2,3,4,5,6] },
         { name: "Praca z REKLAMACJAMI, w tym również WYSYŁKI, WYDANIA oraz BIEŻĄCY KONTAKT TELEFONICZNY Z KLIENTEM", days: [1,2,3,4,5,6] },
         { name: "INWENTARYZACJA cząstkowa kolejnych działów oraz kolejnych GRUP WYSOKIEGO RYZYKA (polecenie wykonania pracownikowi SALI + egzekwowanie)", days: [1,2,3,4,5,6] },
-        { name: "Kontrola wyrywkowa kazdego rodzaju ZABEZPIECZEŃ", days: [1,2,3,4,5] },
+        { name: "Kontrola wyrywkowa kazdego rodzaju ZABEZPIECZEŃ", days: [1,2,3,4,5] }, // Do piątku
         { name: "Wskazanie osób do BADANIA KONKURENCJI zgodnie z aktualnymi wytycznymi", days: [1,2,3,4,5] },
         { name: "Kontrola MESK i PWS (sprawność procesu + składowanie wg zasad + nieodebrane >1 dnia: czy wykonane telefony do klientów z komentarzem w PDS)", days: [1,2,3,4,5] },
         { name: "Kontrola wywołanych ZWROTÓW NIEODEBRANYCH MESK i PWS (RAPORT 507) + wystawienie na salę sprzedaży towarów pozostawionych na stanie sklepu", days: [1,2,3,4,5] },
-        { name: "Opróżnianie szafek i strefy MESK z zalegających towarów NIEODEBRANYCH (MESK, PWS, OZG)", days: [1] },
+        { name: "Opróżnianie szafek i strefy MESK z zalegających towarów NIEODEBRANYCH (MESK, PWS, OZG)", days: [1] }, // Tylko PON
         { name: "Kontrola czy nie ma zapisanych HASEŁ przy stanowiskach, SZCZEGÓLNIE RATALNE I SERWISOWE", days: [1] },
-        { name: "Kontrola PUSTE MAGAZYNY + podział na 10 stref (Puste, Pełne, Wartościówka, Internet, Zwroty, Wywózki, Reklamacje, Wyposażenie, Odpady, Dostawa)", days: [2] },
-        { name: "Kontrola towarów NPW (Wystawienie 100% + Oznaczenie + Cena + Strategia sprzedaży)", days: [3] },
+        { name: "Kontrola PUSTE MAGAZYNY + podział na 10 stref (Puste, Pełne, Wartościówka, Internet, Zwroty, Wywózki, Reklamacje, Wyposażenie, Odpady, Dostawa)", days: [2] }, // Tylko WTO
+        { name: "Kontrola towarów NPW (Wystawienie 100% + Oznaczenie + Cena + Strategia sprzedaży)", days: [3] }, // Tylko SRO
         { name: "Sprawdzenie CAŁEJ ekspozycji czy nie ma niezgłoszonych towarów NPW lub PSP i niezwłoczne zgłoszenie ich do KE/KSS", days: [3] },
         { name: "Kontrola towarów SLW (Wystawienie 100% + Oznaczenie + Cena + Strategia sprzedaży)", days: [3] },
         { name: "Kontrola towarów z kończącą się datą (wprowadzenie na NPW kat. T) + towarów już przeterminowanych (ZWROT)", days: [3] },
         { name: "Kontrola CZYSTOŚCI towaru i regałów", days: [3] },
-        { name: "Kontrola TOP (ZA POMOCĄ KOLEKTORA)", days: [4] },
+        { name: "Kontrola TOP (ZA POMOCĄ KOLEKTORA)", days: [4] }, // Tylko CZW
         { name: "Kontrola oznaczeń AKCJI PROMOCYJNYCH w całym sklepie", days: [4] },
         { name: "Kontrola NTOL LISTA VM - REKLAMACJE (zrealizuj w dniach od poniedziałku do czwartku)", days: [4] },
         { name: "Kontrola NTOL LISTA VM - DZIAŁ AGD DROBNE (zrealizuj w dniach od poniedziałku do czwartku)", days: [4] },
@@ -225,7 +220,7 @@
     const year = 2026;
     let currentWeeks = [];
 
-    // --- CZYTANIE Z PLANU PRACY ---
+    // ODCZYT GRAFIKU - Wyciągamy twarde zmiany (np. "10-20") ignorując doczepione opcjonalnie role (np. "|K,D")
     function getShiftOnly(n, d, m) {
         let v = localStorage.getItem(`pl_${year}_${m}_${n}_${d}`) || "";
         return v.split('|')[0] || "";
@@ -243,7 +238,6 @@
         updateWeeks();
     }
 
-    // Kalkulacja tygodni
     function updateWeeks() {
         const mIndex = parseInt(document.getElementById('monthSelect').value);
         const daysInMonth = new Date(year, mIndex + 1, 0).getDate();
@@ -255,7 +249,6 @@
             let date = new Date(year, mIndex, d);
             currentWeek.push(d);
             
-            // Koniec tygodnia (Niedziela) lub koniec miesiąca
             if (date.getDay() === 0 || d === daysInMonth) {
                 currentWeeks.push([...currentWeek]);
                 currentWeek = [];
@@ -275,13 +268,11 @@
         });
     }
 
-    // --- GŁÓWNY SILNIK GENERUJĄCY TABELĘ AZS ---
     function generateAZS() {
         const mIndex = parseInt(document.getElementById('monthSelect').value);
         const wIndex = parseInt(document.getElementById('weekSelect').value);
         const weekDays = currentWeeks[wIndex];
 
-        // Nagłówek dla wydruku
         let startD = String(weekDays[0]).padStart(2, '0');
         let endD = String(weekDays[weekDays.length - 1]).padStart(2, '0');
         let mStr = String(mIndex + 1).padStart(2, '0');
@@ -289,11 +280,56 @@
 
         const tbody = document.getElementById('azsBody');
         tbody.innerHTML = "";
+        
+        let hasAnyData = false;
 
-        // Licznik obciążenia (żeby sprawiedliwie dzielić zadania)
-        let workload = {};
-        employees.forEach(e => workload[e.n] = 0);
+        // NOWY, LEPSZY SYSTEM PODZIAŁU DZIENNEGO
+        let dailyAssignments = {}; // Przechowuje kto robi jakie zadanie w dany dzień
 
+        // Przechodzimy dzień po dniu (od 1 do max 7 dni w tygodniu)
+        weekDays.forEach(d => {
+            let currentDayOfWeek = new Date(year, mIndex, d).getDay();
+            
+            // Kto ma przypisane jakiekolwiek pracujące godziny tego dnia (z wykluczeniem WOLNE, URLOP i KIEROWNIKA)
+            let workingToday = employees.filter(e => {
+                let shift = getShiftOnly(e.n, d, mIndex);
+                return shift !== "" && shift !== "WOLNE" && shift !== "URLOP" && shift !== "Ż" && e.dept !== 'ME';
+            });
+
+            if(workingToday.length > 0) hasAnyData = true;
+
+            // Zerujemy dzienny licznik obciążenia dla pracowników ZMIANY
+            let dayWorkload = {};
+            workingToday.forEach(e => dayWorkload[e.n] = 0);
+
+            dailyAssignments[d] = {};
+
+            // Rozdajemy zadania na ten konkretny dzień sprawiedliwie
+            azsTasksData.forEach(task => {
+                if (task.days.includes(currentDayOfWeek)) {
+                    if (workingToday.length > 0) {
+                        // Kto na zmianie ma najmniej zadań?
+                        workingToday.sort((a, b) => dayWorkload[a.n] - dayWorkload[b.n]);
+                        let assigned = workingToday[0];
+                        dayWorkload[assigned.n]++; // Obciążamy go
+                        dailyAssignments[d][task.name] = assigned.n;
+                    } else {
+                        dailyAssignments[d][task.name] = "BRAK"; // Nikt nie pracuje
+                    }
+                } else {
+                    dailyAssignments[d][task.name] = "BLOCKED"; // Zablokowane pole
+                }
+            });
+        });
+
+        // Kontrola błędu jeśli wybrano tydzień bez wygenerowanego planu
+        if(!hasAnyData) {
+            document.getElementById('errorMsg').style.display = 'block';
+        } else {
+            document.getElementById('errorMsg').style.display = 'none';
+        }
+
+        // GENEROWANIE TABELI HTML NA BAZIE ROZDANYCH ZADAŃ
         azsTasksData.forEach(task => {
             let tr = document.createElement('tr');
             let html = `<td class="td-task">${task.name}</td>`;
@@ -305,48 +341,35 @@
             let signaturesHtml = "";
             let dayCounter = 0;
 
-            // Puste dni przed początkiem danego tygodnia
+            // Puste komórki przed pierwszym dniem wybranego tygodnia
             for(let i=0; i<emptyDaysBefore; i++) {
-                activeDaysHtml += `<td class="td-empty">-</td>`;
-                signaturesHtml += `<td class="td-sign-empty"></td>`;
+                activeDaysHtml += `<td class="td-blocked"></td>`;
+                signaturesHtml += `<td class="td-blocked"></td>`;
                 dayCounter++;
             }
 
-            // Dni właściwe dla wybranego tygodnia
+            // Komórki z danego tygodnia
             weekDays.forEach(d => {
-                let currentDayOfWeek = new Date(year, mIndex, d).getDay(); 
-                
-                // Sprawdzamy czy to zadanie wykonuje się w ten konkretny dzień tygodnia wg CSV
-                if(!task.days.includes(currentDayOfWeek)) {
-                    activeDaysHtml += `<td class="td-empty">-</td>`;
-                    signaturesHtml += `<td class="td-sign-empty"></td>`;
-                } else {
-                    // Znajdź kto aktualnie fizycznie PRACUJE tego dnia wg grafiku (omijaj Kierownika ME)
-                    let workingToday = employees.filter(e => {
-                        let shift = getShiftOnly(e.n, d, mIndex);
-                        return shift.includes('-') && e.dept !== 'ME';
-                    });
+                let assignment = dailyAssignments[d][task.name];
 
-                    if (workingToday.length === 0) {
-                        activeDaysHtml += `<td class="td-empty">BRAK OBS.</td>`;
-                        signaturesHtml += `<td class="td-sign"></td>`;
-                    } else {
-                        // Posortuj pracowników tak, by wybrać tego z najmniejszą ilością zadań dzisiaj
-                        workingToday.sort((a, b) => workload[a.n] - workload[b.n]);
-                        let assignedPerson = workingToday[0];
-                        
-                        workload[assignedPerson.n]++; // Dodaj mu obciążenie
-                        activeDaysHtml += `<td class="td-name">${assignedPerson.n}</td>`;
-                        signaturesHtml += `<td class="td-sign"></td>`;
-                    }
+                if (assignment === "BLOCKED") {
+                    // ODWZOROWANIE CZARNYCH PÓL
+                    activeDaysHtml += `<td class="td-blocked"></td>`;
+                    signaturesHtml += `<td class="td-blocked"></td>`;
+                } else if (assignment === "BRAK") {
+                    activeDaysHtml += `<td style="color:#f44; font-size:0.6rem;">BRAK OBSŁUGI</td>`;
+                    signaturesHtml += `<td class="td-sign"></td>`;
+                } else {
+                    activeDaysHtml += `<td class="td-name">${assignment}</td>`;
+                    signaturesHtml += `<td class="td-sign"></td>`;
                 }
                 dayCounter++;
             });
 
-            // Puste dni na końcu tygodnia
+            // Puste komórki do końca tygodnia (np. jeśli miesiąc kończy się w środę)
             while(dayCounter < 7) {
-                activeDaysHtml += `<td class="td-empty">-</td>`;
-                signaturesHtml += `<td class="td-sign-empty"></td>`;
+                activeDaysHtml += `<td class="td-blocked"></td>`;
+                signaturesHtml += `<td class="td-blocked"></td>`;
                 dayCounter++;
             }
 
@@ -356,10 +379,9 @@
         });
     }
 
-    // Inicjalizacja przy wejściu na stronę
     window.onload = () => {
         initSelectors();
-        generateAZS(); // Automatycznie generuje pierwszy tydzień na start
+        generateAZS(); 
     };
 </script>
 </body>

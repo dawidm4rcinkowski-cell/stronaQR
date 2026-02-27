@@ -8,227 +8,143 @@
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Montserrat', sans-serif; }
         body { background: #080808; color: white; display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
-        
-        /* CUSTOM SCROLLBAR */
         ::-webkit-scrollbar { width: 12px; height: 12px; }
         ::-webkit-scrollbar-track { background: #111; border-left: 1px solid #222; border-top: 1px solid #222; }
         ::-webkit-scrollbar-thumb { background: #ffe800; border-radius: 2px; }
-        ::-webkit-scrollbar-thumb:hover { background: #e6d100; }
         
-        /* HEADER I MENU */
+        /* WSPÓLNY HEADER I MENU */
         header { background: #ffe800; height: 50px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; z-index: 9999; border-bottom: 2px solid #000; position: relative; box-shadow: 0 2px 10px rgba(255, 232, 0, 0.2); }
-        .logo { color: #000; font-weight: 900; font-size: 1.4rem; text-transform: uppercase; }
-        .logo span { background: #000; color: #ffe800; padding: 0 4px; border-radius: 3px; }
+        .logo { color: #000; font-weight: 900; font-size: 1.4rem; text-transform: uppercase; letter-spacing: 1px; }
+        .logo span { background: #000; color: #ffe800; padding: 0 6px; border-radius: 3px; }
         .menu-btn { position: absolute; left: 15px; cursor: pointer; color: #000; font-size: 1.5rem; transition: 0.2s; }
         .menu-btn:hover { transform: scale(1.1); }
         
-        .sidebar { position: fixed; left: -280px; top: 0; width: 260px; height: 100%; background: #0a0a0a; border-right: 3px solid #ffe800; transition: 0.4s; z-index: 10000; padding-top: 60px; box-shadow: 5px 0 15px rgba(0,0,0,0.8); }
+        .sidebar { position: fixed; left: -280px; top: 0; width: 260px; height: 100%; background: #0a0a0a; border-right: 3px solid #ffe800; transition: 0.4s; z-index: 10000; padding-top: 60px; box-shadow: 5px 0 15px rgba(0,0,0,0.8); display: flex; flex-direction: column; }
         .sidebar.active { left: 0; }
+        .sidebar-nav { flex-grow: 1; overflow-y: auto; }
+        .sidebar-header { color: #ffe800; font-weight: 900; font-size: 1rem; padding: 0 25px 15px 25px; letter-spacing: 2px; text-transform: uppercase; }
         .sidebar-link { display: block; color: white; padding: 15px 25px; text-decoration: none; font-weight: 700; font-size: 0.8rem; border-bottom: 1px solid #111; transition: 0.2s; }
         .sidebar-link:hover { background: #1a1a1a; color: #ffe800; padding-left: 35px; }
+        
+        .user-profile { padding: 15px 20px; border-top: 2px solid #1a1a1a; display: flex; align-items: center; gap: 15px; cursor: pointer; transition: 0.3s; background: #0f0f0f; }
+        .user-profile:hover { background: #151515; }
+        .user-profile:hover .user-settings { color: #ffe800; }
+        .user-avatar { width: 45px; height: 45px; border-radius: 50%; background: #151515; border: 2px solid #ffe800; display: flex; align-items: center; justify-content: center; font-weight: 900; color: #ffe800; font-size: 1.2rem; flex-shrink: 0; box-shadow: inset 0 0 10px rgba(0,0,0,0.8); }
+        .user-info { display: flex; flex-direction: column; }
+        .user-name { font-weight: 900; font-size: 0.85rem; color: #fff; letter-spacing: 0.5px; }
+        .user-settings { font-size: 0.65rem; color: #888; font-weight: 700; margin-top: 4px; transition: 0.2s; }
+        .logout-btn { display: block; width: 100%; text-align: center; background: transparent; color: #f44; border: none; border-top: 1px solid #1a1a1a; padding: 15px; font-weight: 900; font-size: 0.8rem; cursor: pointer; transition: 0.3s; text-transform: uppercase; letter-spacing: 1px; }
+        .logout-btn:hover { background: #f44; color: #000; }
         .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.8); display: none; z-index: 9500; }
         .overlay.active { display: block; }
 
-        /* GŁÓWNY KONTENER NA TREŚĆ */
         .content { flex-grow: 1; overflow-y: auto; padding: 30px 20px; }
         .content-inner { max-width: 1400px; margin: 0 auto; }
-
-        .page-title { font-size: 2rem; font-weight: 900; margin-bottom: 30px; text-align: left; }
+        .page-title { font-size: 2rem; font-weight: 900; margin-bottom: 30px; }
         .page-title span { color: #ffe800; }
-
-        /* ZAKŁADKI (TABS) DZIAŁÓW */
         .dept-tabs { display: flex; gap: 15px; margin-bottom: 40px; flex-wrap: wrap; }
         .tab-btn { background: #151515; border: 1px solid #333; color: #fff; padding: 12px 30px; border-radius: 12px; font-weight: 900; cursor: pointer; transition: 0.3s; font-size: 0.9rem; }
-        .tab-btn.active { background: #ffe800; color: #000; border-color: #ffe800; box-shadow: 0 0 15px rgba(255, 232, 0, 0.2); }
-        .tab-btn:hover:not(.active) { border-color: #ffe800; color: #ffe800; }
-
-        /* SEKCJE (TYGODNIOWE, MIESIĘCZNE) */
+        .tab-btn.active { background: #ffe800; color: #000; border-color: #ffe800; }
         .inwa-section { margin-bottom: 50px; }
-        .section-label { font-size: 1rem; color: #ffe800; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 20px; border-left: 4px solid #ffe800; padding-left: 10px; font-weight: 900; }
-
-        /* GRID KAFELKÓW (KART) */
+        .section-label { font-size: 1rem; color: #ffe800; text-transform: uppercase; margin-bottom: 20px; border-left: 4px solid #ffe800; padding-left: 10px; }
         .items-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 15px; }
-
         .item-card { background: #111; border: 1px solid #222; border-radius: 15px; padding: 20px; transition: 0.3s; display: flex; flex-direction: column; justify-content: space-between; }
-        .item-card:hover { border-color: #ffe800; transform: translateY(-4px); box-shadow: 0 8px 20px rgba(255, 232, 0, 0.1); background: #151515; }
-        .item-card h3 { font-size: 1.1rem; font-weight: 900; text-transform: uppercase; margin-bottom: 15px; min-height: 2.5rem; color: #eee; line-height: 1.3; }
-
-        /* STATUS Z KROPKĄ */
-        .status-row { display: flex; align-items: center; gap: 10px; margin-bottom: 20px; font-size: 0.75rem; font-weight: 800; color: #888; transition: 0.3s; }
-        .dot { width: 10px; height: 10px; background: #ff4444; border-radius: 50%; box-shadow: 0 0 8px rgba(255, 68, 68, 0.6); transition: 0.3s; }
-        
-        .status-waiting .dot { background: #ffa502; box-shadow: 0 0 8px rgba(255, 165, 2, 0.6); }
+        .item-card h3 { font-size: 1.1rem; font-weight: 900; text-transform: uppercase; margin-bottom: 15px; min-height: 2.5rem; }
+        .status-row { display: flex; align-items: center; gap: 10px; margin-bottom: 20px; font-size: 0.75rem; font-weight: 800; color: #888; }
+        .dot { width: 10px; height: 10px; background: #ff4444; border-radius: 50%; }
+        .status-waiting .dot { background: #ffa502; }
         .status-waiting { color: #ffa502; }
-
-        /* PRZYCISK ZATWIERDŹ */
-        .approve-btn { width: 100%; background: transparent; border: 2px solid #ffe800; color: #ffe800; padding: 10px; border-radius: 8px; font-weight: 900; cursor: pointer; transition: 0.3s; text-transform: uppercase; font-size: 0.8rem; }
-        .approve-btn:hover:not(:disabled) { background: #ffe800; color: #000; box-shadow: 0 0 10px rgba(255, 232, 0, 0.4); }
+        .approve-btn { width: 100%; background: transparent; border: 2px solid #ffe800; color: #ffe800; padding: 10px; border-radius: 8px; font-weight: 900; cursor: pointer; transition: 0.3s; text-transform: uppercase; }
         .approve-btn:disabled { border-color: #555; color: #555; cursor: not-allowed; }
-
-        /* MODAL (WYSKAKUJĄCE OKIENKO) */
-        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 11000; align-items: center; justify-content: center; padding: 20px; backdrop-filter: blur(5px); }
-        .modal-content { background: #0a0a0a; border: 2px solid #ffe800; padding: 30px; width: 100%; max-width: 500px; border-radius: 15px; box-shadow: 0 0 30px rgba(255, 232, 0, 0.15); text-align: center; }
-        .modal-content h3 { color: #ffe800; margin-bottom: 15px; font-size: 1.2rem; text-transform: uppercase; letter-spacing: 1px; }
-        .modal-content p { color: #ccc; font-size: 0.9rem; line-height: 1.6; margin-bottom: 25px; font-weight: 500; }
-        .modal-content strong { color: #ffa502; }
-        .btn-modal { background: #ffe800; color: #000; border: none; padding: 12px 20px; font-weight: 900; border-radius: 8px; cursor: pointer; font-size: 0.9rem; transition: 0.3s; width: 100%; text-transform: uppercase; }
-        .btn-modal:hover { transform: scale(1.02); box-shadow: 0 0 15px rgba(255, 232, 0, 0.4); }
-
+        
+        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 11000; align-items: center; justify-content: center; padding: 20px; }
+        .modal-content { background: #0a0a0a; border: 2px solid #ffe800; padding: 30px; width: 100%; max-width: 500px; border-radius: 15px; text-align: center; }
+        .modal-content h3 { color: #ffe800; margin-bottom: 15px; font-size: 1.2rem; }
+        .modal-content p { color: #ccc; font-size: 0.9rem; margin-bottom: 25px; }
+        .btn-modal { background: #ffe800; color: #000; border: none; padding: 12px 20px; font-weight: 900; border-radius: 8px; cursor: pointer; width: 100%; }
     </style>
 </head>
 <body>
 
 <header>
     <div class="menu-btn" onclick="toggleNav()">☰</div>
-    <div class="logo">MEDIA <span>EXPERT</span></div>
+    <div class="logo">EXPERT <span>TOOL</span></div>
 </header>
 
 <div class="sidebar" id="sidebar">
-    <a href="index.html" class="sidebar-link">Strona główna</a>
-    <a href="plan.html" class="sidebar-link" style="color:#ffe800">Plan pracy</a>
-    <a href="inwa.html" class="sidebar-link">Inwentury</a>
-    <a href="inwak.html" class="sidebar-link">Inwentury (ME/KSS)</a>
-    <a href="kwt.html" class="sidebar-link">KWT</a>
-    <a href="azs.html" class="sidebar-link">AZS</a>
-    <a href="kodqr.html" class="sidebar-link">Kod QR</a>
+    <div class="sidebar-nav">
+        <div class="sidebar-header">Nawigacja</div>
+        <a href="index.html" class="sidebar-link">Strona główna</a>
+        <a href="plan.html" class="sidebar-link">Plan pracy</a>
+        <a href="inwa.html" class="sidebar-link" style="color:#ffe800">Inwentury</a>
+        <a href="inwak.html" class="sidebar-link">Inwentury (ME/KSS)</a>
+        <a href="azs.html" class="sidebar-link">AZS</a>
+        <a href="kwt.html" class="sidebar-link">KWT</a>
+        <a href="qr.html" class="sidebar-link">Kod QR</a>
+    </div>
+    <div class="user-profile" onclick="window.location.href='ustawienia.html'">
+        <div class="user-avatar">P</div>
+        <div class="user-info">
+            <span class="user-name">PAWEŁ (ME)</span>
+            <span class="user-settings">⚙️ Ustawienia konta</span>
+        </div>
+    </div>
+    <button class="logout-btn" onclick="alert('Wylogowano pomyślnie.')">Wyloguj się</button>
 </div>
 <div class="overlay" id="overlay" onclick="toggleNav()"></div>
 
 <div class="content">
     <div class="content-inner">
-        
         <h1 class="page-title">LISTA <span>INWENTUR</span></h1>
-
         <div class="dept-tabs">
             <button class="tab-btn active" onclick="switchDept('IT')">DZIAŁ IT</button>
             <button class="tab-btn" onclick="switchDept('RTV')">DZIAŁ RTV</button>
             <button class="tab-btn" onclick="switchDept('AGD')">DZIAŁ AGD</button>
         </div>
-
-        <section class="inwa-section" id="secWeekly">
-            <h2 class="section-label">Inwentury Tygodniowe</h2>
-            <div class="items-grid" id="gridWeekly"></div>
-        </section>
-
-        <section class="inwa-section" id="secTwoWeeks">
-            <h2 class="section-label">Inwentury 2-tygodniowe</h2>
-            <div class="items-grid" id="grid2Weeks"></div>
-        </section>
-
-        <section class="inwa-section" id="secMonthly">
-            <h2 class="section-label">Inwentury Miesięczne</h2>
-            <div class="items-grid" id="gridMonthly"></div>
-        </section>
-
+        <section class="inwa-section" id="secWeekly"><h2 class="section-label">Tygodniowe</h2><div class="items-grid" id="gridWeekly"></div></section>
+        <section class="inwa-section" id="secTwoWeeks"><h2 class="section-label">2-tygodniowe</h2><div class="items-grid" id="grid2Weeks"></div></section>
+        <section class="inwa-section" id="secMonthly"><h2 class="section-label">Miesięczne</h2><div class="items-grid" id="gridMonthly"></div></section>
     </div>
 </div>
 
 <div class="modal" id="approvalModal">
     <div class="modal-content">
         <h3>INWENTURA ZGŁOSZONA</h3>
-        <p>
-            Powiadomienie o gotowości do sprawdzenia inwentury zostało wysłane do ME i KSS.<br><br>
-            Stan twojego zatwierdzenia zmienił się na <strong>OCZEKUJE</strong> do momentu, aż przełożony dokona weryfikacji. Otrzymasz informację zwrotną po sprawdzeniu.
-        </p>
+        <p>Powiadomienie wysłane do ME/KSS. Status zmieniony na OCZEKUJE.</p>
         <button class="btn-modal" onclick="closeApprovalModal()">ROZUMIEM</button>
     </div>
 </div>
 
 <script>
-    // --- OBSŁUGA MENU BOCZNEGO ---
-    function toggleNav() {
-        document.getElementById('sidebar').classList.toggle('active');
-        document.getElementById('overlay').classList.toggle('active');
-    }
-
-    // --- TWOJE DANE INWENTUR ---
+    function toggleNav() { document.getElementById('sidebar').classList.toggle('active'); document.getElementById('overlay').classList.toggle('active'); }
     const inventoryData = {
-        IT: {
-            weekly: ["Smartfony", "Słuchawki truewireless", "Myszki gamingowe"],
-            twoWeeks: ["Słuchawki nauszne"],
-            monthly: ["Tusze", "Papier", "Głośniki mobilne", "Słuchawki douszne", "Smartbandy", "Smartwatche", "Folie ochronne", "Dyski PSSD", "Dyski SSD M.2 NVME", "Dyski SSD SATA", "Dyski zewnętrzne", "Słuchawki gamingowe", "Nośniki logistyczne"]
-        },
-        RTV: {
-            weekly: [], 
-            twoWeeks: ["Konsole", "Android TV", "Alkomaty", "Wideorejestratory"],
-            monthly: ["Akcesoria do konsol", "Komunikatory drogowe", "Kamery sportowe", "Nawigacje"]
-        },
-        AGD: {
-            weekly: [], 
-            twoWeeks: [], 
-            monthly: ["Akcesoria do golarek", "Depilatory świetlne", "Szczoteczki", "Trymery", "Urządzenia do pielęgnacji twarzy i ciała", "Akcesoria do urządzeń SODASTREAM", "Kawa ziarnista", "Kawa w kapsułkach", "Syropy"]
-        }
+        IT: { weekly: ["Smartfony", "Słuchawki truewireless"], twoWeeks: ["Słuchawki nauszne"], monthly: ["Tusze", "Papier"] },
+        RTV: { weekly: [], twoWeeks: ["Konsole", "Android TV"], monthly: ["Nawigacje"] },
+        AGD: { weekly: [], twoWeeks: [], monthly: ["Szczoteczki", "Ekspresy"] }
     };
-
-    // --- LOGIKA ZMIANY DZIAŁÓW I RENDEROWANIA KAFELKÓW ---
     function switchDept(dept) {
-        document.querySelectorAll('.tab-btn').forEach(btn => {
-            btn.classList.remove('active');
-            if(btn.innerText.includes(dept)) btn.classList.add('active');
-        });
-
-        const gridW = document.getElementById('gridWeekly');
-        const grid2W = document.getElementById('grid2Weeks');
-        const gridM = document.getElementById('gridMonthly');
-
-        renderSection(gridW, inventoryData[dept].weekly, 'secWeekly');
-        renderSection(grid2W, inventoryData[dept].twoWeeks, 'secTwoWeeks');
-        renderSection(gridM, inventoryData[dept].monthly, 'secMonthly');
+        document.querySelectorAll('.tab-btn').forEach(btn => { btn.classList.remove('active'); if(btn.innerText.includes(dept)) btn.classList.add('active'); });
+        renderSection(document.getElementById('gridWeekly'), inventoryData[dept].weekly, 'secWeekly');
+        renderSection(document.getElementById('grid2Weeks'), inventoryData[dept].twoWeeks, 'secTwoWeeks');
+        renderSection(document.getElementById('gridMonthly'), inventoryData[dept].monthly, 'secMonthly');
     }
-
     function renderSection(grid, data, sectionId) {
-        const section = document.getElementById(sectionId);
-        
-        if (data.length === 0) {
-            section.style.display = 'none';
-        } else {
-            section.style.display = 'block';
-            grid.innerHTML = data.map((item, index) => {
-                // Tworzymy unikalne ID dla każdego kafelka, aby móc nim sterować (usuwamy spacje i polskie znaki)
-                let uniqueId = item.replace(/[^a-zA-Z0-9]/g, '') + index;
-                
-                return `
-                <div class="item-card">
-                    <h3>${item}</h3>
-                    <div class="status-row" id="status-${uniqueId}">
-                        <div class="dot"></div>
-                        <span>DO SPRAWDZENIA</span>
-                    </div>
-                    <button class="approve-btn" id="btn-${uniqueId}" onclick="submitApproval('${uniqueId}')">Zatwierdź</button>
-                </div>
-                `;
-            }).join('');
-        }
+        if(data.length === 0) { document.getElementById(sectionId).style.display = 'none'; return; }
+        document.getElementById(sectionId).style.display = 'block';
+        grid.innerHTML = data.map((item, i) => {
+            let uId = item.replace(/[^a-zA-Z]/g, '') + i;
+            return `<div class="item-card"><h3>${item}</h3><div class="status-row" id="st-${uId}"><div class="dot"></div><span>DO SPRAWDZENIA</span></div><button class="approve-btn" id="btn-${uId}" onclick="submitApproval('${uId}')">Zatwierdź</button></div>`;
+        }).join('');
     }
-
-    // --- LOGIKA ZATWIERDZANIA I MODALA ---
     function submitApproval(id) {
-        // 1. Zmiana wyglądu konkretnego kafelka na "OCZEKUJE"
-        const statusRow = document.getElementById(`status-${id}`);
-        const btn = document.getElementById(`btn-${id}`);
-        
-        if(statusRow && btn) {
-            statusRow.classList.add('status-waiting');
-            statusRow.innerHTML = `
-                <div class="dot"></div>
-                <span>OCZEKUJE NA ME/KSS</span>
-            `;
-            
-            btn.innerText = "Zgłoszono";
-            btn.disabled = true; // Zablokowanie przycisku
-        }
-
-        // 2. Wyświetlenie Modala
+        document.getElementById(`st-${id}`).className = 'status-row status-waiting';
+        document.getElementById(`st-${id}`).innerHTML = '<div class="dot"></div><span>OCZEKUJE NA KSS</span>';
+        document.getElementById(`btn-${id}`).innerText = 'Zgłoszono';
+        document.getElementById(`btn-${id}`).disabled = true;
         document.getElementById('approvalModal').style.display = 'flex';
     }
-
-    function closeApprovalModal() {
-        document.getElementById('approvalModal').style.display = 'none';
-    }
-
-    // Odpalenie domyślnej zakładki przy załadowaniu strony
+    function closeApprovalModal() { document.getElementById('approvalModal').style.display = 'none'; }
     window.onload = () => switchDept('IT');
 </script>
-
 </body>
 </html>

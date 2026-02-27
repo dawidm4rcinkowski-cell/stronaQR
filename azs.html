@@ -66,10 +66,14 @@
         
         .error-msg { text-align: center; color: #f44; font-weight: bold; margin-top: 20px; font-size: 1.2rem; display: none; }
 
+        /* =========================================
+           MAGIA CSS DO DRUKOWANIA (IDEALNE A4 JEDNA STRONA)
+           ========================================= */
         @media print {
             @page { size: A4 landscape; margin: 3mm 8mm; } 
             body { background: white; color: black; font-family: Arial, sans-serif; overflow: hidden; margin: 0; padding: 0; height: 100vh; }
-            header, .sidebar, .overlay, .navigation-area, .menu-btn { display: none !important; }
+            /* Dodałem .error-msg do ukrywania podczas druku! */
+            header, .sidebar, .overlay, .navigation-area, .menu-btn, .error-msg { display: none !important; }
             
             .table-container { overflow: hidden; padding: 0; height: 100%; width: 100%; display: flex; flex-direction: column; }
             .azs-title { color: black; margin-top: 0; font-size: 13px; margin-bottom: 2px; }
@@ -105,7 +109,7 @@
 <div class="sidebar" id="sidebar">
     <a href="index.html" class="sidebar-link">Strona główna</a>
     <a href="plan.html" class="sidebar-link">Plan pracy</a>
-    <a href="inwentury.html" class="sidebar-link">Inwentury</a>
+    <a href="inwa.html" class="sidebar-link">Inwentury</a>
     <a href="inwak.html" class="sidebar-link">Inwentury (ME/KSS)</a>
     <a href="azs.html" class="sidebar-link" style="color:#ffe800">AZS (Agenda Zadań)</a>
     <a href="qr.html" class="sidebar-link">Kod QR</a>
@@ -219,7 +223,6 @@
     const year = 2026;
     let currentWeeks = [];
 
-    // ODCZYT GRAFIKU 
     function getShiftOnly(n, dayObj) {
         let y = dayObj.getFullYear();
         let m = dayObj.getMonth();
@@ -294,7 +297,6 @@
             let currentDayOfWeek = dayObj.getDay();
             let dateIso = dayObj.toISOString();
             
-            // Szukamy kto naprawde pracuje na podstawie Planu Pracy
             let actualWorkingToday = employees.filter(e => {
                 let shift = getShiftOnly(e.n, dayObj);
                 return shift !== "" && shift !== "WOLNE" && shift !== "URLOP" && shift !== "Ż" && e.dept !== 'ME';
@@ -302,8 +304,6 @@
 
             if(actualWorkingToday.length > 0) hasAnyRealData = true;
 
-            // ZASTĘPSTWO (FALLBACK) - Jeśli grafik jest pusty (bo np. nie zrobiono go na kolejny miesiąc)
-            // System bierze po prostu całą ekipę i rozdziela między nimi żeby nie zostawiać dziur!
             let workingToday = actualWorkingToday.length > 0 ? actualWorkingToday : employees.filter(e => e.dept !== 'ME');
 
             let dayWorkload = {};
@@ -330,7 +330,6 @@
             });
         });
 
-        // Ostrzeżenie jeśli polegamy tylko na Zastępstwie (Brak fizycznego grafiku)
         if(!hasAnyRealData) {
             document.getElementById('errorMsg').style.display = 'block';
         } else {

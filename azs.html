@@ -66,9 +66,6 @@
         
         .error-msg { text-align: center; color: #f44; font-weight: bold; margin-top: 20px; font-size: 1.2rem; display: none; }
 
-        /* =========================================
-           MAGIA CSS DO DRUKOWANIA (IDEALNE A4 JEDNA STRONA)
-           ========================================= */
         @media print {
             @page { size: A4 landscape; margin: 3mm 8mm; } 
             body { background: white; color: black; font-family: Arial, sans-serif; overflow: hidden; margin: 0; padding: 0; height: 100vh; }
@@ -127,7 +124,7 @@
 <div class="table-container">
     <div class="azs-title">AGENDA ZADAŃ SKLEPU (AZS)</div>
     <div class="azs-dates" id="azsDates">Wybierz tydzień i kliknij generuj...</div>
-    <div id="errorMsg" class="error-msg">⚠️ BRAK DANYCH GRAFIKU W TYM TYGODNIU! Wygeneruj Plan Pracy.</div>
+    <div id="errorMsg" class="error-msg">⚠️ BRAK DANYCH GRAFIKU - Wygenerowano zastępczą listę zadań.</div>
 
     <table id="azsTable">
         <thead>
@@ -170,7 +167,7 @@
         {n: "ARIEL", p: false, dept: "RTV"}
     ];
 
-    // Dni: 1=PON, 2=WTO, 3=SRO, 4=CZW, 5=PIA, 6=SOB, 0=NIE
+    // ODWZOROWANIE 1:1 TWOJEGO PLIKU CSV
     const azsTasksData = [
         { name: "Reagowanie na SMS i KOMUNIKAT W MARKECIE informujący o złożeniu zamówienia OZG i SZS + wysłanie potwierdzenia max. do 15 minut", days: [1,2,3,4,5,6] },
         { name: "Zatwierdzanie OZG i SZS z NOCY do 15 minut od włączenia Marketu w sklepie", days: [1,2,3,4,5,6] },
@@ -222,7 +219,7 @@
     const year = 2026;
     let currentWeeks = [];
 
-    // Inteligentny odczyt grafiku - radzi sobie ze zmianą miesięcy i lat!
+    // ODCZYT GRAFIKU 
     function getShiftOnly(n, dayObj) {
         let y = dayObj.getFullYear();
         let m = dayObj.getMonth();
@@ -243,13 +240,12 @@
         updateWeeks();
     }
 
-    // PEŁNE TYGODNIE (PON-NIE) NAWET JEŚLI ZACZYNAJĄ/KOŃCZĄ SIĘ W INNYM MIESIĄCU
     function updateWeeks() {
         const mIndex = parseInt(document.getElementById('monthSelect').value);
         
         let firstDayOfMonth = new Date(year, mIndex, 1);
         let diff = firstDayOfMonth.getDay() === 0 ? -6 : 1 - firstDayOfMonth.getDay();
-        let currentDate = new Date(year, mIndex, 1 + diff); // Ustawia na PONIEDZIAŁEK
+        let currentDate = new Date(year, mIndex, 1 + diff); 
         
         currentWeeks = [];
         
@@ -261,7 +257,6 @@
             }
             currentWeeks.push(week);
             
-            // Przerwij, jeśli PONIEDZIAŁEK następnego tygodnia wpada całkowicie w nowy miesiąc
             if (currentDate.getMonth() !== mIndex && currentDate.getFullYear() >= year) {
                 break;
             }
@@ -292,33 +287,36 @@
         const tbody = document.getElementById('azsBody');
         tbody.innerHTML = "";
         
-        let hasAnyData = false;
+        let hasAnyRealData = false;
         let dailyAssignments = {}; 
 
         weekDays.forEach(dayObj => {
             let currentDayOfWeek = dayObj.getDay();
             let dateIso = dayObj.toISOString();
             
-            let workingToday = employees.filter(e => {
+            // Szukamy kto naprawde pracuje na podstawie Planu Pracy
+            let actualWorkingToday = employees.filter(e => {
                 let shift = getShiftOnly(e.n, dayObj);
                 return shift !== "" && shift !== "WOLNE" && shift !== "URLOP" && shift !== "Ż" && e.dept !== 'ME';
             });
 
-            if(workingToday.length > 0) hasAnyData = true;
+            if(actualWorkingToday.length > 0) hasAnyRealData = true;
+
+            // ZASTĘPSTWO (FALLBACK) - Jeśli grafik jest pusty (bo np. nie zrobiono go na kolejny miesiąc)
+            // System bierze po prostu całą ekipę i rozdziela między nimi żeby nie zostawiać dziur!
+            let workingToday = actualWorkingToday.length > 0 ? actualWorkingToday : employees.filter(e => e.dept !== 'ME');
 
             let dayWorkload = {};
             workingToday.forEach(e => dayWorkload[e.n] = 0);
 
             dailyAssignments[dateIso] = {};
 
-            // LOSOWANIE BEZ KLONOWANIA (GWARANCJA SPRAWIEDLIWEGO ROZDZIAŁU)
             azsTasksData.forEach(task => {
                 if (task.days.includes(currentDayOfWeek)) {
                     if (workingToday.length > 0) {
                         let minLoad = Math.min(...workingToday.map(e => dayWorkload[e.n]));
                         let candidates = workingToday.filter(e => dayWorkload[e.n] === minLoad);
                         
-                        // Losowy wybór tylko z puli osób o najmniejszej liczbie zadań!
                         let assigned = candidates[Math.floor(Math.random() * candidates.length)];
                         
                         dayWorkload[assigned.n]++; 
@@ -332,7 +330,8 @@
             });
         });
 
-        if(!hasAnyData) {
+        // Ostrzeżenie jeśli polegamy tylko na Zastępstwie (Brak fizycznego grafiku)
+        if(!hasAnyRealData) {
             document.getElementById('errorMsg').style.display = 'block';
         } else {
             document.getElementById('errorMsg').style.display = 'none';
@@ -345,7 +344,6 @@
             let activeDaysHtml = "";
             let signaturesHtml = "";
 
-            // TABELA ZAWSZE MA 7 DNI (PON-NIE)
             weekDays.forEach(dayObj => {
                 let assignment = dailyAssignments[dayObj.toISOString()][task.name];
 

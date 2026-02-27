@@ -103,28 +103,32 @@
 
 <header>
     <div class="menu-btn" onclick="toggleNav()">☰</div>
-    <div class="logo">MEDIA <span>EXPERT</span></div>
+    <div class="logo">EXPERT <span>TOOL</span></div>
 </header>
 
 <div class="sidebar" id="sidebar">
-    <a href="index.html" class="sidebar-link">Strona główna</a>
-    <a href="plan.html" class="sidebar-link" style="color:#ffe800">Plan pracy</a>
-    <a href="inwa.html" class="sidebar-link">Inwentury</a>
-    <a href="inwak.html" class="sidebar-link">Inwentury (ME/KSS)</a>
-    <a href="kwt.html" class="sidebar-link">KWT</a>
-    <a href="azs.html" class="sidebar-link">AZS</a>
-    <a href="kodqr.html" class="sidebar-link">Kod QR</a>
-</div>
-<div class="overlay" id="overlay" onclick="toggleNav()"></div>
-
-<div class="navigation-area">
-    <div class="controls-group">
-        <select id="monthSelect" onchange="updateWeeks()"></select>
-        <select id="weekSelect"></select>
-        <button class="btn-gen" onclick="generateAZS()">🔄 GENERUJ AZS Z PLANU</button>
+    <div class="sidebar-nav">
+        <div class="sidebar-header">Nawigacja</div>
+        <a href="index.html" class="sidebar-link">Strona główna</a>
+        <a href="plan.html" class="sidebar-link">Plan pracy</a>
+        <a href="inwa.html" class="sidebar-link">Inwentury</a>
+        <a href="inwak.html" class="sidebar-link">Inwentury (ME/KSS)</a>
+        <a href="azs.html" class="sidebar-link">AZS</a>
+        <a href="kwt.html" class="sidebar-link">KWT</a>
+        <a href="qr.html" class="sidebar-link">Kod QR</a>
     </div>
-    <button class="btn-print" onclick="window.print()">🖨️ DRUKUJ AZS</button>
+    
+    <div class="user-profile" onclick="window.location.href='ustawienia.html'">
+        <div class="user-avatar">P</div>
+        <div class="user-info">
+            <span class="user-name">PAWEŁ (ME)</span>
+            <span class="user-settings">⚙️ Ustawienia konta</span>
+        </div>
+    </div>
+    <button class="logout-btn" onclick="alert('System wylogowywania aktywny.')">Wyloguj się</button>
 </div>
+
+<div class="overlay" id="overlay" onclick="toggleNav()"></div>
 
 <div class="table-container">
     <div class="azs-title">AGENDA ZADAŃ SKLEPU (AZS)</div>

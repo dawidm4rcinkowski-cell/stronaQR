@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Media Expert - Plan Pracy</title>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&display=swap" rel="stylesheet">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/xlsx-js-style@1.2.0/dist/xlsx.bundle.js"></script>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Montserrat', sans-serif; }
         html, body { background: #080808; color: white; display: flex; flex-direction: column; width: 100%; height: 100vh; overflow: hidden; }
@@ -39,7 +39,6 @@
         .admin-controls { display: flex; align-items: center; gap: 8px; border-left: 1px solid #333; padding-left: 10px; }
         .norm-input { width: 55px; background: #000; color: #ffe800; border: 1px solid #ffe800; text-align: center; font-weight: 900; padding: 4px; font-size: 0.8rem; border-radius: 4px; outline: none; }
         
-        /* TABELA */
         .table-container { flex: 1; overflow: auto; background: #080808; width: 100vw; max-width: 100%; display: block; }
         table { border-collapse: collapse; width: 100%; min-width: max-content; background: #080808; }
         
@@ -121,7 +120,6 @@
         .btn-settings { background: #333; color: #ffe800; border: 1px solid #ffe800; padding: 8px 12px; font-weight: 900; border-radius: 20px; cursor: pointer; font-size: 0.65rem; transition: 0.3s; }
         .btn-settings:hover { background: #ffe800; color: #000; }
         
-        /* PRZYCISK EXCEL */
         .btn-excel { background: #1d6f42; color: #fff; border: 1px solid #1d6f42; padding: 8px 12px; font-weight: 900; border-radius: 20px; cursor: pointer; font-size: 0.65rem; transition: 0.3s; }
         .btn-excel:hover { background: #144c2d; transform: scale(1.05); box-shadow: 0 0 10px rgba(29, 111, 66, 0.5); }
     </style>
@@ -346,18 +344,152 @@ function clearMonth() {
     }
 }
 
-// ---- LOGIKA EKSPORTU DO EXCELA (Natywne .xlsx) ----
+// -------------------------------------------------------------
+// NOWY, ZAAWANSOWANY SILNIK EKSPORTU DO EXCELA (xlsx-js-style)
+// -------------------------------------------------------------
 function exportToExcel() {
-    let table = document.getElementById("planTable");
-    // Konwersja tabeli HTML na obiekt arkusza
-    let wb = XLSX.utils.table_to_book(table, {sheet: "Grafik " + months[curM]});
-    
-    // Ustalanie pięknej nazwy pliku
+    const days = new Date(year, curM + 1, 0).getDate();
+    const baseNorm = parseInt(document.getElementById('hourNormInput').value);
+
+    let data = [];
+
+    // 1. Zbudowanie czystego nagłówka (Bez "DDAWID")
+    let header = ["DATA"];
+    employees.forEach(e => header.push(e.n)); // Odczytuje czyste IMIĘ (PAWEŁ, MICHAŁ itp.)
+    header.push("OTW - SUMA - ZAM");
+    data.push(header);
+
+    // 2. Zbudowanie dni
+    for(let d=1; d<=days; d++) {
+        let date = new Date(year, curM, d);
+        let dayName = ['ND','PN','WT','ŚR','CZ','PT','SB'][date.getDay()];
+        let ds = `${curM+1}-${d}`;
+        let isHol = holidays2026.includes(ds);
+        let badge = (isHol && date.getDay() !== 0) ? ` (ŚWIĘTO)` : '';
+
+        let row = [`${d} ${dayName}${badge}`];
+        let o=0, z=0, suma=0;
+
+        employees.forEach(e => {
+            let shift = getShiftOnly(e.n, d);
+            let roles = getRolesOnly(e.n, d);
+
+            if(shift.includes('-')) {
+                suma++;
+                let p = shift.split('-');
+                if(parseInt(p[0]) <= 10) o++;
+                if(parseInt(p[1]) >= 20) z++;
+            }
+
+            let iconsHtml = '';
+            if(roles.includes('K')) iconsHtml += ' 🔑';
+            if(roles.includes('D')) iconsHtml += ' 📦';
+            if(roles.includes('S')) iconsHtml += ' ☕';
+
+            row.push(shift ? `${shift}${iconsHtml}` : "");
+        });
+
+        row.push(`${o} - ${suma} - ${z}`);
+        data.push(row);
+    }
+
+    // 3. Stopki (Suma i Wolne)
+    let sumRow = ["GODZINY"];
+    employees.forEach(e => {
+        let urlops = 0;
+        for(let d=1; d<=days; d++) {
+            let s = getShiftOnly(e.n, d);
+            if(s === "URLOP" || s.toLowerCase() === "szk.") urlops++;
+        }
+        let target = baseNorm - (urlops * 8);
+        let h = calcRealH(e.n);
+        sumRow.push(`${h} / ${target}`);
+    });
+    sumRow.push("");
+    data.push(sumRow);
+
+    let satRow = ["WOLNE SB"];
+    employees.forEach(e => {
+        let count = 0;
+        if(e.dept !== 'ME') {
+            for(let d=1; d<=days; d++) {
+                if(new Date(year, curM, d).getDay() === 6 && isWorkDay(d)) {
+                    let s = getShiftOnly(e.n, d);
+                    if(s === "" || s === "URLOP" || s === "Ż") count++;
+                }
+            }
+        }
+        satRow.push(e.dept === 'ME' ? '-' : count.toString());
+    });
+    satRow.push("");
+    data.push(satRow);
+
+    // --- MAGIA EXCELA (Stylizacja komórek, Blokada Dat, Ramki) ---
+    let ws = XLSX.utils.aoa_to_sheet(data);
+    let range = XLSX.utils.decode_range(ws['!ref']);
+
+    for(let R = range.s.r; R <= range.e.r; ++R) {
+        for(let C = range.s.c; C <= range.e.c; ++C) {
+            let cellRef = XLSX.utils.encode_cell({c:C, r:R});
+            if(!ws[cellRef]) ws[cellRef] = {t: 's', v: ''}; 
+
+            // Wymuszenie formatu Tekstu (żeby "10-18" nie stawało się 18 Października!)
+            ws[cellRef].t = 's'; 
+
+            // Nadanie ramek na CAŁĄ tabelę i wyśrodkowanie tekstu
+            ws[cellRef].s = {
+                alignment: { horizontal: "center", vertical: "center" },
+                border: {
+                    top: { style: "thin", color: { rgb: "000000" } },
+                    bottom: { style: "thin", color: { rgb: "000000" } },
+                    left: { style: "thin", color: { rgb: "000000" } },
+                    right: { style: "thin", color: { rgb: "000000" } }
+                }
+            };
+
+            // Pogrubienie pierwszej kolumny i pierwszego wiersza (Nagłówki)
+            if (R === 0 || C === 0 || R >= data.length - 2) {
+                ws[cellRef].s.font = { bold: true };
+            }
+            
+            // Kolorowanie Weekednów w Excelu
+            if (R > 0 && R < data.length - 2) {
+                let dateStr = data[R][0];
+                if (dateStr.includes('SB')) {
+                    ws[cellRef].s.fill = { fgColor: { rgb: "FFF2CC" } }; // Bardzo delikatny, miły żółty
+                } else if (dateStr.includes('ND') || dateStr.includes('ŚWIĘTO')) {
+                    ws[cellRef].s.fill = { fgColor: { rgb: "F4CCCC" } }; // Delikatny pastelowy czerwony
+                }
+            }
+            
+            // Kolorowanie Górnego Nagłówka na Ciemno
+            if (R === 0) {
+                 ws[cellRef].s.fill = { fgColor: { rgb: "434343" } }; 
+                 ws[cellRef].s.font = { bold: true, color: { rgb: "FFFFFF" } }; 
+            }
+            // Kolorowanie dolnych podsumowań na Szaro
+            if (R >= data.length - 2) {
+                 ws[cellRef].s.fill = { fgColor: { rgb: "D9D9D9" } };
+            }
+        }
+    }
+
+    // Ustawienie szerokości kolumn (żeby nie było ściśnięte)
+    let wscols = [{wch: 16}]; // Kolumna A (DATA)
+    employees.forEach(() => wscols.push({wch: 15})); // Kolumny pracowników
+    wscols.push({wch: 20}); // Kolumna OTW-SUMA-ZAM
+    ws['!cols'] = wscols;
+
+    let wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Grafik " + months[curM]);
+
     let filename = `MediaExpert_Grafik_${months[curM]}_${year}.xlsx`;
-    
-    // Wymuszenie pobierania
     XLSX.writeFile(wb, filename);
 }
+
+// -------------------------------------------------------------
+// KONIEC NOWEGO SILNIKA EXCEL
+// -------------------------------------------------------------
 
 function calcRealH(name) {
     let h = 0;
@@ -706,7 +838,6 @@ function render() {
     const isLocked = localStorage.getItem(`locked_${year}_${curM}`) === 'true';
     const genBtn = document.getElementById('genBtn');
     const clrBtn = document.getElementById('clearBtn');
-    const excelBtn = document.getElementById('excelBtn');
     const appBtn = document.getElementById('approveBtn');
     
     genBtn.disabled = isLocked;

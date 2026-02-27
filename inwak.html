@@ -3,291 +3,157 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Media Expert - Panel Kierownika (Inwentury)</title>
+    <title>Media Expert - Panel Kierownika</title>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Montserrat', sans-serif; }
         body { background: #080808; color: white; display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
-        
-        /* CUSTOM SCROLLBAR */
         ::-webkit-scrollbar { width: 12px; height: 12px; }
         ::-webkit-scrollbar-track { background: #111; border-left: 1px solid #222; border-top: 1px solid #222; }
         ::-webkit-scrollbar-thumb { background: #ffe800; border-radius: 2px; }
-        ::-webkit-scrollbar-thumb:hover { background: #e6d100; }
         
-        /* HEADER I MENU */
+        /* WSPÓLNY HEADER I MENU */
         header { background: #ffe800; height: 50px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; z-index: 9999; border-bottom: 2px solid #000; position: relative; box-shadow: 0 2px 10px rgba(255, 232, 0, 0.2); }
-        .logo { color: #000; font-weight: 900; font-size: 1.4rem; text-transform: uppercase; }
-        .logo span { background: #000; color: #ffe800; padding: 0 4px; border-radius: 3px; }
+        .logo { color: #000; font-weight: 900; font-size: 1.4rem; text-transform: uppercase; letter-spacing: 1px; }
+        .logo span { background: #000; color: #ffe800; padding: 0 6px; border-radius: 3px; }
         .menu-btn { position: absolute; left: 15px; cursor: pointer; color: #000; font-size: 1.5rem; transition: 0.2s; }
-        .menu-btn:hover { transform: scale(1.1); }
         
-        .sidebar { position: fixed; left: -280px; top: 0; width: 260px; height: 100%; background: #0a0a0a; border-right: 3px solid #ffe800; transition: 0.4s; z-index: 10000; padding-top: 60px; box-shadow: 5px 0 15px rgba(0,0,0,0.8); }
+        .sidebar { position: fixed; left: -280px; top: 0; width: 260px; height: 100%; background: #0a0a0a; border-right: 3px solid #ffe800; transition: 0.4s; z-index: 10000; padding-top: 60px; display: flex; flex-direction: column; }
         .sidebar.active { left: 0; }
+        .sidebar-nav { flex-grow: 1; overflow-y: auto; }
+        .sidebar-header { color: #ffe800; font-weight: 900; font-size: 1rem; padding: 0 25px 15px 25px; letter-spacing: 2px; text-transform: uppercase; }
         .sidebar-link { display: block; color: white; padding: 15px 25px; text-decoration: none; font-weight: 700; font-size: 0.8rem; border-bottom: 1px solid #111; transition: 0.2s; }
         .sidebar-link:hover { background: #1a1a1a; color: #ffe800; padding-left: 35px; }
+        
+        .user-profile { padding: 15px 20px; border-top: 2px solid #1a1a1a; display: flex; align-items: center; gap: 15px; cursor: pointer; transition: 0.3s; background: #0f0f0f; }
+        .user-avatar { width: 45px; height: 45px; border-radius: 50%; background: #151515; border: 2px solid #ffe800; display: flex; align-items: center; justify-content: center; font-weight: 900; color: #ffe800; font-size: 1.2rem; }
+        .user-info { display: flex; flex-direction: column; }
+        .user-name { font-weight: 900; font-size: 0.85rem; color: #fff; }
+        .user-settings { font-size: 0.65rem; color: #888; font-weight: 700; margin-top: 4px; }
+        .logout-btn { display: block; width: 100%; text-align: center; background: transparent; color: #f44; border: none; border-top: 1px solid #1a1a1a; padding: 15px; font-weight: 900; font-size: 0.8rem; cursor: pointer; text-transform: uppercase; }
         .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.8); display: none; z-index: 9500; }
         .overlay.active { display: block; }
 
-        /* GŁÓWNY KONTENER NA TREŚĆ */
         .content { flex-grow: 1; overflow-y: auto; padding: 30px 20px; }
         .content-inner { max-width: 1400px; margin: 0 auto; }
-
-        .page-title { font-size: 2rem; font-weight: 900; margin-bottom: 30px; text-align: left; }
+        .page-title { font-size: 2rem; font-weight: 900; margin-bottom: 30px; }
         .page-title span { color: #ffe800; }
-        .mgr-badge { font-size: 1rem; color: #0a0; border: 2px solid #0a0; padding: 5px 10px; border-radius: 5px; vertical-align: middle; margin-left: 10px; text-transform: uppercase; }
+        .mgr-badge { font-size: 1rem; color: #0a0; border: 2px solid #0a0; padding: 5px 10px; border-radius: 5px; vertical-align: middle; margin-left: 10px; }
 
-        /* ZAKŁADKI (TABS) DZIAŁÓW */
         .dept-tabs { display: flex; gap: 15px; margin-bottom: 40px; flex-wrap: wrap; }
         .tab-btn { background: #151515; border: 1px solid #333; color: #fff; padding: 12px 30px; border-radius: 12px; font-weight: 900; cursor: pointer; transition: 0.3s; font-size: 0.9rem; }
-        .tab-btn.active { background: #ffe800; color: #000; border-color: #ffe800; box-shadow: 0 0 15px rgba(255, 232, 0, 0.2); }
-        .tab-btn:hover:not(.active) { border-color: #ffe800; color: #ffe800; }
-
-        /* SEKCJE */
+        .tab-btn.active { background: #ffe800; color: #000; border-color: #ffe800; }
         .inwa-section { margin-bottom: 50px; }
-        .section-label { font-size: 1rem; color: #ffe800; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 20px; border-left: 4px solid #ffe800; padding-left: 10px; font-weight: 900; }
-
-        /* GRID KAFELKÓW (KART) */
+        .section-label { font-size: 1rem; color: #ffe800; text-transform: uppercase; margin-bottom: 20px; border-left: 4px solid #ffe800; padding-left: 10px; }
+        
         .items-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 15px; }
-
         .item-card { background: #111; border: 1px solid #333; border-radius: 15px; padding: 20px; transition: 0.3s; display: flex; flex-direction: column; justify-content: space-between; }
-        .item-card:hover { transform: translateY(-4px); box-shadow: 0 8px 20px rgba(255, 165, 2, 0.1); background: #151515; }
-        .item-card h3 { font-size: 1.1rem; font-weight: 900; text-transform: uppercase; margin-bottom: 10px; min-height: 2.5rem; color: #eee; line-height: 1.3; }
-
-        /* STATUSY WIDOKU KIEROWNIKA */
-        .status-row { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 20px; font-size: 0.75rem; font-weight: 800; color: #888; transition: 0.3s; }
-        .dot { width: 12px; height: 12px; border-radius: 50%; margin-top: 2px; transition: 0.3s; flex-shrink: 0; }
+        .item-card h3 { font-size: 1.1rem; font-weight: 900; text-transform: uppercase; margin-bottom: 10px; min-height: 2.5rem; color: #eee; }
         
-        .status-waiting .dot { background: #ffa502; box-shadow: 0 0 8px rgba(255, 165, 2, 0.6); }
-        .status-waiting span { color: #ffa502; }
-        
-        .status-accepted .dot { background: #0a0; box-shadow: 0 0 8px rgba(0, 170, 0, 0.6); }
-        .status-accepted span { color: #0a0; }
-        
-        .status-rejected .dot { background: #f44; box-shadow: 0 0 8px rgba(255, 68, 68, 0.6); }
-        .status-rejected span { color: #f44; }
+        .status-row { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 20px; font-size: 0.75rem; font-weight: 800; color: #888; }
+        .dot { width: 12px; height: 12px; border-radius: 50%; margin-top: 2px; }
+        .status-waiting .dot { background: #ffa502; } .status-waiting span { color: #ffa502; }
+        .status-accepted .dot { background: #0a0; } .status-accepted span { color: #0a0; }
+        .status-rejected .dot { background: #f44; } .status-rejected span { color: #f44; }
+        .submitted-by { color: #888; font-size: 0.65rem; margin-top: 4px; display: block; }
+        .check-btn { width: 100%; background: transparent; border: 2px solid #ffa502; color: #ffa502; padding: 10px; border-radius: 8px; font-weight: 900; cursor: pointer; text-transform: uppercase; }
 
-        .submitted-by { color: #888; font-size: 0.65rem; margin-top: 4px; display: block; font-weight: 700; }
-
-        /* PRZYCISK SPRAWDZANIA */
-        .check-btn { width: 100%; background: transparent; border: 2px solid #ffa502; color: #ffa502; padding: 10px; border-radius: 8px; font-weight: 900; cursor: pointer; transition: 0.3s; text-transform: uppercase; font-size: 0.8rem; }
-        .check-btn:hover { background: #ffa502; color: #000; box-shadow: 0 0 10px rgba(255, 165, 2, 0.4); }
-
-        /* MODAL KIEROWNIKA Z DECYZJĄ */
-        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 11000; align-items: center; justify-content: center; padding: 20px; backdrop-filter: blur(5px); }
-        .modal-content { background: #0a0a0a; border: 2px solid #ffa502; padding: 30px; width: 100%; max-width: 500px; border-radius: 15px; box-shadow: 0 0 30px rgba(255, 165, 2, 0.15); text-align: center; }
-        .modal-content h3 { color: #fff; margin-bottom: 10px; font-size: 1.4rem; text-transform: uppercase; letter-spacing: 1px; }
-        .modal-content .modal-subtitle { color: #ffa502; font-size: 0.8rem; font-weight: 900; margin-bottom: 25px; }
-        .modal-content p { color: #ccc; font-size: 0.95rem; line-height: 1.6; margin-bottom: 30px; font-weight: 500; }
-        
+        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 11000; align-items: center; justify-content: center; padding: 20px; }
+        .modal-content { background: #0a0a0a; border: 2px solid #ffa502; padding: 30px; width: 100%; max-width: 500px; border-radius: 15px; text-align: center; }
+        .modal-subtitle { color: #ffa502; font-size: 0.8rem; font-weight: 900; margin-bottom: 25px; }
         .mgr-buttons { display: flex; gap: 10px; }
-        
-        .btn-accept { flex: 1; background: transparent; color: #0a0; border: 2px solid #0a0; padding: 15px 10px; font-weight: 900; border-radius: 8px; cursor: pointer; font-size: 0.85rem; transition: 0.3s; text-transform: uppercase; }
-        .btn-accept:hover { background: #0a0; color: #fff; box-shadow: 0 0 15px rgba(0, 170, 0, 0.4); }
-        
-        .btn-reject { flex: 1; background: transparent; color: #f44; border: 2px solid #f44; padding: 15px 10px; font-weight: 900; border-radius: 8px; cursor: pointer; font-size: 0.85rem; transition: 0.3s; text-transform: uppercase; }
-        .btn-reject:hover { background: #f44; color: #fff; box-shadow: 0 0 15px rgba(255, 68, 68, 0.4); }
-
-        .btn-cancel { width: 100%; background: #151515; color: #888; border: 1px solid #333; padding: 12px 20px; font-weight: 900; border-radius: 8px; cursor: pointer; font-size: 0.8rem; transition: 0.3s; margin-top: 15px; text-transform: uppercase; }
-        .btn-cancel:hover { background: #222; color: #fff; }
-
+        .btn-accept { flex: 1; background: transparent; color: #0a0; border: 2px solid #0a0; padding: 15px 10px; font-weight: 900; border-radius: 8px; cursor: pointer; text-transform: uppercase; }
+        .btn-reject { flex: 1; background: transparent; color: #f44; border: 2px solid #f44; padding: 15px 10px; font-weight: 900; border-radius: 8px; cursor: pointer; text-transform: uppercase; }
+        .btn-cancel { width: 100%; background: #151515; color: #888; border: 1px solid #333; padding: 12px 20px; font-weight: 900; border-radius: 8px; cursor: pointer; margin-top: 15px; }
     </style>
 </head>
 <body>
 
 <header>
     <div class="menu-btn" onclick="toggleNav()">☰</div>
-    <div class="logo">MEDIA <span>EXPERT</span></div>
+    <div class="logo">EXPERT <span>TOOL</span></div>
 </header>
 
 <div class="sidebar" id="sidebar">
-    <a href="index.html" class="sidebar-link">Strona główna</a>
-    <a href="plan.html" class="sidebar-link" style="color:#ffe800">Plan pracy</a>
-    <a href="inwa.html" class="sidebar-link">Inwentury</a>
-    <a href="inwak.html" class="sidebar-link">Inwentury (ME/KSS)</a>
-    <a href="kwt.html" class="sidebar-link">KWT</a>
-    <a href="azs.html" class="sidebar-link">AZS</a>
-    <a href="kodqr.html" class="sidebar-link">Kod QR</a>
+    <div class="sidebar-nav">
+        <div class="sidebar-header">Nawigacja</div>
+        <a href="index.html" class="sidebar-link">Strona główna</a>
+        <a href="plan.html" class="sidebar-link">Plan pracy</a>
+        <a href="inwa.html" class="sidebar-link">Inwentury</a>
+        <a href="inwak.html" class="sidebar-link" style="color:#ffe800">Inwentury (ME/KSS)</a>
+        <a href="azs.html" class="sidebar-link">AZS</a>
+        <a href="kwt.html" class="sidebar-link">KWT</a>
+        <a href="qr.html" class="sidebar-link">Kod QR</a>
+    </div>
+    <div class="user-profile" onclick="window.location.href='ustawienia.html'">
+        <div class="user-avatar">P</div>
+        <div class="user-info">
+            <span class="user-name">PAWEŁ (ME)</span>
+            <span class="user-settings">⚙️ Ustawienia konta</span>
+        </div>
+    </div>
+    <button class="logout-btn" onclick="alert('Wylogowano pomyślnie.')">Wyloguj się</button>
 </div>
 <div class="overlay" id="overlay" onclick="toggleNav()"></div>
 
 <div class="content">
     <div class="content-inner">
-        
-        <h1 class="page-title">WERYFIKACJA <span>INWENTUR</span> <span class="mgr-badge">PANEL ME / KSS</span></h1>
-
+        <h1 class="page-title">WERYFIKACJA <span>INWENTUR</span> <span class="mgr-badge">ME/KSS</span></h1>
         <div class="dept-tabs">
             <button class="tab-btn active" onclick="switchDept('IT')">DZIAŁ IT</button>
             <button class="tab-btn" onclick="switchDept('RTV')">DZIAŁ RTV</button>
             <button class="tab-btn" onclick="switchDept('AGD')">DZIAŁ AGD</button>
         </div>
-
-        <section class="inwa-section" id="secWeekly">
-            <h2 class="section-label">Inwentury Tygodniowe</h2>
-            <div class="items-grid" id="gridWeekly"></div>
-        </section>
-
-        <section class="inwa-section" id="secTwoWeeks">
-            <h2 class="section-label">Inwentury 2-tygodniowe</h2>
-            <div class="items-grid" id="grid2Weeks"></div>
-        </section>
-
-        <section class="inwa-section" id="secMonthly">
-            <h2 class="section-label">Inwentury Miesięczne</h2>
-            <div class="items-grid" id="gridMonthly"></div>
-        </section>
-
+        <section class="inwa-section" id="secWeekly"><h2 class="section-label">Tygodniowe</h2><div class="items-grid" id="gridWeekly"></div></section>
+        <section class="inwa-section" id="secTwoWeeks"><h2 class="section-label">2-tygodniowe</h2><div class="items-grid" id="grid2Weeks"></div></section>
+        <section class="inwa-section" id="secMonthly"><h2 class="section-label">Miesięczne</h2><div class="items-grid" id="gridMonthly"></div></section>
     </div>
 </div>
 
 <div class="modal" id="reviewModal">
     <div class="modal-content">
-        <h3 id="modalItemName">Nazwa Inwentury</h3>
+        <h3 id="modalItemName" style="color:#fff;">Nazwa Inwentury</h3>
         <div class="modal-subtitle">Zgłoszenie czeka na weryfikację</div>
-        <p>
-            Pracownik zadeklarował wykonanie tej inwentury. Dokonaj fizycznego sprawdzenia zgodności na sklepie, a następnie podejmij decyzję.
-            <br><br>
-            <span style="color:#888; font-size:0.8rem;">Zgłaszający:</span><br>
-            <strong style="color:#fff; font-size:1.1rem;">PRACOWNIK XXX</strong>
-        </p>
-        
+        <p style="color:#ccc;">Zgłaszający: <strong style="color:#fff;">PRACOWNIK XXX</strong></p>
         <div class="mgr-buttons">
             <button class="btn-reject" onclick="submitDecision('reject')">✖ DO POPRAWY</button>
             <button class="btn-accept" onclick="submitDecision('accept')">✔ ZAAKCEPTUJ</button>
         </div>
-        <button class="btn-cancel" onclick="closeReviewModal()">Wróć (Pomiń)</button>
+        <button class="btn-cancel" onclick="closeReviewModal()">Wróć</button>
     </div>
 </div>
 
 <script>
-    // Zmienne do przechowywania aktualnie klikniętego kafelka
     let currentReviewId = null;
-    let currentReviewItemName = "";
-
-    function toggleNav() {
-        document.getElementById('sidebar').classList.toggle('active');
-        document.getElementById('overlay').classList.toggle('active');
-    }
-
+    function toggleNav() { document.getElementById('sidebar').classList.toggle('active'); document.getElementById('overlay').classList.toggle('active'); }
     const inventoryData = {
-        IT: {
-            weekly: ["Smartfony", "Słuchawki truewireless", "Myszki gamingowe"],
-            twoWeeks: ["Słuchawki nauszne"],
-            monthly: ["Tusze", "Papier", "Głośniki mobilne", "Słuchawki douszne", "Smartbandy", "Smartwatche", "Folie ochronne", "Dyski PSSD", "Dyski SSD M.2 NVME", "Dyski SSD SATA", "Dyski zewnętrzne", "Słuchawki gamingowe", "Nośniki logistyczne"]
-        },
-        RTV: {
-            weekly: [], 
-            twoWeeks: ["Konsole", "Android TV", "Alkomaty", "Wideorejestratory"],
-            monthly: ["Akcesoria do konsol", "Komunikatory drogowe", "Kamery sportowe", "Nawigacje"]
-        },
-        AGD: {
-            weekly: [], 
-            twoWeeks: [], 
-            monthly: ["Akcesoria do golarek", "Depilatory świetlne", "Szczoteczki", "Trymery", "Urządzenia do pielęgnacji twarzy i ciała", "Akcesoria do urządzeń SODASTREAM", "Kawa ziarnista", "Kawa w kapsułkach", "Syropy"]
-        }
+        IT: { weekly: ["Smartfony", "Słuchawki truewireless"], twoWeeks: ["Słuchawki nauszne"], monthly: ["Tusze", "Papier"] },
+        RTV: { weekly: [], twoWeeks: ["Konsole"], monthly: ["Nawigacje"] },
+        AGD: { weekly: [], twoWeeks: [], monthly: ["Szczoteczki"] }
     };
-
     function switchDept(dept) {
-        document.querySelectorAll('.tab-btn').forEach(btn => {
-            btn.classList.remove('active');
-            if(btn.innerText.includes(dept)) btn.classList.add('active');
-        });
-
-        const gridW = document.getElementById('gridWeekly');
-        const grid2W = document.getElementById('grid2Weeks');
-        const gridM = document.getElementById('gridMonthly');
-
-        renderSection(gridW, inventoryData[dept].weekly, 'secWeekly');
-        renderSection(grid2W, inventoryData[dept].twoWeeks, 'secTwoWeeks');
-        renderSection(gridM, inventoryData[dept].monthly, 'secMonthly');
+        document.querySelectorAll('.tab-btn').forEach(btn => { btn.classList.remove('active'); if(btn.innerText.includes(dept)) btn.classList.add('active'); });
+        renderSection(document.getElementById('gridWeekly'), inventoryData[dept].weekly, 'secWeekly');
+        renderSection(document.getElementById('grid2Weeks'), inventoryData[dept].twoWeeks, 'secTwoWeeks');
+        renderSection(document.getElementById('gridMonthly'), inventoryData[dept].monthly, 'secMonthly');
     }
-
     function renderSection(grid, data, sectionId) {
-        const section = document.getElementById(sectionId);
-        
-        if (data.length === 0) {
-            section.style.display = 'none';
-        } else {
-            section.style.display = 'block';
-            grid.innerHTML = data.map((item, index) => {
-                let uniqueId = item.replace(/[^a-zA-Z0-9]/g, '') + index + sectionId;
-                
-                // Generujemy kafelek domyślnie wyglądający jako OCZEKUJĄCY z punktu widzenia managera
-                return `
-                <div class="item-card" id="card-${uniqueId}">
-                    <h3>${item}</h3>
-                    <div class="status-row status-waiting" id="status-${uniqueId}">
-                        <div class="dot"></div>
-                        <div>
-                            <span>OCZEKUJE NA TWOJĄ DECYZJĘ</span>
-                            <span class="submitted-by">Zgłosił: PRACOWNIK XXX</span>
-                        </div>
-                    </div>
-                    <button class="check-btn" id="btn-${uniqueId}" onclick="openReviewModal('${uniqueId}', '${item}')">🔍 Sprawdź zgłoszenie</button>
-                </div>
-                `;
-            }).join('');
-        }
+        if(data.length === 0) { document.getElementById(sectionId).style.display = 'none'; return; }
+        document.getElementById(sectionId).style.display = 'block';
+        grid.innerHTML = data.map((item, i) => {
+            let uId = item.replace(/[^a-zA-Z]/g, '') + i;
+            return `<div class="item-card" id="card-${uId}"><h3>${item}</h3><div class="status-row status-waiting" id="st-${uId}"><div class="dot"></div><div><span>OCZEKUJE NA DECYZJĘ</span><span class="submitted-by">Zgłosił: PRACOWNIK XXX</span></div></div><button class="check-btn" id="btn-${uId}" onclick="openReviewModal('${uId}', '${item}')">🔍 Sprawdź</button></div>`;
+        }).join('');
     }
-
-    // --- LOGIKA MODALA DECYZYJNEGO ---
-    function openReviewModal(id, itemName) {
-        currentReviewId = id;
-        currentReviewItemName = itemName;
-        
-        document.getElementById('modalItemName').innerText = `INWENTURA: ${itemName}`;
-        document.getElementById('reviewModal').style.display = 'flex';
-    }
-
-    function closeReviewModal() {
-        document.getElementById('reviewModal').style.display = 'none';
-        currentReviewId = null;
-    }
-
-    function submitDecision(decision) {
-        if(!currentReviewId) return;
-
-        const card = document.getElementById(`card-${currentReviewId}`);
-        const statusRow = document.getElementById(`status-${currentReviewId}`);
-        const btn = document.getElementById(`btn-${currentReviewId}`);
-
-        if(decision === 'accept') {
-            card.style.borderColor = '#0a0';
-            statusRow.className = 'status-row status-accepted';
-            statusRow.innerHTML = `
-                <div class="dot"></div>
-                <div>
-                    <span>ZAAKCEPTOWANO PRAWIDŁOWO</span>
-                    <span class="submitted-by">Zatwierdził: ME/KSS</span>
-                </div>
-            `;
-            // Przycisk zmienia wygląd na zielony, staje się "nieaktywny" wizualnie
-            btn.innerText = "✔ SPRAWDZONE";
-            btn.style.borderColor = "#0a0";
-            btn.style.color = "#0a0";
-            btn.style.pointerEvents = "none"; 
-
-        } else if(decision === 'reject') {
-            card.style.borderColor = '#f44';
-            statusRow.className = 'status-row status-rejected';
-            statusRow.innerHTML = `
-                <div class="dot"></div>
-                <div>
-                    <span>ZWRÓCONO DO POPRAWY</span>
-                    <span class="submitted-by">Decyzja: ME/KSS</span>
-                </div>
-            `;
-            btn.innerText = "✖ ODRZUCONO";
-            btn.style.borderColor = "#f44";
-            btn.style.color = "#f44";
-            btn.style.pointerEvents = "none";
-        }
-
+    function openReviewModal(id, itemName) { currentReviewId = id; document.getElementById('modalItemName').innerText = itemName; document.getElementById('reviewModal').style.display = 'flex'; }
+    function closeReviewModal() { document.getElementById('reviewModal').style.display = 'none'; }
+    function submitDecision(dec) {
+        let card = document.getElementById(`card-${currentReviewId}`); let st = document.getElementById(`st-${currentReviewId}`); let btn = document.getElementById(`btn-${currentReviewId}`);
+        if(dec === 'accept') { card.style.borderColor='#0a0'; st.className='status-row status-accepted'; st.innerHTML='<div class="dot"></div><div><span>ZAAKCEPTOWANO</span></div>'; btn.innerText='✔ SPRAWDZONE'; btn.style.color='#0a0'; btn.style.borderColor='#0a0'; btn.style.pointerEvents='none'; }
+        if(dec === 'reject') { card.style.borderColor='#f44'; st.className='status-row status-rejected'; st.innerHTML='<div class="dot"></div><div><span>DO POPRAWY</span></div>'; btn.innerText='✖ ODRZUCONO'; btn.style.color='#f44'; btn.style.borderColor='#f44'; btn.style.pointerEvents='none'; }
         closeReviewModal();
     }
-
     window.onload = () => switchDept('IT');
 </script>
-
 </body>
 </html>

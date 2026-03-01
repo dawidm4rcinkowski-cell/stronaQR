@@ -3,77 +3,63 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Media Expert - Generator QR</title>
+    <title>Media Expert - QR Generator</title>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&display=swap" rel="stylesheet">
+    <script>
+        const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+        const storeSetup = JSON.parse(localStorage.getItem('store_setup'));
+        if (!currentUser || !storeSetup) { window.location.href = 'login.html'; }
+        const isManagerOrKss = (currentUser.dept === 'ME' || currentUser.isKss);
+    </script>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Montserrat', sans-serif; }
         body { background: #080808; color: white; display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
-        ::-webkit-scrollbar { width: 12px; height: 12px; }
-        ::-webkit-scrollbar-track { background: #111; border-left: 1px solid #222; border-top: 1px solid #222; }
-        ::-webkit-scrollbar-thumb { background: #ffe800; border-radius: 2px; }
-        ::-webkit-scrollbar-thumb:hover { background: #e6d100; }
-        
-        /* HEADER I MENU */
-        header { background: #ffe800; height: 50px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; z-index: 9999; border-bottom: 2px solid #000; position: relative; box-shadow: 0 2px 10px rgba(255, 232, 0, 0.2); }
-        .logo { color: #000; font-weight: 900; font-size: 1.4rem; text-transform: uppercase; letter-spacing: 1px; }
-        .logo span { background: #000; color: #ffe800; padding: 0 4px; border-radius: 3px; }
-        .menu-btn { position: absolute; left: 15px; cursor: pointer; color: #000; font-size: 1.5rem; transition: 0.2s; }
-        .menu-btn:hover { transform: scale(1.1); }
-        
-        .sidebar { position: fixed; left: -280px; top: 0; width: 260px; height: 100%; background: #0a0a0a; border-right: 3px solid #ffe800; transition: 0.4s; z-index: 10000; padding-top: 60px; box-shadow: 5px 0 15px rgba(0,0,0,0.8); display: flex; flex-direction: column; }
+        ::-webkit-scrollbar { width: 12px; height: 12px; } ::-webkit-scrollbar-track { background: #111; } ::-webkit-scrollbar-thumb { background: #ffe800; border-radius: 2px; }
+        header { background: #ffe800; height: 50px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; z-index: 9999; border-bottom: 2px solid #000; position: relative; }
+        .logo { color: #000; font-weight: 900; font-size: 1.2rem; text-transform: uppercase; letter-spacing: 1px; display: flex; align-items: center; gap: 10px;}
+        .logo span { background: #000; color: #ffe800; padding: 0 6px; border-radius: 3px; }
+        .store-badge { font-size: 0.7rem; background: rgba(0,0,0,0.1); padding: 4px 8px; border-radius: 20px; font-weight: 800; border: 1px solid #000; }
+        .menu-btn { position: absolute; left: 15px; cursor: pointer; color: #000; font-size: 1.5rem; }
+        .sidebar { position: fixed; left: -280px; top: 0; width: 260px; height: 100%; background: #0a0a0a; border-right: 3px solid #ffe800; transition: 0.4s; z-index: 10000; padding-top: 60px; display: flex; flex-direction: column; }
         .sidebar.active { left: 0; }
         .sidebar-nav { flex-grow: 1; overflow-y: auto; }
         .sidebar-header { color: #ffe800; font-weight: 900; font-size: 1rem; padding: 0 25px 15px 25px; letter-spacing: 2px; text-transform: uppercase; }
         .sidebar-link { display: block; color: white; padding: 15px 25px; text-decoration: none; font-weight: 700; font-size: 0.8rem; border-bottom: 1px solid #111; transition: 0.2s; }
         .sidebar-link:hover { background: #1a1a1a; color: #ffe800; padding-left: 35px; }
-        
-        .user-profile { padding: 15px 20px; border-top: 2px solid #1a1a1a; display: flex; align-items: center; gap: 15px; cursor: pointer; transition: 0.3s; background: #0f0f0f; }
-        .user-profile:hover { background: #151515; }
-        .user-profile:hover .user-settings { color: #ffe800; }
-        .user-avatar { width: 45px; height: 45px; border-radius: 50%; background: #151515; border: 2px solid #ffe800; display: flex; align-items: center; justify-content: center; font-weight: 900; color: #ffe800; font-size: 1.2rem; flex-shrink: 0; box-shadow: inset 0 0 10px rgba(0,0,0,0.8); }
+        .user-profile { padding: 15px 20px; border-top: 2px solid #1a1a1a; display: flex; align-items: center; gap: 15px; cursor: pointer; background: #0f0f0f; }
+        .user-avatar { width: 45px; height: 45px; border-radius: 50%; background: #151515; border: 2px solid #ffe800; display: flex; align-items: center; justify-content: center; font-weight: 900; color: #ffe800; font-size: 1.2rem; flex-shrink: 0;}
         .user-info { display: flex; flex-direction: column; }
-        .user-name { font-weight: 900; font-size: 0.85rem; color: #fff; letter-spacing: 0.5px; }
-        .user-settings { font-size: 0.65rem; color: #888; font-weight: 700; margin-top: 4px; transition: 0.2s; }
-        .logout-btn { display: block; width: 100%; text-align: center; background: transparent; color: #f44; border: none; border-top: 1px solid #1a1a1a; padding: 15px; font-weight: 900; font-size: 0.8rem; cursor: pointer; transition: 0.3s; text-transform: uppercase; letter-spacing: 1px; }
-        .logout-btn:hover { background: #f44; color: #000; }
+        .user-name { font-weight: 900; font-size: 0.85rem; color: #fff; }
+        .user-settings { font-size: 0.65rem; color: #888; font-weight: 700; margin-top: 4px; }
+        .logout-btn { display: block; width: 100%; text-align: center; background: transparent; color: #f44; border: none; border-top: 1px solid #1a1a1a; padding: 15px; font-weight: 900; font-size: 0.8rem; cursor: pointer; text-transform: uppercase; }
         .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.8); display: none; z-index: 9500; }
         .overlay.active { display: block; }
-
-        /* ZAWARTOŚĆ QR */
         .content { flex-grow: 1; overflow-y: auto; padding: 30px 20px; }
         .content-inner { max-width: 900px; margin: 0 auto; }
+        
         .qr-card { background: #111; border-radius: 20px; padding: 40px 20px; text-align: center; border: 1px solid #222; margin-bottom: 40px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
-        .qr-title { font-weight: 900; font-size: 2rem; margin-bottom: 30px; letter-spacing: 1px; }
-        .qr-title span { color: #ffe800; }
-        .json-box { background: #0a0a0a; padding: 25px; border-radius: 15px; margin-bottom: 30px; line-height: 2.5; word-break: break-all; border: 1px solid #333; box-shadow: inset 0 5px 15px rgba(0,0,0,0.5); }
+        .qr-title { font-weight: 900; font-size: 2rem; margin-bottom: 30px; } .qr-title span { color: #ffe800; }
+        .json-box { background: #0a0a0a; padding: 25px; border-radius: 15px; margin-bottom: 30px; line-height: 2.5; border: 1px solid #333; }
         .json-syntax { color: #666; font-weight: 700; font-size: 0.85rem; }
-        .qr-input { background: #151515; border: 2px solid #444; border-radius: 8px; color: #ffe800; font-weight: 900; font-size: 1.1rem; padding: 8px 15px; width: 140px; text-align: center; outline: none; transition: 0.3s; appearance: none; }
-        .qr-input:focus { border-color: #ffe800; background: #000; box-shadow: 0 0 15px rgba(255, 232, 0, 0.2); }
+        .qr-input { background: #151515; border: 2px solid #444; border-radius: 8px; color: #ffe800; font-weight: 900; font-size: 1.1rem; padding: 8px 15px; width: 140px; text-align: center; outline: none; }
         .qr-input.pin { width: 90px; }
-        .no-spin::-webkit-outer-spin-button, .no-spin::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
-        .no-spin { -moz-appearance: textfield; }
-        .copy-action-btn { background: #ffe800; color: #000; border: none; padding: 18px 0; border-radius: 12px; font-weight: 900; font-size: 1rem; cursor: pointer; transition: 0.3s; width: 100%; max-width: 350px; text-transform: uppercase; letter-spacing: 1px; }
-        .copy-action-btn:hover:not(.wait) { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(255, 232, 0, 0.3); }
+        .copy-action-btn { background: #ffe800; color: #000; border: none; padding: 18px 0; border-radius: 12px; font-weight: 900; font-size: 1rem; cursor: pointer; width: 100%; max-width: 350px; text-transform: uppercase; }
         .copy-action-btn.wait { background: #333; color: #888; cursor: not-allowed; }
 
-        .history-wrapper { background: #111; border-radius: 20px; border: 1px solid #222; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
-        .history-title { padding: 20px 25px; font-size: 1rem; font-weight: 900; color: #ffe800; letter-spacing: 1px; border-bottom: 2px solid #222; margin: 0; }
-        .history-header { display: grid; grid-template-columns: 1fr 140px 100px; padding: 15px 25px; background: #0a0a0a; color: #666; font-weight: 900; font-size: 0.7rem; text-transform: uppercase; border-bottom: 2px solid #ffe800; }
-        .history-item { display: grid; grid-template-columns: 1fr 140px 100px; align-items: center; padding: 18px 25px; border-bottom: 1px solid #222; transition: 0.2s; animation: slideUp 0.4s ease-out; }
-        .history-item:hover { background: #151515; }
-        .hist-code { color: #aaa; font-size: 0.75rem; font-weight: 700; padding-right: 20px; word-break: break-all; }
+        .history-wrapper { background: #111; border-radius: 20px; border: 1px solid #222; overflow: hidden; }
+        .history-title { padding: 20px 25px; font-size: 1rem; font-weight: 900; color: #ffe800; border-bottom: 2px solid #222; margin: 0; }
+        .history-header { display: grid; grid-template-columns: 1fr 140px 100px; padding: 15px 25px; background: #0a0a0a; color: #666; font-weight: 900; font-size: 0.7rem; border-bottom: 2px solid #ffe800; }
+        .history-item { display: grid; grid-template-columns: 1fr 140px 100px; align-items: center; padding: 18px 25px; border-bottom: 1px solid #222; }
+        .hist-code { color: #aaa; font-size: 0.75rem; font-weight: 700; }
         .hist-time { font-weight: 900; color: #fff; font-size: 0.8rem; }
-        .btn-delete { background: transparent; border: 1px solid #a00; color: #f44; padding: 8px 12px; border-radius: 8px; font-weight: 900; font-size: 0.65rem; cursor: pointer; transition: 0.3s; }
-        .btn-delete:hover { background: #a00; color: #fff; }
-        @keyframes slideUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        @media (max-width: 600px) { .history-header, .history-item { grid-template-columns: 1fr; gap: 10px; text-align: center; } .btn-delete { width: 100%; } .hist-code { padding-right: 0; } }
+        .btn-delete { background: transparent; border: 1px solid #a00; color: #f44; padding: 8px 12px; border-radius: 8px; font-weight: 900; font-size: 0.65rem; cursor: pointer; }
     </style>
 </head>
 <body>
 
 <header>
     <div class="menu-btn" onclick="toggleNav()">☰</div>
-    <div class="logo">EXPERT <span>TOOL</span></div>
+    <div class="logo">EXPERT <span>TOOL</span> <div class="store-badge" id="headerStore">SXXX</div></div>
 </header>
 
 <div class="sidebar" id="sidebar">
@@ -82,19 +68,19 @@
         <a href="index.html" class="sidebar-link">Strona główna</a>
         <a href="plan.html" class="sidebar-link">Plan pracy</a>
         <a href="inwa.html" class="sidebar-link">Inwentury</a>
-        <a href="inwak.html" class="sidebar-link">Inwentury (ME/KSS)</a>
+        <a href="inwak.html" class="sidebar-link" id="navInwaKSS">Inwentury (ME/KSS)</a>
         <a href="azs.html" class="sidebar-link">AZS</a>
         <a href="kwt.html" class="sidebar-link">KWT</a>
         <a href="qr.html" class="sidebar-link" style="color:#ffe800">Kod QR</a>
     </div>
     <div class="user-profile" onclick="window.location.href='ustawienia.html'">
-        <div class="user-avatar">P</div>
+        <div class="user-avatar" id="sideAvatar">?</div>
         <div class="user-info">
-            <span class="user-name">PAWEŁ (ME)</span>
+            <span class="user-name" id="sideName">Ladowanie...</span>
             <span class="user-settings">⚙️ Ustawienia konta</span>
         </div>
     </div>
-    <button class="logout-btn" onclick="alert('System wylogowywania aktywny.')">Wyloguj się</button>
+    <button class="logout-btn" onclick="logout()">Wyloguj się</button>
 </div>
 <div class="overlay" id="overlay" onclick="toggleNav()"></div>
 
@@ -104,9 +90,9 @@
             <h1 class="qr-title">GENERATOR KODU <span>QR</span></h1>
             <div class="json-box">
                 <span class="json-syntax">{ "type" : "npws_order_received_qr_code" , "order_number" : "</span>
-                <input type="number" id="orderNum" class="qr-input no-spin" placeholder="123456"> 
+                <input type="number" id="orderNum" class="qr-input" placeholder="123456"> 
                 <span class="json-syntax">" , "pin" : "</span>
-                <input type="number" id="pinNum" class="qr-input pin no-spin" placeholder="123"> 
+                <input type="number" id="pinNum" class="qr-input pin" placeholder="123"> 
                 <span class="json-syntax">" }</span>
             </div>
             <button id="copyBtn" class="copy-action-btn" onclick="copyCode()">KOPIUJ KOD</button>
@@ -114,66 +100,42 @@
 
         <div class="history-wrapper">
             <h2 class="history-title">OSTATNIO WYGENEROWANE</h2>
-            <div class="history-header">
-                <span class="col-main">PEŁNY KOD JSON</span>
-                <span class="col-time">GODZINA</span>
-                <span class="col-action" style="text-align: center;">AKCJA</span>
-            </div>
-            <div id="historyList" class="history-items"></div>
+            <div class="history-header"><span>PEŁNY KOD JSON</span><span>GODZINA</span><span style="text-align: center;">AKCJA</span></div>
+            <div id="historyList"></div>
         </div>
     </div>
 </div>
 
 <script>
-    let cooldownActive = false;
+    document.getElementById('headerStore').innerText = `${storeSetup.sNumber} ${storeSetup.city}`;
+    document.getElementById('sideName').innerText = `${currentUser.name} (${currentUser.dept})`;
+    document.getElementById('sideAvatar').innerText = currentUser.charId.charAt(0);
+    if(!isManagerOrKss) { document.getElementById('navInwaKSS').style.display = 'none'; }
     function toggleNav() { document.getElementById('sidebar').classList.toggle('active'); document.getElementById('overlay').classList.toggle('active'); }
+    function logout() { localStorage.removeItem('currentUser'); window.location.href = 'login.html'; }
 
+    let cooldownActive = false;
     function copyCode() {
         if (cooldownActive) return;
-        const orderNum = document.getElementById('orderNum').value || "123456";
-        const pinNum = document.getElementById('pinNum').value || "123";
-        const fullJson = `{ "type" : "npws_order_received_qr_code" , "order_number" : "${orderNum}" , "pin" : "${pinNum}" }`;
+        const fullJson = `{ "type" : "npws_order_received_qr_code" , "order_number" : "${document.getElementById('orderNum').value || "123456"}" , "pin" : "${document.getElementById('pinNum').value || "123"}" }`;
         navigator.clipboard.writeText(fullJson).then(() => { saveToLocalStorage(fullJson); runCooldown(); });
     }
-
     function runCooldown() {
-        cooldownActive = true; const btn = document.getElementById('copyBtn'); let timeLeft = 3;
-        btn.classList.add('wait'); btn.innerText = `SKOPIOWANO! (${timeLeft}S)`;
-        const countdown = setInterval(() => {
-            timeLeft--;
-            if (timeLeft > 0) { btn.innerText = `SKOPIOWANO! (${timeLeft}S)`; } 
-            else { clearInterval(countdown); btn.classList.remove('wait'); btn.innerText = "KOPIUJ KOD"; cooldownActive = false; }
-        }, 1000);
+        cooldownActive = true; const btn = document.getElementById('copyBtn'); let timeLeft = 3; btn.classList.add('wait'); btn.innerText = `SKOPIOWANO! (${timeLeft}S)`;
+        const cd = setInterval(() => { timeLeft--; if (timeLeft > 0) btn.innerText = `SKOPIOWANO! (${timeLeft}S)`; else { clearInterval(cd); btn.classList.remove('wait'); btn.innerText = "KOPIUJ KOD"; cooldownActive = false; } }, 1000);
     }
-
     function saveToLocalStorage(code) {
-        const now = new Date();
-        const timeString = now.toLocaleTimeString('pl-PL', { hour: '2-digit', minute: '2-digit' });
-        const dateString = now.toLocaleDateString('pl-PL', { day: '2-digit', month: '2-digit' });
-        const newEntry = { id: Date.now(), code: code, timestamp: `${dateString} | ${timeString}` };
-        let history = JSON.parse(localStorage.getItem('qr_history_expert')) || [];
-        history.unshift(newEntry); if (history.length > 15) history.pop();
-        localStorage.setItem('qr_history_expert', JSON.stringify(history)); renderHistory();
+        const now = new Date(); const tStr = now.toLocaleTimeString('pl-PL', { hour: '2-digit', minute: '2-digit' }); const dStr = now.toLocaleDateString('pl-PL', { day: '2-digit', month: '2-digit' });
+        let history = JSON.parse(localStorage.getItem('qr_history')) || [];
+        history.unshift({ id: Date.now(), code: code, timestamp: `${dStr} | ${tStr}` }); if (history.length > 10) history.pop();
+        localStorage.setItem('qr_history', JSON.stringify(history)); renderHistory();
     }
-
     function renderHistory() {
-        const listContainer = document.getElementById('historyList');
-        const history = JSON.parse(localStorage.getItem('qr_history_expert')) || [];
+        const listContainer = document.getElementById('historyList'); const history = JSON.parse(localStorage.getItem('qr_history')) || [];
         if (history.length === 0) { listContainer.innerHTML = '<div style="padding: 30px; text-align: center; color: #555; font-weight: 700; font-size: 0.8rem;">BRAK HISTORII</div>'; return; }
-        listContainer.innerHTML = history.map(item => `
-            <div class="history-item">
-                <div class="hist-code">${item.code}</div>
-                <div class="hist-time">${item.timestamp}</div>
-                <div style="text-align: center;"><button class="btn-delete" onclick="deleteEntry(${item.id})">USUŃ</button></div>
-            </div>
-        `).join('');
+        listContainer.innerHTML = history.map(item => `<div class="history-item"><div class="hist-code">${item.code}</div><div class="hist-time">${item.timestamp}</div><div style="text-align: center;"><button class="btn-delete" onclick="deleteEntry(${item.id})">USUŃ</button></div></div>`).join('');
     }
-
-    function deleteEntry(id) {
-        let history = JSON.parse(localStorage.getItem('qr_history_expert')) || [];
-        history = history.filter(item => item.id !== id);
-        localStorage.setItem('qr_history_expert', JSON.stringify(history)); renderHistory();
-    }
+    function deleteEntry(id) { let history = JSON.parse(localStorage.getItem('qr_history')) || []; localStorage.setItem('qr_history', JSON.stringify(history.filter(item => item.id !== id))); renderHistory(); }
     window.onload = renderHistory;
 </script>
 </body>

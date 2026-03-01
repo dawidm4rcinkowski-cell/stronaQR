@@ -137,4 +137,232 @@
     <div class="loading-overlay" id="loadingData">Synchronizacja z chmurą...</div>
     <div class="content-inner">
         <div class="page-header">
-            <h1 class="page-title">WERYFIKACJA <span>INWENTUR</span> <span class="mgr-badge">PANEL ME/K
+            <h1 class="page-title">WERYFIKACJA <span>INWENTUR</span> <span class="mgr-badge">PANEL ME/KSS</span></h1>
+            <div class="month-selector" id="monthSelector"></div>
+        </div>
+        
+        <div class="dept-tabs">
+            <button class="tab-btn active" onclick="switchDept('IT')">DZIAŁ IT</button>
+            <button class="tab-btn" onclick="switchDept('RTV')">DZIAŁ RTV</button>
+            <button class="tab-btn" onclick="switchDept('AGD')">DZIAŁ AGD</button>
+        </div>
+        <section class="inwa-section" id="secWeekly"><h2 class="section-label">Tygodniowe</h2><div class="items-grid" id="gridWeekly"></div></section>
+        <section class="inwa-section" id="secTwoWeeks"><h2 class="section-label">2-tygodniowe</h2><div class="items-grid" id="grid2Weeks"></div></section>
+        <section class="inwa-section" id="secMonthly"><h2 class="section-label">Miesięczne</h2><div class="items-grid" id="gridMonthly"></div></section>
+    </div>
+</div>
+
+<div class="modal" id="reviewModal">
+    <div class="modal-content">
+        <h3 id="modalItemName" style="color:#fff; margin-bottom: 5px; font-size: 1.5rem; line-height:1.2;">Nazwa</h3>
+        <div class="modal-subtitle">WYMAGA TWOJEJ DECYZJI</div>
+        <p style="color:#ccc; margin-bottom: 25px;">Zgłaszający pracownik:<br><strong style="color:#fff; font-size:1.2rem;" id="modalSubmitter">PRACOWNIK</strong></p>
+        <div class="mgr-buttons">
+            <button class="btn-reject" onclick="submitDecision('reject')">✖ ODRZUĆ (DO POPRAWY)</button>
+            <button class="btn-accept" onclick="submitDecision('accept')">✔ ZAAKCEPTUJ WYNIK</button>
+        </div>
+        <button class="btn-cancel" onclick="closeReviewModal()">Wróć do listy</button>
+    </div>
+</div>
+
+<div class="modal" id="globalNotificationModal">
+    <div class="modal-content" id="popupBox" style="border-width: 3px;">
+        <h3 id="globalPopupTitle" style="margin-bottom: 15px; font-size: 1.3rem;">POWIADOMIENIE</h3>
+        <p id="globalPopupMsg" style="color: #fff; font-size: 1rem; margin-bottom: 25px; line-height: 1.5; font-weight: 700;"></p>
+        <button class="btn-cancel" onclick="closeGlobalPopup()" style="background:#ffe800; color:#000; border:none;">ZROZUMIAŁEM</button>
+    </div>
+</div>
+
+<script>
+    const year = 2026;
+    const months = ["STYCZEŃ", "LUTY", "MARZEC", "KWIECIEŃ", "MAJ", "CZERWIEC", "LIPIEC", "SIERPIEŃ", "WRZESIEŃ", "PAŹDZIERNIK", "LISTOPAD", "GRUDZIEŃ"];
+    let currentMonth = new Date().getMonth();
+    let inwaDataLive = {};
+    let inwaListener = null;
+
+    const defaultInventoryList = [
+        { id: "it_w1", dept: "IT", period: "weekly", name: "Myszki gamingowe" }, { id: "it_w2", dept: "IT", period: "weekly", name: "Słuchawki Truewireless" }, { id: "it_w3", dept: "IT", period: "weekly", name: "Smartfony" },
+        { id: "it_2w1", dept: "IT", period: "twoWeeks", name: "Słuchawki Nauszne" },
+        { id: "it_m1", dept: "IT", period: "monthly", name: "Tusze" }, { id: "it_m2", dept: "IT", period: "monthly", name: "Papier" }, { id: "it_m3", dept: "IT", period: "monthly", name: "Głośniki mobilne" }, { id: "it_m4", dept: "IT", period: "monthly", name: "Słuchawki douszne" }, { id: "it_m5", dept: "IT", period: "monthly", name: "Smartbandy" }, { id: "it_m6", dept: "IT", period: "monthly", name: "Smartwatche" }, { id: "it_m7", dept: "IT", period: "monthly", name: "Folie ochronne" }, { id: "it_m8", dept: "IT", period: "monthly", name: "Dyski PSSD" }, { id: "it_m9", dept: "IT", period: "monthly", name: "Dyski SSD M.2 NVME" }, { id: "it_m10", dept: "IT", period: "monthly", name: "Dyski SSD SATA" }, { id: "it_m11", dept: "IT", period: "monthly", name: "Dyski zewnętrzne" }, { id: "it_m12", dept: "IT", period: "monthly", name: "Słuchawki gamingowe" }, { id: "it_m13", dept: "IT", period: "monthly", name: "Nośniki logistyczne" },
+        { id: "rtv_2w1", dept: "RTV", period: "twoWeeks", name: "Konsole" }, { id: "rtv_2w2", dept: "RTV", period: "twoWeeks", name: "Android TV" }, { id: "rtv_2w3", dept: "RTV", period: "twoWeeks", name: "Alkomaty" }, { id: "rtv_2w4", dept: "RTV", period: "twoWeeks", name: "Wideorejestratory" },
+        { id: "rtv_m1", dept: "RTV", period: "monthly", name: "Akcesoria do konsol" }, { id: "rtv_m2", dept: "RTV", period: "monthly", name: "Komunikatory drogowe" }, { id: "rtv_m3", dept: "RTV", period: "monthly", name: "Kamery sportowe" }, { id: "rtv_m4", dept: "RTV", period: "monthly", name: "Nawigacje" },
+        { id: "agd_m1", dept: "AGD", period: "monthly", name: "Akcesoria do golarek" }, { id: "agd_m2", dept: "AGD", period: "monthly", name: "Depilatory świetlne" }, { id: "agd_m3", dept: "AGD", period: "monthly", name: "Szczoteczki" }, { id: "agd_m4", dept: "AGD", period: "monthly", name: "Trymery" }, { id: "agd_m5", dept: "AGD", period: "monthly", name: "Urządzenia do pielęgnacji twarzy i ciała" }, { id: "agd_m6", dept: "AGD", period: "monthly", name: "Akcesoria do urządzeń SODASTREAM" }, { id: "agd_m7", dept: "AGD", period: "monthly", name: "Kawa ziarnista" }, { id: "agd_m8", dept: "AGD", period: "monthly", name: "Kawa w kapsułkach" }, { id: "agd_m9", dept: "AGD", period: "monthly", name: "Syropy" }
+    ];
+
+    function loadMonthDataFromFirebase(m) {
+        document.getElementById('loadingData').style.display = 'flex';
+        if (inwaListener) { db.ref(`Stores/${myStore}/Inwentury/${year}_${curM}`).off('value', inwaListener); }
+        
+        curM = m;
+        const dbRef = db.ref(`Stores/${myStore}/Inwentury/${year}_${curM}`);
+        
+        dbRef.once('value', snapshot => {
+            if (!snapshot.exists()) {
+                let initialDb = {};
+                defaultInventoryList.forEach(item => {
+                    if (item.period === 'weekly') {
+                        for(let i=1; i<=4; i++) { initialDb[`${item.id}_t${i}`] = { ...item, id: `${item.id}_t${i}`, name: `${item.name} <span style="color:#ffe800; font-size:0.8rem; display:block; margin-top:5px;">(Tydzień ${i})</span>`, status: 'do_zrobienia', submittedBy: null, submitterId: null }; }
+                    } else if (item.period === 'twoWeeks') {
+                        initialDb[`${item.id}_p1`] = { ...item, id: `${item.id}_p1`, name: `${item.name} <span style="color:#ffe800; font-size:0.8rem; display:block; margin-top:5px;">(Tydzień 1-2)</span>`, status: 'do_zrobienia', submittedBy: null, submitterId: null };
+                        initialDb[`${item.id}_p2`] = { ...item, id: `${item.id}_p2`, name: `${item.name} <span style="color:#ffe800; font-size:0.8rem; display:block; margin-top:5px;">(Tydzień 3-4)</span>`, status: 'do_zrobienia', submittedBy: null, submitterId: null };
+                    } else {
+                        initialDb[item.id] = { ...item, status: 'do_zrobienia', submittedBy: null, submitterId: null };
+                    }
+                });
+                dbRef.set(initialDb);
+            }
+            
+            inwaListener = dbRef.on('value', snap => {
+                inwaDataLive = snap.val() || {};
+                document.getElementById('loadingData').style.display = 'none';
+                let activeTabBtn = document.querySelector('.tab-btn.active');
+                let activeTab = activeTabBtn ? activeTabBtn.innerText.replace('DZIAŁ ', '') : 'IT';
+                switchDept(activeTab);
+                updateKssBadge();
+            });
+        });
+    }
+
+    function renderMonthSelector() {
+        const div = document.getElementById('monthSelector');
+        div.innerHTML = "";
+        months.forEach((m, i) => {
+            const b = document.createElement('button');
+            b.className = `month-btn ${i === currentMonth ? 'active' : ''}`;
+            b.innerText = m;
+            b.onclick = () => { currentMonth = i; renderMonthSelector(); loadMonthDataFromFirebase(i); };
+            div.appendChild(b);
+        });
+    }
+
+    // Inicjalizacja UI
+    document.getElementById('headerStore').innerText = myStore;
+    let finalDept = currentUser.dept; if(currentUser.isKss && currentUser.dept !== 'ME') finalDept = 'KSS';
+    document.getElementById('sideName').innerText = `${currentUser.name} (${finalDept})`;
+    document.getElementById('sideAvatar').innerText = currentUser.charId.charAt(0);
+    function toggleNav() { document.getElementById('sidebar').classList.toggle('active'); document.getElementById('overlay').classList.toggle('active'); }
+    function logout() { localStorage.removeItem('currentUser'); window.location.href = 'login.html'; }
+
+    let currentReviewId = null;
+
+    // RENDEROWANIE KART KIEROWNIKA
+    function switchDept(dept) {
+        document.querySelectorAll('.tab-btn').forEach(btn => { btn.classList.remove('active'); if(btn.innerText.includes(dept)) btn.classList.add('active'); });
+        let dataArray = Object.values(inwaDataLive);
+        renderSection('gridWeekly', dataArray.filter(i => i.dept === dept && i.period === 'weekly'), 'secWeekly');
+        renderSection('grid2Weeks', dataArray.filter(i => i.dept === dept && i.period === 'twoWeeks'), 'secTwoWeeks');
+        renderSection('gridMonthly', dataArray.filter(i => i.dept === dept && i.period === 'monthly'), 'secMonthly');
+    }
+
+    function renderSection(gridId, data, sectionId) {
+        const section = document.getElementById(sectionId);
+        const grid = document.getElementById(gridId);
+        if(data.length === 0) { section.style.display = 'none'; return; }
+        section.style.display = 'block';
+        
+        grid.innerHTML = data.map((item) => {
+            let stHtml, btnHtml, undoHtml = '', cardClass = '';
+            if (item.status === 'do_zrobienia') {
+                stHtml = `<div class="status-row"><div class="dot"></div><span>BRAK ZGŁOSZENIA</span></div>`;
+                btnHtml = `<button class="btn-disabled" disabled>CZEKA NA PRACOWNIKA</button>`;
+            } else if (item.status === 'awaiting_kss') {
+                cardClass = 'highlight';
+                stHtml = `<div class="status-row status-waiting"><div class="dot"></div><div><span>OCZEKUJE NA DECYZJĘ</span><span class="submitted-by">Zgłosił: ${item.submittedBy}</span></div></div>`;
+                let cleanName = item.name.replace(/<[^>]*>?/gm, ''); 
+                btnHtml = `<button class="check-btn" onclick="openReviewModal('${item.id}', '${cleanName}', '${item.submittedBy}')">🔍 WERYFIKUJ</button>`;
+            } else if (item.status === 'done') {
+                stHtml = `<div class="status-row status-accepted"><div class="dot"></div><div><span>ZAAKCEPTOWANO</span><span style="color:#888; font-size:0.65rem;">(Przez: ${item.submittedBy})</span></div></div>`;
+                btnHtml = `<button class="btn-disabled" disabled style="border-color:#0a0; color:#0a0;">✔ ROZLICZONE</button>`;
+                undoHtml = `<button class="undo-btn" onclick="undoDecision('${item.id}')">COFNIJ DECYZJĘ</button>`;
+            } else if (item.status === 'rejected') {
+                stHtml = `<div class="status-row status-rejected"><div class="dot"></div><div><span>ODRZUCONO</span><span style="color:#888; font-size:0.65rem;">(Czeka na poprawę)</span></div></div>`;
+                btnHtml = `<button class="btn-disabled" disabled style="border-color:#f44; color:#f44;">✖ W POPRAWIE</button>`;
+                undoHtml = `<button class="undo-btn" onclick="undoDecision('${item.id}')">COFNIJ DECYZJĘ</button>`;
+            }
+            return `<div class="item-card ${cardClass}"><h3>${item.name}</h3>${stHtml}<div>${btnHtml}${undoHtml}</div></div>`;
+        }).join('');
+    }
+
+    // AKCJA KIEROWNIKA - WERYFIKACJA
+    function openReviewModal(id, itemName, submitter) { 
+        currentReviewId = id; 
+        document.getElementById('modalItemName').innerText = itemName; 
+        document.getElementById('modalSubmitter').innerText = submitter; 
+        document.getElementById('reviewModal').style.display = 'flex'; 
+    }
+    function closeReviewModal() { document.getElementById('reviewModal').style.display = 'none'; }
+    
+    function submitDecision(dec) {
+        let item = inwaDataLive[currentReviewId];
+        let cleanName = item.name.replace(/<[^>]*>?/gm, '');
+        
+        let newStatus = dec === 'accept' ? 'done' : 'rejected';
+        db.ref(`Stores/${myStore}/Inwentury/${year}_${curM}/${currentReviewId}`).update({ status: newStatus });
+        
+        if(dec === 'accept') {
+            db.ref(`Stores/${myStore}/Notifications`).push({ to: item.submitterId, title: '✅ INWENTURA ZAAKCEPTOWANA', msg: `Kierownik/KSS sprawdził i zatwierdził twoją inwenturę: ${cleanName} (${months[currentMonth]}). Dobra robota!`, type: 'success', read: false, timestamp: Date.now() });
+        } else {
+            db.ref(`Stores/${myStore}/Notifications`).push({ to: item.submitterId, title: '❌ INWENTURA ODRZUCONA', msg: `Kierownik/KSS znalazł błędy w inwenturze: ${cleanName} (${months[currentMonth]}). Wróć na dział i policz jeszcze raz!`, type: 'error', read: false, timestamp: Date.now() });
+        }
+        
+        closeReviewModal();
+    }
+
+    // AKCJA KIEROWNIKA - COFANIE DECYZJI (UNDO)
+    function undoDecision(id) {
+        if(confirm("Czy na pewno chcesz wycofać decyzję dla tej inwentury? Spowoduje to wyzerowanie jej statusu (wróci do pracownika).")) {
+            let item = inwaDataLive[id];
+            let oldSubmitter = item.submitterId;
+            let cleanName = item.name.replace(/<[^>]*>?/gm, '');
+
+            db.ref(`Stores/${myStore}/Inwentury/${year}_${curM}/${id}`).update({
+                status: 'do_zrobienia',
+                submittedBy: null,
+                submitterId: null
+            });
+
+            if (oldSubmitter) {
+                db.ref(`Stores/${myStore}/Notifications`).push({ to: oldSubmitter, title: '🔄 INWENTURA WYCOFANA', msg: `Kierownik/KSS wycofał decyzję dla inwentury: ${cleanName} (${months[currentMonth]}). Status powrócił na DO ZROBIENIA.`, type: 'warning', read: false, timestamp: Date.now() });
+            }
+        }
+    }
+
+    // --- SYSTEM POWIADOMIEŃ GLOBALNYCH ---
+    db.ref(`Stores/${myStore}/Notifications`).on('value', snap => {
+        let notifsObj = snap.val() || {};
+        let notifs = Object.keys(notifsObj).map(key => ({ keyId: key, ...notifsObj[key] }));
+        
+        let myUnread = notifs.filter(n => !n.read && (n.to === currentUser.charId || (n.to === 'KSS' && isManagerOrKss)));
+        
+        if (myUnread.length > 0) {
+            let n = myUnread[0];
+            document.getElementById('globalPopupTitle').innerText = n.title;
+            document.getElementById('globalPopupMsg').innerText = n.msg;
+            document.getElementById('globalNotificationModal').style.display = 'flex';
+            let box = document.getElementById('popupBox');
+            
+            if(n.type === 'success') { box.style.borderColor = '#0a0'; document.getElementById('globalPopupTitle').style.color = '#0a0'; }
+            else if(n.type === 'error') { box.style.borderColor = '#f44'; document.getElementById('globalPopupTitle').style.color = '#f44'; }
+            else { box.style.borderColor = '#ffe800'; document.getElementById('globalPopupTitle').style.color = '#ffe800'; }
+            
+            db.ref(`Stores/${myStore}/Notifications/${n.keyId}`).update({ read: true });
+        }
+    });
+
+    function updateKssBadge() {
+        if (!isManagerOrKss) return;
+        let dataArray = Object.values(inwaDataLive);
+        let hasAwaiting = dataArray.some(item => item.status === 'awaiting_kss');
+        let badge = document.getElementById('kssAlertBadge');
+        if(badge) badge.innerHTML = hasAwaiting ? `<span class="nav-alert">[!]</span>` : '';
+    }
+
+    function closeGlobalPopup() { document.getElementById('globalNotificationModal').style.display = 'none'; }
+    
+    window.onload = () => { 
+        renderMonthSelector(); 
+        loadMonthDataFromFirebase(currentMonth);
+    };
+</script>
+</body>
+</html>

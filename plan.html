@@ -355,9 +355,8 @@ function exportToExcel() {
 
     let sumRow = ["GODZINY"];
     employees.forEach(e => {
-        let urlops = 0;
-        for(let d=1; d<=days; d++) { let s = getShiftOnly(e.n, d); if(s === "URLOP" || s === "SZK" || s.toLowerCase() === "szk.") urlops++; }
-        let target = baseNorm - (urlops * 8); let h = calcRealH(e.n);
+        let target = baseNorm; 
+        let h = calcRealH(e.n);
         sumRow.push(`${h} / ${target}`);
     });
     sumRow.push(""); data.push(sumRow);
@@ -400,12 +399,19 @@ function exportToExcel() {
     XLSX.writeFile(wb, `MediaExpert_Grafik_${months[curM]}_${year}.xlsx`);
 }
 
+// TUTAJ UWZGLĘDNIAMY URLOPY I SZKOLENIA JAKO 8 GODZIN PRZEPRACOWANYCH
 function calcRealH(name) {
     let h = 0;
     for(let d=1; d<=31; d++) {
         let s = getShiftOnly(name, d);
-        if(s.includes('-')) { let p = s.split('-'); h += (parseInt(p[1]) || 0) - (parseInt(p[0]) || 0); }
-    } return h;
+        if(s.includes('-')) { 
+            let p = s.split('-'); 
+            h += (parseInt(p[1]) || 0) - (parseInt(p[0]) || 0); 
+        } else if (s === "URLOP" || s === "SZK" || s.toLowerCase() === "szk.") {
+            h += 8;
+        }
+    } 
+    return h;
 }
 
 function getStreak(name, day) {
@@ -420,7 +426,6 @@ function shuffle(array) {
     return array;
 }
 
-// POTĘŻNY ALGORYTM GENERUJĄCY 
 function startGeneration() {
     if(localStorage.getItem(`locked_${year}_${curM}`) === 'true') return;
 
@@ -561,8 +566,8 @@ function startGeneration() {
     while(!allBalanced && iterations < 4000) {
         allBalanced = true; let strictMode = iterations < 1500; 
         let status = employees.map(e => {
-            let urlops = 0; for(let d=1; d<=days; d++) { let s = getShiftOnly(e.n, d); if(s === "URLOP" || s === "SZK" || s.toLowerCase() === "szk.") urlops++; }
-            let target = baseNorm - (urlops * 8); let current = calcRealH(e.n);
+            let target = baseNorm; // Norma już się nie obniża!
+            let current = calcRealH(e.n);
             return { e, target, current, diff: target - current };
         });
 
@@ -638,8 +643,8 @@ function render() {
 
     const fSum = document.getElementById('sumRow'); fSum.innerHTML = '<td class="date-col">GODZINY</td>';
     employees.forEach(e => {
-        let urlops = 0; for(let d=1; d<=days; d++) { let s = getShiftOnly(e.n, d); if(s === "URLOP" || s === "SZK" || s.toLowerCase() === "szk.") urlops++; }
-        let target = baseNorm - (urlops * 8); let h = calcRealH(e.n); 
+        let target = baseNorm; 
+        let h = calcRealH(e.n); 
         fSum.innerHTML += `<td style="color:${h==target?'#0f0':'#f44'}; font-size: 0.55rem;">${h} / ${target}</td>`;
     });
     fSum.innerHTML += '<td class="obsada-col"></td>';

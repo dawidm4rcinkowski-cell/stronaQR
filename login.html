@@ -14,6 +14,7 @@
         const firebaseConfig = {
             apiKey: "AIzaSyD0N6Bjyzs34piOoujEn9mxKir8LDGdD2k",
             authDomain: "expert-tool.firebaseapp.com",
+            databaseURL: "https://expert-tool-default-rtdb.europe-west1.firebasedatabase.app/", 
             projectId: "expert-tool",
             storageBucket: "expert-tool.firebasestorage.app",
             messagingSenderId: "880843997228",
@@ -134,7 +135,7 @@
         <button class="btn-add" onclick="addCrewRow()">+ Dodaj Pracownika</button>
         
         <div class="error-msg" id="setupError"></div>
-        <button class="btn-main" onclick="finishSetup()">Generuj Bazę Danych</button>
+        <button class="btn-main" onclick="finishSetup()" id="btnGenerate">Generuj Bazę Danych</button>
     </div>
 
     <div id="viewPasswords" class="view">
@@ -147,7 +148,13 @@
 
 <script>
     window.onload = () => { 
-        if(localStorage.getItem('currentUser')) { window.location.href = 'index.html'; }
+        // Weryfikacja czy użytkownik jest zalogowany i ma przypisany sklep - zapobiega pętli
+        if(localStorage.getItem('currentUser') && localStorage.getItem('myStore')) { 
+            window.location.href = 'index.html'; 
+        } else {
+            localStorage.removeItem('currentUser');
+        }
+
         // Uzupełnij sklep jeśli tablet go zapamiętał
         let savedStore = localStorage.getItem('myStore');
         if(savedStore) document.getElementById('loginStore').value = savedStore;
@@ -257,15 +264,17 @@
         const mgrChar = document.getElementById('mgrCharId').value.trim().toUpperCase();
         const mgrPass = document.getElementById('mgrPass').value.trim();
         const err = document.getElementById('setupError');
+        const btn = document.getElementById('btnGenerate');
 
         if(!sNum || !city || !mgrName || !mgrChar || !mgrPass) {
-            err.innerText = "Uzupełnij dane sklepu i Kierownika!"; err.style.display = 'block'; return;
+            err.innerText = "Uzupełnij dane sklepu i Kierownika na samej górze!"; err.style.display = 'block'; return;
         }
 
         err.style.display = 'none';
+        btn.innerText = "Trwa zapis do chmury...";
+        btn.disabled = true;
         
         let updates = {};
-        // Dodaj kierownika do bazy
         updates[mgrChar] = { name: mgrName, dept: 'ME', isKss: true, password: mgrPass, isFirstLogin: false };
 
         let generatedPasswordsHtml = "";
@@ -288,13 +297,15 @@
             await db.ref(`Stores/${sNum}/Setup`).set({ sNumber: sNum, city: city });
             await db.ref(`Stores/${sNum}/Users`).set(updates);
 
-            localStorage.setItem('myStore', sNum); // Przypisz ten tablet do sklepu
+            localStorage.setItem('myStore', sNum); 
 
             document.getElementById('pwdListContainer').innerHTML = generatedPasswordsHtml;
             switchView('viewPasswords', false);
         } catch(e) {
             console.error(e);
             err.innerText = "Nie można zapisać danych w chmurze! Sprawdź reguły bazy danych."; err.style.display = 'block';
+            btn.innerText = "Generuj Bazę Danych";
+            btn.disabled = false;
         }
     }
 

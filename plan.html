@@ -71,7 +71,7 @@
         .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.8); display: none; z-index: 9500; }
         .overlay.active { display: block; }
 
-        /* GÓRNY PANEL */
+        /* ZAWARTOŚĆ PLANU PRACY */
         .navigation-area { background: #111; border-bottom: 2px solid #ffe800; flex-shrink: 0; box-shadow: 0 4px 10px rgba(0,0,0,0.5); z-index: 800; width: 100%; }
         .month-row { display: flex; align-items: center; padding: 10px 15px; gap: 10px; flex-wrap: wrap; }
         .month-selector { display: flex; gap: 8px; overflow-x: auto; white-space: nowrap; scrollbar-width: none; flex-grow: 1; padding-bottom: 2px; }
@@ -82,7 +82,6 @@
         .admin-controls { display: flex; align-items: center; gap: 8px; border-left: 1px solid #333; padding-left: 10px; }
         .norm-input { width: 55px; background: #000; color: #ffe800; border: 1px solid #ffe800; text-align: center; font-weight: 900; padding: 4px; font-size: 0.8rem; border-radius: 4px; outline: none; }
         
-        /* TABELA */
         .table-container { flex: 1; overflow: auto; background: #080808; width: 100vw; max-width: 100%; display: block; position: relative; }
         table { border-collapse: collapse; width: 100%; min-width: max-content; background: #080808; }
         
@@ -241,6 +240,7 @@
             <div>
                 <label style="font-size:0.65rem; color:#888; font-weight:bold;">PULA ZMIAN DLA DNI ROBOCZYCH (oddziel przecinkiem):</label>
                 <input id="globalShifts" style="width:100%; background:#000; border:1px solid #ffe800; color:#fff; padding:10px; border-radius:5px; margin-top:5px; font-weight:bold;" value="10-18, 12-20, 10-20">
+                <span style="font-size:0.55rem; color:#666;">Wpisz tu zmiany. Algorytm sam nimi żongluje by zrównać godziny.</span>
             </div>
             
             <div style="display:flex; gap:15px;">
@@ -295,7 +295,7 @@
 
 <script>
     // =======================================================
-    // 1. INICJALIZACJA I ZMIENNE
+    // INICJALIZACJA UI
     // =======================================================
     document.getElementById('headerStore').innerText = myStore;
     let finalDept = currentUser.dept; if (currentUser.isKss && currentUser.dept !== 'ME') finalDept = 'KSS';
@@ -322,7 +322,7 @@
     let metaListener = null;
 
     // =======================================================
-    // 2. POBIERANIE ZAŁOGI FIREBASE
+    // POBIERANIE ZAŁOGI FIREBASE
     // =======================================================
     db.ref(`Stores/${myStore}/Users`).on('value', snap => {
         const usersObj = snap.val() || {};
@@ -343,7 +343,7 @@
     });
 
     // =======================================================
-    // 3. MIESIĄCE I FIREBASE LISTENERS
+    // MIESIĄCE
     // =======================================================
     function setMonth(i) { 
         curM = i; document.getElementById('loadingData').style.display = 'flex'; renderMonths(); 
@@ -381,9 +381,6 @@
         }); 
     }
 
-    // =======================================================
-    // 4. FUNKCJE NARZĘDZIOWE
-    // =======================================================
     function isWorkDay(d) { let ds = `${curM+1}-${d}`; if (holidays2026.includes(ds)) return false; if (new Date(year, curM, d).getDay() === 0 && !tradingSundays2026.includes(ds)) return false; return true; }
     function getShiftOnly(charId, d) { return (localPlanData[`${charId}_${d}`] || "").split('|')[0] || ""; }
     function getRolesOnly(charId, d) { let v = localPlanData[`${charId}_${d}`] || ""; return v.split('|')[1] ? v.split('|')[1].split(',') : []; }
@@ -434,12 +431,12 @@
     }
 
     // =======================================================
-    // 5. ZMARTWYCHWSTAŁY SILNIK GENERATORA V5 (Z TWOJEGO KODU)
+    // POTĘŻNY SILNIK GENERATORA Z KODU UŻYTKOWNIKA (ADAPTACJA FIREBASE)
     // =======================================================
-    function calcRealH(charId, scheduleObj = null) {
-        let h = 0;
-        for(let d=1; d<=31; d++) {
-            let s = scheduleObj ? scheduleObj[charId][d] : getShiftOnly(charId, d);
+    function calcRealH(charId, testSchedule = null) { 
+        let h = 0; 
+        for (let d = 1; d <= 31; d++) { 
+            let s = testSchedule ? testSchedule[charId][d] : getShiftOnly(charId, d); 
             if(s && s.includes('-')) { 
                 let p = s.split('-'); 
                 h += (parseInt(p[1]) || 0) - (parseInt(p[0]) || 0); 
@@ -447,7 +444,7 @@
                 h += 8;
             }
         } 
-        return h;
+        return h; 
     }
 
     function getStreak(charId, day, scheduleObj) {
@@ -463,7 +460,7 @@
     }
 
     function startGeneration() {
-        if (localPlanMeta.locked === true) return;
+        if(localPlanMeta.locked === true) return;
         document.getElementById('loadingData').innerHTML = "Agresywne dopasowywanie godzin... <span>Trwa przeliczanie</span>";
         document.getElementById('loadingData').style.display = 'flex';
 
@@ -484,7 +481,7 @@
                 memorySchedule[e.charId] = {};
                 for (let d = 1; d <= daysInMonth; d++) {
                     let s = getShiftOnly(e.charId, d);
-                    if (s === "URLOP" || s === "Ż" || s === "SZK" || s === "SZK.") {
+                    if (s === "URLOP" || s === "Ż" || s === "SZK" || (s && s.toLowerCase() === "szk.")) {
                         memorySchedule[e.charId][d] = s;
                     } else {
                         memorySchedule[e.charId][d] = "";
@@ -492,9 +489,11 @@
                 }
             });
 
-            // 1. Weekendy
+            // 1. WEEKENDY
             let sats = []; 
-            for(let d=1; d<=daysInMonth; d++) { if((new Date(year, curM, d).getDay() === 6 || new Date(year, curM, d).getDay() === 0) && isWorkDay(d)) sats.push(d); }
+            for(let d=1; d<=daysInMonth; d++) { 
+                if((new Date(year, curM, d).getDay() === 6 || new Date(year, curM, d).getDay() === 0) && isWorkDay(d)) sats.push(d); 
+            }
 
             sats.forEach(d => {
                 let targetShift = new Date(year, curM, d).getDay() === 6 ? satShiftStr : sunShiftStr;
@@ -502,8 +501,8 @@
                 shuffle(available);
                 available.sort((a,b) => {
                     let aWork = 0, bWork = 0;
-                    sats.forEach(s => { if(memorySchedule[a.charId][s].includes('-')) aWork++; });
-                    sats.forEach(s => { if(memorySchedule[b.charId][s].includes('-')) bWork++; });
+                    sats.forEach(s => { if(memorySchedule[a.charId][s] && memorySchedule[a.charId][s].includes('-')) aWork++; });
+                    sats.forEach(s => { if(memorySchedule[b.charId][s] && memorySchedule[b.charId][s].includes('-')) bWork++; });
                     return aWork - bWork; 
                 });
 
@@ -515,7 +514,7 @@
                 toWork.forEach(w => memorySchedule[w.e.charId][d] = w.shift);
             });
 
-            // 2. Dni Robocze (Z Twoim starym podziałem)
+            // 2. DNI ROBOCZE
             for(let d=1; d<=daysInMonth; d++) {
                 if(new Date(year, curM, d).getDay() === 6 || new Date(year, curM, d).getDay() === 0 || !isWorkDay(d)) continue;
                 
@@ -541,7 +540,7 @@
                 }
             }
 
-            // 3. Moduł agresywnego dociągania (Twoja stara pętla przeniesiona na obiekt memorySchedule)
+            // 3. BALANSOWANIE (DOKŁADNIE TAK JAK W STARYM KODZIE)
             let allBalanced = false; let iterations = 0;
             
             const tryAddShift = (emp) => {
@@ -662,10 +661,10 @@
                 }
                 iterations++;
             }
-            
-            // Wypychanie z pamięci roboczej do bazy chmurowej
+
+            // FINALNY ZAPIS DO BAZY CHMUROWEJ
             let finalUpdates = {};
-            employees.forEach(e => { for (let d = 1; d <= daysInMonth; d++) { finalUpdates[`${e.charId}_${d}`] = memorySchedule[e.charId][d]; } });
+            employees.forEach(e => { for(let d=1; d<=daysInMonth; d++) { finalUpdates[`${e.charId}_${d}`] = memorySchedule[e.charId][d]; } });
             saveToFirebase(finalUpdates);
             document.getElementById('loadingData').style.display = 'none';
 

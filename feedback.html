@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Media Expert - Zgłoś Problem</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&display=swap" rel="stylesheet">
+    
+    <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-database-compat.js"></script>
+    
+    <script>
+        const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+        const myStore = localStorage.getItem('myStore');
+        
+        if (!currentUser || !myStore) { 
+            window.location.href = 'login.html'; 
+        }
+        
+        const isManagerOrKss = (currentUser.dept === 'ME' || currentUser.isKss);
+
+        // INICJALIZACJA FIREBASE
+        const firebaseConfig = {
+            apiKey: "AIzaSyD0N6Bjyzs34piOoujEn9mxKir8LDGdD2k",
+            authDomain: "expert-tool.firebaseapp.com",
+            databaseURL: "https://expert-tool-default-rtdb.europe-west1.firebasedatabase.app/",
+            projectId: "expert-tool",
+            storageBucket: "expert-tool.firebasestorage.app",
+            messagingSenderId: "880843997228",
+            appId: "1:880843997228:web:fa37aa80b7f9f017705189"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+    </script>
+    
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Montserrat', sans-serif; }
+        body { background: #080808; color: white; display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
+        ::-webkit-scrollbar { width: 12px; height: 12px; }
+        ::-webkit-scrollbar-track { background: #111; }
+        ::-webkit-scrollbar-thumb { background: #ffe800; border-radius: 2px; }
+        
+        /* HEADER I MENU */
+        header { background: #ffe800; height: 50px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; z-index: 9999; border-bottom: 2px solid #000; position: relative; box-shadow: 0 2px 10px rgba(255, 232, 0, 0.2); }
+        .logo { color: #000; font-weight: 900; font-size: 1.4rem; text-transform: uppercase; letter-spacing: 1px; display: flex; align-items: center; gap: 10px; }
+        .logo span { background: #000; color: #ffe800; padding: 0 6px; border-radius: 3px; }
+        .store-badge { font-size: 0.7rem; background: rgba(0,0,0,0.1); padding: 4px 8px; border-radius: 20px; font-weight: 800; border: 1px solid #000; }
+        .menu-btn { position: absolute; left: 15px; cursor: pointer; color: #000; font-size: 1.5rem; transition: 0.2s; }
+        
+        .sidebar { position: fixed; left: -280px; top: 0; width: 260px; height: 100%; background: #0a0a0a; border-right: 3px solid #ffe800; transition: 0.4s; z-index: 10000; padding-top: 60px; box-shadow: 5px 0 15px rgba(0,0,0,0.8); display: flex; flex-direction: column; }
+        .sidebar.active { left: 0; }
+        .sidebar-nav { flex-grow: 1; overflow-y: auto; }
+        .sidebar-header { color: #ffe800; font-weight: 900; font-size: 1rem; padding: 0 25px 15px 25px; letter-spacing: 2px; text-transform: uppercase; }
+        .sidebar-link { display: block; color: white; padding: 15px 25px; text-decoration: none; font-weight: 700; font-size: 0.8rem; border-bottom: 1px solid #111; transition: 0.2s; }
+        .sidebar-link:hover { background: #1a1a1a; color: #ffe800; padding-left: 35px; }
+        
+        /* SPECJALNY PRZYCISK FEEDBACKU W MENU */
+        .sidebar-feedback { display: block; background: #111; color: #ffe800; padding: 15px 25px; text-decoration: none; font-weight: 900; font-size: 0.8rem; border-top: 1px solid #222; border-bottom: 1px solid #222; transition: 0.3s; text-transform: uppercase; letter-spacing: 0.5px; }
+        .sidebar-feedback:hover { background: #ffe800; color: #000; }
+
+        .user-profile { padding: 15px 20px; display: flex; align-items: center; gap: 15px; cursor: pointer; background: #0f0f0f; transition: 0.3s; }
+        .user-profile:hover { background: #151515; }
+        .user-profile:hover .user-settings { color: #ffe800; }
+        .user-avatar { width: 45px; height: 45px; border-radius: 50%; background: #151515; border: 2px solid #ffe800; display: flex; align-items: center; justify-content: center; font-weight: 900; color: #ffe800; font-size: 1.2rem; flex-shrink: 0; }
+        .user-info { display: flex; flex-direction: column; }
+        .user-name { font-weight: 900; font-size: 0.85rem; color: #fff; }
+        .user-settings { font-size: 0.65rem; color: #888; font-weight: 700; margin-top: 4px; transition: 0.3s; }
+        .logout-btn { display: block; width: 100%; text-align: center; background: transparent; color: #f44; border: none; border-top: 1px solid #1a1a1a; padding: 15px; font-weight: 900; font-size: 0.8rem; cursor: pointer; text-transform: uppercase; transition: 0.3s; }
+        .logout-btn:hover { background: #f44; color: #000; }
+        
+        .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.8); display: none; z-index: 9500; }
+        .overlay.active { display: block; }
+
+        /* ZAWARTOŚĆ FORMULARZA */
+        .content { flex-grow: 1; overflow-y: auto; padding: 40px 20px; display: flex; justify-content: center; align-items: flex-start; }
+        .feedback-container { background: #111; border: 2px solid #333; border-radius: 15px; padding: 40px; width: 100%; max-width: 650px; box-shadow: 0 10px 30px rgba(0,0,0,0.8); height: fit-content; margin-top: 20px; }
+        
+        .page-title { font-size: 2rem; font-weight: 900; margin-bottom: 10px; text-transform: uppercase; text-align: center; color: #fff; letter-spacing: 1px; }
+        .page-title span { color: #ffe800; }
+        .page-subtitle { text-align: center; color: #888; font-size: 0.9rem; margin-bottom: 35px; font-weight: 600; line-height: 1.5; }
+
+        .form-group { margin-bottom: 25px; }
+        .form-group label { display: block; font-size: 0.8rem; color: #ffe800; font-weight: 900; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 1px; }
+        
+        select, textarea { 
+            width: 100%; 
+            background: #000; 
+            border: 2px solid #333; 
+            color: #fff; 
+            padding: 15px; 
+            border-radius: 8px; 
+            font-family: 'Montserrat', sans-serif; 
+            font-size: 0.95rem; 
+            font-weight: 600;
+            outline: none; 
+            transition: 0.3s;
+        }
+        
+        select:focus, textarea:focus { border-color: #ffe800; box-shadow: 0 0 10px rgba(255, 232, 0, 0.2); }
+        textarea { resize: vertical; min-height: 200px; line-height: 1.5; }
+
+        .btn-submit { 
+            background: #ffe800; 
+            color: #000; 
+            border: none; 
+            width: 100%; 
+            padding: 18px; 
+            font-weight: 900; 
+            border-radius: 8px; 
+            cursor: pointer; 
+            font-size: 1.1rem; 
+            text-transform: uppercase; 
+            transition: 0.3s; 
+            margin-top: 15px;
+            letter-spacing: 1px;
+        }
+        
+        .btn-submit:hover:not(:disabled) { transform: translateY(-3px); box-shadow: 0 5px 20px rgba(255, 232, 0, 0.4); }
+        .btn-submit:disabled { background: #333; color: #666; cursor: not-allowed; }
+
+        /* SUKCES MODAL */
+        .success-modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 11000; align-items: center; justify-content: center; padding: 20px; backdrop-filter: blur(5px); }
+        .success-content { background: #0a110a; border: 2px solid #0a0; padding: 40px 30px; width: 100%; max-width: 450px; border-radius: 15px; text-align: center; box-shadow: 0 0 30px rgba(0, 170, 0, 0.2); }
+        .success-icon { font-size: 4rem; margin-bottom: 15px; }
+        .success-title { color: #0a0; font-size: 1.4rem; font-weight: 900; margin-bottom: 15px; text-transform: uppercase; letter-spacing: 1px; }
+        .success-text { color: #ccc; font-size: 0.95rem; line-height: 1.5; margin-bottom: 30px; font-weight: 600; }
+        .btn-ok { background: #0a0; color: #fff; border: none; padding: 15px 20px; font-weight: 900; border-radius: 8px; cursor: pointer; width: 100%; text-transform: uppercase; font-size: 1rem; transition: 0.3s; }
+        .btn-ok:hover { background: #0c0; box-shadow: 0 0 15px rgba(0, 170, 0, 0.5); }
+    </style>
+</head>
+<body>
+
+<header>
+    <div class="menu-btn" onclick="toggleNav()">☰</div>
+    <div class="logo">EXPERT <span>TOOL</span></div>
+    <div class="store-badge" id="headerStore">Łączenie...</div>
+</header>
+
+<div class="sidebar" id="sidebar">
+    <div class="sidebar-nav">
+        <div class="sidebar-header">Nawigacja</div>
+        <a href="index.html" class="sidebar-link">Strona główna</a>
+        <a href="plan.html" class="sidebar-link">Plan pracy</a>
+        <a href="inwa.html" class="sidebar-link">Inwentury</a>
+        <a href="inwak.html" class="sidebar-link" id="navInwaKSS">Inwentury (ME/KSS)</a>
+        <a href="azs.html" class="sidebar-link">AZS (Agenda Zadań)</a>
+        <a href="kwt.html" class="sidebar-link">KWT</a>
+        <a href="qr.html" class="sidebar-link">Kod QR</a>
+    </div>
+    
+    <a href="feedback.html" class="sidebar-feedback">💡 Zgłoś problem / Pomysł</a>
+    
+    <div class="user-profile" onclick="window.location.href='ustawienia.html'">
+        <div class="user-avatar" id="sideAvatar">?</div>
+        <div class="user-info">
+            <span class="user-name" id="sideName">Ładowanie...</span>
+            <span class="user-settings">⚙️ Ustawienia konta</span>
+        </div>
+    </div>
+    <button class="logout-btn" onclick="logout()">Wyloguj się</button>
+</div>
+<div class="overlay" id="overlay" onclick="toggleNav()"></div>
+
+<div class="content">
+    <div class="feedback-container">
+        <h1 class="page-title">ZGŁOŚ <span>PROBLEM LUB POMYSŁ</span></h1>
+        <p class="page-subtitle">Znalazłeś błąd na stronie? Masz pomysł na nową funkcję, która ułatwiłaby wam pracę? Napisz poniżej – zgłoszenie trafi prosto do bazy dewelopera.</p>
+
+        <div class="form-group">
+            <label>Wybierz kategorię:</label>
+            <select id="fbType">
+                <option value="Błąd / Usterka na stronie">Błąd / Usterka na stronie (Bug)</option>
+                <option value="Błąd w wyliczaniu grafiku">Błąd algorytmu / wyliczania grafiku</option>
+                <option value="Pomysł na nową funkcję">Pomysł na nową funkcję (Sugestia)</option>
+                <option value="Inne">Inne</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label>Opis zgłoszenia:</label>
+            <textarea id="fbMessage" placeholder="Opisz dokładnie swój problem lub pomysł... Im więcej szczegółów podasz (np. jaki błąd wyskoczył, czyjej inwentury dotyczy, jakich dni brakuje na grafiku), tym szybciej i łatwiej będzie wprowadzić poprawki!"></textarea>
+        </div>
+
+        <button class="btn-submit" id="submitBtn" onclick="sendFeedback()">WYŚLIJ ZGŁOSZENIE DO DEWELOPERA</button>
+    </div>
+</div>
+
+<div class="success-modal" id="successModal">
+    <div class="success-content">
+        <div class="success-icon">✔️</div>
+        <h3 class="success-title">ZGŁOSZENIE WYSŁANE!</h3>
+        <p class="success-text">Dziękuję za Twój feedback! Twoja wiadomość została bezpiecznie zapisana w bazie danych i zostanie wkrótce przeanalizowana.</p>
+        <button class="btn-ok" onclick="closeSuccessModal()">WRÓĆ DO FORMULARZA</button>
+    </div>
+</div>
+
+<script>
+    // INICJALIZACJA UI
+    document.getElementById('headerStore').innerText = myStore;
+    let finalDept = currentUser.dept; if (currentUser.isKss && currentUser.dept !== 'ME') finalDept = 'KSS';
+    document.getElementById('sideName').innerText = `${currentUser.name} (${finalDept})`;
+    document.getElementById('sideAvatar').innerText = currentUser.charId.charAt(0);
+    
+    if (!isManagerOrKss) {
+        document.getElementById('navInwaKSS').style.display = 'none';
+    }
+
+    function toggleNav() { 
+        document.getElementById('sidebar').classList.toggle('active'); 
+        document.getElementById('overlay').classList.toggle('active'); 
+    }
+    
+    function logout() { 
+        localStorage.removeItem('currentUser'); 
+        window.location.href = 'login.html'; 
+    }
+
+    // WYSYŁANIE FEEDBACKU DO BAZY FIREBASE
+    function sendFeedback() {
+        const type = document.getElementById('fbType').value;
+        const msg = document.getElementById('fbMessage').value.trim();
+        const btn = document.getElementById('submitBtn');
+
+        if (!msg) {
+            alert('Proszę, wpisz treść wiadomości przed wysłaniem!');
+            return;
+        }
+
+        btn.disabled = true;
+        btn.innerText = "TRWA WYSYŁANIE...";
+
+        // Formowanie pakietu danych
+        const now = new Date();
+        const timeStr = now.toLocaleDateString('pl-PL') + ' | ' + now.toLocaleTimeString('pl-PL', {hour: '2-digit', minute:'2-digit'});
+
+        const feedbackData = {
+            store: myStore,
+            authorName: currentUser.name,
+            authorId: currentUser.charId,
+            authorDept: finalDept,
+            type: type,
+            message: msg,
+            time: timeStr,
+            timestamp: Date.now()
+        };
+
+        // Wysyłanie do bezpiecznego folderu Feedback w obrębie danego sklepu
+        db.ref(`Stores/${myStore}/Feedback`).push(feedbackData)
+            .then(() => {
+                document.getElementById('successModal').style.display = 'flex';
+                document.getElementById('fbMessage').value = '';
+                btn.disabled = false;
+                btn.innerText = "WYŚLIJ ZGŁOSZENIE DO DEWELOPERA";
+            })
+            .catch(error => {
+                alert('Błąd podczas nawiązywania połączenia z chmurą: ' + error.message);
+                btn.disabled = false;
+                btn.innerText = "WYŚLIJ ZGŁOSZENIE DO DEWELOPERA";
+            });
+    }
+
+    function closeSuccessModal() {
+        document.getElementById('successModal').style.display = 'none';
+    }
+</script>
+</body>
+</html>

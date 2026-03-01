@@ -212,9 +212,12 @@
             <button class="btn-shift" onclick="setModalShift('10-18', this)">10-18</button>
             <button class="btn-shift" onclick="setModalShift('12-20', this)">12-20</button>
             <button class="btn-shift" onclick="setModalShift('10-20', this)">10-20</button>
+            <button class="btn-shift" onclick="setModalShift('13-20', this)">13-20</button>
+            <button class="btn-shift" onclick="setModalShift('10-17', this)">10-17</button>
             <button class="btn-shift" onclick="setModalShift('WOLNE', this)">WOLNE</button>
             <button class="btn-shift" onclick="setModalShift('URLOP', this)">URLOP</button>
             <button class="btn-shift" onclick="setModalShift('Ż', this)">ŻYCZENIE</button>
+            <button class="btn-shift" onclick="setModalShift('SZK', this)">SZK</button>
         </div>
         
         <input type="text" id="modalCustomShift" style="width:100%; background:#000; color:#fff; border:1px solid #444; padding:10px; text-align:center; font-weight:bold; margin-bottom:15px; border-radius:5px;" placeholder="Lub wpisz ręcznie (np. 8-16)" oninput="clearShiftButtons()">
@@ -300,7 +303,7 @@ function saveCellModal() {
     if(document.getElementById('modalRoleD').checked) roles.push('D');
     if(document.getElementById('modalRoleS').checked) roles.push('S');
     let finalVal = shift;
-    if(roles.length > 0 && shift !== "" && shift !== "WOLNE" && shift !== "URLOP" && shift !== "Ż") finalVal += '|' + roles.join(',');
+    if(roles.length > 0 && shift !== "" && shift !== "WOLNE" && shift !== "URLOP" && shift !== "Ż" && shift !== "SZK") finalVal += '|' + roles.join(',');
     saveVRaw(currentEditEmp, currentEditDay, finalVal);
     closeCellModal(); render();
 }
@@ -311,13 +314,13 @@ function toggleApprove() { let locked = localStorage.getItem(`locked_${year}_${c
 
 function clearMonth() {
     if(localStorage.getItem(`locked_${year}_${curM}`) === 'true') return;
-    if(confirm("Czy na pewno chcesz wyczyścić wygenerowany grafik?\n(Urlopy i życzenia zostaną nienaruszone!)")) {
+    if(confirm("Czy na pewno chcesz wyczyścić wygenerowany grafik?\n(Urlopy, życzenia i szkolenia zostaną nienaruszone!)")) {
         const days = new Date(year, curM + 1, 0).getDate();
         employees.forEach(e => {
             if(e.dept === 'ME') return; 
             for(let d=1; d<=days; d++) {
                 let s = getShiftOnly(e.n, d);
-                if(s !== "URLOP" && s !== "Ż") saveVRaw(e.n, d, "");
+                if(s !== "URLOP" && s !== "Ż" && s !== "SZK") saveVRaw(e.n, d, "");
             }
         }); render();
     }
@@ -353,7 +356,7 @@ function exportToExcel() {
     let sumRow = ["GODZINY"];
     employees.forEach(e => {
         let urlops = 0;
-        for(let d=1; d<=days; d++) { let s = getShiftOnly(e.n, d); if(s === "URLOP" || s.toLowerCase() === "szk.") urlops++; }
+        for(let d=1; d<=days; d++) { let s = getShiftOnly(e.n, d); if(s === "URLOP" || s === "SZK" || s.toLowerCase() === "szk.") urlops++; }
         let target = baseNorm - (urlops * 8); let h = calcRealH(e.n);
         sumRow.push(`${h} / ${target}`);
     });
@@ -365,7 +368,7 @@ function exportToExcel() {
         if(e.dept !== 'ME') {
             for(let d=1; d<=days; d++) {
                 if(new Date(year, curM, d).getDay() === 6 && isWorkDay(d)) {
-                    let s = getShiftOnly(e.n, d); if(s === "" || s === "URLOP" || s === "Ż") count++;
+                    let s = getShiftOnly(e.n, d); if(s === "" || s === "URLOP" || s === "Ż" || s === "SZK" || s.toLowerCase() === "szk.") count++;
                 }
             }
         }
@@ -407,8 +410,8 @@ function calcRealH(name) {
 
 function getStreak(name, day) {
     let s = 0;
-    for (let d = day-1; d >= 1; d--) { let st = getShiftOnly(name, d); if(st.includes('-') || st==="URLOP" || st.toLowerCase()==="szk.") s++; else break; }
-    for (let d = day+1; d <= 31; d++) { let st = getShiftOnly(name, d); if(st.includes('-') || st==="URLOP" || st.toLowerCase()==="szk.") s++; else break; }
+    for (let d = day-1; d >= 1; d--) { let st = getShiftOnly(name, d); if(st.includes('-') || st==="URLOP" || st==="SZK" || st.toLowerCase()==="szk.") s++; else break; }
+    for (let d = day+1; d <= 31; d++) { let st = getShiftOnly(name, d); if(st.includes('-') || st==="URLOP" || st==="SZK" || st.toLowerCase()==="szk.") s++; else break; }
     return s;
 }
 
@@ -558,7 +561,7 @@ function startGeneration() {
     while(!allBalanced && iterations < 4000) {
         allBalanced = true; let strictMode = iterations < 1500; 
         let status = employees.map(e => {
-            let urlops = 0; for(let d=1; d<=days; d++) { let s = getShiftOnly(e.n, d); if(s === "URLOP" || s.toLowerCase() === "szk.") urlops++; }
+            let urlops = 0; for(let d=1; d<=days; d++) { let s = getShiftOnly(e.n, d); if(s === "URLOP" || s === "SZK" || s.toLowerCase() === "szk.") urlops++; }
             let target = baseNorm - (urlops * 8); let current = calcRealH(e.n);
             return { e, target, current, diff: target - current };
         });
@@ -635,7 +638,7 @@ function render() {
 
     const fSum = document.getElementById('sumRow'); fSum.innerHTML = '<td class="date-col">GODZINY</td>';
     employees.forEach(e => {
-        let urlops = 0; for(let d=1; d<=days; d++) { let s = getShiftOnly(e.n, d); if(s === "URLOP" || s.toLowerCase() === "szk.") urlops++; }
+        let urlops = 0; for(let d=1; d<=days; d++) { let s = getShiftOnly(e.n, d); if(s === "URLOP" || s === "SZK" || s.toLowerCase() === "szk.") urlops++; }
         let target = baseNorm - (urlops * 8); let h = calcRealH(e.n); 
         fSum.innerHTML += `<td style="color:${h==target?'#0f0':'#f44'}; font-size: 0.55rem;">${h} / ${target}</td>`;
     });
@@ -644,7 +647,7 @@ function render() {
     const fSat = document.getElementById('satCountRow'); fSat.innerHTML = '<td class="date-col">WOLNE SB</td>';
     employees.forEach(e => {
         let count = 0;
-        if(e.dept !== 'ME') { for(let d=1; d<=days; d++) { if(new Date(year, curM, d).getDay() === 6 && isWorkDay(d)) { let s = getShiftOnly(e.n, d); if(s === "" || s === "URLOP" || s === "Ż") count++; } } }
+        if(e.dept !== 'ME') { for(let d=1; d<=days; d++) { if(new Date(year, curM, d).getDay() === 6 && isWorkDay(d)) { let s = getShiftOnly(e.n, d); if(s === "" || s === "URLOP" || s === "Ż" || s === "SZK" || s.toLowerCase() === "szk.") count++; } } }
         fSat.innerHTML += `<td style="color:${count>=1 && count<=2 ?'#ffe800':'#888'}">${e.dept==='ME'?'-':count}</td>`;
     });
     fSat.innerHTML += '<td class="obsada-col"></td>';
@@ -660,6 +663,7 @@ function renderSettings() {
 
 function saveSettings() {
     const days = new Date(year, curM + 1, 0).getDate();
+    // Kasujemy stary urlop/życzenia, żeby nadpisać z ustawień. Szkoleń stąd nie tykamy!
     employees.forEach(e => { for(let d=1; d<=days; d++) { let s = getShiftOnly(e.n, d); if(s === "URLOP" || s === "Ż") saveVRaw(e.n, d, ""); } });
     employees.forEach(e => {
         let z = document.getElementById(`z_${e.n}`)?.value.trim() || ""; let u1 = document.getElementById(`u1_${e.n}`)?.value.trim() || ""; let u2 = document.getElementById(`u2_${e.n}`)?.value.trim() || "";

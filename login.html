@@ -5,13 +5,28 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Media Expert - Logowanie</title>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&display=swap" rel="stylesheet">
+    
+    <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-database-compat.js"></script>
+    
+    <script>
+        // INICJALIZACJA BAZY DANYCH
+        const firebaseConfig = {
+            apiKey: "AIzaSyD0N6Bjyzs34piOoujEn9mxKir8LDGdD2k",
+            authDomain: "expert-tool.firebaseapp.com",
+            projectId: "expert-tool",
+            storageBucket: "expert-tool.firebasestorage.app",
+            messagingSenderId: "880843997228",
+            appId: "1:880843997228:web:fa37aa80b7f9f017705189"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+    </script>
+    
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Montserrat', sans-serif; }
         body { background: #080808; color: white; display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 20px; overflow-y: auto; }
-        
-        ::-webkit-scrollbar { width: 10px; }
-        ::-webkit-scrollbar-track { background: #111; }
-        ::-webkit-scrollbar-thumb { background: #ffe800; border-radius: 5px; }
+        ::-webkit-scrollbar { width: 10px; } ::-webkit-scrollbar-track { background: #111; } ::-webkit-scrollbar-thumb { background: #ffe800; border-radius: 5px; }
 
         .container { background: #111; border: 2px solid #222; border-radius: 20px; width: 100%; max-width: 450px; padding: 40px; box-shadow: 0 15px 40px rgba(0,0,0,0.8); transition: 0.3s; }
         .container.wide { max-width: 800px; }
@@ -57,13 +72,17 @@
 <div class="container" id="mainContainer">
     <div class="logo-box">
         <h1>EXPERT <span>TOOL</span></h1>
-        <p>Autoryzowany Dostęp</p>
+        <p>System Centralny Sklepu</p>
     </div>
 
     <div id="viewLogin" class="view active">
         <div class="error-msg" id="loginError"></div>
         <div class="input-group">
-            <label>CharID (Twój Login)</label>
+            <label>Numer Sklepu</label>
+            <input type="text" id="loginStore" class="form-input" placeholder="np. S878">
+        </div>
+        <div class="input-group">
+            <label>CharID (Login)</label>
             <input type="text" id="loginCharId" class="form-input" placeholder="np. M123 lub ADMIN">
         </div>
         <div class="input-group">
@@ -75,7 +94,7 @@
 
     <div id="viewChangePwd" class="view">
         <div class="setup-title">Pierwsze logowanie</div>
-        <p style="color:#888; font-size:0.85rem; margin-bottom:20px;">Witaj <span id="welcomeName" style="color:#fff; font-weight:bold;"></span>! Ze względów bezpieczeństwa musisz ustawić swoje własne hasło.</p>
+        <p style="color:#888; font-size:0.85rem; margin-bottom:20px;">Witaj <span id="welcomeName" style="color:#fff; font-weight:bold;"></span>! Ze względów bezpieczeństwa ustaw własne hasło.</p>
         <div class="error-msg" id="changePwdError"></div>
         <div class="input-group">
             <label>Nowe Hasło</label>
@@ -89,24 +108,24 @@
     </div>
 
     <div id="viewSetup" class="view">
-        <div class="setup-title">Kreator Nowego Sklepu</div>
-        <p style="color:#888; font-size:0.8rem; margin-bottom:20px;">Skonfiguruj dane sklepu oraz listę pracowników (Kierownik zostanie dodany automatycznie jako administrator systemu).</p>
+        <div class="setup-title">Kreator Sklepu (Inicjalizacja Bazy)</div>
+        <p style="color:#888; font-size:0.8rem; margin-bottom:20px;">Zbuduj strukturę sklepu. Twoje dane zostaną zapisane w bezpiecznej chmurze Firebase.</p>
         
         <div style="display:flex; gap:15px;">
             <div class="input-group" style="flex:1;">
-                <label>Numer Sklepu (S)</label>
-                <input type="text" id="setupSNum" class="form-input" placeholder="S878" value="S878">
+                <label>Sklep (S)</label>
+                <input type="text" id="setupSNum" class="form-input" placeholder="np. S878">
             </div>
             <div class="input-group" style="flex:2;">
                 <label>Miejscowość</label>
-                <input type="text" id="setupCity" class="form-input" placeholder="Grodzisk Wielkopolski">
+                <input type="text" id="setupCity" class="form-input" placeholder="np. Grodzisk Wlkp.">
             </div>
         </div>
 
-        <div class="setup-title" style="margin-top:10px;">Dane Kierownika (Ty)</div>
+        <div class="setup-title" style="margin-top:10px;">Główny Kierownik ME</div>
         <div style="display:flex; gap:15px; margin-bottom: 20px;">
             <input type="text" id="mgrName" class="form-input" placeholder="Imię" style="flex:2;">
-            <input type="text" id="mgrCharId" class="form-input" placeholder="CharID (Login)" style="flex:1;">
+            <input type="text" id="mgrCharId" class="form-input" placeholder="CharID (Twój stały login)" style="flex:1;">
             <input type="password" id="mgrPass" class="form-input" placeholder="Nowe Hasło" style="flex:1;">
         </div>
 
@@ -115,19 +134,24 @@
         <button class="btn-add" onclick="addCrewRow()">+ Dodaj Pracownika</button>
         
         <div class="error-msg" id="setupError"></div>
-        <button class="btn-main" onclick="finishSetup()">Generuj System</button>
+        <button class="btn-main" onclick="finishSetup()">Generuj Bazę Danych</button>
     </div>
 
     <div id="viewPasswords" class="view">
-        <div class="setup-title" style="color:#0a0;">Sukces! Baza utworzona.</div>
-        <p style="color:#888; font-size:0.85rem; margin-bottom:15px;">Przekaż poniższe jednorazowe hasła startowe swojej ekipie. Przy pierwszym logowaniu system wymusi na nich zmianę hasła.</p>
+        <div class="setup-title" style="color:#0a0;">Sukces! Chmura aktywna.</div>
+        <p style="color:#888; font-size:0.85rem; margin-bottom:15px;">Rozdaj poniższe jednorazowe hasła swojej ekipie. Będą musieli je zmienić przy pierwszym wejściu.</p>
         <div class="pwd-list" id="pwdListContainer"></div>
-        <button class="btn-main" onclick="goToLogin()">Przejdź do logowania</button>
+        <button class="btn-main" onclick="goToLogin()">Zakończ i Zaloguj się</button>
     </div>
 </div>
 
 <script>
-    window.onload = () => { if(localStorage.getItem('currentUser')) window.location.href = 'index.html'; }
+    window.onload = () => { 
+        if(localStorage.getItem('currentUser')) { window.location.href = 'index.html'; }
+        // Uzupełnij sklep jeśli tablet go zapamiętał
+        let savedStore = localStorage.getItem('myStore');
+        if(savedStore) document.getElementById('loginStore').value = savedStore;
+    }
 
     function switchView(viewId, makeWide = false) {
         document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
@@ -136,41 +160,50 @@
         makeWide ? cont.classList.add('wide') : cont.classList.remove('wide');
     }
 
-    function attemptLogin() {
+    async function attemptLogin() {
+        const storeId = document.getElementById('loginStore').value.trim().toUpperCase();
         const charId = document.getElementById('loginCharId').value.trim().toUpperCase();
         const pass = document.getElementById('loginPass').value.trim();
         const err = document.getElementById('loginError');
 
         if(!charId || !pass) { err.innerText = "Wpisz CharID i Hasło!"; err.style.display = 'block'; return; }
 
-        const storeData = localStorage.getItem('store_setup');
-        if(!storeData && charId === 'ADMIN' && pass === 'Welcome1!') {
+        // Trigger instalatora
+        if(charId === 'ADMIN' && pass === 'Welcome1!') {
             switchView('viewSetup', true);
+            if(storeId) document.getElementById('setupSNum').value = storeId;
             addCrewRow(); return;
         }
 
-        if(storeData) {
-            const users = JSON.parse(localStorage.getItem('users')) || [];
-            const user = users.find(u => u.charId === charId && u.password === pass);
+        if(!storeId) { err.innerText = "Wpisz numer swojego sklepu!"; err.style.display = 'block'; return; }
 
-            if(user) {
+        try {
+            // Łączymy się z FIREBASE
+            const snapshot = await db.ref(`Stores/${storeId}/Users/${charId}`).once('value');
+            const user = snapshot.val();
+
+            if(user && user.password === pass) {
+                // Zapamiętanie na jakim sklepie działa ten tablet
+                localStorage.setItem('myStore', storeId); 
+                
                 if(user.isFirstLogin) {
-                    sessionStorage.setItem('tempCharId', user.charId);
+                    sessionStorage.setItem('tempCharId', charId);
                     document.getElementById('welcomeName').innerText = user.name;
                     switchView('viewChangePwd');
                 } else {
-                    localStorage.setItem('currentUser', JSON.stringify({ charId: user.charId, name: user.name, dept: user.dept, isKss: user.isKss }));
+                    localStorage.setItem('currentUser', JSON.stringify({ charId: charId, name: user.name, dept: user.dept, isKss: user.isKss }));
                     window.location.href = 'index.html';
                 }
             } else {
-                err.innerText = "Nieprawidłowe CharID lub Hasło!"; err.style.display = 'block';
+                err.innerText = "Nieprawidłowy Sklep, CharID lub Hasło!"; err.style.display = 'block';
             }
-        } else {
-            err.innerText = "System niezainicjalizowany! Zaloguj się jako ADMIN."; err.style.display = 'block';
+        } catch(error) {
+            console.error(error);
+            err.innerText = "Błąd połączenia z bazą chmurową!"; err.style.display = 'block';
         }
     }
 
-    function saveNewPassword() {
+    async function saveNewPassword() {
         const p1 = document.getElementById('newPwd1').value;
         const p2 = document.getElementById('newPwd2').value;
         const err = document.getElementById('changePwdError');
@@ -179,15 +212,24 @@
         if(p1 !== p2) { err.innerText = "Hasła nie są identyczne!"; err.style.display = 'block'; return; }
 
         const charId = sessionStorage.getItem('tempCharId');
-        let users = JSON.parse(localStorage.getItem('users'));
-        let userIndex = users.findIndex(u => u.charId === charId);
-        
-        users[userIndex].password = p1;
-        users[userIndex].isFirstLogin = false;
-        localStorage.setItem('users', JSON.stringify(users));
+        const myStore = localStorage.getItem('myStore');
 
-        localStorage.setItem('currentUser', JSON.stringify({ charId: users[userIndex].charId, name: users[userIndex].name, dept: users[userIndex].dept, isKss: users[userIndex].isKss }));
-        window.location.href = 'index.html';
+        try {
+            // Zapis nowego hasła w FIREBASE
+            await db.ref(`Stores/${myStore}/Users/${charId}`).update({
+                password: p1,
+                isFirstLogin: false
+            });
+
+            // Pobierz zaktualizowanego użytkownika by go zalogować
+            const snap = await db.ref(`Stores/${myStore}/Users/${charId}`).once('value');
+            const user = snap.val();
+
+            localStorage.setItem('currentUser', JSON.stringify({ charId: charId, name: user.name, dept: user.dept, isKss: user.isKss }));
+            window.location.href = 'index.html';
+        } catch(e) {
+            err.innerText = "Błąd serwera. Spróbuj ponownie."; err.style.display = 'block';
+        }
     }
 
     function addCrewRow() {
@@ -208,8 +250,8 @@
 
     function generateRandomPassword() { return Math.random().toString(36).slice(-6).toUpperCase(); }
 
-    function finishSetup() {
-        const sNum = document.getElementById('setupSNum').value.trim();
+    async function finishSetup() {
+        const sNum = document.getElementById('setupSNum').value.trim().toUpperCase();
         const city = document.getElementById('setupCity').value.trim();
         const mgrName = document.getElementById('mgrName').value.trim();
         const mgrChar = document.getElementById('mgrCharId').value.trim().toUpperCase();
@@ -220,30 +262,40 @@
             err.innerText = "Uzupełnij dane sklepu i Kierownika!"; err.style.display = 'block'; return;
         }
 
-        let users = [];
-        users.push({ charId: mgrChar, name: mgrName, dept: 'ME', isKss: true, password: mgrPass, isFirstLogin: false });
+        err.style.display = 'none';
+        
+        let updates = {};
+        // Dodaj kierownika do bazy
+        updates[mgrChar] = { name: mgrName, dept: 'ME', isKss: true, password: mgrPass, isFirstLogin: false };
 
         let generatedPasswordsHtml = "";
+        
         document.querySelectorAll('.crew-row').forEach(row => {
             const name = row.querySelector('.c-name').value.trim();
             const charId = row.querySelector('.c-char').value.trim().toUpperCase();
             const isKss = row.querySelector('.c-kss').checked;
-            
-            // Jeśli pracownik jest oznaczony jako KSS, to jego finalny dział to po prostu KSS
             const finalDept = isKss ? 'KSS' : row.querySelector('.c-dept').value;
 
             if(name && charId) {
                 const tempPass = generateRandomPassword();
-                users.push({ charId: charId, name: name, dept: finalDept, isKss: isKss, password: tempPass, isFirstLogin: true });
+                updates[charId] = { name: name, dept: finalDept, isKss: isKss, password: tempPass, isFirstLogin: true };
                 generatedPasswordsHtml += `<div class="pwd-item"><span>${name} (${charId}) - ${finalDept}</span> <strong>${tempPass}</strong></div>`;
             }
         });
 
-        localStorage.setItem('store_setup', JSON.stringify({ sNumber: sNum, city: city }));
-        localStorage.setItem('users', JSON.stringify(users));
+        try {
+            // WYSYŁANIE DANYCH DO FIREBASE BAZY
+            await db.ref(`Stores/${sNum}/Setup`).set({ sNumber: sNum, city: city });
+            await db.ref(`Stores/${sNum}/Users`).set(updates);
 
-        document.getElementById('pwdListContainer').innerHTML = generatedPasswordsHtml;
-        switchView('viewPasswords', false);
+            localStorage.setItem('myStore', sNum); // Przypisz ten tablet do sklepu
+
+            document.getElementById('pwdListContainer').innerHTML = generatedPasswordsHtml;
+            switchView('viewPasswords', false);
+        } catch(e) {
+            console.error(e);
+            err.innerText = "Nie można zapisać danych w chmurze! Sprawdź reguły bazy danych."; err.style.display = 'block';
+        }
     }
 
     function goToLogin() { window.location.reload(); }

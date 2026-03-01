@@ -42,10 +42,33 @@
         
         .sidebar { position: fixed; left: -280px; top: 0; width: 260px; height: 100%; background: #0a0a0a; border-right: 3px solid #ffe800; transition: 0.4s; z-index: 10000; padding-top: 60px; display: flex; flex-direction: column; }
         .sidebar.active { left: 0; }
-        .sidebar-nav { flex-grow: 1; overflow-y: auto; }
+        .sidebar-nav { flex-grow: 1; overflow-y: auto; display: flex; flex-direction: column; }
         .sidebar-header { color: #ffe800; font-weight: 900; font-size: 1rem; padding: 0 25px 15px 25px; letter-spacing: 2px; text-transform: uppercase; }
         .sidebar-link { display: block; color: white; padding: 15px 25px; text-decoration: none; font-weight: 700; font-size: 0.8rem; border-bottom: 1px solid #111; transition: 0.2s; }
         .sidebar-link:hover { background: #1a1a1a; color: #ffe800; padding-left: 35px; }
+        
+        /* NAPRAWIONY LINK FEEDBACKU */
+        .sidebar-feedback, .sidebar-feedback:visited, .sidebar-feedback:link { 
+            display: block; 
+            margin-top: auto; 
+            background: #111; 
+            color: #ffe800 !important; 
+            padding: 15px 25px; 
+            text-decoration: none !important; 
+            font-weight: 900; 
+            font-size: 0.8rem; 
+            border-top: 1px solid #222; 
+            border-bottom: 1px solid #222; 
+            transition: 0.3s; 
+            text-transform: uppercase; 
+            letter-spacing: 0.5px; 
+        }
+        
+        .sidebar-feedback:hover { 
+            background: #ffe800 !important; 
+            color: #000 !important; 
+            padding-left: 35px; 
+        }
         
         .user-profile { padding: 15px 20px; border-top: 2px solid #1a1a1a; display: flex; align-items: center; gap: 15px; cursor: pointer; background: #151515; }
         .user-avatar { width: 45px; height: 45px; border-radius: 50%; background: #151515; border: 2px solid #ffe800; display: flex; align-items: center; justify-content: center; font-weight: 900; color: #ffe800; font-size: 1.2rem; flex-shrink: 0;}
@@ -95,6 +118,7 @@
         <a href="azs.html" class="sidebar-link">AZS</a>
         <a href="kwt.html" class="sidebar-link">KWT</a>
         <a href="qr.html" class="sidebar-link">Kod QR</a>
+        <a href="feedback.html" class="sidebar-feedback">💡 Zgłoś problem / Pomysł</a>
     </div>
     <div class="user-profile">
         <div class="user-avatar" id="sideAvatar">?</div>

@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Media Expert - Plan Pracy</title>
+    
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/xlsx-js-style@1.2.0/dist/xlsx.bundle.js"></script>
     
@@ -13,7 +14,11 @@
     <script>
         const currentUser = JSON.parse(localStorage.getItem('currentUser'));
         const myStore = localStorage.getItem('myStore');
-        if (!currentUser || !myStore) { window.location.href = 'login.html'; }
+        
+        if (!currentUser || !myStore) { 
+            window.location.href = 'login.html'; 
+        }
+        
         const isManagerOrKss = (currentUser.dept === 'ME' || currentUser.isKss);
 
         // INICJALIZACJA FIREBASE
@@ -66,7 +71,7 @@
         .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.8); display: none; z-index: 9500; }
         .overlay.active { display: block; }
 
-        /* ZAWARTOŚĆ PLANU PRACY */
+        /* GÓRNY PANEL */
         .navigation-area { background: #111; border-bottom: 2px solid #ffe800; flex-shrink: 0; box-shadow: 0 4px 10px rgba(0,0,0,0.5); z-index: 800; width: 100%; }
         .month-row { display: flex; align-items: center; padding: 10px 15px; gap: 10px; flex-wrap: wrap; }
         .month-selector { display: flex; gap: 8px; overflow-x: auto; white-space: nowrap; scrollbar-width: none; flex-grow: 1; padding-bottom: 2px; }
@@ -77,6 +82,7 @@
         .admin-controls { display: flex; align-items: center; gap: 8px; border-left: 1px solid #333; padding-left: 10px; }
         .norm-input { width: 55px; background: #000; color: #ffe800; border: 1px solid #ffe800; text-align: center; font-weight: 900; padding: 4px; font-size: 0.8rem; border-radius: 4px; outline: none; }
         
+        /* TABELA */
         .table-container { flex: 1; overflow: auto; background: #080808; width: 100vw; max-width: 100%; display: block; position: relative; }
         table { border-collapse: collapse; width: 100%; min-width: max-content; background: #080808; }
         
@@ -130,6 +136,7 @@
         .legend-bar { display: flex; justify-content: center; gap: 20px; background: #0a0a0a; padding: 10px; border-top: 1px solid #222; font-size: 0.7rem; font-weight: bold; color: #888; flex-shrink: 0; z-index: 800; }
         .legend-bar span { display: flex; align-items: center; gap: 5px; }
 
+        /* MODALE */
         .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 11000; align-items: center; justify-content: center; padding: 20px; backdrop-filter: blur(5px); }
         .modal-content { background: #0a0a0a; border: 2px solid #ffe800; padding: 20px; width: 100%; max-width: 800px; border-radius: 15px; box-shadow: 0 0 30px rgba(255, 232, 0, 0.15); }
         
@@ -155,7 +162,8 @@
         .btn-excel { background: #1d6f42; color: #fff; border: 1px solid #1d6f42; padding: 8px 12px; font-weight: 900; border-radius: 20px; cursor: pointer; font-size: 0.65rem; transition: 0.3s; }
         .btn-excel:hover { background: #144c2d; transform: scale(1.05); box-shadow: 0 0 10px rgba(29, 111, 66, 0.5); }
         
-        .loading-overlay { position: absolute; inset: 0; background: rgba(0,0,0,0.8); z-index: 2000; display: flex; align-items: center; justify-content: center; color: #ffe800; font-weight: bold; font-size: 1.5rem; display: none;}
+        .loading-overlay { position: absolute; inset: 0; background: rgba(0,0,0,0.8); z-index: 2000; display: flex; align-items: center; justify-content: center; color: #ffe800; font-weight: bold; font-size: 1.5rem; flex-direction: column; display: none; }
+        .loading-overlay span { font-size: 0.8rem; color: #ccc; margin-top: 10px; font-weight: normal;}
     </style>
 </head>
 <body>
@@ -163,7 +171,7 @@
 <header>
     <div class="menu-btn" onclick="toggleNav()">☰</div>
     <div class="logo">EXPERT <span>TOOL</span></div>
-    <div class="store-badge" id="headerStore">SXXX</div>
+    <div class="store-badge" id="headerStore">Łączenie...</div>
 </header>
 
 <div class="sidebar" id="sidebar">
@@ -208,7 +216,7 @@
 </div>
 
 <div class="table-container">
-    <div class="loading-overlay" id="loadingData">Synchronizacja z chmurą...</div>
+    <div class="loading-overlay" id="loadingData">Synchronizacja... <span>Pobieranie najnowszych danych</span></div>
     <table id="planTable">
         <thead><tr id="workerRow"></tr></thead>
         <tbody id="daysBody"></tbody>
@@ -233,7 +241,7 @@
             <div>
                 <label style="font-size:0.65rem; color:#888; font-weight:bold;">PULA ZMIAN DLA DNI ROBOCZYCH (oddziel przecinkiem):</label>
                 <input id="globalShifts" style="width:100%; background:#000; border:1px solid #ffe800; color:#fff; padding:10px; border-radius:5px; margin-top:5px; font-weight:bold;" value="10-18, 12-20, 10-20">
-                <span style="font-size:0.55rem; color:#666;">Algorytm wylicza ich długość i sam nimi balansuje w dni robocze.</span>
+                <span style="font-size:0.55rem; color:#666;">Wpisz tu zmiany. Algorytm sam nimi żongluje by zrównać godziny.</span>
             </div>
             
             <div style="display:flex; gap:15px;">
@@ -287,13 +295,14 @@
 </div>
 
 <script>
-    // ==========================================
+    // =======================================================
     // INICJALIZACJA UI
-    // ==========================================
+    // =======================================================
     document.getElementById('headerStore').innerText = myStore;
     let finalDept = currentUser.dept; if (currentUser.isKss && currentUser.dept !== 'ME') finalDept = 'KSS';
     document.getElementById('sideName').innerText = `${currentUser.name} (${finalDept})`;
     document.getElementById('sideAvatar').innerText = currentUser.charId.charAt(0);
+    
     if (!isManagerOrKss) {
         document.getElementById('navInwaKSS').style.display = 'none';
         document.getElementById('adminControlsPanel').style.display = 'none';
@@ -313,9 +322,9 @@
     let planListener = null;
     let metaListener = null;
 
-    // ==========================================
-    // POBIERANIE ZAŁOGI (FIREBASE)
-    // ==========================================
+    // =======================================================
+    // POBIERANIE PRACOWNIKÓW
+    // =======================================================
     db.ref(`Stores/${myStore}/Users`).on('value', snap => {
         const usersObj = snap.val() || {};
         let rawUsers = Object.keys(usersObj).map(key => ({ charId: key, ...usersObj[key] })).filter(u => u.charId !== 'ADMIN');
@@ -334,11 +343,12 @@
         render(); 
     });
 
-    // ==========================================
-    // OBSŁUGA MIESIĘCY
-    // ==========================================
+    // =======================================================
+    // ZARZĄDZANIE MIESIĄCAMI
+    // =======================================================
     function setMonth(i) { 
         curM = i; document.getElementById('loadingData').style.display = 'flex'; renderMonths(); 
+        
         if (planListener) db.ref(`Stores/${myStore}/Plan/${year}_${curM}`).off('value', planListener);
         if (metaListener) db.ref(`Stores/${myStore}/PlanMeta/${year}_${curM}`).off('value', metaListener);
 
@@ -373,9 +383,6 @@
         }); 
     }
 
-    // ==========================================
-    // FUNKCJE POMOCNICZE BAZY
-    // ==========================================
     function isWorkDay(d) { let ds = `${curM+1}-${d}`; if (holidays2026.includes(ds)) return false; if (new Date(year, curM, d).getDay() === 0 && !tradingSundays2026.includes(ds)) return false; return true; }
     function getShiftOnly(charId, d) { return (localPlanData[`${charId}_${d}`] || "").split('|')[0] || ""; }
     function getRolesOnly(charId, d) { let v = localPlanData[`${charId}_${d}`] || ""; return v.split('|')[1] ? v.split('|')[1].split(',') : []; }
@@ -384,7 +391,7 @@
     let currentEditCharId = null; let currentEditName = null; let currentEditDay = null;
 
     function openEditModal(empName, charId, day) {
-        if (!isManagerOrKss) return; if (localPlanMeta.locked === true) return;
+        if (!isManagerOrKss || localPlanMeta.locked === true) return;
         currentEditName = empName; currentEditCharId = charId; currentEditDay = day;
         let shift = getShiftOnly(charId, day); let roles = getRolesOnly(charId, day);
         document.getElementById('cellModalTitle').innerText = `${empName} - DZIEŃ ${day}`;
@@ -425,9 +432,9 @@
         } 
     }
 
-    // ==========================================
-    // POTĘŻNY SILNIK GENERATORA V4.0
-    // ==========================================
+    // =======================================================
+    // POTĘŻNY SILNIK GENERATORA V5.0 (SZKIELET + BEZPIECZNE SWAPY)
+    // =======================================================
     function getH(shiftStr) {
         if (!shiftStr) return 0;
         if (shiftStr === "URLOP" || shiftStr === "SZK" || shiftStr === "SZK.") return 8;
@@ -445,13 +452,45 @@
         return h; 
     }
 
+    function getStreak(charId, day, schedule) { 
+        let s = 0; 
+        for (let d = day - 1; d >= 1; d--) { let st = schedule[charId][d]; if (st.includes('-') || st === "URLOP" || st === "SZK") s++; else break; } 
+        for (let d = day + 1; d <= 31; d++) { let st = schedule[charId][d]; if (st.includes('-') || st === "URLOP" || st === "SZK") s++; else break; } 
+        return s; 
+    }
+
     function shuffle(array) { 
         for (let i = array.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [array[i], array[j]] = [array[j], array[i]]; } 
         return array; 
     }
 
+    // SPRAWDZENIE CZY USUNIĘCIE ZMIANY ZEPSUJE SZKIELET (3+1)
+    function isSafeToRemove(d, emp, schedule) {
+        let oP = 0, cP = 0, oS = 0, cS = 0;
+        employees.forEach(e => {
+            if(e.charId === emp.charId || e.dept === 'ME') return;
+            let s = schedule[e.charId][d];
+            if(s.includes('-')) {
+                let isO = parseInt(s.split('-')[0]) <= 11;
+                let isC = parseInt(s.split('-')[1]) >= 19;
+                if(e.p) { if(isO) oP++; if(isC) cP++; } 
+                else { if(isO) oS++; if(isC) cS++; }
+            }
+        });
+        
+        if (emp.p) {
+            if (oP < 1 && parseInt(schedule[emp.charId][d].split('-')[0]) <= 11) return false;
+            if (cP < 1 && parseInt(schedule[emp.charId][d].split('-')[1]) >= 19) return false;
+        } else {
+            if (oS < 3 && parseInt(schedule[emp.charId][d].split('-')[0]) <= 11) return false;
+            if (cS < 3 && parseInt(schedule[emp.charId][d].split('-')[1]) >= 19) return false;
+        }
+        return true;
+    }
+
     function startGeneration() {
         if (localPlanMeta.locked === true) return;
+        document.getElementById('loadingData').innerHTML = "Generowanie optymalnego szkieletu... <span>Trwa przeliczanie</span>";
         document.getElementById('loadingData').style.display = 'flex';
         
         setTimeout(() => {
@@ -470,9 +509,8 @@
             let closeShifts = shiftDefs.filter(s => s.end >= 19);
             let openShiftStr = openShifts.length > 0 ? openShifts[0].val : shiftDefs[0].val;
             let closeShiftStr = closeShifts.length > 0 ? closeShifts[0].val : shiftDefs[0].val;
-            let fullShiftStr = shiftDefs[shiftDefs.length - 1].val; // Najdłuższa dostępna w tygodniu np 10-20
+            let fullShiftStr = shiftDefs[shiftDefs.length - 1].val; // Najdłuższa dostępna
 
-            // Kopia robocza grafiku i rejestr weekendów
             let memorySchedule = {};
             let weekendCounts = {};
             
@@ -499,13 +537,13 @@
 
                 let available = employees.filter(e => memorySchedule[e.charId][d] === "" && e.dept !== 'ME'); 
                 shuffle(available); 
-                available.sort((a,b) => weekendCounts[a.charId] - weekendCounts[b.charId]); // Wpychamy tych co mieli najmniej weekendów!
+                available.sort((a,b) => weekendCounts[a.charId] - weekendCounts[b.charId]); // Ci co nie pracowali w weekend idą pierwsi!
                 
                 let poks = available.filter(e => e.p); let sales = available.filter(e => !e.p); 
                 let toWork = []; 
                 if (poks.length > 0) { toWork.push(poks[0]); } // Min 1 POK na weekend
                 
-                let salesNeeded = toWork.length === 0 ? 6 : 5; // Jeśli nie ma POK, daj 6 ze sprzedaży. W sumie 6 na sklep.
+                let salesNeeded = toWork.length === 0 ? 6 : 5; // 6 osób łącznie
                 for (let i = 0; i < salesNeeded && sales.length > 0; i++) { toWork.push(sales[0]); sales.shift(); }
                 toWork.forEach(w => { memorySchedule[w.charId][d] = targetShift; weekendCounts[w.charId]++; });
             });
@@ -517,17 +555,19 @@
                 
                 // --- POK (1 OTW, 1 ZAM) ---
                 let availPoks = employees.filter(e => e.p && memorySchedule[e.charId][d] === "");
+                // Sortujemy po tych, co mają najmniej godzin (chciwie dajemy im zmiany w szkielecie)
+                availPoks.sort((a,b) => calcRealH(a.charId, memorySchedule) - calcRealH(b.charId, memorySchedule));
+                
                 if (availPoks.length >= 2) {
-                    shuffle(availPoks); let p1 = availPoks[0]; let p2 = availPoks[1];
-                    // Zabezpieczenie POKów: Zamiast dawać wolne jednemu psując kasę, rozdzielamy:
-                    memorySchedule[p1.charId][d] = openShiftStr; memorySchedule[p2.charId][d] = closeShiftStr;
+                    memorySchedule[availPoks[0].charId][d] = openShiftStr; 
+                    memorySchedule[availPoks[1].charId][d] = closeShiftStr;
                 } else if (availPoks.length === 1) {
                     memorySchedule[availPoks[0].charId][d] = fullShiftStr; // Musi ciągnąć cały dzień
                 }
 
                 // --- SPRZEDAŻ (3 OTW, 3 ZAM) ---
                 let availSales = employees.filter(e => !e.p && e.dept !== 'ME' && memorySchedule[e.charId][d] === "");
-                shuffle(availSales);
+                availSales.sort((a,b) => calcRealH(a.charId, memorySchedule) - calcRealH(b.charId, memorySchedule));
                 
                 let openNeed = 3; let closeNeed = 3;
                 let assignSales = (emp, type) => {
@@ -545,73 +585,114 @@
                 while ((openNeed > 0 || closeNeed > 0) && availSales.length > 0) { assignSales(availSales[0], openNeed >= closeNeed ? 'open' : 'close'); }
             }
 
-            // FAZA 3: INTELIGENTNE BALANSOWANIE SWAPAMI
-            // Jeśli ktoś ma dużo ponad normę, szukamy kogoś z tej samej grupy, kto ma za mało, i wymieniamy ich w dany dzień.
+            // FAZA 3: BALANSOWANIE I BEZPIECZNE SWAPY
             let iterations = 0; let balanced = false;
             
-            while (!balanced && iterations < 300) {
+            while (!balanced && iterations < 1500) {
                 balanced = true; 
                 let status = employees.map(e => ({ e: e, diff: baseNorm - calcRealH(e.charId, memorySchedule) })).filter(s => s.e.dept !== 'ME');
                 shuffle(status); status.sort((a, b) => Math.abs(b.diff) - Math.abs(a.diff));
+                let changed = false;
 
                 for (let st of status) {
                     if (st.diff === 0) continue; 
+                    let emp = st.e; 
                     
-                    let overW = null; let underW = null;
-                    if (st.diff <= -8) { // Przepracowuje o min 1 dzien
-                        overW = st.e; underW = status.find(s => s.diff >= 8 && s.e.p === overW.p)?.e; // Znajdz tego samego typu
-                    } else if (st.diff >= 8) { // Brakuje mu min 1 dnia
-                        underW = st.e; overW = status.find(s => s.diff <= -8 && s.e.p === underW.p)?.e;
-                    }
-
-                    if (overW && underW) {
-                        let swapped = false;
-                        for (let d = 1; d <= daysInMonth; d++) {
-                            let dateObj = new Date(year, curM, d); if (dateObj.getDay() === 6 || dateObj.getDay() === 0) continue; // Bez weekendow
-                            let sO = memorySchedule[overW.charId][d]; let sU = memorySchedule[underW.charId][d];
-
-                            // Jeśli przepracowany dzisiaj robił, a niedopracowany miał wolne -> ZAMIANA
-                            if (sO.includes('-') && sU === "") {
-                                memorySchedule[overW.charId][d] = ""; memorySchedule[underW.charId][d] = sO;
-                                swapped = true; balanced = false; break;
+                    if (st.diff > 0) { // BRAKUJE GODZIN (Potrzebuje więcej pracy)
+                        // Akcja 1: Próba dodania nowej zmiany (jeśli brakuje dużo np 8h) na dzień wolny
+                        if (st.diff >= 8) {
+                            for (let d = 1; d <= daysInMonth; d++) {
+                                let dateObj = new Date(year, curM, d);
+                                if (isWorkDay(d) && dateObj.getDay() !== 0 && dateObj.getDay() !== 6 && memorySchedule[emp.charId][d] === "" && getStreak(emp.charId, d, memorySchedule) < 5) {
+                                    memorySchedule[emp.charId][d] = openShiftStr; // dodajemy mu najkrótszą zmianę
+                                    changed = true; break;
+                                }
                             }
                         }
-                        if (swapped) break;
-                    }
+                        
+                        // Akcja 2: Próba wydłużenia zmiany z 8h na 10h (jeśli brakuje lekko np 2h)
+                        if (!changed && st.diff >= 2 && shiftDefs.length > 1) {
+                            for (let d = 1; d <= daysInMonth; d++) {
+                                let s = memorySchedule[emp.charId][d];
+                                let dateObj = new Date(year, curM, d);
+                                if (dateObj.getDay() !== 0 && dateObj.getDay() !== 6 && (s === openShiftStr || s === closeShiftStr)) {
+                                    memorySchedule[emp.charId][d] = fullShiftStr;
+                                    changed = true; break;
+                                }
+                            }
+                        }
 
-                    // Delikatny retusz (gdy komuś brakuje np. tylko 2 godzin by wejść z 158 na 160)
-                    let currentE = st.e; let modified = false;
-                    if (st.diff > 0 && st.diff < 8) { // Brakuje lekko
-                        for (let d = 1; d <= daysInMonth; d++) {
-                            let dateObj = new Date(year, curM, d); if (dateObj.getDay() === 6 || dateObj.getDay() === 0) continue; 
-                            let s = memorySchedule[currentE.charId][d];
-                            if (s === openShiftStr || s === closeShiftStr) { // Podbija na wyższą
-                                memorySchedule[currentE.charId][d] = fullShiftStr; modified = true; balanced = false; break;
+                    } else if (st.diff < 0) { // ZA DUŻO GODZIN (Potrzebuje wolnego)
+                        
+                        // Akcja 1: Ucinanie długiej zmiany na krótką (jeśli bezpieczne)
+                        if (st.diff <= -2 && shiftDefs.length > 1) {
+                            for (let d = 1; d <= daysInMonth; d++) {
+                                let s = memorySchedule[emp.charId][d];
+                                let dateObj = new Date(year, curM, d);
+                                if (dateObj.getDay() !== 0 && dateObj.getDay() !== 6 && s === fullShiftStr) {
+                                    memorySchedule[emp.charId][d] = openShiftStr; // ucinamy do krótkiej otwarciowej
+                                    changed = true; break;
+                                }
                             }
                         }
-                    } else if (st.diff < 0 && st.diff > -8) { // Przekracza lekko
-                        for (let d = 1; d <= daysInMonth; d++) {
-                            let dateObj = new Date(year, curM, d); if (dateObj.getDay() === 6 || dateObj.getDay() === 0) continue; 
-                            let s = memorySchedule[currentE.charId][d];
-                            if (s === fullShiftStr) { // Ścina długą do otwarciowej (najbezpieczniej dla pokrycia)
-                                memorySchedule[currentE.charId][d] = openShiftStr; modified = true; balanced = false; break;
+                        
+                        // Akcja 2: Zdejmowanie całego dnia pracy (TYLKO JEŚLI BEZPIECZNE DLA SZKIELETU)
+                        if (!changed && st.diff <= -8) {
+                            for (let d = 1; d <= daysInMonth; d++) {
+                                let s = memorySchedule[emp.charId][d];
+                                let dateObj = new Date(year, curM, d);
+                                if (dateObj.getDay() !== 0 && dateObj.getDay() !== 6 && s.includes('-')) {
+                                    if (isSafeToRemove(d, emp, memorySchedule)) { // SPRAWDZAMY SZKIELET!
+                                        memorySchedule[emp.charId][d] = "";
+                                        changed = true; break;
+                                    }
+                                }
                             }
                         }
                     }
-                    if (modified) break;
+                    if (changed) { balanced = false; break; }
                 } 
+                
+                // Jeśli standardowe metody nie dały rady, wymuszamy BEZPIECZNY SWAP między pracownikami
+                if (!balanced && !changed) {
+                    let overW = status.find(s => s.diff <= -8);
+                    if (overW) {
+                        // Szukamy drugiego pracownika Z TEGO SAMEGO DZIAŁU (POK -> POK), który ma za mało godzin!
+                        let underW = status.find(s => s.diff >= 8 && s.e.p === overW.e.p);
+                        if (underW) {
+                            let swapped = false;
+                            for (let d = 1; d <= daysInMonth; d++) {
+                                let dateObj = new Date(year, curM, d);
+                                if (dateObj.getDay() === 0 || dateObj.getDay() === 6) continue;
+                                
+                                let sOver = memorySchedule[overW.e.charId][d];
+                                let sUnder = memorySchedule[underW.e.charId][d];
+                                
+                                // Zamiana dnia wolnego na pracujący! (Nie niszczy to szkieletu, bo to ten sam "typ" pracownika)
+                                if (sOver.includes('-') && sUnder === "" && getStreak(underW.e.charId, d, memorySchedule) < 5) {
+                                    memorySchedule[overW.e.charId][d] = "";
+                                    memorySchedule[underW.e.charId][d] = sOver;
+                                    swapped = true; changed = true; balanced = false; break;
+                                }
+                            }
+                        }
+                    }
+                }
+                
+                if(!changed) break; // Totalny ślepy zaułek (niemożliwe matematycznie zadanymi zmianami)
                 iterations++;
             }
             
-            let finalUpdates = {};
-            employees.forEach(e => { for (let d = 1; d <= daysInMonth; d++) { finalUpdates[`${e.charId}_${d}`] = memorySchedule[e.charId][d]; } });
-            saveToFirebase(finalUpdates);
+            // Zapisz do Firebase
+            let genUpdates = {};
+            employees.forEach(e => { for (let d = 1; d <= daysInMonth; d++) { genUpdates[`${e.charId}_${d}`] = memorySchedule[e.charId][d]; } });
+            saveToFirebase(genUpdates);
             document.getElementById('loadingData').style.display = 'none';
         }, 100);
     }
 
     // ==========================================
-    // RENDER TABELI NA EKRANIE
+    // RENDER TABELI
     // ==========================================
     function render() {
         if (employees.length === 0) return; 

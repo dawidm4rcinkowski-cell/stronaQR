@@ -59,7 +59,7 @@
         .items-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 15px; }
         .item-card { background: #111; border: 1px solid #333; border-radius: 15px; padding: 20px; display: flex; flex-direction: column; justify-content: space-between; transition: 0.3s; }
         .item-card.highlight { border-color: #ffa502; background: #1a1500; box-shadow: 0 5px 15px rgba(255, 165, 2, 0.2); }
-        .item-card h3 { font-size: 1.1rem; font-weight: 900; text-transform: uppercase; margin-bottom: 10px; color: #eee; }
+        .item-card h3 { font-size: 1.1rem; font-weight: 900; text-transform: uppercase; margin-bottom: 10px; color: #eee; line-height: 1.3;}
         
         .status-row { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 20px; font-size: 0.75rem; font-weight: 800; color: #888; }
         .dot { width: 12px; height: 12px; border-radius: 50%; margin-top: 2px; background: #444; }
@@ -135,7 +135,7 @@
 
 <div class="modal" id="reviewModal">
     <div class="modal-content">
-        <h3 id="modalItemName" style="color:#fff; margin-bottom: 5px; font-size: 1.5rem;">Nazwa</h3>
+        <h3 id="modalItemName" style="color:#fff; margin-bottom: 5px; font-size: 1.5rem; line-height:1.2;">Nazwa</h3>
         <div class="modal-subtitle">WYMAGA TWOJEJ DECYZJI</div>
         <p style="color:#ccc; margin-bottom: 25px;">Zgłaszający pracownik:<br><strong style="color:#fff; font-size:1.2rem;" id="modalSubmitter">PRACOWNIK</strong></p>
         <div class="mgr-buttons">
@@ -159,6 +159,39 @@
     const months = ["STYCZEŃ", "LUTY", "MARZEC", "KWIECIEŃ", "MAJ", "CZERWIEC", "LIPIEC", "SIERPIEŃ", "WRZESIEŃ", "PAŹDZIERNIK", "LISTOPAD", "GRUDZIEŃ"];
     let currentMonth = new Date().getMonth();
 
+    const defaultInventoryList = [
+        // IT
+        { id: "it_w1", dept: "IT", period: "weekly", name: "Myszki gamingowe" }, { id: "it_w2", dept: "IT", period: "weekly", name: "Słuchawki Truewireless" }, { id: "it_w3", dept: "IT", period: "weekly", name: "Smartfony" },
+        { id: "it_2w1", dept: "IT", period: "twoWeeks", name: "Słuchawki Nauszne" },
+        { id: "it_m1", dept: "IT", period: "monthly", name: "Tusze" }, { id: "it_m2", dept: "IT", period: "monthly", name: "Papier" }, { id: "it_m3", dept: "IT", period: "monthly", name: "Głośniki mobilne" }, { id: "it_m4", dept: "IT", period: "monthly", name: "Słuchawki douszne" }, { id: "it_m5", dept: "IT", period: "monthly", name: "Smartbandy" }, { id: "it_m6", dept: "IT", period: "monthly", name: "Smartwatche" }, { id: "it_m7", dept: "IT", period: "monthly", name: "Folie ochronne" }, { id: "it_m8", dept: "IT", period: "monthly", name: "Dyski PSSD" }, { id: "it_m9", dept: "IT", period: "monthly", name: "Dyski SSD M.2 NVME" }, { id: "it_m10", dept: "IT", period: "monthly", name: "Dyski SSD SATA" }, { id: "it_m11", dept: "IT", period: "monthly", name: "Dyski zewnętrzne" }, { id: "it_m12", dept: "IT", period: "monthly", name: "Słuchawki gamingowe" }, { id: "it_m13", dept: "IT", period: "monthly", name: "Nośniki logistyczne" },
+        // RTV
+        { id: "rtv_2w1", dept: "RTV", period: "twoWeeks", name: "Konsole" }, { id: "rtv_2w2", dept: "RTV", period: "twoWeeks", name: "Android TV" }, { id: "rtv_2w3", dept: "RTV", period: "twoWeeks", name: "Alkomaty" }, { id: "rtv_2w4", dept: "RTV", period: "twoWeeks", name: "Wideorejestratory" },
+        { id: "rtv_m1", dept: "RTV", period: "monthly", name: "Akcesoria do konsol" }, { id: "rtv_m2", dept: "RTV", period: "monthly", name: "Komunikatory drogowe" }, { id: "rtv_m3", dept: "RTV", period: "monthly", name: "Kamery sportowe" }, { id: "rtv_m4", dept: "RTV", period: "monthly", name: "Nawigacje" },
+        // AGD
+        { id: "agd_m1", dept: "AGD", period: "monthly", name: "Akcesoria do golarek" }, { id: "agd_m2", dept: "AGD", period: "monthly", name: "Depilatory świetlne" }, { id: "agd_m3", dept: "AGD", period: "monthly", name: "Szczoteczki" }, { id: "agd_m4", dept: "AGD", period: "monthly", name: "Trymery" }, { id: "agd_m5", dept: "AGD", period: "monthly", name: "Urządzenia do pielęgnacji twarzy i ciała" }, { id: "agd_m6", dept: "AGD", period: "monthly", name: "Akcesoria do urządzeń SODASTREAM" }, { id: "agd_m7", dept: "AGD", period: "monthly", name: "Kawa ziarnista" }, { id: "agd_m8", dept: "AGD", period: "monthly", name: "Kawa w kapsułkach" }, { id: "agd_m9", dept: "AGD", period: "monthly", name: "Syropy" }
+    ];
+
+    function initDB(m) {
+        let dbKey = `inwa_db_${year}_${m}`;
+        let db = localStorage.getItem(dbKey);
+        if (!db) {
+            let initialDb = [];
+            defaultInventoryList.forEach(item => {
+                if (item.period === 'weekly') {
+                    for(let i=1; i<=4; i++) {
+                        initialDb.push({ ...item, id: `${item.id}_t${i}`, name: `${item.name} <span style="color:#ffe800; font-size:0.8rem; display:block; margin-top:5px;">(Tydzień ${i})</span>`, status: 'do_zrobienia', submittedBy: null, submitterId: null });
+                    }
+                } else if (item.period === 'twoWeeks') {
+                    initialDb.push({ ...item, id: `${item.id}_p1`, name: `${item.name} <span style="color:#ffe800; font-size:0.8rem; display:block; margin-top:5px;">(Tydzień 1-2)</span>`, status: 'do_zrobienia', submittedBy: null, submitterId: null });
+                    initialDb.push({ ...item, id: `${item.id}_p2`, name: `${item.name} <span style="color:#ffe800; font-size:0.8rem; display:block; margin-top:5px;">(Tydzień 3-4)</span>`, status: 'do_zrobienia', submittedBy: null, submitterId: null });
+                } else {
+                    initialDb.push({ ...item, status: 'do_zrobienia', submittedBy: null, submitterId: null });
+                }
+            });
+            localStorage.setItem(dbKey, JSON.stringify(initialDb));
+        }
+    }
+
     function renderMonthSelector() {
         const div = document.getElementById('monthSelector');
         div.innerHTML = "";
@@ -173,8 +206,10 @@
 
     function setMonth(m) {
         currentMonth = m;
+        initDB(m);
         renderMonthSelector();
-        let activeTab = document.querySelector('.tab-btn.active').innerText.replace('DZIAŁ ', '');
+        let activeTabBtn = document.querySelector('.tab-btn.active');
+        let activeTab = activeTabBtn ? activeTabBtn.innerText.replace('DZIAŁ ', '') : 'IT';
         switchDept(activeTab);
     }
 
@@ -211,7 +246,9 @@
             } else if (item.status === 'awaiting_kss') {
                 cardClass = 'highlight';
                 stHtml = `<div class="status-row status-waiting"><div class="dot"></div><div><span>OCZEKUJE NA DECYZJĘ</span><span class="submitted-by">Zgłosił: ${item.submittedBy}</span></div></div>`;
-                btnHtml = `<button class="check-btn" onclick="openReviewModal('${item.id}', '${item.name}', '${item.submittedBy}')">🔍 WERYFIKUJ</button>`;
+                // Przekazanie uciętego z tagów HTML name do modala
+                let cleanName = item.name.replace(/<[^>]*>?/gm, ''); 
+                btnHtml = `<button class="check-btn" onclick="openReviewModal('${item.id}', '${cleanName}', '${item.submittedBy}')">🔍 WERYFIKUJ</button>`;
             } else if (item.status === 'done') {
                 stHtml = `<div class="status-row status-accepted"><div class="dot"></div><div><span>ZAAKCEPTOWANO</span><span style="color:#888; font-size:0.65rem;">(Przez: ${item.submittedBy})</span></div></div>`;
                 btnHtml = `<button class="btn-disabled" disabled style="border-color:#0a0; color:#0a0;">✔ ROZLICZONE</button>`;
@@ -240,13 +277,14 @@
         let item = db.find(i => i.id === currentReviewId);
         
         let notifs = JSON.parse(localStorage.getItem('app_notifications')) || [];
+        let cleanName = item.name.replace(/<[^>]*>?/gm, '');
         
         if(dec === 'accept') {
             item.status = 'done';
-            notifs.push({ id: Date.now(), to: item.submitterId, title: '✅ INWENTURA ZAAKCEPTOWANA', msg: `Kierownik/KSS sprawdził i zatwierdził twoją inwenturę: ${item.name} (${months[currentMonth]}). Dobra robota!`, type: 'success', read: false });
+            notifs.push({ id: Date.now(), to: item.submitterId, title: '✅ INWENTURA ZAAKCEPTOWANA', msg: `Kierownik/KSS sprawdził i zatwierdził twoją inwenturę: ${cleanName} (${months[currentMonth]}). Dobra robota!`, type: 'success', read: false });
         } else {
             item.status = 'rejected';
-            notifs.push({ id: Date.now(), to: item.submitterId, title: '❌ INWENTURA ODRZUCONA', msg: `Kierownik/KSS znalazł błędy w inwenturze: ${item.name} (${months[currentMonth]}). Wróć na dział i policz jeszcze raz!`, type: 'error', read: false });
+            notifs.push({ id: Date.now(), to: item.submitterId, title: '❌ INWENTURA ODRZUCONA', msg: `Kierownik/KSS znalazł błędy w inwenturze: ${cleanName} (${months[currentMonth]}). Wróć na dział i policz jeszcze raz!`, type: 'error', read: false });
         }
         
         localStorage.setItem(dbKey, JSON.stringify(db));
@@ -273,8 +311,9 @@
             localStorage.setItem(dbKey, JSON.stringify(db));
 
             if (oldSubmitter) {
+                let cleanName = item.name.replace(/<[^>]*>?/gm, '');
                 let notifs = JSON.parse(localStorage.getItem('app_notifications')) || [];
-                notifs.push({ id: Date.now(), to: oldSubmitter, title: '🔄 INWENTURA WYCOFANA', msg: `Kierownik/KSS wycofał decyzję dla inwentury: ${item.name} (${months[currentMonth]}). Status powrócił na DO ZROBIENIA.`, type: 'warning', read: false });
+                notifs.push({ id: Date.now(), to: oldSubmitter, title: '🔄 INWENTURA WYCOFANA', msg: `Kierownik/KSS wycofał decyzję dla inwentury: ${cleanName} (${months[currentMonth]}). Status powrócił na DO ZROBIENIA.`, type: 'warning', read: false });
                 localStorage.setItem('app_notifications', JSON.stringify(notifs));
             }
 
@@ -315,9 +354,10 @@
     }
 
     function closeGlobalPopup() { document.getElementById('globalNotificationModal').style.display = 'none'; }
-    window.addEventListener('storage', () => { checkNotifications(); switchDept(document.querySelector('.tab-btn.active').innerText.replace('DZIAŁ ', '')); });
+    window.addEventListener('storage', () => { checkNotifications(); let activeTab = document.querySelector('.tab-btn.active'); if(activeTab) switchDept(activeTab.innerText.replace('DZIAŁ ', '')); });
     
     window.onload = () => { 
+        initDB(currentMonth);
         renderMonthSelector(); 
         switchDept('IT'); 
         checkNotifications(); 

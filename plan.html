@@ -59,32 +59,13 @@
         .sidebar-link { display: block; color: white; padding: 15px 25px; text-decoration: none; font-weight: 700; font-size: 0.8rem; border-bottom: 1px solid #111; transition: 0.2s; }
         .sidebar-link:hover { background: #1a1a1a; color: #ffe800; padding-left: 35px; }
 
-        /* NAPRAWIONY LINK FEEDBACKU */
-        .sidebar-feedback, .sidebar-feedback:visited, .sidebar-feedback:link { 
-            display: block; 
-            margin-top: auto; 
-            background: #111; 
-            color: #ffe800 !important; 
-            padding: 15px 25px; 
-            text-decoration: none !important; 
-            font-weight: 900; 
-            font-size: 0.8rem; 
-            border-top: 1px solid #222; 
-            border-bottom: 1px solid #222; 
-            transition: 0.3s; 
-            text-transform: uppercase; 
-            letter-spacing: 0.5px; 
-        }
-        .sidebar-feedback:hover { 
-            background: #ffe800 !important; 
-            color: #000 !important; 
-            padding-left: 35px; 
-        }
+        .sidebar-feedback, .sidebar-feedback:visited, .sidebar-feedback:link { display: block; margin-top: auto; background: #111; color: #ffe800 !important; padding: 15px 25px; text-decoration: none !important; font-weight: 900; font-size: 0.8rem; border-top: 1px solid #222; border-bottom: 1px solid #222; transition: 0.3s; text-transform: uppercase; letter-spacing: 0.5px; }
+        .sidebar-feedback:hover { background: #ffe800 !important; color: #000 !important; padding-left: 35px; }
         
         .user-profile { padding: 15px 20px; border-top: 2px solid #1a1a1a; display: flex; align-items: center; gap: 15px; cursor: pointer; transition: 0.3s; background: #0f0f0f; }
         .user-profile:hover { background: #151515; }
         .user-profile:hover .user-settings { color: #ffe800; }
-        .user-avatar { width: 45px; height: 45px; border-radius: 50%; background: #151515; border: 2px solid #ffe800; display: flex; align-items: center; justify-content: center; font-weight: 900; color: #ffe800; font-size: 1.2rem; flex-shrink: 0; box-shadow: inset 0 0 10px rgba(0,0,0,0.8); }
+        .user-avatar { width: 45px; height: 45px; border-radius: 50%; background: #151515; border: 2px solid #ffe800; display: flex; align-items: center; justify-content: center; font-weight: 900; color: #ffe800; font-size: 1.2rem; flex-shrink: 0; box-shadow: inset 0 0 10px rgba(0,0,0,0.8); overflow: hidden; }
         .user-info { display: flex; flex-direction: column; }
         .user-name { font-weight: 900; font-size: 0.85rem; color: #fff; letter-spacing: 0.5px; }
         .user-settings { font-size: 0.65rem; color: #888; font-weight: 700; margin-top: 4px; transition: 0.2s; }
@@ -111,7 +92,7 @@
         thead th { background: #151515; position: sticky; top: 0; z-index: 500; padding: 10px 2px; border-bottom: 3px solid #ffe800; border-right: 1px solid #222; min-width: 75px; }
         thead th:last-child { border-right: none; min-width: 130px; } 
         
-        .avatar { width: 28px; height: 28px; border-radius: 50%; border: 2px solid #ffe800; display: flex; align-items: center; justify-content: center; margin: 0 auto 5px; font-weight: 900; color: #ffe800; font-size: 0.65rem; background: #000; box-shadow: 0 0 5px rgba(255, 232, 0, 0.3); }
+        .avatar { width: 28px; height: 28px; border-radius: 50%; border: 2px solid #ffe800; display: flex; align-items: center; justify-content: center; margin: 0 auto 5px; font-weight: 900; color: #ffe800; font-size: 0.65rem; background: #000; box-shadow: 0 0 5px rgba(255, 232, 0, 0.3); overflow: hidden; }
         .worker-name { font-size: 0.5rem; font-weight: 900; text-transform: uppercase; line-height: 1.2; color: #fff; letter-spacing: 0.5px; }
         .dept-tag { font-size: 0.45rem; font-weight: 900; color: #888; }
         .dept-me { color: #f44 !important; text-shadow: 0 0 5px rgba(255, 0, 0, 0.5); }
@@ -324,7 +305,10 @@
     document.getElementById('headerStore').innerText = myStore;
     let finalDept = currentUser.dept; if (currentUser.isKss && currentUser.dept !== 'ME') finalDept = 'KSS';
     document.getElementById('sideName').innerText = `${currentUser.name} (${finalDept})`;
-    document.getElementById('sideAvatar').innerText = currentUser.charId.charAt(0);
+    
+    // WCZYTANIE AVATARA W BOKU (Sidebar)
+    const sideAvatarHtml = currentUser.avatar ? `<img src="${currentUser.avatar}" style="width:100%; height:100%; object-fit:cover; border-radius:50%;">` : currentUser.charId.charAt(0);
+    document.getElementById('sideAvatar').innerHTML = sideAvatarHtml;
     
     if (!isManagerOrKss) {
         document.getElementById('navInwaKSS').style.display = 'none';
@@ -360,8 +344,9 @@
             return rA - rB;
         });
 
+        // DOŁĄCZAMY DANE AVATARA
         employees = rawUsers.map(u => ({
-            n: u.name, i: u.charId.charAt(0), p: u.dept === 'POK', dept: u.dept, displayDept: u.displayDept, charId: u.charId 
+            n: u.name, i: u.charId.charAt(0), p: u.dept === 'POK', dept: u.dept, displayDept: u.displayDept, charId: u.charId, avatar: u.avatar 
         }));
         render(); 
     });
@@ -455,7 +440,7 @@
     }
 
     // =======================================================
-    // 5. POTĘŻNY SILNIK GENERATORA V6 (Matematyka fuzji + Tryb Brutalny)
+    // 5. POTĘŻNY SILNIK GENERATORA V6 (Fuzja + Brutal Mode)
     // =======================================================
     function getH(shiftStr) {
         if (!shiftStr) return 0;
@@ -557,11 +542,10 @@
                 toWork.forEach(w => memorySchedule[w.e.charId][d] = w.shift);
             });
 
-            // 2. DNI ROBOCZE Z MATEMATYKĄ POK
+            // 2. DNI ROBOCZE
             for(let d=1; d<=daysInMonth; d++) {
                 if(new Date(year, curM, d).getDay() === 6 || new Date(year, curM, d).getDay() === 0 || !isWorkDay(d)) continue;
                 
-                // --- OBSADA POK (Magia Fuzji) ---
                 let availPoks = employees.filter(e => e.p && canWork(e.charId, d, memorySchedule));
                 
                 if(availPoks.length >= 2) { 
@@ -571,11 +555,9 @@
                     let h2 = calcRealH(p2.charId, memorySchedule);
                     
                     let daysLeft = daysInMonth - d;
-                    // Obliczamy, ile godzin obaj zjedzą do końca miesiąca, jeśli damy im po 8h (16h łącznie na dzień)
                     let futureCost = daysLeft * 16; 
                     let availableCombined = (baseNorm * 2) - (h1 + h2);
                     
-                    // Jeśli koszt przewyższa dostępną pulę, musimy oszczędzać! Jeden ciągnie sklep na 10h, drugi wolne.
                     if (futureCost > availableCombined + 4) {
                         memorySchedule[p1.charId][d] = fullShiftStr;
                     } else {
@@ -586,7 +568,6 @@
                     memorySchedule[availPoks[0].charId][d] = fullShiftStr; 
                 }
 
-                // --- OBSADA SPRZEDAWCÓW ---
                 let availSales = employees.filter(e => !e.p && e.dept !== 'ME' && canWork(e.charId, d, memorySchedule));
                 shuffle(availSales); 
                 availSales.sort((a,b) => calcRealH(a.charId, memorySchedule) - calcRealH(b.charId, memorySchedule));
@@ -690,7 +671,7 @@
             while(!allBalanced && iterations < 5000) {
                 allBalanced = true; 
                 let strictMode = iterations < 1500; 
-                let brutalMode = iterations > 3500; // Po 3500 próbach włącza się "tryb brutalny" - tnie bez litości, byle zrównać godziny!
+                let brutalMode = iterations > 3500; 
 
                 let status = employees.map(e => {
                     let target = baseNorm; 
@@ -707,7 +688,6 @@
                     if(st.diff > 0) { 
                         if(st.diff >= 8) actionTaken = tryAddShift(emp);
                         if(!actionTaken && st.diff >= 2) actionTaken = tryExtendShift(emp);
-                        
                         if(!actionTaken && !strictMode) {
                              for(let d=1; d<=daysInMonth; d++) {
                                 let isWknd = new Date(year, curM, d).getDay() === 0 || new Date(year, curM, d).getDay() === 6;
@@ -720,7 +700,6 @@
                     } else if (st.diff < 0) { 
                         if(st.diff <= -8) actionTaken = tryRemoveShift(emp, strictMode);
                         if(!actionTaken && st.diff <= -2) actionTaken = tryShortenShift(emp, strictMode);
-                        
                         if(!actionTaken && (!strictMode || brutalMode)) {
                              for(let d=1; d<=daysInMonth; d++) {
                                 let isWknd = new Date(year, curM, d).getDay() === 0 || new Date(year, curM, d).getDay() === 6; 
@@ -733,8 +712,6 @@
                                         employees.forEach(em => { if(em.charId !== emp.charId && em.p && memorySchedule[em.charId][d].includes('-')) otherPok++; }); 
                                         if(otherPok === 0) isLastPok = true; 
                                     }
-                                    
-                                    // Normalnie chronimy ostatniego POKa, ALE w brutalMode kodeks pracy wygrywa z obsadą sklepu!
                                     if(!isLastPok || brutalMode) { 
                                         memorySchedule[emp.charId][d] = ""; 
                                         actionTaken = true; break; 
@@ -748,7 +725,6 @@
                 iterations++;
             }
 
-            // FINALNY ZAPIS DO BAZY CHMUROWEJ
             let finalUpdates = {};
             employees.forEach(e => { for(let d=1; d<=daysInMonth; d++) { finalUpdates[`${e.charId}_${d}`] = memorySchedule[e.charId][d]; } });
             saveToFirebase(finalUpdates);
@@ -758,7 +734,7 @@
     }
 
     // ==========================================
-    // RENDER TABELI NA EKRANIE
+    // RENDER TABELI NA EKRANIE Z AWATARAMI
     // ==========================================
     function render() {
         if (employees.length === 0) return; 
@@ -778,7 +754,9 @@
         head.innerHTML = '<th class="date-col">DATA</th>';
         employees.forEach(e => { 
             let deptClass = e.dept === 'ME' ? 'dept-me' : '';
-            head.innerHTML += `<th><div class="avatar">${e.i}</div><div class="worker-name">${e.n}<br><span class="dept-tag ${deptClass}">${e.displayDept}</span></div></th>`; 
+            // WSTRZYKIWANIE ZDJĘCIA W NAGŁÓWEK TABELI
+            let avatarHtml = e.avatar ? `<img src="${e.avatar}" style="width:100%; height:100%; object-fit:cover; border-radius:50%;">` : e.i;
+            head.innerHTML += `<th><div class="avatar">${avatarHtml}</div><div class="worker-name">${e.n}<br><span class="dept-tag ${deptClass}">${e.displayDept}</span></div></th>`; 
         });
         head.innerHTML += '<th class="obsada-col">OTW - SUMA - ZAM</th>';
         body.innerHTML = ""; const today = new Date(); const isCurrentMonth = today.getFullYear() === year && today.getMonth() === curM;

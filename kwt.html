@@ -5,72 +5,57 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Media Expert - KWT</title>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&display=swap" rel="stylesheet">
+    <script>
+        const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+        const storeSetup = JSON.parse(localStorage.getItem('store_setup'));
+        if (!currentUser || !storeSetup) { window.location.href = 'login.html'; }
+        const isManagerOrKss = (currentUser.dept === 'ME' || currentUser.isKss);
+    </script>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Montserrat', sans-serif; }
         body { background: #080808; color: white; display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
-        ::-webkit-scrollbar { width: 12px; height: 12px; }
-        ::-webkit-scrollbar-track { background: #111; border-left: 1px solid #222; border-top: 1px solid #222; }
-        ::-webkit-scrollbar-thumb { background: #ffe800; border-radius: 2px; }
-        ::-webkit-scrollbar-thumb:hover { background: #e6d100; }
-        
-        /* HEADER I MENU */
-        header { background: #ffe800; height: 50px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; z-index: 9999; border-bottom: 2px solid #000; position: relative; box-shadow: 0 2px 10px rgba(255, 232, 0, 0.2); }
-        .logo { color: #000; font-weight: 900; font-size: 1.4rem; text-transform: uppercase; letter-spacing: 1px; }
+        ::-webkit-scrollbar { width: 12px; height: 12px; } ::-webkit-scrollbar-track { background: #111; } ::-webkit-scrollbar-thumb { background: #ffe800; border-radius: 2px; }
+        header { background: #ffe800; height: 50px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; z-index: 9999; border-bottom: 2px solid #000; position: relative; }
+        .logo { color: #000; font-weight: 900; font-size: 1.2rem; text-transform: uppercase; letter-spacing: 1px; display: flex; align-items: center; gap: 10px;}
         .logo span { background: #000; color: #ffe800; padding: 0 6px; border-radius: 3px; }
-        .menu-btn { position: absolute; left: 15px; cursor: pointer; color: #000; font-size: 1.5rem; transition: 0.2s; }
-        .menu-btn:hover { transform: scale(1.1); }
-        
-        .sidebar { position: fixed; left: -280px; top: 0; width: 260px; height: 100%; background: #0a0a0a; border-right: 3px solid #ffe800; transition: 0.4s; z-index: 10000; padding-top: 60px; box-shadow: 5px 0 15px rgba(0,0,0,0.8); display: flex; flex-direction: column; }
+        .store-badge { font-size: 0.7rem; background: rgba(0,0,0,0.1); padding: 4px 8px; border-radius: 20px; font-weight: 800; border: 1px solid #000; }
+        .menu-btn { position: absolute; left: 15px; cursor: pointer; color: #000; font-size: 1.5rem; }
+        .sidebar { position: fixed; left: -280px; top: 0; width: 260px; height: 100%; background: #0a0a0a; border-right: 3px solid #ffe800; transition: 0.4s; z-index: 10000; padding-top: 60px; display: flex; flex-direction: column; }
         .sidebar.active { left: 0; }
         .sidebar-nav { flex-grow: 1; overflow-y: auto; }
         .sidebar-header { color: #ffe800; font-weight: 900; font-size: 1rem; padding: 0 25px 15px 25px; letter-spacing: 2px; text-transform: uppercase; }
         .sidebar-link { display: block; color: white; padding: 15px 25px; text-decoration: none; font-weight: 700; font-size: 0.8rem; border-bottom: 1px solid #111; transition: 0.2s; }
         .sidebar-link:hover { background: #1a1a1a; color: #ffe800; padding-left: 35px; }
-        
-        .user-profile { padding: 15px 20px; border-top: 2px solid #1a1a1a; display: flex; align-items: center; gap: 15px; cursor: pointer; transition: 0.3s; background: #0f0f0f; }
-        .user-profile:hover { background: #151515; }
-        .user-profile:hover .user-settings { color: #ffe800; }
-        .user-avatar { width: 45px; height: 45px; border-radius: 50%; background: #151515; border: 2px solid #ffe800; display: flex; align-items: center; justify-content: center; font-weight: 900; color: #ffe800; font-size: 1.2rem; flex-shrink: 0; box-shadow: inset 0 0 10px rgba(0,0,0,0.8); }
+        .user-profile { padding: 15px 20px; border-top: 2px solid #1a1a1a; display: flex; align-items: center; gap: 15px; cursor: pointer; background: #0f0f0f; }
+        .user-avatar { width: 45px; height: 45px; border-radius: 50%; background: #151515; border: 2px solid #ffe800; display: flex; align-items: center; justify-content: center; font-weight: 900; color: #ffe800; font-size: 1.2rem; flex-shrink: 0;}
         .user-info { display: flex; flex-direction: column; }
-        .user-name { font-weight: 900; font-size: 0.85rem; color: #fff; letter-spacing: 0.5px; }
-        .user-settings { font-size: 0.65rem; color: #888; font-weight: 700; margin-top: 4px; transition: 0.2s; }
-        .logout-btn { display: block; width: 100%; text-align: center; background: transparent; color: #f44; border: none; border-top: 1px solid #1a1a1a; padding: 15px; font-weight: 900; font-size: 0.8rem; cursor: pointer; transition: 0.3s; text-transform: uppercase; letter-spacing: 1px; }
-        .logout-btn:hover { background: #f44; color: #000; }
+        .user-name { font-weight: 900; font-size: 0.85rem; color: #fff; }
+        .user-settings { font-size: 0.65rem; color: #888; font-weight: 700; margin-top: 4px; }
+        .logout-btn { display: block; width: 100%; text-align: center; background: transparent; color: #f44; border: none; border-top: 1px solid #1a1a1a; padding: 15px; font-weight: 900; font-size: 0.8rem; cursor: pointer; text-transform: uppercase; }
         .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.8); display: none; z-index: 9500; }
         .overlay.active { display: block; }
-
-        /* KWT CONTENT */
         .content { flex-grow: 1; overflow-y: auto; padding: 30px 20px; }
         .content-inner { max-width: 1400px; margin: 0 auto; }
-        .page-title { font-size: 2rem; font-weight: 900; margin-bottom: 30px; text-align: left; text-transform: uppercase; }
+        .page-title { font-size: 2rem; font-weight: 900; margin-bottom: 30px; text-transform: uppercase; }
         .page-title span { color: #ffe800; }
         .dept-tabs { display: flex; gap: 15px; margin-bottom: 40px; flex-wrap: wrap; }
-        .tab-btn { background: #151515; border: 1px solid #333; color: #fff; padding: 12px 30px; border-radius: 12px; font-weight: 900; cursor: pointer; transition: 0.3s; font-size: 0.9rem; flex: 1; max-width: 200px; text-align: center; }
-        .tab-btn.active { background: #ffe800; color: #000; border-color: #ffe800; box-shadow: 0 0 15px rgba(255, 232, 0, 0.2); }
-        .tab-btn:hover:not(.active) { border-color: #ffe800; color: #ffe800; }
+        .tab-btn { background: #151515; border: 1px solid #333; color: #fff; padding: 12px 30px; border-radius: 12px; font-weight: 900; cursor: pointer; transition: 0.3s; font-size: 0.9rem; flex: 1; max-width: 200px; }
+        .tab-btn.active { background: #ffe800; color: #000; border-color: #ffe800; }
         .items-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 15px; }
         .item-card { background: #111; border: 1px solid #222; border-radius: 15px; padding: 20px; transition: 0.3s; display: flex; flex-direction: column; justify-content: space-between; }
-        .item-card:hover { border-color: #ffe800; transform: translateY(-4px); box-shadow: 0 8px 20px rgba(255, 232, 0, 0.1); background: #151515; }
-        .item-card h3 { font-size: 1.1rem; font-weight: 900; text-transform: uppercase; margin-bottom: 15px; min-height: 2.5rem; color: #eee; line-height: 1.3; }
-        .status-row { display: flex; align-items: center; gap: 10px; margin-bottom: 20px; font-size: 0.75rem; font-weight: 800; color: #888; transition: 0.3s; }
-        .dot { width: 10px; height: 10px; background: #ff4444; border-radius: 50%; box-shadow: 0 0 8px rgba(255, 68, 68, 0.6); transition: 0.3s; }
-        
-        .card-done { border-color: #0a0; background: #0a110a; }
-        .card-done:hover { border-color: #0a0; background: #0f1a0f; box-shadow: 0 8px 20px rgba(0, 170, 0, 0.1); }
-        .card-done .dot { background: #0a0; box-shadow: 0 0 8px rgba(0, 170, 0, 0.6); }
-        .card-done .status-row span { color: #0a0; }
+        .item-card h3 { font-size: 1.1rem; font-weight: 900; text-transform: uppercase; margin-bottom: 15px; min-height: 2.5rem; color: #eee; }
+        .status-row { display: flex; align-items: center; gap: 10px; margin-bottom: 20px; font-size: 0.75rem; font-weight: 800; color: #888; }
+        .dot { width: 10px; height: 10px; background: #ff4444; border-radius: 50%; }
+        .card-done { border-color: #0a0; background: #0a110a; } .card-done .dot { background: #0a0; } .card-done .status-row span { color: #0a0; }
+        .approve-btn { width: 100%; background: transparent; border: 2px solid #ffe800; color: #ffe800; padding: 10px; border-radius: 8px; font-weight: 900; cursor: pointer; text-transform: uppercase; }
         .card-done .approve-btn { border-color: #0a0; color: #0a0; }
-        .card-done .approve-btn:hover { background: #0a0; color: #fff; box-shadow: 0 0 10px rgba(0, 170, 0, 0.4); }
-        
-        .approve-btn { width: 100%; background: transparent; border: 2px solid #ffe800; color: #ffe800; padding: 10px; border-radius: 8px; font-weight: 900; cursor: pointer; transition: 0.3s; text-transform: uppercase; font-size: 0.8rem; }
-        .approve-btn:hover { background: #ffe800; color: #000; box-shadow: 0 0 10px rgba(255, 232, 0, 0.4); }
     </style>
 </head>
 <body>
 
 <header>
     <div class="menu-btn" onclick="toggleNav()">☰</div>
-    <div class="logo">EXPERT <span>TOOL</span></div>
+    <div class="logo">EXPERT <span>TOOL</span> <div class="store-badge" id="headerStore">SXXX</div></div>
 </header>
 
 <div class="sidebar" id="sidebar">
@@ -79,19 +64,19 @@
         <a href="index.html" class="sidebar-link">Strona główna</a>
         <a href="plan.html" class="sidebar-link">Plan pracy</a>
         <a href="inwa.html" class="sidebar-link">Inwentury</a>
-        <a href="inwak.html" class="sidebar-link">Inwentury (ME/KSS)</a>
+        <a href="inwak.html" class="sidebar-link" id="navInwaKSS">Inwentury (ME/KSS)</a>
         <a href="azs.html" class="sidebar-link">AZS</a>
         <a href="kwt.html" class="sidebar-link" style="color:#ffe800">KWT</a>
         <a href="qr.html" class="sidebar-link">Kod QR</a>
     </div>
     <div class="user-profile" onclick="window.location.href='ustawienia.html'">
-        <div class="user-avatar">P</div>
+        <div class="user-avatar" id="sideAvatar">?</div>
         <div class="user-info">
-            <span class="user-name">PAWEŁ (ME)</span>
+            <span class="user-name" id="sideName">Ladowanie...</span>
             <span class="user-settings">⚙️ Ustawienia konta</span>
         </div>
     </div>
-    <button class="logout-btn" onclick="alert('System wylogowywania aktywny.')">Wyloguj się</button>
+    <button class="logout-btn" onclick="logout()">Wyloguj się</button>
 </div>
 <div class="overlay" id="overlay" onclick="toggleNav()"></div>
 
@@ -108,7 +93,12 @@
 </div>
 
 <script>
+    document.getElementById('headerStore').innerText = `${storeSetup.sNumber} ${storeSetup.city}`;
+    document.getElementById('sideName').innerText = `${currentUser.name} (${currentUser.dept})`;
+    document.getElementById('sideAvatar').innerText = currentUser.charId.charAt(0);
+    if(!isManagerOrKss) { document.getElementById('navInwaKSS').style.display = 'none'; }
     function toggleNav() { document.getElementById('sidebar').classList.toggle('active'); document.getElementById('overlay').classList.toggle('active'); }
+    function logout() { localStorage.removeItem('currentUser'); window.location.href = 'login.html'; }
 
     const kwtData = [
         { id: "kwt_it_1", name: "Drukarki atramentowe", dept: "it" }, { id: "kwt_it_2", name: "Słuchawki Douszne", dept: "it" },
@@ -116,76 +106,28 @@
         { id: "kwt_it_5", name: "Smartfony", dept: "it" }, { id: "kwt_it_6", name: "Smartwatche i smartbandy", dept: "it" },
         { id: "kwt_it_7", name: "Ładowarki sieciowe", dept: "it" }, { id: "kwt_it_8", name: "Słuchawki nauszne i uniwersalne", dept: "it" },
         { id: "kwt_it_9", name: "Urządzenia wielofunkcyjne atramentowe", dept: "it" }, { id: "kwt_it_10", name: "Notebooki uniwersalne", dept: "it" },
-        { id: "kwt_it_11", name: "Notebooki gamingowe", dept: "it" }, { id: "kwt_it_12", name: "Tablety", dept: "it" },
-        { id: "kwt_it_13", name: "Myszki standardowe", dept: "it" }, { id: "kwt_it_14", name: "Myszki gamingowe", dept: "it" },
-        { id: "kwt_it_15", name: "Klawiatury gamingowe", dept: "it" }, { id: "kwt_it_16", name: "Klawiatury standardowe", dept: "it" },
-        { id: "kwt_it_17", name: "Słuchawki gamingowe", dept: "it" }, { id: "kwt_it_18", name: "Kable GSM", dept: "it" },
-        { id: "kwt_it_19", name: "Ładowarki przenośne", dept: "it" }, { id: "kwt_it_20", name: "Ładowarki indukcyjne", dept: "it" },
-        { id: "kwt_it_21", name: "Urządzenia wielofunkcyjne laserowe", dept: "it" }, { id: "kwt_it_22", name: "Urządzenia wielofunkcyjne CISS", dept: "it" },
-
         { id: "kwt_rtv_1", name: "Klocki", dept: "rtv" }, { id: "kwt_rtv_2", name: "Akcesoria do konsol", dept: "rtv" },
-        { id: "kwt_rtv_3", name: "Konsole", dept: "rtv" }, { id: "kwt_rtv_4", name: "Nawigacje", dept: "rtv" },
-        { id: "kwt_rtv_5", name: "Kamery sportowe", dept: "rtv" }, { id: "kwt_rtv_6", name: "Wideorejestratory", dept: "rtv" },
-
-        { id: "kwt_agd_1", name: "Ekspresy Automatyczne", dept: "agd" }, { id: "kwt_agd_2", name: "Depilatory Świetlne", dept: "agd" },
-        { id: "kwt_agd_3", name: "Szczoteczki", dept: "agd" }, { id: "kwt_agd_4", name: "Grile", dept: "agd" },
-        { id: "kwt_agd_5", name: "Odkurzacze pionowe", dept: "agd" }, { id: "kwt_agd_6", name: "Odkurzacze automatyczne", dept: "agd" },
-        { id: "kwt_agd_7", name: "Urządzenia SODASTREAM", dept: "agd" }, { id: "kwt_agd_8", name: "Żelazka", dept: "agd" },
-        { id: "kwt_agd_9", name: "Czajniki", dept: "agd" }, { id: "kwt_agd_10", name: "Trymery", dept: "agd" },
-        { id: "kwt_agd_11", name: "Gofrownice", dept: "agd" }, { id: "kwt_agd_12", name: "Ekspresy przelewowe", dept: "agd" },
-        { id: "kwt_agd_13", name: "Maszynki i wkłady do golenia", dept: "agd" }, { id: "kwt_agd_14", name: "Myjki do okien", dept: "agd" },
-        { id: "kwt_agd_15", name: "Odkurzacze akumulatorowe", dept: "agd" }, { id: "kwt_agd_16", name: "Pojemniki kuchenne", dept: "agd" },
-        { id: "kwt_agd_17", name: "Steamery", dept: "agd" }, { id: "kwt_agd_18", name: "Frytkownice", dept: "agd" },
-        { id: "kwt_agd_19", name: "Irygatory", dept: "agd" }, { id: "kwt_agd_20", name: "Mopy parowe i elektryczne", dept: "agd" },
-        { id: "kwt_agd_21", name: "Odkurzacze standardowe", dept: "agd" }, { id: "kwt_agd_22", name: "Prostownice", dept: "agd" },
-        { id: "kwt_agd_23", name: "Termoroboty", dept: "agd" }, { id: "kwt_agd_24", name: "Wyciskarki wolnoobrotowe", dept: "agd" },
-        { id: "kwt_agd_25", name: "Suszarki", dept: "agd" }, { id: "kwt_agd_26", name: "Suszarko-lokówki", dept: "agd" },
-        { id: "kwt_agd_27", name: "Golarki", dept: "agd" }, { id: "kwt_agd_28", name: "Air fryery", dept: "agd" },
-        { id: "kwt_agd_29", name: "Ekspresy kapsułowe", dept: "agd" }, { id: "kwt_agd_30", name: "Garnki", dept: "agd" },
-        { id: "kwt_agd_31", name: "Lokówki", dept: "agd" }, { id: "kwt_agd_32", name: "Multicookery i szybkowary", dept: "agd" },
-        { id: "kwt_agd_33", name: "Nawilżacze powietrza", dept: "agd" }, { id: "kwt_agd_34", name: "Patelnie", dept: "agd" },
-        { id: "kwt_agd_35", name: "Roboty wieloczynnościowe", dept: "agd" }, { id: "kwt_agd_36", name: "Depilatory tradycyjne", dept: "agd" },
-        { id: "kwt_agd_37", name: "Ekspresy kolbowe", dept: "agd" }, { id: "kwt_agd_38", name: "Generatory pary", dept: "agd" },
-        { id: "kwt_agd_39", name: "Myjki ciśnieniowe", dept: "agd" }, { id: "kwt_agd_40", name: "Oczyszczacze powietrza", dept: "agd" },
-        { id: "kwt_agd_41", name: "Pojemniki do przechowywania", dept: "agd" }, { id: "kwt_agd_42", name: "Sandwicze", dept: "agd" },
-        { id: "kwt_agd_43", name: "Tostery", dept: "agd" }, { id: "kwt_agd_44", name: "Urządzenia grzewcze", dept: "agd" }
+        { id: "kwt_agd_1", name: "Ekspresy Automatyczne", dept: "agd" }, { id: "kwt_agd_2", name: "Depilatory Świetlne", dept: "agd" }
     ];
 
     let currentKwtDept = 'it';
-
     function filterKwtDept(dept, btn) {
-        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        currentKwtDept = dept; renderKWT();
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active')); btn.classList.add('active'); currentKwtDept = dept; renderKWT();
     }
-
     function renderKWT() {
-        const container = document.getElementById('kwtList');
-        if (!container) return; container.innerHTML = '';
-        const filteredItems = kwtData.filter(item => item.dept === currentKwtDept);
-
-        filteredItems.forEach(item => {
+        const container = document.getElementById('kwtList'); if (!container) return; container.innerHTML = '';
+        kwtData.filter(item => item.dept === currentKwtDept).forEach(item => {
             const saved = JSON.parse(localStorage.getItem(item.id)) || { status: 'none', time: '' };
             const isDone = saved.status === 'done';
-            const card = document.createElement('div');
-            card.className = `item-card ${isDone ? 'card-done' : ''}`;
-            card.innerHTML = `
-                <h3>${item.name}</h3>
-                <div class="status-row"><div class="dot"></div><span>${isDone ? 'ZESKANOWANO: ' + saved.time : 'DO SPRAWDZENIA'}</span></div>
-                <button class="approve-btn" onclick="toggleKWT('${item.id}')">${isDone ? 'WYCOFAJ' : 'ZATWIERDŹ'}</button>
-            `;
+            const card = document.createElement('div'); card.className = `item-card ${isDone ? 'card-done' : ''}`;
+            card.innerHTML = `<h3>${item.name}</h3><div class="status-row"><div class="dot"></div><span>${isDone ? 'ZESKANOWANO: ' + saved.time : 'DO SPRAWDZENIA'}</span></div><button class="approve-btn" onclick="toggleKWT('${item.id}')">${isDone ? 'WYCOFAJ' : 'ZATWIERDŹ'}</button>`;
             container.appendChild(card);
         });
     }
-
     function toggleKWT(id) {
         const saved = JSON.parse(localStorage.getItem(id)) || { status: 'none', time: '' };
-        if (saved.status === 'done') {
-            if (confirm("Czy na pewno chcesz wycofać potwierdzenie kontroli?")) { localStorage.removeItem(id); renderKWT(); }
-            return;
-        }
-        const now = new Date();
-        const timeStr = now.toLocaleDateString('pl-PL') + ' | ' + now.toLocaleTimeString('pl-PL', {hour: '2-digit', minute:'2-digit'});
+        if (saved.status === 'done') { if (confirm("Wycofać potwiedzenie?")) { localStorage.removeItem(id); renderKWT(); } return; }
+        const now = new Date(); const timeStr = now.toLocaleDateString('pl-PL') + ' | ' + now.toLocaleTimeString('pl-PL', {hour: '2-digit', minute:'2-digit'});
         localStorage.setItem(id, JSON.stringify({ status: 'done', time: timeStr })); renderKWT();
     }
     window.onload = renderKWT;

@@ -5,77 +5,97 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Media Expert - Dashboard</title>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&display=swap" rel="stylesheet">
+    
+    <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-database-compat.js"></script>
+    
     <script>
         const currentUser = JSON.parse(localStorage.getItem('currentUser'));
-        const storeSetup = JSON.parse(localStorage.getItem('store_setup'));
-        if (!currentUser || !storeSetup) { window.location.href = 'login.html'; }
+        const myStore = localStorage.getItem('myStore');
+        if (!currentUser || !myStore) { window.location.href = 'login.html'; }
         const isManagerOrKss = (currentUser.dept === 'ME' || currentUser.isKss);
+
+        // INICJALIZACJA FIREBASE
+        const firebaseConfig = {
+            apiKey: "AIzaSyD0N6Bjyzs34piOoujEn9mxKir8LDGdD2k",
+            authDomain: "expert-tool.firebaseapp.com",
+            projectId: "expert-tool",
+            storageBucket: "expert-tool.firebasestorage.app",
+            messagingSenderId: "880843997228",
+            appId: "1:880843997228:web:fa37aa80b7f9f017705189"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
     </script>
+    
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Montserrat', sans-serif; }
         body { background: #080808; color: white; display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
-        ::-webkit-scrollbar { width: 12px; height: 12px; } ::-webkit-scrollbar-track { background: #111; } ::-webkit-scrollbar-thumb { background: #ffe800; border-radius: 2px; }
-        header { background: #ffe800; height: 50px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; z-index: 9999; border-bottom: 2px solid #000; position: relative; }
+        ::-webkit-scrollbar { width: 12px; height: 12px; } ::-webkit-scrollbar-track { background: #111; border-left: 1px solid #222; border-top: 1px solid #222; } ::-webkit-scrollbar-thumb { background: #ffe800; border-radius: 2px; }
+        
+        header { background: #ffe800; height: 50px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; z-index: 9999; border-bottom: 2px solid #000; position: relative; box-shadow: 0 2px 10px rgba(255, 232, 0, 0.2); }
         .logo { color: #000; font-weight: 900; font-size: 1.2rem; text-transform: uppercase; letter-spacing: 1px; display: flex; align-items: center; gap: 10px;}
         .logo span { background: #000; color: #ffe800; padding: 0 6px; border-radius: 3px; }
         .store-badge { font-size: 0.7rem; background: rgba(0,0,0,0.1); padding: 4px 8px; border-radius: 20px; font-weight: 800; border: 1px solid #000; }
         .menu-btn { position: absolute; left: 15px; cursor: pointer; color: #000; font-size: 1.5rem; transition: 0.2s; }
+        .menu-btn:hover { transform: scale(1.1); }
+        
         .sidebar { position: fixed; left: -280px; top: 0; width: 260px; height: 100%; background: #0a0a0a; border-right: 3px solid #ffe800; transition: 0.4s; z-index: 10000; padding-top: 60px; display: flex; flex-direction: column; }
         .sidebar.active { left: 0; }
         .sidebar-nav { flex-grow: 1; overflow-y: auto; }
         .sidebar-header { color: #ffe800; font-weight: 900; font-size: 1rem; padding: 0 25px 15px 25px; letter-spacing: 2px; text-transform: uppercase; }
         .sidebar-link { display: block; color: white; padding: 15px 25px; text-decoration: none; font-weight: 700; font-size: 0.8rem; border-bottom: 1px solid #111; transition: 0.2s; }
         .sidebar-link:hover { background: #1a1a1a; color: #ffe800; padding-left: 35px; }
+        
         .user-profile { padding: 15px 20px; border-top: 2px solid #1a1a1a; display: flex; align-items: center; gap: 15px; cursor: pointer; background: #0f0f0f; }
-        .user-avatar { width: 45px; height: 45px; border-radius: 50%; background: #151515; border: 2px solid #ffe800; display: flex; align-items: center; justify-content: center; font-weight: 900; color: #ffe800; font-size: 1.2rem; flex-shrink: 0; }
+        .user-avatar { width: 45px; height: 45px; border-radius: 50%; background: #151515; border: 2px solid #ffe800; display: flex; align-items: center; justify-content: center; font-weight: 900; color: #ffe800; font-size: 1.2rem; flex-shrink: 0;}
         .user-info { display: flex; flex-direction: column; }
-        .user-name { font-weight: 900; font-size: 0.85rem; color: #fff; }
+        .user-name { font-weight: 900; font-size: 0.85rem; color: #fff; letter-spacing: 0.5px; }
         .user-settings { font-size: 0.65rem; color: #888; font-weight: 700; margin-top: 4px; }
         .logout-btn { display: block; width: 100%; text-align: center; background: transparent; color: #f44; border: none; border-top: 1px solid #1a1a1a; padding: 15px; font-weight: 900; font-size: 0.8rem; cursor: pointer; text-transform: uppercase; }
         .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.8); display: none; z-index: 9500; }
         .overlay.active { display: block; }
+
         .content { flex-grow: 1; overflow-y: auto; padding: 20px 30px; padding-bottom: 40px; }
         .content-inner { max-width: 1200px; margin: 0 auto; }
+        
         .greeting { text-align: center; margin-bottom: 25px; margin-top: 10px; }
         .greeting h1 { color: #fff; font-size: 2rem; font-weight: 900; letter-spacing: 1px; }
         .greeting span { color: #ffe800; }
+
         .clock-container { display: flex; justify-content: center; gap: 15px; margin-bottom: 40px; perspective: 1000px; }
         .time-box { background: #151515; border: 2px solid #333; border-radius: 15px; padding: 15px 20px; display: flex; flex-direction: column; align-items: center; min-width: 100px; }
         .time-box .label { font-size: 0.55rem; color: #888; font-weight: 900; letter-spacing: 2px; margin-bottom: 5px; }
         .time-box .digits { font-size: 3rem; font-weight: 900; color: #ffe800; height: 50px; display: flex; justify-content: center; align-items: center; }
-        .flip-anim { animation: fullFlip 0.5s ease-in-out; }
-        @keyframes fullFlip { 0% { transform: rotateX(0deg); background: #151515; } 50% { transform: rotateX(-90deg); background: #222; } 100% { transform: rotateX(0deg); background: #151515; } }
+        
         .daily-info-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 15px; margin-bottom: 40px; }
-        .info-card { background: #0a0a0a; border: 1px solid #222; border-radius: 15px; padding: 20px; display: flex; align-items: center; gap: 15px; transition: 0.3s; box-shadow: inset 0 0 20px rgba(0,0,0,0.5); }
+        .info-card { background: #0a0a0a; border: 1px solid #222; border-radius: 15px; padding: 20px; display: flex; align-items: center; gap: 15px; transition: 0.3s; }
         .info-icon { font-size: 2rem; flex-shrink: 0; background: #151515; width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 1px solid #333; }
         .info-text-group { display: flex; flex-direction: column; }
         .info-label { font-size: 0.65rem; color: #888; font-weight: 900; letter-spacing: 1px; margin-bottom: 4px; text-transform: uppercase; }
         .info-value { font-size: 1.1rem; color: #ffe800; font-weight: 900; letter-spacing: 1px; text-transform: uppercase;}
         .info-value.person { color: #fff; }
+
         .section-title { font-size: 0.9rem; color: #666; font-weight: 900; margin-bottom: 20px; letter-spacing: 2px; border-bottom: 2px solid #222; padding-bottom: 8px; text-transform: uppercase; }
+        
         .shortcuts-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; margin-bottom: 40px; }
         .shortcut-card { background: linear-gradient(145deg, #151515, #0a0a0a); border: 1px solid #333; border-radius: 15px; padding: 25px; text-align: center; cursor: pointer; text-decoration: none; color: white; display: flex; flex-direction: column; align-items: center; gap: 12px; }
-        .shortcut-icon { font-size: 2.5rem; } .shortcut-title { font-weight: 900; font-size: 0.9rem; letter-spacing: 1px; }
+        .shortcut-icon { font-size: 2.5rem; }
+        .shortcut-title { font-weight: 900; font-size: 0.9rem; letter-spacing: 1px; }
+
         .team-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 15px; }
         .team-card { background: #0a0a0a; border: 1px solid #222; border-radius: 12px; padding: 18px; display: flex; align-items: center; gap: 15px; }
         .team-avatar { width: 50px; height: 50px; border-radius: 50%; background: #151515; border: 2px solid #ffe800; display: flex; align-items: center; justify-content: center; font-weight: 900; color: #ffe800; font-size: 1.5rem; flex-shrink: 0; }
         .team-info { display: flex; flex-direction: column; }
         .team-name { font-weight: 900; font-size: 1rem; color: #fff; letter-spacing: 0.5px; }
         .team-dept { font-size: 0.75rem; color: #ffe800; font-weight: 900; margin-top: 4px; }
-
-        /* MODAL POWIADOMIEŃ */
-        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 11000; align-items: center; justify-content: center; padding: 20px; backdrop-filter: blur(5px); }
-        .modal-content { background: #0a0a0a; border: 3px solid #ffe800; padding: 30px; width: 100%; max-width: 450px; border-radius: 15px; text-align: center; box-shadow: 0 0 30px rgba(255, 232, 0, 0.2); }
-        .btn-modal { background: #ffe800; color: #000; border: none; padding: 15px 20px; font-weight: 900; border-radius: 8px; cursor: pointer; width: 100%; margin-top: 10px; text-transform: uppercase; letter-spacing: 1px;}
-        @keyframes blink { 0% { opacity: 1; } 50% { opacity: 0.3; } 100% { opacity: 1; } }
-        .nav-alert { color: #f44; font-weight: 900; animation: blink 1s infinite; font-size: 1rem; margin-left: 5px; }
     </style>
 </head>
 <body>
 
 <header>
     <div class="menu-btn" onclick="toggleNav()">☰</div>
-    <div class="logo">EXPERT <span>TOOL</span> <div class="store-badge" id="headerStore">SXXX</div></div>
+    <div class="logo">EXPERT <span>TOOL</span> <div class="store-badge" id="headerStore">Łączenie z bazą...</div></div>
 </header>
 
 <div class="sidebar" id="sidebar">
@@ -84,7 +104,7 @@
         <a href="index.html" class="sidebar-link" style="color:#ffe800">Strona główna</a>
         <a href="plan.html" class="sidebar-link">Plan pracy</a>
         <a href="inwa.html" class="sidebar-link">Inwentury</a>
-        <a href="inwak.html" class="sidebar-link" id="navInwaKSS">Inwentury (ME/KSS) <span id="kssAlertBadge"></span></a>
+        <a href="inwak.html" class="sidebar-link" id="navInwaKSS">Inwentury (ME/KSS)</a>
         <a href="azs.html" class="sidebar-link">AZS</a>
         <a href="kwt.html" class="sidebar-link">KWT</a>
         <a href="qr.html" class="sidebar-link">Kod QR</a>
@@ -103,7 +123,10 @@
 
 <div class="content">
     <div class="content-inner">
-        <div class="greeting"><h1>Cześć, <span id="greetName">Ekipa</span>!</h1></div>
+        <div class="greeting">
+            <h1>Cześć, <span id="greetName">Ekipa</span>!</h1>
+        </div>
+
         <div class="clock-container">
             <div class="time-box" id="box-hours"><div class="label">GODZINA</div><div class="digits" id="hours">00</div></div>
             <div class="time-box" id="box-minutes"><div class="label">MINUTA</div><div class="digits" id="minutes">00</div></div>
@@ -112,10 +135,22 @@
 
         <div class="section-title">ZADANIA NA DZIŚ (Z PLANU PRACY)</div>
         <div class="daily-info-grid">
-            <div class="info-card"><div class="info-icon">⏱️</div><div class="info-text-group"><span class="info-label">Twój dzisiejszy grafik</span><span class="info-value" id="myShiftVal">Wczytywanie...</span></div></div>
-            <div class="info-card"><div class="info-icon">📦</div><div class="info-text-group"><span class="info-label">Dostawę przyjmuje</span><span class="info-value person" id="deliveryVal">BRAK</span></div></div>
-            <div class="info-card"><div class="info-icon">☕</div><div class="info-text-group"><span class="info-label">Socjalem zajmuje się</span><span class="info-value person" id="socialVal">BRAK</span></div></div>
-            <div class="info-card"><div class="info-icon">🔑</div><div class="info-text-group"><span class="info-label">Klucze pobiera</span><span class="info-value person" id="keysVal">BRAK</span></div></div>
+            <div class="info-card">
+                <div class="info-icon">⏱️</div>
+                <div class="info-text-group"><span class="info-label">Twój dzisiejszy grafik</span><span class="info-value" id="myShiftVal">Łączenie...</span></div>
+            </div>
+            <div class="info-card">
+                <div class="info-icon">📦</div>
+                <div class="info-text-group"><span class="info-label">Dostawę przyjmuje</span><span class="info-value person" id="deliveryVal">Łączenie...</span></div>
+            </div>
+            <div class="info-card">
+                <div class="info-icon">☕</div>
+                <div class="info-text-group"><span class="info-label">Socjalem zajmuje się</span><span class="info-value person" id="socialVal">Łączenie...</span></div>
+            </div>
+            <div class="info-card">
+                <div class="info-icon">🔑</div>
+                <div class="info-text-group"><span class="info-label">Klucze pobiera</span><span class="info-value person" id="keysVal">Łączenie...</span></div>
+            </div>
         </div>
 
         <div class="section-title">SZYBKIE SKRÓTY</div>
@@ -126,102 +161,121 @@
             <a href="qr.html" class="shortcut-card"><div class="shortcut-icon">📱</div><div class="shortcut-title">KOD QR</div></a>
         </div>
 
-        <div class="section-title">OBECNA EKIPA <span id="teamStoreLabel">SXXX</span></div>
-        <div class="team-grid" id="teamContainer"></div>
-    </div>
-</div>
+        <div class="section-title">OBECNA EKIPA <span id="teamStoreLabel"></span></div>
+        <div class="team-grid" id="teamContainer">
+            <div style="color: #666; font-size:0.8rem; font-weight:bold; width:100%; text-align:center; margin-top:20px;">POBIERANIE DANYCH Z CHMURY...</div>
+        </div>
 
-<div class="modal" id="globalNotificationModal">
-    <div class="modal-content" id="popupBox">
-        <h3 id="globalPopupTitle" style="margin-bottom: 15px; font-size: 1.3rem;">POWIADOMIENIE</h3>
-        <p id="globalPopupMsg" style="color: #fff; font-size: 1rem; margin-bottom: 25px; line-height: 1.5; font-weight: 700;"></p>
-        <button class="btn-modal" onclick="closeGlobalPopup()">ZROZUMIAŁEM</button>
     </div>
 </div>
 
 <script>
-    document.getElementById('headerStore').innerText = `${storeSetup.sNumber} ${storeSetup.city}`;
-    document.getElementById('teamStoreLabel').innerText = storeSetup.sNumber;
+    // Inicjalizacja Podstawowa
     document.getElementById('greetName').innerText = currentUser.name;
     document.getElementById('sideName').innerText = `${currentUser.name} (${currentUser.dept})`;
     document.getElementById('sideAvatar').innerText = currentUser.charId.charAt(0);
 
-    if(!isManagerOrKss) { document.getElementById('navInwaKSS').style.display = 'none'; }
+    if(!isManagerOrKss) {
+        document.getElementById('navInwaKSS').style.display = 'none';
+    }
 
-    // DANE Z PLANU PRACY
-    const dateObj = new Date(); const year = 2026; const month = dateObj.getMonth(); const day = dateObj.getDate();
-    let myShift = "BRAK / WOLNE"; let personKeys = [], personDelivery = [], personSocial = [];
-    let rawUsers = JSON.parse(localStorage.getItem('users')) || [];
-    
-    rawUsers.forEach(u => {
-        if(u.charId === 'ADMIN') return;
-        let cellData = localStorage.getItem(`pl_${year}_${month}_${u.name}_${day}`) || "";
-        let shift = cellData.split('|')[0] || ""; let roles = cellData.split('|')[1] ? cellData.split('|')[1].split(',') : [];
-        if(u.charId === currentUser.charId) myShift = shift || "BRAK / WOLNE";
-        if(roles.includes('K')) personKeys.push(u.name);
-        if(roles.includes('D')) personDelivery.push(u.name);
-        if(roles.includes('S')) personSocial.push(u.name);
+    // POBRANIE DANYCH SKLEPU Z FIREBASE (Header)
+    db.ref(`Stores/${myStore}/Setup`).once('value', snap => {
+        const setup = snap.val();
+        if(setup) {
+            document.getElementById('headerStore').innerText = `${setup.sNumber} ${setup.city}`;
+            document.getElementById('teamStoreLabel').innerText = setup.sNumber;
+        }
     });
 
-    document.getElementById('myShiftVal').innerText = myShift;
-    document.getElementById('keysVal').innerText = personKeys.length > 0 ? personKeys.join(', ') : "BRAK";
-    document.getElementById('deliveryVal').innerText = personDelivery.length > 0 ? personDelivery.join(', ') : "BRAK";
-    document.getElementById('socialVal').innerText = personSocial.length > 0 ? personSocial.join(', ') : "BRAK";
+    let globalUsersList = [];
 
-    // SORTOWANIE EKIPY
-    const teamContainer = document.getElementById('teamContainer');
-    const deptRank = { 'ME': 1, 'KSS': 2, 'POK': 3, 'IT': 4, 'AGD': 5, 'RTV': 6 };
-    let usersForDisplay = rawUsers.filter(u => u.charId !== 'ADMIN');
-    usersForDisplay.forEach(u => { if(u.isKss && u.dept !== 'ME') u.displayDept = 'KSS'; else u.displayDept = u.dept; });
-    usersForDisplay.sort((a, b) => (deptRank[a.displayDept] || 99) - (deptRank[b.displayDept] || 99));
+    // POBRANIE EKIPY Z FIREBASE (NASŁUCH NA ŻYWO)
+    db.ref(`Stores/${myStore}/Users`).on('value', snap => {
+        const usersObj = snap.val() || {};
+        globalUsersList = Object.keys(usersObj).map(key => ({ charId: key, ...usersObj[key] }));
+        
+        // Sortowanie i renderowanie ekipy
+        const teamContainer = document.getElementById('teamContainer');
+        teamContainer.innerHTML = '';
+        const deptRank = { 'ME': 1, 'KSS': 2, 'POK': 3, 'IT': 4, 'AGD': 5, 'RTV': 6 };
+        
+        let usersForDisplay = globalUsersList.filter(u => u.charId !== 'ADMIN');
+        usersForDisplay.forEach(u => {
+            if(u.isKss && u.dept !== 'ME') u.displayDept = 'KSS';
+            else u.displayDept = u.dept;
+        });
+        usersForDisplay.sort((a, b) => (deptRank[a.displayDept] || 99) - (deptRank[b.displayDept] || 99));
 
-    usersForDisplay.forEach(member => {
-        const card = document.createElement('div'); card.className = 'team-card';
-        let deptColor = member.dept === 'ME' ? '#f44' : '#ffe800';
-        card.innerHTML = `<div class="team-avatar">${member.charId.charAt(0)}</div><div class="team-info"><span class="team-name">${member.name}</span><span class="team-dept" style="color: ${deptColor};">${member.displayDept}</span></div>`;
-        teamContainer.appendChild(card);
+        usersForDisplay.forEach(member => {
+            const card = document.createElement('div');
+            card.className = 'team-card';
+            let deptColor = member.dept === 'ME' ? '#f44' : '#ffe800';
+            card.innerHTML = `<div class="team-avatar">${member.charId.charAt(0)}</div><div class="team-info"><span class="team-name">${member.name}</span><span class="team-dept" style="color: ${deptColor};">${member.displayDept}</span></div>`;
+            teamContainer.appendChild(card);
+        });
+
+        // Kiedy załadujemy userów, możemy pociągnąć grafik dla nich
+        fetchPlanData();
     });
 
-    // ZEGAR I MENU
+    // POBRANIE PLANU PRACY NA DZIŚ Z FIREBASE
+    function fetchPlanData() {
+        const dateObj = new Date();
+        const year = 2026; 
+        const month = dateObj.getMonth();
+        const day = dateObj.getDate();
+
+        db.ref(`Stores/${myStore}/Plan/${year}_${month}`).on('value', snap => {
+            const planData = snap.val() || {};
+            let myShift = "BRAK / WOLNE";
+            let personKeys = [], personDelivery = [], personSocial = [];
+            
+            globalUsersList.forEach(u => {
+                if(u.charId === 'ADMIN') return;
+                
+                // Formatujemy klucz w bazie jako: np. M123_15 (CharId_Dzień)
+                let cellData = planData[`${u.charId}_${day}`] || "";
+                let shift = cellData.split('|')[0] || "";
+                let roles = cellData.split('|')[1] ? cellData.split('|')[1].split(',') : [];
+
+                if(u.charId === currentUser.charId) {
+                    myShift = shift || "BRAK / WOLNE";
+                }
+                if(roles.includes('K')) personKeys.push(u.name);
+                if(roles.includes('D')) personDelivery.push(u.name);
+                if(roles.includes('S')) personSocial.push(u.name);
+            });
+
+            document.getElementById('myShiftVal').innerText = myShift;
+            document.getElementById('keysVal').innerText = personKeys.length > 0 ? personKeys.join(', ') : "BRAK";
+            document.getElementById('deliveryVal').innerText = personDelivery.length > 0 ? personDelivery.join(', ') : "BRAK";
+            document.getElementById('socialVal').innerText = personSocial.length > 0 ? personSocial.join(', ') : "BRAK";
+        });
+    }
+
+    // Zegar
     function updateClock() {
-        const now = new Date(); const h = String(now.getHours()).padStart(2, '0'); const m = String(now.getMinutes()).padStart(2, '0'); const s = String(now.getSeconds()).padStart(2, '0');
-        updateTile('hours', 'box-hours', h); updateTile('minutes', 'box-minutes', m); updateTile('seconds', 'box-seconds', s);
+        const now = new Date();
+        const h = String(now.getHours()).padStart(2, '0');
+        const m = String(now.getMinutes()).padStart(2, '0');
+        const s = String(now.getSeconds()).padStart(2, '0');
+        updateTile('hours', 'box-hours', h);
+        updateTile('minutes', 'box-minutes', m);
+        updateTile('seconds', 'box-seconds', s);
     }
     function updateTile(textId, boxId, newValue) {
-        const textEl = document.getElementById(textId); const boxEl = document.getElementById(boxId);
-        if (textEl.innerText !== newValue) { boxEl.classList.remove('flip-anim'); void boxEl.offsetWidth; boxEl.classList.add('flip-anim'); setTimeout(() => { textEl.innerText = newValue; }, 250); }
+        const textEl = document.getElementById(textId);
+        const boxEl = document.getElementById(boxId);
+        if (textEl.innerText !== newValue) {
+            boxEl.classList.remove('flip-anim'); void boxEl.offsetWidth; boxEl.classList.add('flip-anim');
+            setTimeout(() => { textEl.innerText = newValue; }, 250); 
+        }
     }
     setInterval(updateClock, 1000); updateClock();
+
     function toggleNav() { document.getElementById('sidebar').classList.toggle('active'); document.getElementById('overlay').classList.toggle('active'); }
     function logout() { localStorage.removeItem('currentUser'); window.location.href = 'login.html'; }
-
-    // --- SYSTEM POWIADOMIEŃ GLOBALNYCH ---
-    function checkNotifications() {
-        if (isManagerOrKss) {
-            let db = JSON.parse(localStorage.getItem('inwa_db')) || [];
-            let awaiting = db.filter(item => item.status === 'awaiting_kss').length;
-            let badge = document.getElementById('kssAlertBadge');
-            if(badge) badge.innerHTML = awaiting > 0 ? `<span class="nav-alert">[!]</span>` : '';
-        }
-        let notifs = JSON.parse(localStorage.getItem('app_notifications')) || [];
-        let myUnread = notifs.filter(n => !n.read && (n.to === currentUser.charId || (n.to === 'KSS' && isManagerOrKss)));
-        
-        if (myUnread.length > 0) {
-            let n = myUnread[0];
-            document.getElementById('globalPopupTitle').innerText = n.title;
-            document.getElementById('globalPopupMsg').innerText = n.msg;
-            document.getElementById('globalNotificationModal').style.display = 'flex';
-            let box = document.getElementById('popupBox');
-            if(n.type === 'success') { box.style.borderColor = '#0a0'; document.getElementById('globalPopupTitle').style.color = '#0a0'; }
-            else if(n.type === 'error') { box.style.borderColor = '#f44'; document.getElementById('globalPopupTitle').style.color = '#f44'; }
-            else { box.style.borderColor = '#ffe800'; document.getElementById('globalPopupTitle').style.color = '#ffe800'; }
-            
-            n.read = true; localStorage.setItem('app_notifications', JSON.stringify(notifs));
-        }
-    }
-    function closeGlobalPopup() { document.getElementById('globalNotificationModal').style.display = 'none'; }
-    window.addEventListener('storage', checkNotifications);
-    window.onload = () => checkNotifications();
 </script>
 
 </body>

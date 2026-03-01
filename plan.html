@@ -22,7 +22,7 @@
         
         const isManagerOrKss = (currentUser.dept === 'ME' || currentUser.isKss);
 
-        // INICJALIZACJA FIREBASE
+        // INICJALIZACJA FIREBASE Z TWOJĄ BAZĄ W EUROPIE
         const firebaseConfig = {
             apiKey: "AIzaSyD0N6Bjyzs34piOoujEn9mxKir8LDGdD2k",
             authDomain: "expert-tool.firebaseapp.com",
@@ -37,7 +37,7 @@
     </script>
 
     <style>
-        /* STYLE BAZOWE */
+        /* === STYLE BAZOWE === */
         * { 
             box-sizing: border-box; 
             margin: 0; 
@@ -59,7 +59,7 @@
         ::-webkit-scrollbar-track { background: #111; border-left: 1px solid #222; border-top: 1px solid #222; } 
         ::-webkit-scrollbar-thumb { background: #ffe800; border-radius: 2px; }
 
-        /* HEADER */
+        /* === HEADER === */
         header { 
             background: #ffe800; 
             height: 50px; 
@@ -108,7 +108,7 @@
             transition: 0.2s; 
         }
 
-        /* SIDEBAR NAWIGACJI */
+        /* === SIDEBAR NAWIGACJI === */
         .sidebar { 
             position: fixed; 
             left: -280px; 
@@ -207,7 +207,7 @@
         
         .overlay.active { display: block; }
 
-        /* GÓRNY PANEL KONTROLNY PLANU */
+        /* === GÓRNY PANEL KONTROLNY PLANU === */
         .navigation-area { 
             background: #111; 
             border-bottom: 2px solid #ffe800; 
@@ -274,7 +274,7 @@
             outline: none; 
         }
 
-        /* TABELA GŁÓWNA */
+        /* === TABELA GŁÓWNA === */
         .table-container { 
             flex: 1; 
             overflow: auto; 
@@ -302,7 +302,10 @@
             min-width: 75px; 
         }
         
-        thead th:last-child { border-right: none; min-width: 130px; } 
+        thead th:last-child { 
+            border-right: none; 
+            min-width: 130px; 
+        } 
         
         .avatar { 
             width: 28px; 
@@ -319,9 +322,23 @@
             background: #000; 
         }
         
-        .worker-name { font-size: 0.5rem; font-weight: 900; text-transform: uppercase; color: #fff; }
-        .dept-tag { font-size: 0.45rem; font-weight: 900; color: #888; }
-        .dept-me { color: #f44 !important; text-shadow: 0 0 5px rgba(255, 0, 0, 0.5); }
+        .worker-name { 
+            font-size: 0.5rem; 
+            font-weight: 900; 
+            text-transform: uppercase; 
+            color: #fff; 
+        }
+        
+        .dept-tag { 
+            font-size: 0.45rem; 
+            font-weight: 900; 
+            color: #888; 
+        }
+        
+        .dept-me { 
+            color: #f44 !important; 
+            text-shadow: 0 0 5px rgba(255, 0, 0, 0.5); 
+        }
         
         .date-col { 
             position: sticky; 
@@ -403,7 +420,7 @@
             z-index: 800; 
         }
 
-        /* MODALE I PRZYCISKI */
+        /* === MODALE I PRZYCISKI === */
         .modal { 
             display: none; 
             position: fixed; 
@@ -624,7 +641,7 @@
 </div>
 
 <script>
-    // INICJALIZACJA PODSTAWOWYCH INFORMACJI O UŻYTKOWNIKU
+    // === INICJALIZACJA UI KONT I UPRAWNIEŃ ===
     document.getElementById('headerStore').innerText = myStore;
     
     let finalDept = currentUser.dept;
@@ -645,18 +662,18 @@
     const months = ["STYCZEŃ", "LUTY", "MARZEC", "KWIECIEŃ", "MAJ", "CZERWIEC", "LIPIEC", "SIERPIEŃ", "WRZESIEŃ", "PAŹDZIERNIK", "LISTOPAD", "GRUDZIEŃ"];
     let curM = new Date().getMonth(); 
     
-    // USTAWIENIA DNI WOLNYCH I NIEDZIEL HANDLOWYCH
+    // USTAWIENIA DNI WOLNYCH I NIEDZIEL HANDLOWYCH W ROKU 2026
     const holidays2026 = ["1-1", "1-6", "4-5", "4-6", "5-1", "5-3", "5-24", "6-4", "8-15", "11-1", "11-11", "12-25", "12-26"];
     const tradingSundays2026 = ["1-25", "3-29", "4-26", "6-28", "8-30", "12-13", "12-20"]; 
 
-    // BAZA DANYCH W PAMIĘCI RAM (Kopie z Firebase)
+    // PAMIĘĆ PODRĘCZNA (Kopie bazy dla szybkiego renderowania)
     let localPlanData = {};
     let localPlanMeta = { norm: 160, locked: false, globalShifts: "10-18, 12-20, 10-20" };
     let employees = [];
     let planListener = null;
     let metaListener = null;
 
-    // 1. ZACIĄGANIE EKIPY Z FIREBASE I PODWÓJNE SORTOWANIE (Dział -> Alfabetycznie)
+    // === POBIERANIE UŻYTKOWNIKÓW Z CHMURY ===
     db.ref(`Stores/${myStore}/Users`).on('value', snap => {
         const usersObj = snap.val() || {};
         
@@ -675,16 +692,14 @@
             }
         });
 
-        // DWUPOZIOMOWE SORTOWANIE
+        // Dwupoziomowe sortowanie - najpierw działy, potem alfabetycznie
         rawUsers.sort((a, b) => {
             let rankA = deptRank[a.displayDept] || 99;
             let rankB = deptRank[b.displayDept] || 99;
             
-            // Jeśli mają ten sam dział, sortujemy alfabetycznie po imieniu
             if (rankA === rankB) {
                 return a.name.localeCompare(b.name, 'pl');
             }
-            // W przeciwnym razie sortujemy według hierarchii działów
             return rankA - rankB;
         });
 
@@ -700,13 +715,13 @@
         render(); 
     });
 
-    // 2. FUNKCJA ZMIANY MIESIĄCA (ODŚWIEŻENIE FIREBASE LISENERS)
+    // === OBSŁUGA ZMIANY MIESIĄCA W CHMURZE ===
     function setMonth(i) { 
         curM = i; 
         document.getElementById('loadingData').style.display = 'flex';
         renderMonths(); 
         
-        // Odepnij stare nasłuchiwanie z poprzedniego miesiąca, żeby nie zżerało danych transferowych
+        // Zabezpieczenie przed nadmiernym zużyciem transferu - odpinamy stary miesiąc
         if (planListener) {
             db.ref(`Stores/${myStore}/Plan/${year}_${curM}`).off('value', planListener);
         }
@@ -714,13 +729,14 @@
             db.ref(`Stores/${myStore}/PlanMeta/${year}_${curM}`).off('value', metaListener);
         }
 
-        // Podepnij nasłuch na nowy miesiąc
+        // Pobieranie właściwych komórek planu
         planListener = db.ref(`Stores/${myStore}/Plan/${year}_${curM}`).on('value', snap => {
             localPlanData = snap.val() || {};
             document.getElementById('loadingData').style.display = 'none';
             render();
         });
 
+        // Pobieranie ustawień planu (normy, urlopy, blokady)
         metaListener = db.ref(`Stores/${myStore}/PlanMeta/${year}_${curM}`).on('value', snap => {
             const meta = snap.val() || {};
             localPlanMeta.norm = meta.norm || 160;
@@ -756,7 +772,7 @@
         }); 
     }
 
-    // NARZĘDZIA DO OPERACJI NA DNACH I TABELACH
+    // === METODY POMOCNICZE DLA BAZY ===
     function isWorkDay(d) { 
         let ds = `${curM+1}-${d}`; 
         if (holidays2026.includes(ds)) return false; 
@@ -777,7 +793,7 @@
         db.ref(`Stores/${myStore}/Plan/${year}_${curM}`).update(updates); 
     }
 
-    // LOGIKA MODALU EDYCJI KOMÓRKI
+    // === OBSŁUGA POJEDYNCZEJ KOMÓRKI PRZEZ KIEROWNIKA ===
     let currentEditCharId = null; 
     let currentEditName = null; 
     let currentEditDay = null;
@@ -846,7 +862,7 @@
         closeCellModal();
     }
 
-    // GLOBALNE AKCJE ADMINA
+    // === ZARZĄDZANIE PANELEM ===
     function saveNorm(v) { 
         db.ref(`Stores/${myStore}/PlanMeta/${year}_${curM}`).update({ norm: parseInt(v) }); 
     }
@@ -876,7 +892,7 @@
         } 
     }
 
-    // ALGORYTM GENERATORA (ROZSZERZONY, CZYTELNY)
+    // === NOWY ZAAWANSOWANY SILNIK GENERATORA ===
     function calcRealH(charId) { 
         let h = 0; 
         for (let d = 1; d <= 31; d++) { 
@@ -897,17 +913,13 @@
             let st = getShiftOnly(charId, d); 
             if (st.includes('-') || st === "URLOP" || st === "SZK") {
                 s++; 
-            } else {
-                break;
-            }
+            } else { break; }
         } 
         for (let d = day + 1; d <= 31; d++) { 
             let st = getShiftOnly(charId, d); 
             if (st.includes('-') || st === "URLOP" || st === "SZK") {
                 s++; 
-            } else {
-                break;
-            }
+            } else { break; }
         } 
         return s; 
     }
@@ -923,183 +935,266 @@
     function startGeneration() {
         if (localPlanMeta.locked === true) return;
         
-        const baseNorm = parseInt(document.getElementById('hourNormInput').value);
-        const shifts = document.getElementById('globalShifts').value.split(',').map(s => s.trim());
-        const openShift = shifts[0] || "10-18"; 
-        const closeShift = shifts[1] || "12-20"; 
-        const fullShift = shifts[2] || "10-20"; 
-        const satShift = "10-20";
-        const daysInMonth = new Date(year, curM + 1, 0).getDate();
-
-        let genUpdates = {};
+        document.getElementById('loadingData').style.display = 'flex';
         
-        // Funkcja pomocnicza symulująca zapis w pamięci, by generator czytał swoje własne zmiany z poprzedniego kroku
-        function setTemp(charId, d, v) { 
-            genUpdates[`${charId}_${d}`] = v; 
-            localPlanData[`${charId}_${d}`] = v; 
-        }
-
-        // 1. CZYSZCZENIE STARYCH ZMIAN (Oprócz urlopów)
-        employees.forEach(e => { 
-            if (e.dept !== 'ME') { 
-                for (let d = 1; d <= daysInMonth; d++) { 
-                    let s = getShiftOnly(e.charId, d); 
-                    if (s.includes('-') || s === "WOLNE") {
-                        setTemp(e.charId, d, ""); 
-                    }
-                } 
-            } 
-        });
-        
-        // 2. OBSADZANIE SOBÓT I NIEDZIEL HANDLOWYCH
-        let sats = []; 
-        for (let d = 1; d <= daysInMonth; d++) { 
-            if (new Date(year, curM, d).getDay() === 6 && isWorkDay(d)) {
-                sats.push(d); 
+        setTimeout(() => {
+            const baseNorm = parseInt(document.getElementById('hourNormInput').value);
+            
+            // Parsowanie dynamiczne ustawień zmian z wpisanych przez użytkownika
+            const rawShifts = document.getElementById('globalShifts').value.split(',').map(s=>s.trim());
+            let shiftDefs = rawShifts.map(s => {
+                let p = s.split('-');
+                return { val: s, h: (parseInt(p[1])||0) - (parseInt(p[0])||0) };
+            }).filter(s => s.h > 0);
+            
+            // Zabezpieczenie jakby ktoś skasował wszystkie wpisy
+            if(shiftDefs.length === 0) shiftDefs = [{val:"10-18", h:8}, {val:"12-20", h:8}, {val:"10-20", h:10}];
+            
+            // Podział na krótkie (do 8h) i długie (powyżej 8h) dla lepszego balansowania
+            let shortShifts = shiftDefs.filter(s => s.h <= 8);
+            let longShifts = shiftDefs.filter(s => s.h > 8);
+            
+            if(shortShifts.length === 0) shortShifts = shiftDefs;
+            if(longShifts.length === 0) longShifts = shiftDefs;
+            
+            let openShiftStr = shortShifts.find(s => parseInt(s.val.split('-')[0]) <= 10)?.val || shortShifts[0].val;
+            let closeShiftStr = shortShifts.find(s => parseInt(s.val.split('-')[1]) >= 20)?.val || shortShifts[shortShifts.length-1].val;
+            let fullShiftStr = longShifts[0].val; // weekendy/uzupełnienia
+            
+            const daysInMonth = new Date(year, curM + 1, 0).getDate();
+            let genUpdates = {};
+            
+            // Funkcja pozwalająca algorytmowi czytać to, co wygenerował milisekundę temu
+            function setTemp(charId, d, v) { 
+                genUpdates[`${charId}_${d}`] = v; 
+                localPlanData[`${charId}_${d}`] = v; 
             }
-        }
-        
-        sats.forEach(d => {
-            let available = employees.filter(e => getShiftOnly(e.charId, d) === "" && e.dept !== 'ME'); 
-            shuffle(available);
+
+            // KROK 1: Czyszczenie dni pracujących
+            employees.forEach(e => { 
+                if (e.dept !== 'ME') { 
+                    for (let d = 1; d <= daysInMonth; d++) { 
+                        let s = getShiftOnly(e.charId, d); 
+                        if (s.includes('-') || s === "WOLNE") {
+                            setTemp(e.charId, d, ""); 
+                        }
+                    } 
+                } 
+            });
             
-            let toWork = []; 
-            let poks = available.filter(e => e.p); 
-            let sales = available.filter(e => !e.p); 
-            let totalNeeded = 6;
-            
-            if (poks.length > 0) { 
-                toWork.push({ e: poks[0], shift: satShift }); 
-                if (poks.length > 1) {
-                    sales.push(poks[1]); 
+            // KROK 2: Sprawiedliwe Soboty (i niedziele handlowe)
+            let weekendDays = []; 
+            for (let d = 1; d <= daysInMonth; d++) { 
+                let dateObj = new Date(year, curM, d);
+                if ((dateObj.getDay() === 6 || dateObj.getDay() === 0) && isWorkDay(d)) {
+                    weekendDays.push(d); 
                 }
-                totalNeeded--; 
             }
             
-            let it = sales.find(e => e.dept === 'IT'); 
-            if (it) { 
-                toWork.push({ e: it, shift: satShift }); 
-                sales = sales.filter(e => e.charId !== it.charId); 
-                totalNeeded--; 
-            }
-            
-            let agd = sales.find(e => e.dept === 'AGD'); 
-            if (agd) { 
-                toWork.push({ e: agd, shift: satShift }); 
-                sales = sales.filter(e => e.charId !== agd.charId); 
-                totalNeeded--; 
-            }
-            
-            for (let i = 0; i < totalNeeded && sales.length > 0; i++) { 
-                toWork.push({ e: sales[0], shift: satShift }); 
-                sales.shift(); 
-            }
-            
-            toWork.forEach(w => setTemp(w.e.charId, d, w.shift));
-        });
+            // System zapamiętuje kto ile dostał weekendów
+            let workedWeekendsCount = {};
+            employees.forEach(e => workedWeekendsCount[e.charId] = 0);
 
-        // 3. OBSADZANIE DNI POWSZEDNICH (PON-PT)
-        for (let d = 1; d <= daysInMonth; d++) {
-            if (new Date(year, curM, d).getDay() === 6 || !isWorkDay(d)) continue;
-            
-            let available = employees.filter(e => getShiftOnly(e.charId, d) === "" && getStreak(e.charId, d) < 5 && e.dept !== 'ME'); 
-            shuffle(available);
-            
-            let poks = available.filter(e => e.p); 
-            let sales = available.filter(e => !e.p);
-            
-            if (poks.length === 1) { 
-                setTemp(poks[0].charId, d, fullShift); 
-            } else if (poks.length > 1) { 
-                setTemp(poks[0].charId, d, openShift); 
-                setTemp(poks[1].charId, d, closeShift); 
-            }
-            
-            let otwNeeded = 3; 
-            let zamNeeded = 3;
-            
-            let assignSale = (emp, isOtw) => { 
-                if (isOtw) { 
-                    setTemp(emp.charId, d, openShift); 
-                    otwNeeded--; 
-                } else { 
-                    setTemp(emp.charId, d, closeShift); 
-                    zamNeeded--; 
-                } 
-                sales = sales.filter(e => e.charId !== emp.charId); 
-            };
-            
-            let it = sales.find(e => e.dept === 'IT'); 
-            if (it) assignSale(it, true); 
-            
-            let agd = sales.find(e => e.dept === 'AGD'); 
-            if (agd) assignSale(agd, false); 
-            
-            for (let i = 0; i < sales.length && (otwNeeded > 0 || zamNeeded > 0); i++) { 
-                if (otwNeeded > 0) { 
-                    assignSale(sales[i], true); 
-                    i--; 
-                } else if (zamNeeded > 0) { 
-                    assignSale(sales[i], false); 
-                    i--; 
-                } 
-            }
-        }
-
-        // 4. BALANSOWANIE GODZIN DO NORMY
-        let allBalanced = false; 
-        let iterations = 0;
-        
-        while (!allBalanced && iterations < 3000) {
-            allBalanced = true; 
-            let status = employees.map(e => ({ 
-                e: e, 
-                target: baseNorm, 
-                current: calcRealH(e.charId), 
-                diff: baseNorm - calcRealH(e.charId) 
-            }));
-            
-            shuffle(status); 
-            status.sort((a, b) => Math.abs(b.diff) - Math.abs(a.diff));
-
-            for (let st of status) {
-                if (st.diff === 0 || st.e.dept === 'ME') continue; 
+            weekendDays.forEach(d => {
+                let available = employees.filter(e => getShiftOnly(e.charId, d) === "" && e.dept !== 'ME'); 
+                shuffle(available); // losowanie żeby nie zawsze leciał ten sam ułamek
                 
-                allBalanced = false; 
-                let emp = st.e; 
-                let done = false;
+                // Sortujemy od najmniejszej ilości pracujących weekendów
+                available.sort((a,b) => workedWeekendsCount[a.charId] - workedWeekendsCount[b.charId]);
                 
-                if (st.diff > 0) {
-                    // Pracownik ma za mało godzin - szukamy wolnego dnia na dołożenie zmiany Open
-                    for (let d = 1; d <= daysInMonth; d++) { 
-                        if (isWorkDay(d) && getShiftOnly(emp.charId, d) === "" && getStreak(emp.charId, d) < 5) { 
-                            setTemp(emp.charId, d, openShift); 
-                            done = true; 
-                            break; 
-                        } 
-                    }
-                } else if (st.diff < 0) {
-                    // Pracownik ma za dużo godzin - usuwamy jakąś zmianę
-                    for (let d = 1; d <= daysInMonth; d++) { 
-                        let s = getShiftOnly(emp.charId, d); 
-                        if (s === openShift || s === closeShift || s === fullShift) { 
-                            setTemp(emp.charId, d, ""); 
-                            done = true; 
-                            break; 
-                        } 
-                    }
+                let toWork = []; 
+                let poks = available.filter(e => e.p); 
+                let sales = available.filter(e => !e.p); 
+                let totalNeeded = 6; // Potrzeba 6 osób na weekendzie
+                
+                if (poks.length > 0) { 
+                    toWork.push(poks[0]); 
+                    if (poks.length > 1) sales.push(poks[1]); 
+                    totalNeeded--; 
                 }
                 
-                if (done) break;
-            } 
-            iterations++;
-        }
-        
-        // ZAPIS W CHMURZE FIREBASE
-        saveToFirebase(genUpdates);
+                let it = sales.find(e => e.dept === 'IT'); 
+                if (it) { 
+                    toWork.push(it); 
+                    sales = sales.filter(e => e.charId !== it.charId); 
+                    totalNeeded--; 
+                }
+                
+                let agd = sales.find(e => e.dept === 'AGD'); 
+                if (agd) { 
+                    toWork.push(agd); 
+                    sales = sales.filter(e => e.charId !== agd.charId); 
+                    totalNeeded--; 
+                }
+                
+                for (let i = 0; i < totalNeeded && sales.length > 0; i++) { 
+                    toWork.push(sales[0]); 
+                    sales.shift(); 
+                }
+                
+                toWork.forEach(w => {
+                    setTemp(w.charId, d, fullShiftStr); // Przypisanie długiej zmiany na weekend
+                    workedWeekendsCount[w.charId]++; // +1 do pamięci weekendów
+                });
+            });
+
+            // KROK 3: Szkielet w tygodniu roboczym (żeby zawsze ktoś był na dziale)
+            for (let d = 1; d <= daysInMonth; d++) {
+                let dateObj = new Date(year, curM, d);
+                if (dateObj.getDay() === 6 || dateObj.getDay() === 0 || !isWorkDay(d)) continue;
+                
+                let available = employees.filter(e => getShiftOnly(e.charId, d) === "" && getStreak(e.charId, d) < 5 && e.dept !== 'ME'); 
+                shuffle(available);
+                
+                let poks = available.filter(e => e.p); 
+                let sales = available.filter(e => !e.p);
+                
+                if (poks.length === 1) { 
+                    setTemp(poks[0].charId, d, fullShiftStr); 
+                } else if (poks.length > 1) { 
+                    setTemp(poks[0].charId, d, openShiftStr); 
+                    setTemp(poks[1].charId, d, closeShiftStr); 
+                }
+                
+                let otwNeeded = 3; 
+                let zamNeeded = 3;
+                
+                let assignSale = (emp, isOtw) => { 
+                    if (isOtw) { 
+                        setTemp(emp.charId, d, openShiftStr); 
+                        otwNeeded--; 
+                    } else { 
+                        setTemp(emp.charId, d, closeShiftStr); 
+                        zamNeeded--; 
+                    } 
+                    sales = sales.filter(e => e.charId !== emp.charId); 
+                };
+                
+                let it = sales.find(e => e.dept === 'IT'); 
+                if (it) assignSale(it, true); 
+                
+                let agd = sales.find(e => e.dept === 'AGD'); 
+                if (agd) assignSale(agd, false); 
+                
+                for (let i = 0; i < sales.length && (otwNeeded > 0 || zamNeeded > 0); i++) { 
+                    if (otwNeeded > 0) { 
+                        assignSale(sales[i], true); 
+                        i--; 
+                    } else if (zamNeeded > 0) { 
+                        assignSale(sales[i], false); 
+                        i--; 
+                    } 
+                }
+            }
+
+            // KROK 4: Balansowanie co do zera
+            let iterations = 0;
+            let balanced = false;
+            
+            while (!balanced && iterations < 800) {
+                balanced = true; 
+                let status = employees.map(e => ({ 
+                    e: e, 
+                    current: calcRealH(e.charId), 
+                    diff: baseNorm - calcRealH(e.charId) 
+                })).filter(s => s.e.dept !== 'ME');
+                
+                shuffle(status); 
+                status.sort((a, b) => Math.abs(b.diff) - Math.abs(a.diff));
+
+                for (let st of status) {
+                    if (st.diff === 0) continue; 
+                    
+                    balanced = false; 
+                    let emp = st.e; 
+                    let doneSomething = false;
+                    
+                    if (st.diff > 0) { // Brakuje mu godzin do przepracowania
+                        // Strategia 1: Zmień zmianę z krótkiej na długą np z 10-18 na 10-20
+                        if (st.diff >= 2 && longShifts.length > 0) {
+                            for (let d = 1; d <= daysInMonth; d++) { 
+                                let s = getShiftOnly(emp.charId, d); 
+                                let isShort = shortShifts.find(sh => sh.val === s);
+                                let isWknd = (new Date(year, curM, d).getDay() === 6 || new Date(year, curM, d).getDay() === 0);
+                                
+                                if (isShort && !isWknd) { // omijamy puste i długie zmiany i weekendy
+                                    setTemp(emp.charId, d, longShifts[0].val); 
+                                    doneSomething = true; 
+                                    break; 
+                                } 
+                            }
+                        }
+                        
+                        // Strategia 2: Dodaj mu całkowicie nowy dzień do pracy
+                        if (!doneSomething && st.diff >= 6) {
+                            for (let d = 1; d <= daysInMonth; d++) { 
+                                if (isWorkDay(d) && getShiftOnly(emp.charId, d) === "" && getStreak(emp.charId, d) < 5) { 
+                                    // Dobieramy odpowiednią wielkość zmiany
+                                    let shiftToAssign = shortShifts[0].val; 
+                                    if(st.diff >= 10 && longShifts.length > 0) {
+                                        shiftToAssign = longShifts[0].val;
+                                    }
+                                    setTemp(emp.charId, d, shiftToAssign); 
+                                    doneSomething = true; 
+                                    break; 
+                                } 
+                            }
+                        }
+                    } else if (st.diff < 0) { // Pracuje za długo
+                        // Strategia 1: Zmień długą zmianę na krótką
+                        if (st.diff <= -2 && shortShifts.length > 0) {
+                            for (let d = 1; d <= daysInMonth; d++) { 
+                                let s = getShiftOnly(emp.charId, d); 
+                                let isLong = longShifts.find(sh => sh.val === s);
+                                let isWknd = (new Date(year, curM, d).getDay() === 6 || new Date(year, curM, d).getDay() === 0);
+                                
+                                if (isLong && !isWknd) { 
+                                    setTemp(emp.charId, d, shortShifts[0].val); 
+                                    doneSomething = true; 
+                                    break; 
+                                } 
+                            }
+                        }
+                        
+                        // Strategia 2: Zdejmij mu z grafiku cały dzień pracujący
+                        if (!doneSomething && st.diff <= -6) {
+                            for (let d = 1; d <= daysInMonth; d++) { 
+                                let s = getShiftOnly(emp.charId, d); 
+                                let isWknd = (new Date(year, curM, d).getDay() === 6 || new Date(year, curM, d).getDay() === 0);
+                                
+                                if (s.includes('-') && !isWknd) { 
+                                    setTemp(emp.charId, d, ""); 
+                                    doneSomething = true; 
+                                    break; 
+                                } 
+                            }
+                            
+                            // Strategia 3 (ostateczność): Zdejmij mu z weekendu
+                            if(!doneSomething) {
+                                for (let d = 1; d <= daysInMonth; d++) { 
+                                    let s = getShiftOnly(emp.charId, d); 
+                                    if (s.includes('-')) { 
+                                        setTemp(emp.charId, d, ""); 
+                                        doneSomething = true; 
+                                        break; 
+                                    } 
+                                }
+                            }
+                        }
+                    }
+                    
+                    if (doneSomething) break;
+                } 
+                iterations++;
+            }
+            
+            // Wysłanie wszystkich kalkulacji do chmury jednym strzałem
+            saveToFirebase(genUpdates);
+            document.getElementById('loadingData').style.display = 'none';
+        }, 100);
     }
 
-    // GŁÓWNA FUNKCJA RENDERUJĄCA TABELĘ
+    // === GŁÓWNY RENDER TABELI ===
     function render() {
         if (employees.length === 0) return; 
         
@@ -1219,7 +1314,7 @@
         fSat.innerHTML += '<td class="obsada-col"></td>';
     }
 
-    // RENDEROWANIE USTAWIEN DLA PRACOWNIKOW
+    // === USTAWIENIA PRACOWNIKÓW ===
     function renderSettings() {
         const grid = document.getElementById('workerGrid'); 
         grid.innerHTML = "";
@@ -1243,7 +1338,6 @@
         });
     }
 
-    // ZAPISYWANIE URLOPÓW I ZMIAN
     function saveSettings() {
         const daysInMonth = new Date(year, curM + 1, 0).getDate();
         let planUpdates = {}; 
@@ -1298,7 +1392,7 @@
         toggleModal(false); 
     }
 
-    // EXPORT EXCEL
+    // === EXPORT EXCEL ===
     function exportToExcel() {
         const daysInMonth = new Date(year, curM + 1, 0).getDate(); 
         
@@ -1336,7 +1430,7 @@
         XLSX.writeFile(wb, `Grafik_ME_${months[curM]}.xlsx`);
     }
 
-    // NAWIGACJA
+    // === NAWIGACJA ===
     function toggleNav() { 
         document.getElementById('sidebar').classList.toggle('active'); 
         document.getElementById('overlay').classList.toggle('active'); 

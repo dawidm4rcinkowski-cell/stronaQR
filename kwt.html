@@ -122,7 +122,7 @@
         }
         
         .sidebar.active { left: 0; }
-        .sidebar-nav { flex-grow: 1; overflow-y: auto; }
+        .sidebar-nav { flex-grow: 1; overflow-y: auto; display: flex; flex-direction: column; }
         
         .sidebar-header { 
             color: #ffe800; 
@@ -147,6 +147,29 @@
         .sidebar-link:hover { 
             background: #1a1a1a; 
             color: #ffe800; 
+            padding-left: 35px; 
+        }
+
+        /* NAPRAWIONY LINK FEEDBACKU */
+        .sidebar-feedback, .sidebar-feedback:visited, .sidebar-feedback:link { 
+            display: block; 
+            margin-top: auto; 
+            background: #111; 
+            color: #ffe800 !important; 
+            padding: 15px 25px; 
+            text-decoration: none !important; 
+            font-weight: 900; 
+            font-size: 0.8rem; 
+            border-top: 1px solid #222; 
+            border-bottom: 1px solid #222; 
+            transition: 0.3s; 
+            text-transform: uppercase; 
+            letter-spacing: 0.5px; 
+        }
+        
+        .sidebar-feedback:hover { 
+            background: #ffe800 !important; 
+            color: #000 !important; 
             padding-left: 35px; 
         }
         
@@ -410,7 +433,8 @@
 
 <header>
     <div class="menu-btn" onclick="toggleNav()">☰</div>
-    <div class="logo">EXPERT <span>TOOL</span> <div class="store-badge" id="headerStore">SXXX</div></div>
+    <div class="logo">EXPERT <span>TOOL</span></div>
+    <div class="store-badge" id="headerStore">SXXX</div>
 </header>
 
 <div class="sidebar" id="sidebar">
@@ -425,6 +449,7 @@
         <a href="qr.html" class="sidebar-link">Kod QR</a>
         <a href="feedback.html" class="sidebar-feedback">💡 Zgłoś problem / Pomysł</a>
     </div>
+    
     <div class="user-profile" onclick="window.location.href='ustawienia.html'">
         <div class="user-avatar" id="sideAvatar">?</div>
         <div class="user-info">

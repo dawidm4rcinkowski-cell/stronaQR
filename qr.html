@@ -5,11 +5,27 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Media Expert - QR Generator</title>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&display=swap" rel="stylesheet">
+    
+    <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-database-compat.js"></script>
+    
     <script>
         const currentUser = JSON.parse(localStorage.getItem('currentUser'));
-        const storeSetup = JSON.parse(localStorage.getItem('store_setup'));
-        if (!currentUser || !storeSetup) { window.location.href = 'login.html'; }
+        const myStore = localStorage.getItem('myStore');
+        if (!currentUser || !myStore) { window.location.href = 'login.html'; }
         const isManagerOrKss = (currentUser.dept === 'ME' || currentUser.isKss);
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyD0N6Bjyzs34piOoujEn9mxKir8LDGdD2k",
+            authDomain: "expert-tool.firebaseapp.com",
+            databaseURL: "https://expert-tool-default-rtdb.europe-west1.firebasedatabase.app/",
+            projectId: "expert-tool",
+            storageBucket: "expert-tool.firebasestorage.app",
+            messagingSenderId: "880843997228",
+            appId: "1:880843997228:web:fa37aa80b7f9f017705189"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
     </script>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Montserrat', sans-serif; }
@@ -53,6 +69,12 @@
         .hist-code { color: #aaa; font-size: 0.75rem; font-weight: 700; }
         .hist-time { font-weight: 900; color: #fff; font-size: 0.8rem; }
         .btn-delete { background: transparent; border: 1px solid #a00; color: #f44; padding: 8px 12px; border-radius: 8px; font-weight: 900; font-size: 0.65rem; cursor: pointer; }
+        
+        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 11000; align-items: center; justify-content: center; padding: 20px; backdrop-filter: blur(5px); }
+        .modal-content { background: #0a0a0a; border: 3px solid #ffe800; padding: 30px; width: 100%; max-width: 450px; border-radius: 15px; text-align: center; box-shadow: 0 0 30px rgba(255, 232, 0, 0.2); }
+        .btn-modal { background: #ffe800; color: #000; border: none; padding: 15px 20px; font-weight: 900; border-radius: 8px; cursor: pointer; width: 100%; margin-top: 10px; text-transform: uppercase; }
+        @keyframes blink { 0% { opacity: 1; } 50% { opacity: 0.3; } 100% { opacity: 1; } }
+        .nav-alert { color: #f44; font-weight: 900; animation: blink 1s infinite; font-size: 1rem; margin-left: 5px; }
     </style>
 </head>
 <body>
@@ -68,7 +90,7 @@
         <a href="index.html" class="sidebar-link">Strona główna</a>
         <a href="plan.html" class="sidebar-link">Plan pracy</a>
         <a href="inwa.html" class="sidebar-link">Inwentury</a>
-        <a href="inwak.html" class="sidebar-link" id="navInwaKSS">Inwentury (ME/KSS)</a>
+        <a href="inwak.html" class="sidebar-link" id="navInwaKSS">Inwentury (ME/KSS) <span id="kssAlertBadge"></span></a>
         <a href="azs.html" class="sidebar-link">AZS</a>
         <a href="kwt.html" class="sidebar-link">KWT</a>
         <a href="qr.html" class="sidebar-link" style="color:#ffe800">Kod QR</a>
@@ -99,15 +121,23 @@
         </div>
 
         <div class="history-wrapper">
-            <h2 class="history-title">OSTATNIO WYGENEROWANE</h2>
+            <h2 class="history-title">OSTATNIO WYGENEROWANE W SKLEPIE</h2>
             <div class="history-header"><span>PEŁNY KOD JSON</span><span>GODZINA</span><span style="text-align: center;">AKCJA</span></div>
             <div id="historyList"></div>
         </div>
     </div>
 </div>
 
+<div class="modal" id="globalNotificationModal">
+    <div class="modal-content" id="popupBox">
+        <h3 id="globalPopupTitle" style="margin-bottom: 15px; font-size: 1.3rem;">POWIADOMIENIE</h3>
+        <p id="globalPopupMsg" style="color: #fff; font-size: 1rem; margin-bottom: 25px; line-height: 1.5; font-weight: 700;"></p>
+        <button class="btn-modal" onclick="closeGlobalPopup()">ZROZUMIAŁEM</button>
+    </div>
+</div>
+
 <script>
-    document.getElementById('headerStore').innerText = `${storeSetup.sNumber} ${storeSetup.city}`;
+    document.getElementById('headerStore').innerText = myStore;
     document.getElementById('sideName').innerText = `${currentUser.name} (${currentUser.dept})`;
     document.getElementById('sideAvatar').innerText = currentUser.charId.charAt(0);
     if(!isManagerOrKss) { document.getElementById('navInwaKSS').style.display = 'none'; }
@@ -115,28 +145,56 @@
     function logout() { localStorage.removeItem('currentUser'); window.location.href = 'login.html'; }
 
     let cooldownActive = false;
+    
     function copyCode() {
         if (cooldownActive) return;
         const fullJson = `{ "type" : "npws_order_received_qr_code" , "order_number" : "${document.getElementById('orderNum').value || "123456"}" , "pin" : "${document.getElementById('pinNum').value || "123"}" }`;
-        navigator.clipboard.writeText(fullJson).then(() => { saveToLocalStorage(fullJson); runCooldown(); });
+        navigator.clipboard.writeText(fullJson).then(() => { 
+            const now = new Date(); const tStr = now.toLocaleTimeString('pl-PL', { hour: '2-digit', minute: '2-digit' }); const dStr = now.toLocaleDateString('pl-PL', { day: '2-digit', month: '2-digit' });
+            db.ref(`Stores/${myStore}/QRHistory`).push({ code: fullJson, timestamp: `${dStr} | ${tStr}`, serverTime: Date.now() });
+            runCooldown(); 
+        });
     }
+
     function runCooldown() {
         cooldownActive = true; const btn = document.getElementById('copyBtn'); let timeLeft = 3; btn.classList.add('wait'); btn.innerText = `SKOPIOWANO! (${timeLeft}S)`;
         const cd = setInterval(() => { timeLeft--; if (timeLeft > 0) btn.innerText = `SKOPIOWANO! (${timeLeft}S)`; else { clearInterval(cd); btn.classList.remove('wait'); btn.innerText = "KOPIUJ KOD"; cooldownActive = false; } }, 1000);
     }
-    function saveToLocalStorage(code) {
-        const now = new Date(); const tStr = now.toLocaleTimeString('pl-PL', { hour: '2-digit', minute: '2-digit' }); const dStr = now.toLocaleDateString('pl-PL', { day: '2-digit', month: '2-digit' });
-        let history = JSON.parse(localStorage.getItem('qr_history')) || [];
-        history.unshift({ id: Date.now(), code: code, timestamp: `${dStr} | ${tStr}` }); if (history.length > 10) history.pop();
-        localStorage.setItem('qr_history', JSON.stringify(history)); renderHistory();
+
+    // NASŁUCH HISTORII QR NA ŻYWO
+    db.ref(`Stores/${myStore}/QRHistory`).orderByChild('serverTime').limitToLast(10).on('value', snap => {
+        const listContainer = document.getElementById('historyList');
+        if (!snap.exists()) { listContainer.innerHTML = '<div style="padding: 30px; text-align: center; color: #555; font-weight: 700; font-size: 0.8rem;">BRAK HISTORII</div>'; return; }
+        
+        let history = [];
+        snap.forEach(child => { history.unshift({ id: child.key, ...child.val() }); });
+        
+        listContainer.innerHTML = history.map(item => `<div class="history-item"><div class="hist-code">${item.code}</div><div class="hist-time">${item.timestamp}</div><div style="text-align: center;"><button class="btn-delete" onclick="deleteEntry('${item.id}')">USUŃ</button></div></div>`).join('');
+    });
+
+    function deleteEntry(id) { db.ref(`Stores/${myStore}/QRHistory/${id}`).remove(); }
+
+    // SYSTEM POWIADOMIEŃ
+    db.ref(`Stores/${myStore}/Notifications`).on('value', snap => {
+        let notifsObj = snap.val() || {}; let notifs = Object.keys(notifsObj).map(key => ({ keyId: key, ...notifsObj[key] }));
+        let myUnread = notifs.filter(n => !n.read && (n.to === currentUser.charId || (n.to === 'KSS' && isManagerOrKss)));
+        if (myUnread.length > 0) {
+            let n = myUnread[0]; document.getElementById('globalPopupTitle').innerText = n.title; document.getElementById('globalPopupMsg').innerText = n.msg; document.getElementById('globalNotificationModal').style.display = 'flex';
+            let box = document.getElementById('popupBox');
+            if(n.type === 'success') { box.style.borderColor = '#0a0'; document.getElementById('globalPopupTitle').style.color = '#0a0'; } else if(n.type === 'error') { box.style.borderColor = '#f44'; document.getElementById('globalPopupTitle').style.color = '#f44'; } else { box.style.borderColor = '#ffe800'; document.getElementById('globalPopupTitle').style.color = '#ffe800'; }
+            db.ref(`Stores/${myStore}/Notifications/${n.keyId}`).update({ read: true });
+        }
+    });
+
+    if(isManagerOrKss) {
+        db.ref(`Stores/${myStore}/Inwentury`).on('value', snap => {
+            let hasAwaiting = false;
+            snap.forEach(monthSnap => { monthSnap.forEach(item => { if(item.val().status === 'awaiting_kss') hasAwaiting = true; }); });
+            let badge = document.getElementById('kssAlertBadge'); if(badge) badge.innerHTML = hasAwaiting ? `<span class="nav-alert">[!]</span>` : '';
+        });
     }
-    function renderHistory() {
-        const listContainer = document.getElementById('historyList'); const history = JSON.parse(localStorage.getItem('qr_history')) || [];
-        if (history.length === 0) { listContainer.innerHTML = '<div style="padding: 30px; text-align: center; color: #555; font-weight: 700; font-size: 0.8rem;">BRAK HISTORII</div>'; return; }
-        listContainer.innerHTML = history.map(item => `<div class="history-item"><div class="hist-code">${item.code}</div><div class="hist-time">${item.timestamp}</div><div style="text-align: center;"><button class="btn-delete" onclick="deleteEntry(${item.id})">USUŃ</button></div></div>`).join('');
-    }
-    function deleteEntry(id) { let history = JSON.parse(localStorage.getItem('qr_history')) || []; localStorage.setItem('qr_history', JSON.stringify(history.filter(item => item.id !== id))); renderHistory(); }
-    window.onload = renderHistory;
+
+    function closeGlobalPopup() { document.getElementById('globalNotificationModal').style.display = 'none'; }
 </script>
 </body>
 </html>

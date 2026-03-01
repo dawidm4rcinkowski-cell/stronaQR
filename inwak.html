@@ -198,4 +198,58 @@
     
     function submitDecision(dec) {
         let db = JSON.parse(localStorage.getItem('inwa_db'));
-        let item = db.find(i => i.id ===
+        let item = db.find(i => i.id === currentReviewId);
+        
+        let notifs = JSON.parse(localStorage.getItem('app_notifications')) || [];
+        
+        if(dec === 'accept') {
+            item.status = 'done';
+            notifs.push({ id: Date.now(), to: item.submitterId, title: '✅ INWENTURA ZAAKCEPTOWANA', msg: `Kierownik/KSS sprawdził i zatwierdził twoją inwenturę: ${item.name}. Dobra robota!`, type: 'success', read: false });
+        } else {
+            item.status = 'rejected';
+            notifs.push({ id: Date.now(), to: item.submitterId, title: '❌ INWENTURA ODRZUCONA', msg: `Kierownik/KSS znalazł błędy w inwenturze: ${item.name}. Wróć na dział i policz jeszcze raz!`, type: 'error', read: false });
+        }
+        
+        localStorage.setItem('inwa_db', JSON.stringify(db));
+        localStorage.setItem('app_notifications', JSON.stringify(notifs));
+        
+        closeReviewModal();
+        window.dispatchEvent(new Event('storage'));
+        switchDept(item.dept);
+        checkNotifications();
+    }
+
+    // --- SYSTEM POWIADOMIEŃ GLOBALNYCH ---
+    function checkNotifications() {
+        if (isManagerOrKss) {
+            let db = JSON.parse(localStorage.getItem('inwa_db')) || [];
+            let awaiting = db.filter(item => item.status === 'awaiting_kss').length;
+            let badge = document.getElementById('kssAlertBadge');
+            if(badge) badge.innerHTML = awaiting > 0 ? `<span class="nav-alert">[!]</span>` : '';
+        }
+
+        let notifs = JSON.parse(localStorage.getItem('app_notifications')) || [];
+        let myUnread = notifs.filter(n => !n.read && (n.to === currentUser.charId || (n.to === 'KSS' && isManagerOrKss)));
+        
+        if (myUnread.length > 0) {
+            let n = myUnread[0];
+            document.getElementById('globalPopupTitle').innerText = n.title;
+            document.getElementById('globalPopupMsg').innerText = n.msg;
+            document.getElementById('globalNotificationModal').style.display = 'flex';
+            let box = document.getElementById('popupBox');
+            if(n.type === 'success') { box.style.borderColor = '#0a0'; document.getElementById('globalPopupTitle').style.color = '#0a0'; }
+            else if(n.type === 'error') { box.style.borderColor = '#f44'; document.getElementById('globalPopupTitle').style.color = '#f44'; }
+            else { box.style.borderColor = '#ffe800'; document.getElementById('globalPopupTitle').style.color = '#ffe800'; }
+            
+            n.read = true; // Oznacz
+            localStorage.setItem('app_notifications', JSON.stringify(notifs));
+        }
+    }
+
+    function closeGlobalPopup() { document.getElementById('globalNotificationModal').style.display = 'none'; }
+    window.addEventListener('storage', () => { checkNotifications(); switchDept(document.querySelector('.tab-btn.active').innerText.replace('DZIAŁ ', '')); });
+    
+    window.onload = () => { switchDept('IT'); checkNotifications(); };
+</script>
+</body>
+</html>

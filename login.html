@@ -23,7 +23,7 @@
 
         .input-group { margin-bottom: 20px; display: flex; flex-direction: column; gap: 8px; }
         .input-group label { font-size: 0.8rem; color: #888; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; }
-        .form-input { background: #0a0a0a; border: 2px solid #333; color: #fff; padding: 15px; border-radius: 10px; font-size: 1rem; font-weight: 700; outline: none; transition: 0.3s; }
+        .form-input { background: #0a0a0a; border: 2px solid #333; color: #fff; padding: 15px; border-radius: 10px; font-size: 1rem; font-weight: 700; outline: none; transition: 0.3s; width: 100%; }
         .form-input:focus { border-color: #ffe800; box-shadow: 0 0 15px rgba(255, 232, 0, 0.2); }
         
         .btn-main { width: 100%; background: #ffe800; color: #000; border: none; padding: 18px; font-weight: 900; border-radius: 10px; cursor: pointer; font-size: 1rem; transition: 0.3s; text-transform: uppercase; letter-spacing: 2px; margin-top: 10px; }
@@ -111,8 +111,7 @@
         </div>
 
         <div class="setup-title">Ekipa Sklepu</div>
-        <div id="crewContainer">
-            </div>
+        <div id="crewContainer"></div>
         <button class="btn-add" onclick="addCrewRow()">+ Dodaj Pracownika</button>
         
         <div class="error-msg" id="setupError"></div>
@@ -122,20 +121,13 @@
     <div id="viewPasswords" class="view">
         <div class="setup-title" style="color:#0a0;">Sukces! Baza utworzona.</div>
         <p style="color:#888; font-size:0.85rem; margin-bottom:15px;">Przekaż poniższe jednorazowe hasła startowe swojej ekipie. Przy pierwszym logowaniu system wymusi na nich zmianę hasła.</p>
-        
         <div class="pwd-list" id="pwdListContainer"></div>
-        
         <button class="btn-main" onclick="goToLogin()">Przejdź do logowania</button>
     </div>
 </div>
 
 <script>
-    // Inicjalizacja sprawdzająca, czy ktokolwiek jest zalogowany
-    window.onload = () => {
-        if(localStorage.getItem('currentUser')) {
-            window.location.href = 'index.html';
-        }
-    }
+    window.onload = () => { if(localStorage.getItem('currentUser')) window.location.href = 'index.html'; }
 
     function switchView(viewId, makeWide = false) {
         document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
@@ -144,7 +136,6 @@
         makeWide ? cont.classList.add('wide') : cont.classList.remove('wide');
     }
 
-    // LOGIKA LOGOWANIA
     function attemptLogin() {
         const charId = document.getElementById('loginCharId').value.trim().toUpperCase();
         const pass = document.getElementById('loginPass').value.trim();
@@ -152,27 +143,22 @@
 
         if(!charId || !pass) { err.innerText = "Wpisz CharID i Hasło!"; err.style.display = 'block'; return; }
 
-        // Odpalenie instalatora jeśli to czysty system
         const storeData = localStorage.getItem('store_setup');
         if(!storeData && charId === 'ADMIN' && pass === 'Welcome1!') {
             switchView('viewSetup', true);
-            addCrewRow(); // Dodaj jeden pusty wiersz na start
-            return;
+            addCrewRow(); return;
         }
 
-        // Zwykłe logowanie
         if(storeData) {
             const users = JSON.parse(localStorage.getItem('users')) || [];
             const user = users.find(u => u.charId === charId && u.password === pass);
 
             if(user) {
                 if(user.isFirstLogin) {
-                    // Pracownik musi zmienić hasło startowe
                     sessionStorage.setItem('tempCharId', user.charId);
                     document.getElementById('welcomeName').innerText = user.name;
                     switchView('viewChangePwd');
                 } else {
-                    // Zaloguj poprawnie
                     localStorage.setItem('currentUser', JSON.stringify({ charId: user.charId, name: user.name, dept: user.dept, isKss: user.isKss }));
                     window.location.href = 'index.html';
                 }
@@ -184,7 +170,6 @@
         }
     }
 
-    // LOGIKA ZMIANY HASŁA PRZEZ PRACOWNIKA
     function saveNewPassword() {
         const p1 = document.getElementById('newPwd1').value;
         const p2 = document.getElementById('newPwd2').value;
@@ -201,12 +186,10 @@
         users[userIndex].isFirstLogin = false;
         localStorage.setItem('users', JSON.stringify(users));
 
-        // Zaloguj od razu po zmianie
         localStorage.setItem('currentUser', JSON.stringify({ charId: users[userIndex].charId, name: users[userIndex].name, dept: users[userIndex].dept, isKss: users[userIndex].isKss }));
         window.location.href = 'index.html';
     }
 
-    // LOGIKA KREATORA SKLEPU
     function addCrewRow() {
         const cont = document.getElementById('crewContainer');
         const div = document.createElement('div');
@@ -215,10 +198,7 @@
             <input type="text" placeholder="Imię (np. Dawid)" class="c-name">
             <input type="text" placeholder="CharID" class="c-char">
             <select class="c-dept">
-                <option value="IT">IT</option>
-                <option value="RTV">RTV</option>
-                <option value="AGD">AGD</option>
-                <option value="POK">POK</option>
+                <option value="IT">IT</option><option value="RTV">RTV</option><option value="AGD">AGD</option><option value="POK">POK</option>
             </select>
             <label style="color:#fff; font-size:0.8rem; cursor:pointer;"><input type="checkbox" class="c-kss"> Jest KSS</label>
             <button class="btn-remove" onclick="this.parentElement.remove()">X</button>
@@ -226,9 +206,7 @@
         cont.appendChild(div);
     }
 
-    function generateRandomPassword() {
-        return Math.random().toString(36).slice(-6).toUpperCase();
-    }
+    function generateRandomPassword() { return Math.random().toString(36).slice(-6).toUpperCase(); }
 
     function finishSetup() {
         const sNum = document.getElementById('setupSNum').value.trim();
@@ -243,37 +221,32 @@
         }
 
         let users = [];
-        // Zapisz Kierownika (ME)
         users.push({ charId: mgrChar, name: mgrName, dept: 'ME', isKss: true, password: mgrPass, isFirstLogin: false });
 
         let generatedPasswordsHtml = "";
-        let isError = false;
-
         document.querySelectorAll('.crew-row').forEach(row => {
             const name = row.querySelector('.c-name').value.trim();
             const charId = row.querySelector('.c-char').value.trim().toUpperCase();
-            const dept = row.querySelector('.c-dept').value;
             const isKss = row.querySelector('.c-kss').checked;
+            
+            // Jeśli pracownik jest oznaczony jako KSS, to jego finalny dział to po prostu KSS
+            const finalDept = isKss ? 'KSS' : row.querySelector('.c-dept').value;
 
             if(name && charId) {
                 const tempPass = generateRandomPassword();
-                users.push({ charId: charId, name: name, dept: dept, isKss: isKss, password: tempPass, isFirstLogin: true });
-                generatedPasswordsHtml += `<div class="pwd-item"><span>${name} (${charId}) - ${dept}</span> <strong>${tempPass}</strong></div>`;
+                users.push({ charId: charId, name: name, dept: finalDept, isKss: isKss, password: tempPass, isFirstLogin: true });
+                generatedPasswordsHtml += `<div class="pwd-item"><span>${name} (${charId}) - ${finalDept}</span> <strong>${tempPass}</strong></div>`;
             }
         });
 
-        // Zapisz w pamięci bazy
         localStorage.setItem('store_setup', JSON.stringify({ sNumber: sNum, city: city }));
         localStorage.setItem('users', JSON.stringify(users));
 
-        // Wyświetl listę z hasłami
         document.getElementById('pwdListContainer').innerHTML = generatedPasswordsHtml;
         switchView('viewPasswords', false);
     }
 
-    function goToLogin() {
-        window.location.reload();
-    }
+    function goToLogin() { window.location.reload(); }
 </script>
 </body>
 </html>

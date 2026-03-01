@@ -50,10 +50,32 @@
         
         .sidebar { position: fixed; left: -280px; top: 0; width: 260px; height: 100%; background: #0a0a0a; border-right: 3px solid #ffe800; transition: 0.4s; z-index: 10000; padding-top: 60px; display: flex; flex-direction: column; }
         .sidebar.active { left: 0; }
-        .sidebar-nav { flex-grow: 1; overflow-y: auto; }
+        .sidebar-nav { flex-grow: 1; overflow-y: auto; display: flex; flex-direction: column; }
         .sidebar-header { color: #ffe800; font-weight: 900; font-size: 1rem; padding: 0 25px 15px 25px; letter-spacing: 2px; text-transform: uppercase; }
         .sidebar-link { display: block; color: white; padding: 15px 25px; text-decoration: none; font-weight: 700; font-size: 0.8rem; border-bottom: 1px solid #111; transition: 0.2s; }
         .sidebar-link:hover { background: #1a1a1a; color: #ffe800; padding-left: 35px; }
+
+        /* NAPRAWIONY LINK FEEDBACKU */
+        .sidebar-feedback, .sidebar-feedback:visited, .sidebar-feedback:link { 
+            display: block; 
+            margin-top: auto; 
+            background: #111; 
+            color: #ffe800 !important; 
+            padding: 15px 25px; 
+            text-decoration: none !important; 
+            font-weight: 900; 
+            font-size: 0.8rem; 
+            border-top: 1px solid #222; 
+            border-bottom: 1px solid #222; 
+            transition: 0.3s; 
+            text-transform: uppercase; 
+            letter-spacing: 0.5px; 
+        }
+        .sidebar-feedback:hover { 
+            background: #ffe800 !important; 
+            color: #000 !important; 
+            padding-left: 35px; 
+        }
         
         .user-profile { padding: 15px 20px; border-top: 2px solid #1a1a1a; display: flex; align-items: center; gap: 15px; cursor: pointer; transition: 0.3s; background: #0f0f0f; }
         .user-profile:hover { background: #151515; }
@@ -75,75 +97,40 @@
         .btn-print { background: #3498db; color: #fff; border: none; padding: 8px 15px; font-weight: 900; border-radius: 8px; cursor: pointer; font-size: 0.8rem; transition: 0.3s; text-transform: uppercase; }
         
         .azs-title { text-align: center; color: #ffe800; font-weight: 900; font-size: 1.5rem; margin-top: 10px; text-transform: uppercase; letter-spacing: 2px; }
-        .azs-dates { text-align: center; color: #888; font-weight: 700; font-size: 1rem; margin-bottom: 20px; margin-top: 5px;}
+        .azs-dates { text-align: center; color: #888; font-weight: 700; font-size: 1rem; margin-bottom: 10px; margin-top: 5px;}
         
-        /* NOWA STRUKTURA TABELI AZS */
+        /* NAPRAWIONA TABELA */
         .table-container { 
             flex: 1; 
             overflow: auto; 
             background: #080808; 
             width: 100%; 
+            padding: 0 10px 10px 10px; 
+            position: relative; 
         }
         
         table { 
             border-collapse: separate; 
-            border-spacing: 0;
+            border-spacing: 0; 
             width: 100%; 
             min-width: 1500px; 
             background: #111; 
             border: 2px solid #333; 
         }
         
-        thead {
-            position: sticky;
-            top: 0;
-            z-index: 1000;
-        }
-        
-        thead th { 
-            background: #1a1a1a; 
-            padding: 10px 5px; 
-            border-right: 1px solid #333; 
-            border-bottom: 1px solid #333; 
-            font-size: 0.65rem; 
-            color: #ffe800; 
-            text-transform: uppercase; 
-        }
-        
+        thead { position: sticky; top: 0; z-index: 1000; background: #1a1a1a; box-shadow: 0 2px 10px rgba(0,0,0,0.8); }
+        thead th { padding: 10px 5px; border-right: 1px solid #333; border-bottom: 1px solid #333; font-size: 0.65rem; color: #ffe800; text-transform: uppercase; }
         .header-main-row th { border-bottom: 3px solid #ffe800; }
         .th-task { width: 350px; text-align: left; padding-left: 15px !important; border-left: 1px solid #333; }
         .th-day { width: 75px; text-align: center; }
         .th-sign { width: 75px; text-align: center; background: #0a0a0a; color: #888; border-bottom: 3px solid #ffe800; }
         
-        tbody tr { 
-            height: 75px; /* WYMUSZONA RÓWNA WYSOKOŚĆ DLA KAŻDEGO ZADANIA */
-            transition: background-color 0.2s; 
-        }
-        
+        tbody tr { height: 65px; transition: background-color 0.2s; }
         tbody tr:hover { background-color: #1a1a1a; }
-        
-        td { 
-            border-right: 1px solid #333; 
-            border-bottom: 1px solid #333; 
-            padding: 6px 10px; 
-            font-size: 0.75rem; 
-            font-weight: 700; 
-            color: #fff; 
-            text-align: center; 
-            vertical-align: middle; 
-        }
-        
+        td { border-right: 1px solid #333; border-bottom: 1px solid #333; padding: 5px 10px; font-size: 0.75rem; font-weight: 700; color: #fff; text-align: center; vertical-align: middle; }
         td:first-child { border-left: 1px solid #333; }
         
-        .td-task { 
-            text-align: left; 
-            padding-left: 15px; 
-            font-size: 0.65rem; 
-            color: #ccc; 
-            font-weight: 600; 
-            line-height: 1.3; 
-        }
-        
+        .td-task { text-align: left; padding-left: 15px; font-size: 0.65rem; color: #ccc; font-weight: 600; line-height: 1.3; }
         .td-name { color: #ffe800; font-weight: 900; text-transform: uppercase; letter-spacing: 0.5px; }
         .td-blocked { background-color: #000 !important; color: transparent !important; }
         .td-sign { background: #151515; } 
@@ -241,9 +228,6 @@
 </div>
 
 <script>
-    // ==========================================
-    // INICJALIZACJA LOGOWANIA I UI
-    // ==========================================
     document.getElementById('sideName').innerText = currentUser ? `${currentUser.name} (${currentUser.dept})` : 'Zaloguj się';
     document.getElementById('sideAvatar').innerText = currentUser ? currentUser.charId.charAt(0) : '?';
     
@@ -254,9 +238,6 @@
     function toggleNav() { document.getElementById('sidebar').classList.toggle('active'); document.getElementById('overlay').classList.toggle('active'); }
     function logout() { localStorage.removeItem('currentUser'); window.location.href = 'login.html'; }
 
-    // ==========================================
-    // BAZA PRACOWNIKÓW I ZADAŃ
-    // ==========================================
     let employees = [];
     let localPlanData = {};
     const year = 2026;
@@ -310,9 +291,6 @@
         { name: "Kontrola NTOL LISTA VM - OGÓLNE (zrealizuj w dniach od poniedziałku do czwartku)", days: [4] }
     ];
 
-    // ==========================================
-    // POBIERANIE DANYCH Z FIREBASE
-    // ==========================================
     function loadEmployeesAndInit() {
         document.getElementById('loadingData').style.display = 'flex';
         db.ref(`Stores/${myStore}/Users`).once('value', snap => {

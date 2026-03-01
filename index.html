@@ -133,7 +133,6 @@
 
 <div class="content">
     <div class="content-inner">
-        
         <div class="greeting">
             <h1>Cześć, <span id="greetName">Ekipa</span>!</h1>
         </div>
@@ -181,16 +180,12 @@
 </div>
 
 <script>
-    // Inicjalizacja Podstawowa
     document.getElementById('greetName').innerText = currentUser.name;
     document.getElementById('sideName').innerText = `${currentUser.name} (${currentUser.dept})`;
     document.getElementById('sideAvatar').innerText = currentUser.charId.charAt(0);
 
-    if(!isManagerOrKss) {
-        document.getElementById('navInwaKSS').style.display = 'none';
-    }
+    if(!isManagerOrKss) { document.getElementById('navInwaKSS').style.display = 'none'; }
 
-    // POBRANIE DANYCH SKLEPU Z FIREBASE (Header)
     db.ref(`Stores/${myStore}/Setup`).once('value', snap => {
         const setup = snap.val();
         if(setup) {
@@ -201,12 +196,11 @@
 
     let globalUsersList = [];
 
-    // POBRANIE EKIPY Z FIREBASE (NASŁUCH NA ŻYWO)
+    // POBRANIE EKIPY Z FIREBASE
     db.ref(`Stores/${myStore}/Users`).on('value', snap => {
         const usersObj = snap.val() || {};
         globalUsersList = Object.keys(usersObj).map(key => ({ charId: key, ...usersObj[key] }));
         
-        // Sortowanie i renderowanie ekipy
         const teamContainer = document.getElementById('teamContainer');
         teamContainer.innerHTML = '';
         const deptRank = { 'ME': 1, 'KSS': 2, 'POK': 3, 'IT': 4, 'AGD': 5, 'RTV': 6 };
@@ -216,7 +210,16 @@
             if(u.isKss && u.dept !== 'ME') u.displayDept = 'KSS';
             else u.displayDept = u.dept;
         });
-        usersForDisplay.sort((a, b) => (deptRank[a.displayDept] || 99) - (deptRank[b.displayDept] || 99));
+
+        // NOWE, DWUPOZIOMOWE SORTOWANIE (Dział -> Alfabetycznie)
+        usersForDisplay.sort((a, b) => {
+            let rankA = deptRank[a.displayDept] || 99;
+            let rankB = deptRank[b.displayDept] || 99;
+            if (rankA === rankB) {
+                return a.name.localeCompare(b.name, 'pl');
+            }
+            return rankA - rankB;
+        });
 
         usersForDisplay.forEach(member => {
             const card = document.createElement('div');
@@ -226,11 +229,9 @@
             teamContainer.appendChild(card);
         });
 
-        // Kiedy załadujemy userów, możemy pociągnąć grafik dla nich
         fetchPlanData();
     });
 
-    // POBRANIE PLANU PRACY NA DZIŚ Z FIREBASE
     function fetchPlanData() {
         const dateObj = new Date();
         const year = 2026; 
@@ -245,14 +246,11 @@
             globalUsersList.forEach(u => {
                 if(u.charId === 'ADMIN') return;
                 
-                // Formatujemy klucz w bazie jako: np. M123_15 (CharId_Dzień)
                 let cellData = planData[`${u.charId}_${day}`] || "";
                 let shift = cellData.split('|')[0] || "";
                 let roles = cellData.split('|')[1] ? cellData.split('|')[1].split(',') : [];
 
-                if(u.charId === currentUser.charId) {
-                    myShift = shift || "BRAK / WOLNE";
-                }
+                if(u.charId === currentUser.charId) { myShift = shift || "BRAK / WOLNE"; }
                 if(roles.includes('K')) personKeys.push(u.name);
                 if(roles.includes('D')) personDelivery.push(u.name);
                 if(roles.includes('S')) personSocial.push(u.name);
@@ -265,7 +263,6 @@
         });
     }
 
-    // Zegar
     function updateClock() {
         const now = new Date();
         const h = String(now.getHours()).padStart(2, '0');

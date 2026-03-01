@@ -21,7 +21,6 @@
         
         const isManagerOrKss = (currentUser.dept === 'ME' || currentUser.isKss);
 
-        // INICJALIZACJA FIREBASE
         const firebaseConfig = {
             apiKey: "AIzaSyD0N6Bjyzs34piOoujEn9mxKir8LDGdD2k",
             authDomain: "expert-tool.firebaseapp.com",
@@ -837,7 +836,7 @@
         } 
     }
 
-    // === SILNIK V3.0 (SZTYWNA STRUKTURA 3+1) ===
+    // === SILNIK V3.0 (SZTYWNA STRUKTURA 3+1 ORAZ SWAPY ZMIAN) ===
     function calcRealH(charId) { 
         let h = 0; 
         for (let d = 1; d <= 31; d++) { 
@@ -882,7 +881,7 @@
             if(shortShifts.length === 0) shortShifts = shiftDefs;
             let openShiftStr = shortShifts.find(s => parseInt(s.val.split('-')[0]) <= 10)?.val || shortShifts[0].val;
             let closeShiftStr = shortShifts.find(s => parseInt(s.val.split('-')[1]) >= 20)?.val || shortShifts[shortShifts.length-1].val;
-            let fullShiftStr = shiftDefs[0].val; // Najdłuższa
+            let fullShiftStr = shiftDefs[0].val; // Najdłuższa zmiana w puli
 
             const daysInMonth = new Date(year, curM + 1, 0).getDate();
             let genUpdates = {};
@@ -916,108 +915,115 @@
                 shuffle(available); 
                 available.sort((a,b) => workedWeekendsCount[a.charId] - workedWeekendsCount[b.charId]); // Najpierw wypoczęci
                 
-                let toWork = []; 
                 let poks = available.filter(e => e.p); 
                 let sales = available.filter(e => !e.p); 
                 
-                // NA WEEKEND: Oczekujemy minimum 1 POK i 3 Sales. Skoro mają np 10-20 to jedna zmiana starczy na pokrycie dnia
-                // Dajmy max 2 POK (jeśli są) i 4 sales (żeby dociągnąć sklep) = 6 osób.
-                let totalNeeded = 6; 
+                // NA WEEKEND: Oczekujemy minimum 1 POK i 3 Sales. Skoro pracownik ma "Sztywny Weekend" np 10-20, obejmuje to cały dzień.
+                let toWork = []; 
+                if (poks.length > 0) { toWork.push(poks[0]); }
                 
-                if (poks.length > 0) { toWork.push(poks[0]); if (poks.length > 1) sales.push(poks[1]); totalNeeded--; }
-                for (let i = 0; i < totalNeeded && sales.length > 0; i++) { toWork.push(sales[0]); sales.shift(); }
+                let salesNeeded = 3;
+                let it = sales.find(e => e.dept === 'IT'); if (it) { toWork.push(it); sales = sales.filter(e => e.charId !== it.charId); salesNeeded--; }
+                let agd = sales.find(e => e.dept === 'AGD'); if (agd) { toWork.push(agd); sales = sales.filter(e => e.charId !== agd.charId); salesNeeded--; }
+                
+                for (let i = 0; i < salesNeeded && sales.length > 0; i++) { toWork.push(sales[0]); sales.shift(); }
                 
                 toWork.forEach(w => { setTemp(w.charId, d, targetShift); workedWeekendsCount[w.charId]++; });
             });
 
-            // 3. SZKIELET DNI ROBOCZYCH (Dokładnie 3+1 RANO i 3+1 WIECZOREM)
+            // 3. SZKIELET DNI ROBOCZYCH (Dokładnie 3+1 Open, 3+1 Close)
             for (let d = 1; d <= daysInMonth; d++) {
                 let dateObj = new Date(year, curM, d);
                 if (dateObj.getDay() === 6 || dateObj.getDay() === 0 || !isWorkDay(d)) continue;
                 
-                // GWARANCJA 1: POKi (1 rano, 1 wieczorem, nie zachodzą na siebie wolnym dniem!)
-                let availablePoks = employees.filter(e => e.p && getShiftOnly(e.charId, d) === "" && getStreak(e.charId, d) < 5);
-                shuffle(availablePoks);
-                if (availablePoks.length >= 2) {
-                    setTemp(availablePoks[0].charId, d, openShiftStr);
-                    setTemp(availablePoks[1].charId, d, closeShiftStr);
-                } else if (availablePoks.length === 1) {
-                    setTemp(availablePoks[0].charId, d, fullShiftStr); // Jeden POK musi obsłużyć cały dzień
+                // --- POK ---
+                let openPoks = 1; let closePoks = 1;
+                let availPoks = employees.filter(e => e.p && getShiftOnly(e.charId, d) === "" && getStreak(e.charId, d) < 5);
+                
+                for(let pok of availPoks) {
+                    if (openPoks === 0 && closePoks === 0) break;
+                    
+                    if (openPoks > 0 && closePoks > 0 && availPoks.length === 1) { // Jak jest sam to musi wziąć całą zmianę
+                        setTemp(pok.charId, d, fullShiftStr); openPoks--; closePoks--;
+                    } else if (openPoks > 0) {
+                        setTemp(pok.charId, d, openShiftStr); openPoks--;
+                    } else if (closePoks > 0) {
+                        setTemp(pok.charId, d, closeShiftStr); closePoks--;
+                    }
                 }
 
-                // GWARANCJA 2: SPRZEDAWCY (3 rano, 3 wieczorem)
-                let availableSales = employees.filter(e => !e.p && e.dept !== 'ME' && getShiftOnly(e.charId, d) === "" && getStreak(e.charId, d) < 5);
-                shuffle(availableSales);
+                // --- SPRZEDAŻ ---
+                let openSales = 3; let closeSales = 3;
+                let availSales = employees.filter(e => !e.p && e.dept !== 'ME' && getShiftOnly(e.charId, d) === "" && getStreak(e.charId, d) < 5);
                 
-                let otwNeeded = 3; 
-                let zamNeeded = 3;
-                
-                // Próbujemy wcisnąć po jednym z IT i AGD jeśli są, żeby działy były obstawione
-                let it = availableSales.find(e => e.dept === 'IT'); 
-                if (it) { setTemp(it.charId, d, openShiftStr); otwNeeded--; availableSales = availableSales.filter(e => e.charId !== it.charId); }
-                let agd = availableSales.find(e => e.dept === 'AGD'); 
-                if (agd) { setTemp(agd.charId, d, closeShiftStr); zamNeeded--; availableSales = availableSales.filter(e => e.charId !== agd.charId); }
-                
-                // Resztę wypełniamy na zmianę do pełna
-                for (let i = 0; i < availableSales.length && (otwNeeded > 0 || zamNeeded > 0); i++) { 
-                    if (otwNeeded > 0) { setTemp(availableSales[i].charId, d, openShiftStr); otwNeeded--; } 
-                    else if (zamNeeded > 0) { setTemp(availableSales[i].charId, d, closeShiftStr); zamNeeded--; } 
+                let assignSalesShift = (emp, pref) => {
+                    if(!emp) return;
+                    if (pref === 'open' && openSales > 0) {
+                        setTemp(emp.charId, d, openShiftStr); openSales--;
+                    } else if (pref === 'close' && closeSales > 0) {
+                        setTemp(emp.charId, d, closeShiftStr); closeSales--;
+                    } else if (openSales > 0) {
+                        setTemp(emp.charId, d, openShiftStr); openSales--;
+                    } else if (closeSales > 0) {
+                        setTemp(emp.charId, d, closeShiftStr); closeSales--;
+                    }
+                    availSales = availSales.filter(e => e.charId !== emp.charId);
+                };
+
+                let it = availSales.find(e => e.dept === 'IT'); assignSalesShift(it, 'open');
+                let agd = availSales.find(e => e.dept === 'AGD'); assignSalesShift(agd, 'close');
+
+                while((openSales > 0 || closeSales > 0) && availSales.length > 0) {
+                    assignSalesShift(availSales[0], openSales >= closeSales ? 'open' : 'close');
                 }
             }
 
-            // 4. BALANSOWANIE (HANDEL ZMIANAMI)
-            let iterations = 0; let balanced = false;
+            // 4. FINE-TUNING (Zamiany 1:1, by wyrównać godziny i NIE POPSUĆ szkieletu!)
+            function calcMissing(charId) { return baseNorm - calcRealH(charId); }
             
-            while (!balanced && iterations < 500) {
-                balanced = true; 
-                let status = employees.map(e => ({ e: e, diff: baseNorm - calcRealH(e.charId) })).filter(s => s.e.dept !== 'ME');
-                shuffle(status); status.sort((a, b) => Math.abs(b.diff) - Math.abs(a.diff));
-
-                for (let st of status) {
-                    if (st.diff === 0) continue; 
-                    let emp = st.e; let doneSomething = false;
+            let fineTuneIterations = 0; let balanced = false;
+            while(!balanced && fineTuneIterations < 150) {
+                balanced = true;
+                let status = employees.map(e => ({ e: e, diff: calcMissing(e.charId) })).filter(s => s.e.dept !== 'ME');
+                
+                // Znajdź kogoś kto ma ZA DUŻO godzin
+                let overEmpObj = status.find(s => s.diff <= -2);
+                if (overEmpObj) {
+                    let overEmp = overEmpObj.e;
+                    // Szukamy kogoś z TEGO SAMEGO DZIAŁU (POK -> POK, Sprzedaż -> Sprzedaż), kto ma ZA MAŁO godzin
+                    let underEmpObj = status.find(s => s.diff >= 2 && s.e.p === overEmp.p);
                     
-                    if (st.diff >= 2) { 
-                        // Brakuje mu godzin -> Podmieniamy w tygodniu z 10-18 na 10-20
-                        for (let d = 1; d <= daysInMonth; d++) {
-                            let s = getShiftOnly(emp.charId, d);
-                            if (s === openShiftStr || s === closeShiftStr) { // Podbija na wyższą
-                                setTemp(emp.charId, d, fullShiftStr);
-                                doneSomething = true; break;
-                            }
-                        }
-                    } else if (st.diff <= -2) { 
-                        // Ma za dużo godzin -> Ucinamy długą zmianę na krótką
-                        for (let d = 1; d <= daysInMonth; d++) {
-                            let s = getShiftOnly(emp.charId, d);
-                            let dateObj = new Date(year, curM, d);
-                            if (s === fullShiftStr && dateObj.getDay() !== 6 && dateObj.getDay() !== 0) {
-                                setTemp(emp.charId, d, openShiftStr);
-                                doneSomething = true; break;
-                            }
-                        }
+                    if (underEmpObj) {
+                        let underEmp = underEmpObj.e;
+                        let swapped = false;
                         
-                        // Ma strasznie za dużo (np nadgodziny), musimy ZAMIENIĆ SIĘ DNIEM z kimś kto ma za mało, by NIE ZEPSUĆ SZKIELETU!
-                        if (!doneSomething && st.diff <= -8) {
-                            for (let d = 1; d <= daysInMonth; d++) {
-                                let s = getShiftOnly(emp.charId, d);
-                                let dateObj = new Date(year, curM, d);
-                                if (s !== "" && dateObj.getDay() !== 6 && dateObj.getDay() !== 0) { // Pracuje w dany dzien i to jest tydzien
-                                    // Szukamy chętnego na tę zmianę z tego samego działu POK/Sales, który ma wolne!
-                                    let partners = status.filter(p => p.diff >= 8 && p.e.p === emp.p && getShiftOnly(p.e.charId, d) === "" && getStreak(p.e.charId, d) < 5);
-                                    if (partners.length > 0) {
-                                        let partner = partners[0].e;
-                                        setTemp(partner.charId, d, s); // Oddaje zmianę
-                                        setTemp(emp.charId, d, ""); // On idzie na wolne
-                                        doneSomething = true; break;
-                                    }
-                                }
+                        for (let d = 1; d <= daysInMonth; d++) {
+                            let dateObj = new Date(year, curM, d);
+                            if (dateObj.getDay() === 6 || dateObj.getDay() === 0) continue; // Zostawiamy weekendy w spokoju
+                            
+                            let shiftOver = getShiftOnly(overEmp.charId, d);
+                            let shiftUnder = getShiftOnly(underEmp.charId, d);
+                            
+                            // SYTUACJA A: Pierwszy pracuje, drugi ma wolne -> Zamiana całości dnia!
+                            if (shiftOver.includes('-') && shiftUnder === "") {
+                                setTemp(overEmp.charId, d, "");
+                                setTemp(underEmp.charId, d, shiftOver);
+                                swapped = true; break;
+                            }
+                            
+                            // SYTUACJA B: Mają zmianę w ten sam dzień, ale pierwszy ma DŁUŻSZĄ (np. 10-20), a drugi KRÓTSZĄ (10-18) -> Podmieniają je
+                            let defOver = shiftDefs.find(sd => sd.val === shiftOver);
+                            let defUnder = shiftDefs.find(sd => sd.val === shiftUnder);
+                            if (defOver && defUnder && defOver.h > defUnder.h) {
+                                setTemp(overEmp.charId, d, shiftUnder);
+                                setTemp(underEmp.charId, d, shiftOver);
+                                swapped = true; break;
                             }
                         }
+                        if(swapped) balanced = false; // kontynuuj pętle po dokonanej zamianie żeby system mógł dalej równać
                     }
-                    if (doneSomething) { balanced = false; break; }
-                } 
-                iterations++;
+                }
+                fineTuneIterations++;
             }
             
             saveToFirebase(genUpdates);

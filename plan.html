@@ -46,18 +46,40 @@
         
         /* HEADER I MENU */
         header { background: #ffe800; height: 50px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; z-index: 9999; border-bottom: 2px solid #000; position: relative; box-shadow: 0 2px 10px rgba(255, 232, 0, 0.2); }
-        .logo { color: #000; font-weight: 900; font-size: 1.4rem; text-transform: uppercase; letter-spacing: 1px; }
+        .logo { color: #000; font-weight: 900; font-size: 1.4rem; text-transform: uppercase; letter-spacing: 1px; display: flex; align-items: center; gap: 10px; }
         .logo span { background: #000; color: #ffe800; padding: 0 6px; border-radius: 3px; }
-        .store-badge { font-size: 0.7rem; background: rgba(0,0,0,0.1); padding: 4px 8px; border-radius: 20px; font-weight: 800; border: 1px solid #000; margin-left: 10px;}
+        .store-badge { font-size: 0.7rem; background: rgba(0,0,0,0.1); padding: 4px 8px; border-radius: 20px; font-weight: 800; border: 1px solid #000; }
         .menu-btn { position: absolute; left: 15px; cursor: pointer; color: #000; font-size: 1.5rem; transition: 0.2s; }
         .menu-btn:hover { transform: scale(1.1); }
         
         .sidebar { position: fixed; left: -280px; top: 0; width: 260px; height: 100%; background: #0a0a0a; border-right: 3px solid #ffe800; transition: 0.4s; z-index: 10000; padding-top: 60px; box-shadow: 5px 0 15px rgba(0,0,0,0.8); display: flex; flex-direction: column; }
         .sidebar.active { left: 0; }
-        .sidebar-nav { flex-grow: 1; overflow-y: auto; }
+        .sidebar-nav { flex-grow: 1; overflow-y: auto; display: flex; flex-direction: column; }
         .sidebar-header { color: #ffe800; font-weight: 900; font-size: 1rem; padding: 0 25px 15px 25px; letter-spacing: 2px; text-transform: uppercase; }
         .sidebar-link { display: block; color: white; padding: 15px 25px; text-decoration: none; font-weight: 700; font-size: 0.8rem; border-bottom: 1px solid #111; transition: 0.2s; }
         .sidebar-link:hover { background: #1a1a1a; color: #ffe800; padding-left: 35px; }
+
+        /* NAPRAWIONY LINK FEEDBACKU */
+        .sidebar-feedback, .sidebar-feedback:visited, .sidebar-feedback:link { 
+            display: block; 
+            margin-top: auto; 
+            background: #111; 
+            color: #ffe800 !important; 
+            padding: 15px 25px; 
+            text-decoration: none !important; 
+            font-weight: 900; 
+            font-size: 0.8rem; 
+            border-top: 1px solid #222; 
+            border-bottom: 1px solid #222; 
+            transition: 0.3s; 
+            text-transform: uppercase; 
+            letter-spacing: 0.5px; 
+        }
+        .sidebar-feedback:hover { 
+            background: #ffe800 !important; 
+            color: #000 !important; 
+            padding-left: 35px; 
+        }
         
         .user-profile { padding: 15px 20px; border-top: 2px solid #1a1a1a; display: flex; align-items: center; gap: 15px; cursor: pointer; transition: 0.3s; background: #0f0f0f; }
         .user-profile:hover { background: #151515; }
@@ -82,6 +104,7 @@
         .admin-controls { display: flex; align-items: center; gap: 8px; border-left: 1px solid #333; padding-left: 10px; }
         .norm-input { width: 55px; background: #000; color: #ffe800; border: 1px solid #ffe800; text-align: center; font-weight: 900; padding: 4px; font-size: 0.8rem; border-radius: 4px; outline: none; }
         
+        /* TABELA */
         .table-container { flex: 1; overflow: auto; background: #080808; width: 100vw; max-width: 100%; display: block; position: relative; }
         table { border-collapse: collapse; width: 100%; min-width: max-content; background: #080808; }
         
@@ -161,7 +184,7 @@
         .btn-excel { background: #1d6f42; color: #fff; border: 1px solid #1d6f42; padding: 8px 12px; font-weight: 900; border-radius: 20px; cursor: pointer; font-size: 0.65rem; transition: 0.3s; }
         .btn-excel:hover { background: #144c2d; transform: scale(1.05); box-shadow: 0 0 10px rgba(29, 111, 66, 0.5); }
         
-        .loading-overlay { position: absolute; inset: 0; background: rgba(0,0,0,0.8); z-index: 2000; display: flex; align-items: center; justify-content: center; color: #ffe800; font-weight: bold; font-size: 1.5rem; flex-direction: column; display: none; }
+        .loading-overlay { position: absolute; inset: 0; background: rgba(0,0,0,0.8); z-index: 2000; display: flex; align-items: center; justify-content: center; color: #ffe800; font-weight: bold; font-size: 1.5rem; display: none; flex-direction: column;}
         .loading-overlay span { font-size: 0.8rem; color: #ccc; margin-top: 10px; font-weight: normal;}
     </style>
 </head>
@@ -183,6 +206,7 @@
         <a href="azs.html" class="sidebar-link">AZS</a>
         <a href="kwt.html" class="sidebar-link">KWT</a>
         <a href="qr.html" class="sidebar-link">Kod QR</a>
+        <a href="feedback.html" class="sidebar-feedback">💡 Zgłoś problem / Pomysł</a>
     </div>
     
     <div class="user-profile" onclick="window.location.href='ustawienia.html'">
@@ -295,7 +319,7 @@
 
 <script>
     // =======================================================
-    // INICJALIZACJA UI
+    // 1. INICJALIZACJA I ZMIENNE
     // =======================================================
     document.getElementById('headerStore').innerText = myStore;
     let finalDept = currentUser.dept; if (currentUser.isKss && currentUser.dept !== 'ME') finalDept = 'KSS';
@@ -322,7 +346,7 @@
     let metaListener = null;
 
     // =======================================================
-    // POBIERANIE ZAŁOGI FIREBASE
+    // 2. POBIERANIE ZAŁOGI FIREBASE
     // =======================================================
     db.ref(`Stores/${myStore}/Users`).on('value', snap => {
         const usersObj = snap.val() || {};
@@ -343,7 +367,7 @@
     });
 
     // =======================================================
-    // MIESIĄCE
+    // 3. MIESIĄCE I FIREBASE LISTENERS
     // =======================================================
     function setMonth(i) { 
         curM = i; document.getElementById('loadingData').style.display = 'flex'; renderMonths(); 
@@ -431,12 +455,20 @@
     }
 
     // =======================================================
-    // POTĘŻNY SILNIK GENERATORA Z KODU UŻYTKOWNIKA (ADAPTACJA FIREBASE)
+    // 5. POTĘŻNY SILNIK GENERATORA V6 (Matematyka fuzji + Tryb Brutalny)
     // =======================================================
-    function calcRealH(charId, testSchedule = null) { 
-        let h = 0; 
-        for (let d = 1; d <= 31; d++) { 
-            let s = testSchedule ? testSchedule[charId][d] : getShiftOnly(charId, d); 
+    function getH(shiftStr) {
+        if (!shiftStr) return 0;
+        if (shiftStr === "URLOP" || shiftStr === "SZK" || shiftStr === "SZK.") return 8;
+        let parts = shiftStr.split('-');
+        if (parts.length === 2) return (parseInt(parts[1]) || 0) - (parseInt(parts[0]) || 0);
+        return 0;
+    }
+
+    function calcRealH(charId, scheduleObj = null) {
+        let h = 0;
+        for(let d=1; d<=31; d++) {
+            let s = scheduleObj ? scheduleObj[charId][d] : getShiftOnly(charId, d);
             if(s && s.includes('-')) { 
                 let p = s.split('-'); 
                 h += (parseInt(p[1]) || 0) - (parseInt(p[0]) || 0); 
@@ -444,7 +476,7 @@
                 h += 8;
             }
         } 
-        return h; 
+        return h;
     }
 
     function getStreak(charId, day, scheduleObj) {
@@ -454,6 +486,14 @@
         return s;
     }
 
+    function canWork(charId, day, scheduleObj) {
+        if (scheduleObj[charId][day] !== "") return false;
+        let streakBefore = 0; for (let d = day - 1; d >= 1; d--) { if (scheduleObj[charId][d] !== "") streakBefore++; else break; }
+        let streakAfter = 0; for (let d = day + 1; d <= 31; d++) { if (scheduleObj[charId][d] && scheduleObj[charId][d] !== "") streakAfter++; else break; }
+        if (streakBefore + 1 + streakAfter > 5) return false; 
+        return true;
+    }
+
     function shuffle(array) {
         for (let i = array.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [array[i], array[j]] = [array[j], array[i]]; }
         return array;
@@ -461,7 +501,7 @@
 
     function startGeneration() {
         if(localPlanMeta.locked === true) return;
-        document.getElementById('loadingData').innerHTML = "Agresywne dopasowywanie godzin... <span>Trwa przeliczanie</span>";
+        document.getElementById('loadingData').innerHTML = "Budowanie szkieletu i balansowanie godzin... <span>To może chwilę potrwać</span>";
         document.getElementById('loadingData').style.display = 'flex';
 
         setTimeout(() => {
@@ -469,9 +509,12 @@
             const daysInMonth = new Date(year, curM + 1, 0).getDate();
             
             const rawShifts = document.getElementById('globalShifts').value.split(',').map(s => s.trim());
-            const openShift = rawShifts[0] || "10-18"; 
-            const closeShift = rawShifts.length > 1 ? rawShifts[1] : "12-20";
-            const fullShift = rawShifts.length > 2 ? rawShifts[2] : "10-20"; 
+            let shiftDefs = rawShifts.map(s => { let p = s.split('-'); return { val: s, h: (parseInt(p[1])||0) - (parseInt(p[0])||0) }; }).filter(s => s.h > 0).sort((a,b) => a.h - b.h);
+            if(shiftDefs.length === 0) shiftDefs = [{val:"10-18", h:8}, {val:"12-20", h:8}, {val:"10-20", h:10}];
+            
+            const openShiftStr = shiftDefs[0].val; 
+            const closeShiftStr = shiftDefs.length > 1 ? shiftDefs[1].val : shiftDefs[0].val;
+            const fullShiftStr = shiftDefs[shiftDefs.length - 1].val; 
             
             const satShiftStr = document.getElementById('satHours').value.trim() || "10-20";
             const sunShiftStr = document.getElementById('sunHours').value.trim() || "10-18";
@@ -514,33 +557,55 @@
                 toWork.forEach(w => memorySchedule[w.e.charId][d] = w.shift);
             });
 
-            // 2. DNI ROBOCZE
+            // 2. DNI ROBOCZE Z MATEMATYKĄ POK
             for(let d=1; d<=daysInMonth; d++) {
                 if(new Date(year, curM, d).getDay() === 6 || new Date(year, curM, d).getDay() === 0 || !isWorkDay(d)) continue;
                 
-                let available = employees.filter(e => memorySchedule[e.charId][d] === "" && getStreak(e.charId, d, memorySchedule) < 5 && e.dept !== 'ME');
-                shuffle(available); available.sort((a,b) => calcRealH(a.charId, memorySchedule) - calcRealH(b.charId, memorySchedule));
+                // --- OBSADA POK (Magia Fuzji) ---
+                let availPoks = employees.filter(e => e.p && canWork(e.charId, d, memorySchedule));
                 
-                let poks = available.filter(e => e.p); let sales = available.filter(e => !e.p);
+                if(availPoks.length >= 2) { 
+                    shuffle(availPoks);
+                    let p1 = availPoks[0]; let p2 = availPoks[1];
+                    let h1 = calcRealH(p1.charId, memorySchedule); 
+                    let h2 = calcRealH(p2.charId, memorySchedule);
+                    
+                    let daysLeft = daysInMonth - d;
+                    // Obliczamy, ile godzin obaj zjedzą do końca miesiąca, jeśli damy im po 8h (16h łącznie na dzień)
+                    let futureCost = daysLeft * 16; 
+                    let availableCombined = (baseNorm * 2) - (h1 + h2);
+                    
+                    // Jeśli koszt przewyższa dostępną pulę, musimy oszczędzać! Jeden ciągnie sklep na 10h, drugi wolne.
+                    if (futureCost > availableCombined + 4) {
+                        memorySchedule[p1.charId][d] = fullShiftStr;
+                    } else {
+                        memorySchedule[p1.charId][d] = openShiftStr; 
+                        memorySchedule[p2.charId][d] = closeShiftStr; 
+                    }
+                } else if(availPoks.length === 1) { 
+                    memorySchedule[availPoks[0].charId][d] = fullShiftStr; 
+                }
 
-                if(poks.length === 1) { memorySchedule[poks[0].charId][d] = fullShift; } 
-                else if(poks.length > 1) { memorySchedule[poks[0].charId][d] = openShift; memorySchedule[poks[1].charId][d] = closeShift; }
-
+                // --- OBSADA SPRZEDAWCÓW ---
+                let availSales = employees.filter(e => !e.p && e.dept !== 'ME' && canWork(e.charId, d, memorySchedule));
+                shuffle(availSales); 
+                availSales.sort((a,b) => calcRealH(a.charId, memorySchedule) - calcRealH(b.charId, memorySchedule));
+                
                 let otwNeeded = 3; let zamNeeded = 3;
                 let assignSale = (emp, isOtw) => {
-                    if(isOtw) { memorySchedule[emp.charId][d] = openShift; otwNeeded--; } else { memorySchedule[emp.charId][d] = closeShift; zamNeeded--; }
-                    sales = sales.filter(e => e.charId !== emp.charId);
+                    if(isOtw) { memorySchedule[emp.charId][d] = openShiftStr; otwNeeded--; } else { memorySchedule[emp.charId][d] = closeShiftStr; zamNeeded--; }
+                    availSales = availSales.filter(e => e.charId !== emp.charId);
                 };
 
-                let it = sales.find(e => e.dept === 'IT'); if(it) assignSale(it, true); 
-                let agd = sales.find(e => e.dept === 'AGD'); if(agd) assignSale(agd, false); 
+                let it = availSales.find(e => e.dept === 'IT'); if(it) assignSale(it, true); 
+                let agd = availSales.find(e => e.dept === 'AGD'); if(agd) assignSale(agd, false); 
 
-                for(let i=0; i<sales.length && (otwNeeded>0 || zamNeeded>0); i++) {
-                    if(otwNeeded > 0) { assignSale(sales[i], true); i--; } else if (zamNeeded > 0) { assignSale(sales[i], false); i--; }
+                for(let i=0; i<availSales.length && (otwNeeded>0 || zamNeeded>0); i++) {
+                    if(otwNeeded > 0) { assignSale(availSales[i], true); i--; } else if (zamNeeded > 0) { assignSale(availSales[i], false); i--; }
                 }
             }
 
-            // 3. BALANSOWANIE (DOKŁADNIE TAK JAK W STARYM KODZIE)
+            // 3. BALANSOWANIE (TRYB BRUTALNY)
             let allBalanced = false; let iterations = 0;
             
             const tryAddShift = (emp) => {
@@ -551,7 +616,7 @@
                         let c = 0; employees.forEach(em => { if(em.dept !== 'ME' && memorySchedule[em.charId][d].includes('-')) c++; }); possibleDays.push({ d, staff: c });
                     }
                 }
-                if(possibleDays.length > 0) { shuffle(possibleDays); possibleDays.sort((a,b) => a.staff - b.staff); memorySchedule[emp.charId][possibleDays[0].d] = (Math.random()>0.5 ? openShift : closeShift); return true; }
+                if(possibleDays.length > 0) { shuffle(possibleDays); possibleDays.sort((a,b) => a.staff - b.staff); memorySchedule[emp.charId][possibleDays[0].d] = (Math.random()>0.5 ? openShiftStr : closeShiftStr); return true; }
                 return false;
             };
 
@@ -559,9 +624,9 @@
                 let possibleDays = [];
                 for(let d=1; d<=daysInMonth; d++) {
                     let isWknd = new Date(year, curM, d).getDay() === 0 || new Date(year, curM, d).getDay() === 6; let v = memorySchedule[emp.charId][d];
-                    if(!isWknd && (v === openShift || v === closeShift) && getStreak(emp.charId, d, memorySchedule) < 5) possibleDays.push(d);
+                    if(!isWknd && (v === openShiftStr || v === closeShiftStr) && getStreak(emp.charId, d, memorySchedule) < 5) possibleDays.push(d);
                 }
-                if(possibleDays.length > 0) { shuffle(possibleDays); memorySchedule[emp.charId][possibleDays[0]] = fullShift; return true; }
+                if(possibleDays.length > 0) { shuffle(possibleDays); memorySchedule[emp.charId][possibleDays[0]] = fullShiftStr; return true; }
                 return false;
             };
 
@@ -569,7 +634,7 @@
                 let possibleDays = [];
                 for(let d=1; d<=daysInMonth; d++) {
                     let v = memorySchedule[emp.charId][d]; let isWknd = new Date(year, curM, d).getDay() === 0 || new Date(year, curM, d).getDay() === 6;
-                    if(!isWknd && (v === openShift || v === closeShift || v === fullShift)) {
+                    if(!isWknd && (v === openShiftStr || v === closeShiftStr || v === fullShiftStr)) {
                         let otwSales = 0, zamSales = 0, otwPok = 0, zamPok = 0, itCount = 0, agdCount = 0;
                         employees.forEach(em => {
                             if(em.charId === emp.charId || em.dept === 'ME') return; let ev = memorySchedule[em.charId][d];
@@ -600,7 +665,7 @@
                 let possibleDays = [];
                 for(let d=1; d<=daysInMonth; d++) {
                     let isWknd = new Date(year, curM, d).getDay() === 0 || new Date(year, curM, d).getDay() === 6; let v = memorySchedule[emp.charId][d];
-                    if(!isWknd && v === fullShift) {
+                    if(!isWknd && v === fullShiftStr) {
                         let isSafe = true;
                         if(strict && emp.p) {
                             let oP = 0, zP = 0;
@@ -611,19 +676,22 @@
                     }
                 }
                 if(possibleDays.length > 0) {
-                    shuffle(possibleDays); let targetD = possibleDays[0]; let newShift = Math.random() > 0.5 ? openShift : closeShift;
+                    shuffle(possibleDays); let targetD = possibleDays[0]; let newShift = Math.random() > 0.5 ? openShiftStr : closeShiftStr;
                     if(emp.p) {
                         let oP=0, zP=0;
                         employees.forEach(em => { if(em.charId !== emp.charId && em.p) { let ev = memorySchedule[em.charId][targetD]; if(ev.includes('-')) { let p = ev.split('-'); if(parseInt(p[0])<=11) oP++; if(parseInt(p[1])>=19) zP++; } } });
-                        if(oP === 0 && zP > 0) newShift = openShift; else if(zP === 0 && oP > 0) newShift = closeShift;
+                        if(oP === 0 && zP > 0) newShift = openShiftStr; else if(zP === 0 && oP > 0) newShift = closeShiftStr;
                     }
                     memorySchedule[emp.charId][targetD] = newShift; return true;
                 }
                 return false;
             };
 
-            while(!allBalanced && iterations < 4000) {
-                allBalanced = true; let strictMode = iterations < 1500; 
+            while(!allBalanced && iterations < 5000) {
+                allBalanced = true; 
+                let strictMode = iterations < 1500; 
+                let brutalMode = iterations > 3500; // Po 3500 próbach włącza się "tryb brutalny" - tnie bez litości, byle zrównać godziny!
+
                 let status = employees.map(e => {
                     let target = baseNorm; 
                     let current = calcRealH(e.charId, memorySchedule);
@@ -633,26 +701,44 @@
                 shuffle(status); status.sort((a,b) => Math.abs(b.diff) - Math.abs(a.diff));
 
                 for(let st of status) {
-                    if(st.diff === 0 || st.e.dept === 'ME') continue; allBalanced = false; let actionTaken = false; let emp = st.e;
+                    if(st.diff === 0 || st.e.dept === 'ME') continue; 
+                    allBalanced = false; let actionTaken = false; let emp = st.e;
+                    
                     if(st.diff > 0) { 
                         if(st.diff >= 8) actionTaken = tryAddShift(emp);
                         if(!actionTaken && st.diff >= 2) actionTaken = tryExtendShift(emp);
+                        
                         if(!actionTaken && !strictMode) {
                              for(let d=1; d<=daysInMonth; d++) {
                                 let isWknd = new Date(year, curM, d).getDay() === 0 || new Date(year, curM, d).getDay() === 6;
-                                if(isWorkDay(d) && !isWknd && memorySchedule[emp.charId][d] === "" && getStreak(emp.charId, d, memorySchedule) < 5) { memorySchedule[emp.charId][d] = openShift; actionTaken = true; break; }
+                                if(isWorkDay(d) && !isWknd && memorySchedule[emp.charId][d] === "" && (getStreak(emp.charId, d, memorySchedule) < 5 || brutalMode)) { 
+                                    memorySchedule[emp.charId][d] = openShiftStr; 
+                                    actionTaken = true; break; 
+                                }
                              }
                         }
                     } else if (st.diff < 0) { 
                         if(st.diff <= -8) actionTaken = tryRemoveShift(emp, strictMode);
                         if(!actionTaken && st.diff <= -2) actionTaken = tryShortenShift(emp, strictMode);
-                        if(!actionTaken && !strictMode) {
+                        
+                        if(!actionTaken && (!strictMode || brutalMode)) {
                              for(let d=1; d<=daysInMonth; d++) {
-                                let isWknd = new Date(year, curM, d).getDay() === 0 || new Date(year, curM, d).getDay() === 6; let s = memorySchedule[emp.charId][d];
-                                if(!isWknd && (s === openShift || s === closeShift || s === fullShift)) {
+                                let isWknd = new Date(year, curM, d).getDay() === 0 || new Date(year, curM, d).getDay() === 6; 
+                                let s = memorySchedule[emp.charId][d];
+                                
+                                if(!isWknd && (s === openShiftStr || s === closeShiftStr || s === fullShiftStr)) {
                                     let isLastPok = false;
-                                    if(emp.p) { let otherPok = 0; employees.forEach(em => { if(em.charId !== emp.charId && em.p && memorySchedule[em.charId][d].includes('-')) otherPok++; }); if(otherPok === 0) isLastPok = true; }
-                                    if(!isLastPok) { memorySchedule[emp.charId][d] = ""; actionTaken = true; break; }
+                                    if(emp.p) { 
+                                        let otherPok = 0; 
+                                        employees.forEach(em => { if(em.charId !== emp.charId && em.p && memorySchedule[em.charId][d].includes('-')) otherPok++; }); 
+                                        if(otherPok === 0) isLastPok = true; 
+                                    }
+                                    
+                                    // Normalnie chronimy ostatniego POKa, ALE w brutalMode kodeks pracy wygrywa z obsadą sklepu!
+                                    if(!isLastPok || brutalMode) { 
+                                        memorySchedule[emp.charId][d] = ""; 
+                                        actionTaken = true; break; 
+                                    }
                                 }
                              }
                         }

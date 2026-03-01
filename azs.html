@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Media Expert - AZS</title>
+    
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&display=swap" rel="stylesheet">
     
     <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app-compat.js"></script>
@@ -12,9 +13,14 @@
     <script>
         const currentUser = JSON.parse(localStorage.getItem('currentUser'));
         const myStore = localStorage.getItem('myStore');
-        if (!currentUser || !myStore) { window.location.href = 'login.html'; }
+        
+        if (!currentUser || !myStore) { 
+            window.location.href = 'login.html'; 
+        }
+        
         const isManagerOrKss = (currentUser.dept === 'ME' || currentUser.isKss);
 
+        // INICJALIZACJA FIREBASE
         const firebaseConfig = {
             apiKey: "AIzaSyD0N6Bjyzs34piOoujEn9mxKir8LDGdD2k",
             authDomain: "expert-tool.firebaseapp.com",
@@ -27,64 +33,86 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
     </script>
+    
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Montserrat', sans-serif; }
         body { background: #080808; color: white; display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
-        ::-webkit-scrollbar { width: 12px; height: 12px; } ::-webkit-scrollbar-track { background: #111; } ::-webkit-scrollbar-thumb { background: #ffe800; border-radius: 2px; }
-        header { background: #ffe800; height: 50px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; z-index: 9999; border-bottom: 2px solid #000; position: relative; }
-        .logo { color: #000; font-weight: 900; font-size: 1.2rem; text-transform: uppercase; letter-spacing: 1px; display: flex; align-items: center; gap: 10px;}
+        ::-webkit-scrollbar { width: 12px; height: 12px; }
+        ::-webkit-scrollbar-track { background: #111; border-left: 1px solid #222; border-top: 1px solid #222; }
+        ::-webkit-scrollbar-thumb { background: #ffe800; border-radius: 2px; }
+        ::-webkit-scrollbar-thumb:hover { background: #e6d100; }
+        
+        /* WSPÓLNY HEADER I MENU */
+        header { background: #ffe800; height: 50px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; z-index: 9999; border-bottom: 2px solid #000; position: relative; box-shadow: 0 2px 10px rgba(255, 232, 0, 0.2); }
+        .logo { color: #000; font-weight: 900; font-size: 1.4rem; text-transform: uppercase; letter-spacing: 1px; }
         .logo span { background: #000; color: #ffe800; padding: 0 6px; border-radius: 3px; }
-        .store-badge { font-size: 0.7rem; background: rgba(0,0,0,0.1); padding: 4px 8px; border-radius: 20px; font-weight: 800; border: 1px solid #000; }
-        .menu-btn { position: absolute; left: 15px; cursor: pointer; color: #000; font-size: 1.5rem; }
+        .store-badge { font-size: 0.7rem; background: rgba(0,0,0,0.1); padding: 4px 8px; border-radius: 20px; font-weight: 800; border: 1px solid #000; margin-left: 10px;}
+        .menu-btn { position: absolute; left: 15px; cursor: pointer; color: #000; font-size: 1.5rem; transition: 0.2s; }
+        
         .sidebar { position: fixed; left: -280px; top: 0; width: 260px; height: 100%; background: #0a0a0a; border-right: 3px solid #ffe800; transition: 0.4s; z-index: 10000; padding-top: 60px; display: flex; flex-direction: column; }
         .sidebar.active { left: 0; }
         .sidebar-nav { flex-grow: 1; overflow-y: auto; }
         .sidebar-header { color: #ffe800; font-weight: 900; font-size: 1rem; padding: 0 25px 15px 25px; letter-spacing: 2px; text-transform: uppercase; }
         .sidebar-link { display: block; color: white; padding: 15px 25px; text-decoration: none; font-weight: 700; font-size: 0.8rem; border-bottom: 1px solid #111; transition: 0.2s; }
         .sidebar-link:hover { background: #1a1a1a; color: #ffe800; padding-left: 35px; }
-        .user-profile { padding: 15px 20px; border-top: 2px solid #1a1a1a; display: flex; align-items: center; gap: 15px; cursor: pointer; background: #0f0f0f; }
-        .user-avatar { width: 45px; height: 45px; border-radius: 50%; background: #151515; border: 2px solid #ffe800; display: flex; align-items: center; justify-content: center; font-weight: 900; color: #ffe800; font-size: 1.2rem; flex-shrink: 0;}
+        
+        .user-profile { padding: 15px 20px; border-top: 2px solid #1a1a1a; display: flex; align-items: center; gap: 15px; cursor: pointer; transition: 0.3s; background: #0f0f0f; }
+        .user-profile:hover { background: #151515; }
+        .user-profile:hover .user-settings { color: #ffe800; }
+        .user-avatar { width: 45px; height: 45px; border-radius: 50%; background: #151515; border: 2px solid #ffe800; display: flex; align-items: center; justify-content: center; font-weight: 900; color: #ffe800; font-size: 1.2rem; flex-shrink: 0; box-shadow: inset 0 0 10px rgba(0,0,0,0.8); }
         .user-info { display: flex; flex-direction: column; }
-        .user-name { font-weight: 900; font-size: 0.85rem; color: #fff; }
-        .user-settings { font-size: 0.65rem; color: #888; font-weight: 700; margin-top: 4px; }
-        .logout-btn { display: block; width: 100%; text-align: center; background: transparent; color: #f44; border: none; border-top: 1px solid #1a1a1a; padding: 15px; font-weight: 900; font-size: 0.8rem; cursor: pointer; text-transform: uppercase; }
+        .user-name { font-weight: 900; font-size: 0.85rem; color: #fff; letter-spacing: 0.5px; }
+        .user-settings { font-size: 0.65rem; color: #888; font-weight: 700; margin-top: 4px; transition: 0.2s; }
+        .logout-btn { display: block; width: 100%; text-align: center; background: transparent; color: #f44; border: none; border-top: 1px solid #1a1a1a; padding: 15px; font-weight: 900; font-size: 0.8rem; cursor: pointer; transition: 0.3s; text-transform: uppercase; letter-spacing: 1px; }
+        .logout-btn:hover { background: #f44; color: #000; }
         .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.8); display: none; z-index: 9500; }
         .overlay.active { display: block; }
-        .navigation-area { background: #111; border-bottom: 2px solid #ffe800; padding: 10px 15px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; z-index: 800; }
+
+        /* ZAWARTOŚĆ AZS */
+        .navigation-area { background: #111; border-bottom: 2px solid #ffe800; flex-shrink: 0; padding: 10px 15px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; z-index: 800; }
         .controls-group { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
         select { background: #000; color: #fff; border: 1px solid #ffe800; padding: 8px 12px; font-weight: 900; border-radius: 8px; outline: none; cursor: pointer; font-size: 0.8rem; }
-        .btn-gen, .btn-print { border: none; padding: 8px 15px; font-weight: 900; border-radius: 8px; cursor: pointer; font-size: 0.8rem; transition: 0.3s; text-transform: uppercase; }
-        .btn-gen { background: #ffe800; color: #000; } .btn-print { background: #3498db; color: #fff; }
-        .table-container { flex: 1; overflow: auto; background: #080808; width: 100%; padding: 10px; position:relative;}
+        .btn-gen { background: #ffe800; color: #000; border: none; padding: 8px 15px; font-weight: 900; border-radius: 8px; cursor: pointer; font-size: 0.8rem; transition: 0.3s; text-transform: uppercase; }
+        .btn-print { background: #3498db; color: #fff; border: none; padding: 8px 15px; font-weight: 900; border-radius: 8px; cursor: pointer; font-size: 0.8rem; transition: 0.3s; text-transform: uppercase; }
+        .table-container { flex: 1; overflow: auto; background: #080808; width: 100%; padding: 10px; position: relative;}
         .azs-title { text-align: center; color: #ffe800; font-weight: 900; font-size: 1.5rem; margin-top: 10px; text-transform: uppercase; letter-spacing: 2px; }
         .azs-dates { text-align: center; color: #888; font-weight: 700; font-size: 1rem; margin-bottom: 20px; margin-top: 5px;}
         table { border-collapse: collapse; width: 100%; min-width: 1500px; background: #111; border: 2px solid #333; }
         thead th { background: #1a1a1a; position: sticky; top: 0; padding: 10px 5px; border: 1px solid #333; font-size: 0.6rem; color: #ffe800; text-transform: uppercase; }
-        .th-task { width: 350px; text-align: left; padding-left: 15px !important; } .th-day, .th-sign { width: 75px; text-align: center; } .th-sign { background: #0a0a0a; color: #888; border-bottom: 2px solid #444; }
+        .th-task { width: 350px; text-align: left; padding-left: 15px !important; }
+        .th-day { width: 75px; text-align: center; }
+        .th-sign { width: 75px; text-align: center; background: #0a0a0a; color: #888; border-bottom: 2px solid #444; }
         .header-main-row th { border-bottom: 3px solid #ffe800; }
+        tbody tr { border-bottom: 1px solid #222; transition: background-color 0.2s; }
+        tbody tr:hover { background-color: #1a1a1a; }
         td { border: 1px solid #333; padding: 6px 4px; font-size: 0.75rem; font-weight: 700; color: #fff; text-align: center; vertical-align: middle; }
         .td-task { text-align: left; padding-left: 15px; font-size: 0.65rem; color: #ccc; font-weight: 600; line-height: 1.3; }
-        .td-name { color: #ffe800; font-weight: 900; text-transform: uppercase; }
-        .td-blocked { background-color: #000 !important; color: transparent !important; } .td-sign { background: #151515; } 
+        .td-name { color: #ffe800; font-weight: 900; text-transform: uppercase; letter-spacing: 0.5px; }
+        .td-blocked { background-color: #000 !important; color: transparent !important; }
+        .td-sign { background: #151515; } 
         .error-msg { text-align: center; color: #f44; font-weight: bold; margin-top: 20px; font-size: 1.2rem; display: none; }
-        .loading-overlay { position: absolute; inset: 0; background: rgba(0,0,0,0.8); z-index: 2000; display: flex; align-items: center; justify-content: center; color: #ffe800; font-weight: bold; font-size: 1.5rem; display: none;}
         
-        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 11000; align-items: center; justify-content: center; padding: 20px; backdrop-filter: blur(5px); }
-        .modal-content { background: #0a0a0a; border: 3px solid #ffe800; padding: 30px; width: 100%; max-width: 450px; border-radius: 15px; text-align: center; box-shadow: 0 0 30px rgba(255, 232, 0, 0.2); }
-        .btn-modal { background: #ffe800; color: #000; border: none; padding: 15px 20px; font-weight: 900; border-radius: 8px; cursor: pointer; width: 100%; margin-top: 10px; text-transform: uppercase; }
-        @keyframes blink { 0% { opacity: 1; } 50% { opacity: 0.3; } 100% { opacity: 1; } }
-        .nav-alert { color: #f44; font-weight: 900; animation: blink 1s infinite; font-size: 1rem; margin-left: 5px; }
-        
+        .loading-overlay { position: absolute; inset: 0; background: rgba(0,0,0,0.8); z-index: 2000; display: flex; align-items: center; justify-content: center; color: #ffe800; font-weight: bold; font-size: 1.5rem; display: none; flex-direction: column;}
+        .loading-overlay span { font-size: 0.8rem; color: #ccc; margin-top: 10px; font-weight: normal;}
+
         @media print {
-            @page { size: A4 landscape; margin: 3mm 8mm; } body { background: white; color: black; font-family: Arial, sans-serif; margin: 0; padding: 0; }
+            @page { size: A4 landscape; margin: 3mm 8mm; } 
+            body { background: white; color: black; font-family: Arial, sans-serif; overflow: hidden; margin: 0; padding: 0; height: 100vh; }
             header, .sidebar, .overlay, .navigation-area, .menu-btn, .error-msg, .loading-overlay { display: none !important; }
-            .azs-title { color: black; margin-top: 0; font-size: 13px; margin-bottom: 2px; } .azs-dates { color: black; font-size: 10px; font-weight: bold; margin-bottom: 5px; }
+            .table-container { overflow: hidden; padding: 0; height: 100%; width: 100%; display: flex; flex-direction: column; }
+            .azs-title { color: black; margin-top: 0; font-size: 13px; margin-bottom: 2px; }
+            .azs-dates { color: black; font-size: 10px; font-weight: bold; margin-bottom: 5px; }
             table { min-width: 100%; border: 2px solid black; background: white; table-layout: fixed; margin: 0; }
             thead th { background: #eee !important; color: black !important; border: 1px solid black !important; position: static; font-size: 6.5px !important; padding: 2px !important; }
             .header-main-row th { border-bottom: 1px solid black !important; }
+            tbody tr { border-bottom: 1px solid black; height: auto !important; }
             td { border: 1px solid black !important; color: black !important; padding: 1.5px 2px !important; font-size: 6.5px !important; line-height: 1 !important; }
-            .th-task { width: 33%; } .td-task { font-weight: bold; font-size: 5.5px !important; padding-left: 2px !important; word-wrap: break-word; } .td-name { font-weight: 900; font-size: 6.5px !important; }
-            .td-blocked { background-color: #666 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; color: transparent !important; } .td-sign { background: white !important; }
+            .th-task { width: 33%; } 
+            .td-task { font-weight: bold; font-size: 5.5px !important; padding-left: 2px !important; word-wrap: break-word; }
+            .td-name { font-weight: 900; font-size: 6.5px !important; }
+            .td-blocked { background-color: #666 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; color: transparent !important; } 
+            .td-sign { background: white !important; }
+            tr, td, th { page-break-inside: avoid !important; }
         }
     </style>
 </head>
@@ -92,7 +120,8 @@
 
 <header>
     <div class="menu-btn" onclick="toggleNav()">☰</div>
-    <div class="logo">EXPERT <span>TOOL</span> <div class="store-badge" id="headerStore">SXXX</div></div>
+    <div class="logo">EXPERT <span>TOOL</span></div>
+    <div class="store-badge" id="headerStore">SXXX</div>
 </header>
 
 <div class="sidebar" id="sidebar">
@@ -101,7 +130,7 @@
         <a href="index.html" class="sidebar-link">Strona główna</a>
         <a href="plan.html" class="sidebar-link">Plan pracy</a>
         <a href="inwa.html" class="sidebar-link">Inwentury</a>
-        <a href="inwak.html" class="sidebar-link" id="navInwaKSS">Inwentury (ME/KSS) <span id="kssAlertBadge"></span></a>
+        <a href="inwak.html" class="sidebar-link" id="navInwaKSS">Inwentury (ME/KSS)</a>
         <a href="azs.html" class="sidebar-link" style="color:#ffe800">AZS (Agenda Zadań)</a>
         <a href="kwt.html" class="sidebar-link">KWT</a>
         <a href="qr.html" class="sidebar-link">Kod QR</a>
@@ -109,7 +138,7 @@
     <div class="user-profile" onclick="window.location.href='ustawienia.html'">
         <div class="user-avatar" id="sideAvatar">?</div>
         <div class="user-info">
-            <span class="user-name" id="sideName">Ladowanie...</span>
+            <span class="user-name" id="sideName">Ładowanie...</span>
             <span class="user-settings">⚙️ Ustawienia konta</span>
         </div>
     </div>
@@ -121,16 +150,17 @@
     <div class="controls-group">
         <select id="monthSelect" onchange="updateWeeks()"></select>
         <select id="weekSelect"></select>
-        <button class="btn-gen" onclick="fetchAndGenerateAZS()" id="btnGenAZS">🔄 POBIERZ I GENERUJ AZS</button>
+        <button class="btn-gen" onclick="generateAZS()">🔄 GENERUJ AZS Z PLANU</button>
     </div>
     <button class="btn-print" onclick="window.print()">🖨️ DRUKUJ AZS</button>
 </div>
 
 <div class="table-container">
-    <div class="loading-overlay" id="loadingData">Synchronizacja...</div>
+    <div class="loading-overlay" id="loadingData">Pobieranie z chmury... <span>Synchronizacja grafiku</span></div>
     <div class="azs-title">AGENDA ZADAŃ SKLEPU (AZS)</div>
     <div class="azs-dates" id="azsDates">Wybierz tydzień i kliknij generuj...</div>
-    <div id="errorMsg" class="error-msg">⚠️ BRAK DANYCH GRAFIKU W CHMURZE - Wygenerowano losowo.</div>
+    <div id="errorMsg" class="error-msg">⚠️ BRAK DANYCH GRAFIKU W BAZIE - Wygenerowano pustą listę zadań. Wygeneruj plan pracy!</div>
+
     <table id="azsTable">
         <thead>
             <tr>
@@ -139,65 +169,114 @@
                 <th colspan="7" style="font-size:0.8rem;">TU PODPISUJĄ SIĘ OSOBY PO WYKONANIU ZADANIA:</th>
             </tr>
             <tr class="header-main-row">
-                <th class="th-day">PON</th><th class="th-day">WTO</th><th class="th-day">ŚRO</th><th class="th-day">CZW</th><th class="th-day">PIĄ</th><th class="th-day">SOB</th><th class="th-day" style="border-right: 2px solid #ffe800;">NIE</th>
-                <th class="th-sign">PON</th><th class="th-sign">WTO</th><th class="th-sign">ŚRO</th><th class="th-sign">CZW</th><th class="th-sign">PIĄ</th><th class="th-sign">SOB</th><th class="th-sign">NIE</th>
+                <th class="th-day">PON</th><th class="th-day">WTO</th><th class="th-day">ŚRO</th>
+                <th class="th-day">CZW</th><th class="th-day">PIĄ</th><th class="th-day">SOB</th>
+                <th class="th-day" style="border-right: 2px solid #ffe800;">NIE</th>
+                <th class="th-sign">PON</th><th class="th-sign">WTO</th><th class="th-sign">ŚRO</th>
+                <th class="th-sign">CZW</th><th class="th-sign">PIĄ</th><th class="th-sign">SOB</th><th class="th-sign">NIE</th>
             </tr>
         </thead>
         <tbody id="azsBody"></tbody>
     </table>
 </div>
 
-<div class="modal" id="globalNotificationModal">
-    <div class="modal-content" id="popupBox">
-        <h3 id="globalPopupTitle" style="margin-bottom: 15px; font-size: 1.3rem;">POWIADOMIENIE</h3>
-        <p id="globalPopupMsg" style="color: #fff; font-size: 1rem; margin-bottom: 25px; line-height: 1.5; font-weight: 700;"></p>
-        <button class="btn-modal" onclick="closeGlobalPopup()">ZROZUMIAŁEM</button>
-    </div>
-</div>
-
 <script>
+    // ==========================================
+    // INICJALIZACJA LOGOWANIA I UI
+    // ==========================================
     document.getElementById('headerStore').innerText = myStore;
-    document.getElementById('sideName').innerText = `${currentUser.name} (${currentUser.dept})`;
+    let finalDept = currentUser.dept; if(currentUser.isKss && currentUser.dept !== 'ME') finalDept = 'KSS';
+    document.getElementById('sideName').innerText = `${currentUser.name} (${finalDept})`;
     document.getElementById('sideAvatar').innerText = currentUser.charId.charAt(0);
-    if(!isManagerOrKss) { document.getElementById('navInwaKSS').style.display = 'none'; document.getElementById('btnGenAZS').style.display = 'none'; }
+    
+    if(!isManagerOrKss) { 
+        document.getElementById('navInwaKSS').style.display = 'none'; 
+    }
+
     function toggleNav() { document.getElementById('sidebar').classList.toggle('active'); document.getElementById('overlay').classList.toggle('active'); }
     function logout() { localStorage.removeItem('currentUser'); window.location.href = 'login.html'; }
 
-    let globalUsersList = [];
-    const year = 2026; 
+    // ==========================================
+    // BAZA PRACOWNIKÓW I LISTA ZADAŃ (AZS)
+    // ==========================================
+    let employees = [];
+    let localPlanData = {};
+    const year = 2026;
+    const months = ["STYCZEŃ", "LUTY", "MARZEC", "KWIECIEŃ", "MAJ", "CZERWIEC", "LIPIEC", "SIERPIEŃ", "WRZESIEŃ", "PAŹDZIERNIK", "LISTOPAD", "GRUDZIEŃ"];
     let currentWeeks = [];
 
-    // Pobierz pracowników
-    db.ref(`Stores/${myStore}/Users`).once('value', snap => {
-        const usersObj = snap.val() || {};
-        globalUsersList = Object.keys(usersObj).map(key => ({ charId: key, ...usersObj[key] })).filter(u => u.charId !== 'ADMIN');
-    });
-
     const azsTasksData = [
-        { name: "Reagowanie na SMS i KOMUNIKAT informujący o zamówieniu OZG i SZS + wysłanie potwierdzenia do 15 minut", days: [1,2,3,4,5,6] },
-        { name: "Zatwierdzanie OZG i SZS z NOCY do 15 minut od włączenia Marketu", days: [1,2,3,4,5,6] },
-        { name: "Odbieranie TELEFONÓW SKLEPOWYCH + utrzymywanie ich maksymalnej głośności", days: [1,2,3,4,5,6] },
-        { name: "Porządek i bezpieczeństwo SOCJAL, MAGAZYN + OTOCZENIE SKLEPU (flagi, namiot)", days: [1,2,3,4,5,6] },
-        { name: "Brak zalegających DOKUMENTÓW + PORZĄDEK POK, SERWIS + ODKURZANIE SALI", days: [1,2,3,4,5,6] },
-        { name: "Wystawienie POTYKACZY + uzupełnianie materiałów DRUKOWANYCH", days: [1,2,3,4,5,6] },
-        { name: "Weryfikacja ilości zamówień OZG i MESK i PWS do odbioru + informacja do KSS", days: [1,2,3,4,5,6] },
-        { name: "Kontrola: Na SZCZYTACH, WYSPACH Prawidłowe MODELE, CENY i WYSTAWIENIE 100%", days: [1,2,3,4,5,6] },
-        { name: "Przyjęcie TOWARU + wydruk RAPORTU NOWYCH TOWARÓW", days: [1,2,3,4,5,6] },
-        { name: "Kontrola wyrywkowa ZABEZPIECZEŃ", days: [1,2,3,4,5] }, 
-        { name: "Kontrola MESK i PWS (składowanie + kontakt PDS dla nieodebranych)", days: [1,2,3,4,5] },
-        { name: "Opróżnianie szafek MESK z zalegających towarów NIEODEBRANYCH", days: [1] }, 
-        { name: "Kontrola PUSTE MAGAZYNY + podział na 10 stref", days: [2] }, 
-        { name: "Kontrola towarów z kończącą się datą (NPW kat. T) + przeterminowanych", days: [3] },
+        { name: "Reagowanie na SMS i KOMUNIKAT W MARKECIE informujący o złożeniu zamówienia OZG i SZS + wysłanie potwierdzenia max. do 15 minut", days: [1,2,3,4,5,6] },
+        { name: "Zatwierdzanie OZG i SZS z NOCY do 15 minut od włączenia Marketu w sklepie", days: [1,2,3,4,5,6] },
+        { name: "Osoba odpowiedzialna za odbieranie TELEFONÓW SKLEPOWYCH w ciągu dnia + za utrzymywanie ich maksymalnej głośności i naładowania baterii", days: [1,2,3,4,5,6] },
+        { name: "Wydruk CENÓWEK + Wydruk RAPORTU WYWIESZEK KORZYŚCI i sprawdzenie wszystkich WYWIESZEK KORZYŚCI do wywieszenia oraz tych do usunięcia", days: [1,2,3,4,5,6] },
+        { name: "Porządek i bezpieczeństwo SOCJAL, MAGAZYN, pozostałe pomieszczenia + OTOCZENIE SKLEPU i NAMIOTU, w tym kontrola FLAG i LOGO ŚWIETLNEGO", days: [1,2,3,4,5,6] },
+        { name: "Kontrola: Brak zalegających DOKUMENTÓW na widoku + PORZĄDEK POK, SERWIS, STANOWISKA KOMPUTEROWE + ODKURZANIE SALI SPRZEDAŻY", days: [1,2,3,4,5,6] },
+        { name: "Wystawienie POTYKACZY + uzupełnianie obowiązujących materiałów DRUKOWANYCH", days: [1,2,3,4,5,6] },
+        { name: "Uzupełnienie LODÓWKI Z NAPOJAMI (LAYOUT) + EKSPOZYCJI NA POK + KOSZYKA Z DROBNYM SLW NA POK (towar + zamówienia)", days: [1,2,3,4,5,6] },
+        { name: "Wykonanie FORMATEK zgodnie z datami podanymi na TOL", days: [1,2,3,4,5,6] },
+        { name: "Kontrola dokumentów MM przyjęcia zatwierdzonych w nocy + informacja o tym fakcie do KE/KSS", days: [1,2,3,4,5,6] },
+        { name: "Weryfikacja ilości i wartości zamówień OZG i MESK i PWS do dbioru w danym dniu + informacja do KE/KSS maksymalnie godzinę po otwarciu sklepu", days: [1,2,3,4,5,6] },
+        { name: "Przekazanie informacji Pracownikom POK na temat OZG i MESK O WARTOŚCI POWYŻEJ 500 ZŁ w celu zapewnienia dosprzedaży", days: [1,2,3,4,5,6] },
+        { name: "Kontrola: Włączony radiowęzeł oraz MUZYKA na wszystkich nośnikach + Przestrzeganie zakazu odtwarzania treści chron. prawem autorskim", days: [1,2,3,4,5,6] },
+        { name: "Kontrola: Włączone wszystkie TOWARY objęte obowiązkiem włączenia + Włączone i zapętlone wszystkie obowiązkowe prezentacje", days: [1,2,3,4,5,6] },
+        { name: "Kontrola: Na wszystkich SZCZYTACH, WYSPACH, KOSZACH i EKSPOZYTORACH Prawidłowe MODELE, CENY, WYWIESZKI i WYSTAWIENIE 100% SZTUK towarów", days: [1,2,3,4,5,6] },
+        { name: "Kontrola: Uzupełnione DZIURY towarowe we wszystkich DZIAŁACH + informacja o tym fakcie do KE/KSS", days: [1,2,3,4,5,6] },
+        { name: "Kontrola POPRAWNOŚCI CEN wg HARMONOGRAMU + w grupach, w których wystąpiła NIEZGODNA CENA SYSTEMOWA", days: [1,2,3,4,5,6] },
+        { name: "Przyjęcie TOWARU + wydruk z Marketu RAPORTU NOWYCH TOWARÓW, żeby wiedzieć co należy wystawić na półkę", days: [1,2,3,4,5,6] },
+        { name: "Kontrola Wystawienia Towaru (KWT) - rozłożenie kontroli na wszyskie dni tygodnia (razem wszystkie grupy muszą być skontrolowane w sklepie RAZ W TYGODNIU)", days: [1,2,3,4,5,6] },
+        { name: "Kontrola listy OBECNOŚCI + Kontrola zeszytu WYJŚĆ + Kontrola grafików PRZERW/POSIŁKÓW", days: [1,2,3,4,5,6] },
+        { name: "Praca z REKLAMACJAMI, w tym również WYSYŁKI, WYDANIA oraz BIEŻĄCY KONTAKT TELEFONICZNY Z KLIENTEM", days: [1,2,3,4,5,6] },
+        { name: "INWENTARYZACJA cząstkowa kolejnych działów oraz kolejnych GRUP WYSOKIEGO RYZYKA (polecenie wykonania pracownikowi SALI + egzekwowanie)", days: [1,2,3,4,5,6] },
+        { name: "Kontrola wyrywkowa kazdego rodzaju ZABEZPIECZEŃ", days: [1,2,3,4,5] }, 
+        { name: "Wskazanie osób do BADANIA KONKURENCJI zgodnie z aktualnymi wytycznymi", days: [1,2,3,4,5] },
+        { name: "Kontrola MESK i PWS (sprawność procesu + składowanie wg zasad + nieodebrane >1 dnia: czy wykonane telefony do klientów z komentarzem w PDS)", days: [1,2,3,4,5] },
+        { name: "Kontrola wywołanych ZWROTÓW NIEODEBRANYCH MESK i PWS (RAPORT 507) + wystawienie na salę sprzedaży towarów pozostawionych na stanie sklepu", days: [1,2,3,4,5] },
+        { name: "Opróżnianie szafek i strefy MESK z zalegających towarów NIEODEBRANYCH (MESK, PWS, OZG)", days: [1] }, 
+        { name: "Kontrola czy nie ma zapisanych HASEŁ przy stanowiskach, SZCZEGÓLNIE RATALNE I SERWISOWE", days: [1] },
+        { name: "Kontrola PUSTE MAGAZYNY + podział na 10 stref (Puste, Pełne, Wartościówka, Internet, Zwroty, Wywózki, Reklamacje, Wyposażenie, Odpady, Dostawa)", days: [2] }, 
+        { name: "Kontrola towarów NPW (Wystawienie 100% + Oznaczenie + Cena + Strategia sprzedaży)", days: [3] }, 
+        { name: "Sprawdzenie CAŁEJ ekspozycji czy nie ma niezgłoszonych towarów NPW lub PSP i niezwłoczne zgłoszenie ich do KE/KSS", days: [3] },
+        { name: "Kontrola towarów SLW (Wystawienie 100% + Oznaczenie + Cena + Strategia sprzedaży)", days: [3] },
+        { name: "Kontrola towarów z kończącą się datą (wprowadzenie na NPW kat. T) + towarów już przeterminowanych (ZWROT)", days: [3] },
+        { name: "Kontrola CZYSTOŚCI towaru i regałów", days: [3] },
         { name: "Kontrola TOP (ZA POMOCĄ KOLEKTORA)", days: [4] }, 
-        { name: "Kontrola oznaczeń AKCJI PROMOCYJNYCH w sklepie", days: [4] }
+        { name: "Kontrola oznaczeń AKCJI PROMOCYJNYCH w całym sklepie", days: [4] },
+        { name: "Kontrola NTOL LISTA VM - REKLAMACJE (zrealizuj w dniach od poniedziałku do czwartku)", days: [4] },
+        { name: "Kontrola NTOL LISTA VM - DZIAŁ AGD DROBNE (zrealizuj w dniach od poniedziałku do czwartku)", days: [4] },
+        { name: "Kontrola NTOL LISTA VM - DZIAŁ AGD DUŻE (zrealizuj w dniach od poniedziałku do czwartku)", days: [4] },
+        { name: "Kontrola NTOL LISTA VM - DZIAŁ IT (zrealizuj w dniach od poniedziałku do czwartku)", days: [4] },
+        { name: "Kontrola NTOL LISTA VM - DZIAŁ RTV i ROZRYWKA (zrealizuj w dniach od poniedziałku do czwartku)", days: [4] },
+        { name: "Kontrola NTOL LISTA VM - DZIAŁ RS (zrealizuj w dniach od poniedziałku do czwartku)", days: [4] },
+        { name: "Kontrola NTOL LISTA VM - POK (zrealizuj w dniach od poniedziałku do czwartku)", days: [4] },
+        { name: "Kontrola NTOL LISTA VM - OGÓLNE (zrealizuj w dniach od poniedziałku do czwartku)", days: [4] }
     ];
 
-    const months = ["STYCZEŃ", "LUTY", "MARZEC", "KWIECIEŃ", "MAJ", "CZERWIEC", "LIPIEC", "SIERPIEŃ", "WRZESIEŃ", "PAŹDZIERNIK", "LISTOPAD", "GRUDZIEŃ"];
+    // ==========================================
+    // POBIERANIE DANYCH Z FIREBASE
+    // ==========================================
+    function loadEmployeesAndInit() {
+        document.getElementById('loadingData').style.display = 'flex';
+        db.ref(`Stores/${myStore}/Users`).once('value', snap => {
+            const usersObj = snap.val() || {};
+            let rawUsers = Object.keys(usersObj).map(key => ({ charId: key, ...usersObj[key] })).filter(u => u.charId !== 'ADMIN');
+            
+            employees = rawUsers.map(u => ({
+                n: u.name, 
+                charId: u.charId, 
+                p: u.dept === 'POK', 
+                dept: u.dept 
+            }));
+            
+            initSelectors();
+        });
+    }
 
     function initSelectors() {
         const mSel = document.getElementById('monthSelect');
         months.forEach((m, i) => { let opt = document.createElement('option'); opt.value = i; opt.innerText = `${m} ${year}`; mSel.appendChild(opt); });
-        mSel.value = new Date().getMonth(); updateWeeks();
+        mSel.value = new Date().getMonth(); 
+        updateWeeks();
     }
 
     function updateWeeks() {
@@ -221,47 +300,68 @@
             let endStr = `${String(week[6].getDate()).padStart(2, '0')}.${String(week[6].getMonth()+1).padStart(2, '0')}`;
             opt.innerText = `Tydzień ${i + 1} (${startStr} - ${endStr})`; wSel.appendChild(opt);
         });
+        
+        document.getElementById('loadingData').style.display = 'none';
     }
 
-    async function fetchAndGenerateAZS() {
-        document.getElementById('loadingData').style.display = 'flex';
-        const wIndex = parseInt(document.getElementById('weekSelect').value);
-        const mIndex = parseInt(document.getElementById('monthSelect').value);
-        const weekDays = currentWeeks[wIndex];
+    // ==========================================
+    // CZYTANIE PLANU Z BAZY CHMUROWEJ I GENEROWANIE AZS
+    // ==========================================
+    function getShiftFromDb(charId, d, m) {
+        return (localPlanData[`${charId}_${d}`] || "").split('|')[0] || "";
+    }
 
-        let startStr = `${String(weekDays[0].getDate()).padStart(2, '0')}.${String(weekDays[0].getMonth()+1).padStart(2, '0')}`;
-        let endStr = `${String(weekDays[6].getDate()).padStart(2, '0')}.${String(weekDays[6].getMonth()+1).padStart(2, '0')}`;
-        document.getElementById('azsDates').innerText = `WPISZ DATY: OD ${startStr} DO ${endStr}`;
-        const tbody = document.getElementById('azsBody'); tbody.innerHTML = "";
-        
-        try {
-            const snap = await db.ref(`Stores/${myStore}/Plan/${year}_${mIndex}`).once('value');
-            const planData = snap.val() || {};
+    function generateAZS() {
+        const mIndex = parseInt(document.getElementById('monthSelect').value);
+        document.getElementById('loadingData').style.display = 'flex';
+
+        // Zaciągamy grafik dla wybranego miesiąca z chmury, żeby na jego podstawie wygenerować nazwiska
+        db.ref(`Stores/${myStore}/Plan/${year}_${mIndex}`).once('value', snap => {
+            localPlanData = snap.val() || {};
             
-            let hasAnyRealData = false; let dailyAssignments = {}; 
+            const wIndex = parseInt(document.getElementById('weekSelect').value);
+            const weekDays = currentWeeks[wIndex];
+            
+            let startStr = `${String(weekDays[0].getDate()).padStart(2, '0')}.${String(weekDays[0].getMonth()+1).padStart(2, '0')}`;
+            let endStr = `${String(weekDays[6].getDate()).padStart(2, '0')}.${String(weekDays[6].getMonth()+1).padStart(2, '0')}`;
+            document.getElementById('azsDates').innerText = `WPISZ DATY: OD ${startStr} DO ${endStr}`;
+            
+            const tbody = document.getElementById('azsBody'); tbody.innerHTML = "";
+            let hasAnyRealData = false; 
+            let dailyAssignments = {}; 
 
             weekDays.forEach(dayObj => {
-                let currentDayOfWeek = dayObj.getDay(); let dateIso = dayObj.toISOString(); let dayNum = dayObj.getDate();
+                let currentDayOfWeek = dayObj.getDay(); 
+                let dateIso = dayObj.toISOString();
+                let dayNum = dayObj.getDate();
+                let monthNum = dayObj.getMonth();
+
+                // Sprawdzamy czy to dzień z obecnego miesiąca (do bazy), czy przechodzi na inny (np 31 i 1)
+                let workingToday = [];
+                if (monthNum === mIndex) {
+                    employees.forEach(e => {
+                        let shift = getShiftFromDb(e.charId, dayNum, mIndex);
+                        if (shift !== "" && shift !== "WOLNE" && shift !== "URLOP" && shift !== "Ż" && shift !== "SZK" && e.dept !== 'ME') {
+                            workingToday.push(e);
+                        }
+                    });
+                }
                 
-                let actualWorkingToday = globalUsersList.filter(e => {
-                    let cell = planData[`${e.charId}_${dayNum}`] || "";
-                    let shift = cell.split('|')[0] || "";
-                    return shift !== "" && shift !== "WOLNE" && shift !== "URLOP" && shift !== "Ż" && shift !== "SZK" && e.dept !== 'ME';
-                });
+                if(workingToday.length > 0) hasAnyRealData = true;
                 
-                if(actualWorkingToday.length > 0) hasAnyRealData = true;
-                let workingToday = actualWorkingToday.length > 0 ? actualWorkingToday : globalUsersList.filter(e => e.dept !== 'ME');
-                
-                let dayWorkload = {}; workingToday.forEach(e => dayWorkload[e.name] = 0);
+                // Jeśli grafik jest pusty, wstawiamy wszystkich by nie wyrzuciło błędu
+                if(workingToday.length === 0) workingToday = employees.filter(e => e.dept !== 'ME');
+
+                let dayWorkload = {}; workingToday.forEach(e => dayWorkload[e.n] = 0);
                 dailyAssignments[dateIso] = {};
 
                 azsTasksData.forEach(task => {
                     if (task.days.includes(currentDayOfWeek)) {
                         if (workingToday.length > 0) {
-                            let minLoad = Math.min(...workingToday.map(e => dayWorkload[e.name]));
-                            let candidates = workingToday.filter(e => dayWorkload[e.name] === minLoad);
+                            let minLoad = Math.min(...workingToday.map(e => dayWorkload[e.n]));
+                            let candidates = workingToday.filter(e => dayWorkload[e.n] === minLoad);
                             let assigned = candidates[Math.floor(Math.random() * candidates.length)];
-                            dayWorkload[assigned.name]++; dailyAssignments[dateIso][task.name] = assigned.name;
+                            dayWorkload[assigned.n]++; dailyAssignments[dateIso][task.name] = assigned.n;
                         } else { dailyAssignments[dateIso][task.name] = "BRAK"; }
                     } else { dailyAssignments[dateIso][task.name] = "BLOCKED"; }
                 });
@@ -272,41 +372,22 @@
             azsTasksData.forEach(task => {
                 let tr = document.createElement('tr'); let html = `<td class="td-task">${task.name}</td>`;
                 let activeDaysHtml = ""; let signaturesHtml = "";
+                
                 weekDays.forEach(dayObj => {
                     let assignment = dailyAssignments[dayObj.toISOString()][task.name];
                     if (assignment === "BLOCKED") { activeDaysHtml += `<td class="td-blocked"></td>`; signaturesHtml += `<td class="td-blocked"></td>`; } 
                     else if (assignment === "BRAK") { activeDaysHtml += `<td style="color:#f44; font-size:0.6rem;">BRAK</td>`; signaturesHtml += `<td class="td-sign"></td>`; } 
                     else { activeDaysHtml += `<td class="td-name">${assignment}</td>`; signaturesHtml += `<td class="td-sign"></td>`; }
                 });
+                
                 html += activeDaysHtml + signaturesHtml; tr.innerHTML = html; tbody.appendChild(tr);
             });
 
-        } catch(e) { console.error(e); }
-        document.getElementById('loadingData').style.display = 'none';
-    }
-
-    // SYSTEM POWIADOMIEŃ PUSH W TLE
-    db.ref(`Stores/${myStore}/Notifications`).on('value', snap => {
-        let notifsObj = snap.val() || {}; let notifs = Object.keys(notifsObj).map(key => ({ keyId: key, ...notifsObj[key] }));
-        let myUnread = notifs.filter(n => !n.read && (n.to === currentUser.charId || (n.to === 'KSS' && isManagerOrKss)));
-        if (myUnread.length > 0) {
-            let n = myUnread[0]; document.getElementById('globalPopupTitle').innerText = n.title; document.getElementById('globalPopupMsg').innerText = n.msg; document.getElementById('globalNotificationModal').style.display = 'flex';
-            let box = document.getElementById('popupBox');
-            if(n.type === 'success') { box.style.borderColor = '#0a0'; document.getElementById('globalPopupTitle').style.color = '#0a0'; } else if(n.type === 'error') { box.style.borderColor = '#f44'; document.getElementById('globalPopupTitle').style.color = '#f44'; } else { box.style.borderColor = '#ffe800'; document.getElementById('globalPopupTitle').style.color = '#ffe800'; }
-            db.ref(`Stores/${myStore}/Notifications/${n.keyId}`).update({ read: true });
-        }
-    });
-
-    if(isManagerOrKss) {
-        db.ref(`Stores/${myStore}/Inwentury`).on('value', snap => {
-            let hasAwaiting = false;
-            snap.forEach(monthSnap => { monthSnap.forEach(item => { if(item.val().status === 'awaiting_kss') hasAwaiting = true; }); });
-            let badge = document.getElementById('kssAlertBadge'); if(badge) badge.innerHTML = hasAwaiting ? `<span class="nav-alert">[!]</span>` : '';
+            document.getElementById('loadingData').style.display = 'none';
         });
     }
 
-    function closeGlobalPopup() { document.getElementById('globalNotificationModal').style.display = 'none'; }
-    window.onload = () => { initSelectors(); };
+    window.onload = () => { loadEmployeesAndInit(); };
 </script>
 </body>
 </html>

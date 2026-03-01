@@ -14,7 +14,6 @@
         const isManagerOrKss = (currentUser.dept === 'ME' || currentUser.isKss);
     </script>
     <style>
-        /* [STYLES SA TE SAME, ŻEBY ZAOSZCZĘDZIĆ MIEJSCE DAŁEM TYLKO SKRÓCONY CSS, BY ZMIEŚCIĆ CAŁOŚĆ W JEDNYM POŚCIE] */
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Montserrat', sans-serif; }
         html, body { background: #080808; color: white; display: flex; flex-direction: column; width: 100%; height: 100vh; overflow: hidden; }
         ::-webkit-scrollbar { width: 12px; height: 12px; } ::-webkit-scrollbar-track { background: #111; border-left: 1px solid #222; border-top: 1px solid #222; } ::-webkit-scrollbar-thumb { background: #ffe800; border-radius: 2px; }
@@ -181,7 +180,7 @@
 </div>
 
 <script>
-    // DYNAMICZNE WCZYTANIE DANYCH Z BAZY
+    // Inicjalizacja Danych z Bazy LocalStorage
     document.getElementById('headerStore').innerText = `${storeSetup.sNumber} ${storeSetup.city}`;
     document.getElementById('sideName').innerText = `${currentUser.name} (${currentUser.dept})`;
     document.getElementById('sideAvatar').innerText = currentUser.charId.charAt(0);
@@ -192,10 +191,29 @@
         document.getElementById('employeeControlsPanel').style.display = 'flex';
     }
 
+    // Tabela wagi priorytetów sortowania (Kierownik -> KSS -> POK -> IT -> AGD -> RTV)
+    const deptRank = { 'ME': 1, 'KSS': 2, 'POK': 3, 'IT': 4, 'AGD': 5, 'RTV': 6 };
+    
+    // Transformacja użytkowników z bazy pod silnik planu pracy (z sortowaniem)
     const rawUsers = JSON.parse(localStorage.getItem('users')) || [];
-    // Transformacja użytkowników z bazy pod silnik planu pracy (omijamy sztucznego admina jeśli by był)
-    const employees = rawUsers.filter(u => u.charId !== 'ADMIN').map(u => {
-        return { n: u.name, i: u.charId.charAt(0), p: u.dept === 'POK', dept: u.dept, charId: u.charId };
+    let usersForPlan = rawUsers.filter(u => u.charId !== 'ADMIN');
+    
+    usersForPlan.forEach(u => {
+        if(u.isKss && u.dept !== 'ME') u.displayDept = 'KSS';
+        else u.displayDept = u.dept;
+    });
+
+    usersForPlan.sort((a, b) => (deptRank[a.displayDept] || 99) - (deptRank[b.displayDept] || 99));
+
+    const employees = usersForPlan.map(u => {
+        return { 
+            n: u.name, 
+            i: u.charId.charAt(0), 
+            p: u.dept === 'POK', 
+            dept: u.dept, // zachowujemy oryginalny dział pod maską dla algorytmu zmian
+            displayDept: u.displayDept, // pokazujemy KSS
+            charId: u.charId 
+        };
     });
 
     const months = ["STYCZEŃ", "LUTY", "MARZEC", "KWIECIEŃ", "MAJ", "CZERWIEC", "LIPIEC", "SIERPIEŃ", "WRZESIEŃ", "PAŹDZIERNIK", "LISTOPAD", "GRUDZIEŃ"];
@@ -212,7 +230,7 @@
     let currentEditEmp = null; let currentEditDay = null;
 
     function openEditModal(emp, day) {
-        if(!isManagerOrKss) return; // Ochrona: pracownik nie może kliknąć komórki
+        if(!isManagerOrKss) return; 
         if(localStorage.getItem(`locked_${year}_${curM}`) === 'true') return;
         currentEditEmp = emp; currentEditDay = day;
         let shift = getShiftOnly(emp, day); let roles = getRolesOnly(emp, day);
@@ -238,7 +256,6 @@
     function clearMonth() { if(localStorage.getItem(`locked_${year}_${curM}`) === 'true') return; if(confirm("Wyczyścić grafik? (Urlopy, szkolenia i życzenia zostaną)")) { const days = new Date(year, curM + 1, 0).getDate(); employees.forEach(e => { if(e.dept === 'ME') return; for(let d=1; d<=days; d++) { let s = getShiftOnly(e.n, d); if(s !== "URLOP" && s !== "Ż" && s !== "SZK") saveVRaw(e.n, d, ""); } }); render(); } }
 
     function exportToExcel() {
-        // [To samo eksportowanie z poprzednich wersji]
         const days = new Date(year, curM + 1, 0).getDate(); const baseNorm = document.getElementById('hourNormInput') ? parseInt(document.getElementById('hourNormInput').value) : 160;
         let data = []; let header = ["DATA"]; employees.forEach(e => header.push(e.n)); header.push("OTW-SUM-ZAM"); data.push(header);
         for(let d=1; d<=days; d++) {
@@ -318,7 +335,11 @@
         }
 
         head.innerHTML = '<th class="date-col">DATA</th>';
-        employees.forEach(e => { head.innerHTML += `<th><div class="avatar">${e.i}</div><div class="worker-name">${e.n}<br><span class="dept-tag ${e.dept==='ME'?'dept-me':''}">${e.dept}</span></div></th>`; });
+        employees.forEach(e => { 
+            let deptClass = e.dept === 'ME' ? 'dept-me' : '';
+            // TU UŻYWAMY displayDept DO WYŚWIETLENIA TAGU (KSS) NA PLANIE
+            head.innerHTML += `<th><div class="avatar">${e.i}</div><div class="worker-name">${e.n}<br><span class="dept-tag ${deptClass}">${e.displayDept}</span></div></th>`; 
+        });
         head.innerHTML += '<th class="obsada-col">OTW - SUMA - ZAM</th>';
         body.innerHTML = ""; const today = new Date(); const isCurrentMonth = today.getFullYear() === year && today.getMonth() === curM;
 
@@ -358,7 +379,8 @@
         const grid = document.getElementById('workerGrid'); grid.innerHTML = "";
         employees.forEach(e => {
             let savedZ = localStorage.getItem(`set_z_${year}_${curM}_${e.n}`) || ""; let savedU1 = localStorage.getItem(`set_u1_${year}_${curM}_${e.n}`) || ""; let savedU2 = localStorage.getItem(`set_u2_${year}_${curM}_${e.n}`) || "";
-            grid.innerHTML += `<div class="worker-card"><div style="color:#ffe800; font-weight:900; font-size:0.7rem;">${e.n} <span style="color:#666; font-size:0.5rem">(${e.dept})</span></div><label>ŻYCZENIA (Dni np. 5,12):</label><input id="z_${e.n}" value="${savedZ}"><label>URLOP (Od-Do np. 1-7):</label><div style="display:flex; gap:2px"><input id="u1_${e.n}" placeholder="Od" value="${savedU1}"><input id="u2_${e.n}" placeholder="Do" value="${savedU2}"></div></div>`;
+            // TU TEŻ UŻYWAMY displayDept DO WYŚWIETLENIA TAGU W USTAWIENIACH
+            grid.innerHTML += `<div class="worker-card"><div style="color:#ffe800; font-weight:900; font-size:0.7rem;">${e.n} <span style="color:#666; font-size:0.5rem">(${e.displayDept})</span></div><label>ŻYCZENIA (Dni np. 5,12):</label><input id="z_${e.n}" value="${savedZ}"><label>URLOP (Od-Do np. 1-7):</label><div style="display:flex; gap:2px"><input id="u1_${e.n}" placeholder="Od" value="${savedU1}"><input id="u2_${e.n}" placeholder="Do" value="${savedU2}"></div></div>`;
         });
     }
 

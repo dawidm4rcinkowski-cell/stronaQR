@@ -40,9 +40,17 @@
         
         .content { flex-grow: 1; overflow-y: auto; padding: 30px 20px; }
         .content-inner { max-width: 1400px; margin: 0 auto; }
-        .page-title { font-size: 2rem; font-weight: 900; margin-bottom: 30px; } .page-title span { color: #ffe800; }
         
-        .dept-tabs { display: flex; gap: 15px; margin-bottom: 40px; flex-wrap: wrap; }
+        .page-header { display: flex; flex-direction: column; align-items: center; margin-bottom: 30px; }
+        .page-title { font-size: 2rem; font-weight: 900; margin-bottom: 15px; text-transform: uppercase; text-align: center; } .page-title span { color: #ffe800; }
+        
+        /* MIESIĄCE */
+        .month-selector { display: flex; gap: 8px; overflow-x: auto; white-space: nowrap; scrollbar-width: none; padding-bottom: 10px; max-width: 100%; justify-content: center; }
+        .month-btn { padding: 8px 16px; border-radius: 20px; border: 1px solid #333; background: #111; color: #888; font-size: 0.75rem; font-weight: 700; cursor: pointer; transition: 0.3s; }
+        .month-btn.active { background: #ffe800; color: #000; border-color: #ffe800; box-shadow: 0 0 10px rgba(255, 232, 0, 0.4); }
+        .month-btn:hover:not(.active) { background: #222; color: #fff; }
+
+        .dept-tabs { display: flex; gap: 15px; margin-bottom: 40px; flex-wrap: wrap; justify-content: center;}
         .tab-btn { background: #151515; border: 1px solid #333; color: #fff; padding: 12px 30px; border-radius: 12px; font-weight: 900; cursor: pointer; transition: 0.3s; font-size: 0.9rem; flex: 1; max-width: 200px;}
         .tab-btn.active { background: #ffe800; color: #000; border-color: #ffe800; }
         
@@ -60,7 +68,7 @@
         .status-rejected .dot { background: #f44; animation: blink 1s infinite; } .status-rejected { color: #f44; }
         
         .approve-btn { width: 100%; background: transparent; border: 2px solid #ffe800; color: #ffe800; padding: 10px; border-radius: 8px; font-weight: 900; cursor: pointer; transition: 0.3s; text-transform: uppercase; }
-        .approve-btn:hover { background: #ffe800; color: #000; }
+        .approve-btn:hover:not(:disabled) { background: #ffe800; color: #000; }
         .approve-btn:disabled { border-color: #333; color: #555; background: transparent; cursor: not-allowed; }
         
         /* GLOBALNY MODAL POWIADOMIEŃ */
@@ -103,7 +111,11 @@
 
 <div class="content">
     <div class="content-inner">
-        <h1 class="page-title">LISTA <span>INWENTUR</span></h1>
+        <div class="page-header">
+            <h1 class="page-title">LISTA <span>INWENTUR</span></h1>
+            <div class="month-selector" id="monthSelector"></div>
+        </div>
+
         <div class="dept-tabs">
             <button class="tab-btn active" onclick="switchDept('IT')">DZIAŁ IT</button>
             <button class="tab-btn" onclick="switchDept('RTV')">DZIAŁ RTV</button>
@@ -124,27 +136,50 @@
 </div>
 
 <script>
-    // --- BAZA DANYCH INWENTUR (Jeśli pusta, tworzymy) ---
+    const year = 2026;
+    const months = ["STYCZEŃ", "LUTY", "MARZEC", "KWIECIEŃ", "MAJ", "CZERWIEC", "LIPIEC", "SIERPIEŃ", "WRZESIEŃ", "PAŹDZIERNIK", "LISTOPAD", "GRUDZIEŃ"];
+    let currentMonth = new Date().getMonth();
+
     const defaultInventoryList = [
-        { id: "it_w1", dept: "IT", period: "weekly", name: "Smartfony" }, { id: "it_w2", dept: "IT", period: "weekly", name: "Tablety" }, { id: "it_w3", dept: "IT", period: "weekly", name: "Słuchawki TWS i nauszne" }, { id: "it_w4", dept: "IT", period: "weekly", name: "Smartwatche" },
-        { id: "it_2w1", dept: "IT", period: "twoWeeks", name: "Laptopy i komputery" }, { id: "it_2w2", dept: "IT", period: "twoWeeks", name: "Drukarki i skanery" }, { id: "it_2w3", dept: "IT", period: "twoWeeks", name: "Myszki i Klawiatury" }, { id: "it_2w4", dept: "IT", period: "twoWeeks", name: "Głośniki mobilne" },
-        { id: "it_m1", dept: "IT", period: "monthly", name: "Tusze i Tonery" }, { id: "it_m2", dept: "IT", period: "monthly", name: "Kable GSM, ładowarki i powerbanki" }, { id: "it_m3", dept: "IT", period: "monthly", name: "Torby i Etui" },
-        { id: "rtv_w1", dept: "RTV", period: "weekly", name: "Telewizory do 55 cali" }, { id: "rtv_w2", dept: "RTV", period: "weekly", name: "Klocki LEGO" },
-        { id: "rtv_2w1", dept: "RTV", period: "twoWeeks", name: "Telewizory od 65 cali" }, { id: "rtv_2w2", dept: "RTV", period: "twoWeeks", name: "Konsole i Pady" }, { id: "rtv_2w3", dept: "RTV", period: "twoWeeks", name: "Gry fizyczne" },
-        { id: "rtv_m1", dept: "RTV", period: "monthly", name: "Uchwyty TV" }, { id: "rtv_m2", dept: "RTV", period: "monthly", name: "Kable HDMI i Audio" }, { id: "rtv_m3", dept: "RTV", period: "monthly", name: "Soundbary i Hi-Fi" },
-        { id: "agd_w1", dept: "AGD", period: "weekly", name: "Ekspresy Automatyczne" }, { id: "agd_w2", dept: "AGD", period: "weekly", name: "Odkurzacze Pionowe" }, { id: "agd_w3", dept: "AGD", period: "weekly", name: "Blendery i wyciskarki" },
-        { id: "agd_2w1", dept: "AGD", period: "twoWeeks", name: "Szczoteczki Elektryczne" }, { id: "agd_2w2", dept: "AGD", period: "twoWeeks", name: "Golarki i Depilatory" }, { id: "agd_2w3", dept: "AGD", period: "twoWeeks", name: "Żelazka i generatory" },
-        { id: "agd_m1", dept: "AGD", period: "monthly", name: "Garnki i Patelnie" }, { id: "agd_m2", dept: "AGD", period: "monthly", name: "Filtry do wody i dzbanki" }, { id: "agd_m3", dept: "AGD", period: "monthly", name: "Odkurzacze Tradycyjne" }
+        // IT
+        { id: "it_w1", dept: "IT", period: "weekly", name: "Myszki gamingowe" }, { id: "it_w2", dept: "IT", period: "weekly", name: "Słuchawki Truewireless" }, { id: "it_w3", dept: "IT", period: "weekly", name: "Smartfony" },
+        { id: "it_2w1", dept: "IT", period: "twoWeeks", name: "Słuchawki Nauszne" },
+        { id: "it_m1", dept: "IT", period: "monthly", name: "Tusze" }, { id: "it_m2", dept: "IT", period: "monthly", name: "Papier" }, { id: "it_m3", dept: "IT", period: "monthly", name: "Głośniki mobilne" }, { id: "it_m4", dept: "IT", period: "monthly", name: "Słuchawki douszne" }, { id: "it_m5", dept: "IT", period: "monthly", name: "Smartbandy" }, { id: "it_m6", dept: "IT", period: "monthly", name: "Smartwatche" }, { id: "it_m7", dept: "IT", period: "monthly", name: "Folie ochronne" }, { id: "it_m8", dept: "IT", period: "monthly", name: "Dyski PSSD" }, { id: "it_m9", dept: "IT", period: "monthly", name: "Dyski SSD M.2 NVME" }, { id: "it_m10", dept: "IT", period: "monthly", name: "Dyski SSD SATA" }, { id: "it_m11", dept: "IT", period: "monthly", name: "Dyski zewnętrzne" }, { id: "it_m12", dept: "IT", period: "monthly", name: "Słuchawki gamingowe" }, { id: "it_m13", dept: "IT", period: "monthly", name: "Nośniki logistyczne" },
+        // RTV
+        { id: "rtv_2w1", dept: "RTV", period: "twoWeeks", name: "Konsole" }, { id: "rtv_2w2", dept: "RTV", period: "twoWeeks", name: "Android TV" }, { id: "rtv_2w3", dept: "RTV", period: "twoWeeks", name: "Alkomaty" }, { id: "rtv_2w4", dept: "RTV", period: "twoWeeks", name: "Wideorejestratory" },
+        { id: "rtv_m1", dept: "RTV", period: "monthly", name: "Akcesoria do konsol" }, { id: "rtv_m2", dept: "RTV", period: "monthly", name: "Komunikatory drogowe" }, { id: "rtv_m3", dept: "RTV", period: "monthly", name: "Kamery sportowe" }, { id: "rtv_m4", dept: "RTV", period: "monthly", name: "Nawigacje" },
+        // AGD
+        { id: "agd_m1", dept: "AGD", period: "monthly", name: "Akcesoria do golarek" }, { id: "agd_m2", dept: "AGD", period: "monthly", name: "Depilatory świetlne" }, { id: "agd_m3", dept: "AGD", period: "monthly", name: "Szczoteczki" }, { id: "agd_m4", dept: "AGD", period: "monthly", name: "Trymery" }, { id: "agd_m5", dept: "AGD", period: "monthly", name: "Urządzenia do pielęgnacji twarzy i ciała" }, { id: "agd_m6", dept: "AGD", period: "monthly", name: "Akcesoria do urządzeń SODASTREAM" }, { id: "agd_m7", dept: "AGD", period: "monthly", name: "Kawa ziarnista" }, { id: "agd_m8", dept: "AGD", period: "monthly", name: "Kawa w kapsułkach" }, { id: "agd_m9", dept: "AGD", period: "monthly", name: "Syropy" }
     ];
 
-    function initDB() {
-        let db = localStorage.getItem('inwa_db');
+    function initDB(m) {
+        let dbKey = `inwa_db_${year}_${m}`;
+        let db = localStorage.getItem(dbKey);
         if (!db) {
             let initialDb = defaultInventoryList.map(item => ({ ...item, status: 'do_zrobienia', submittedBy: null, submitterId: null }));
-            localStorage.setItem('inwa_db', JSON.stringify(initialDb));
+            localStorage.setItem(dbKey, JSON.stringify(initialDb));
         }
     }
-    initDB();
+
+    function renderMonthSelector() {
+        const div = document.getElementById('monthSelector');
+        div.innerHTML = "";
+        months.forEach((m, i) => {
+            const b = document.createElement('button');
+            b.className = `month-btn ${i === currentMonth ? 'active' : ''}`;
+            b.innerText = m;
+            b.onclick = () => setMonth(i);
+            div.appendChild(b);
+        });
+    }
+
+    function setMonth(m) {
+        currentMonth = m;
+        initDB(m);
+        renderMonthSelector();
+        let activeTab = document.querySelector('.tab-btn.active').innerText.replace('DZIAŁ ', '');
+        switchDept(activeTab);
+    }
 
     // Inicjalizacja UI
     document.getElementById('headerStore').innerText = `${storeSetup.sNumber} ${storeSetup.city}`;
@@ -158,16 +193,18 @@
     // RENDEROWANIE KART
     function switchDept(dept) {
         document.querySelectorAll('.tab-btn').forEach(btn => { btn.classList.remove('active'); if(btn.innerText.includes(dept)) btn.classList.add('active'); });
-        let db = JSON.parse(localStorage.getItem('inwa_db')) || [];
+        let dbKey = `inwa_db_${year}_${currentMonth}`;
+        let db = JSON.parse(localStorage.getItem(dbKey)) || [];
         renderSection('gridWeekly', db.filter(i => i.dept === dept && i.period === 'weekly'), 'secWeekly');
         renderSection('grid2Weeks', db.filter(i => i.dept === dept && i.period === 'twoWeeks'), 'secTwoWeeks');
         renderSection('gridMonthly', db.filter(i => i.dept === dept && i.period === 'monthly'), 'secMonthly');
     }
 
     function renderSection(gridId, data, sectionId) {
+        const section = document.getElementById(sectionId);
         const grid = document.getElementById(gridId);
-        if(data.length === 0) { document.getElementById(sectionId).style.display = 'none'; return; }
-        document.getElementById(sectionId).style.display = 'block';
+        if(data.length === 0) { section.style.display = 'none'; return; }
+        section.style.display = 'block';
         
         grid.innerHTML = data.map((item) => {
             let stHtml, btnHtml, cardClass = '';
@@ -190,32 +227,32 @@
         }).join('');
     }
 
-    // AKCJA: PRACOWNIK ZGŁASZA INWENTURĘ
     function submitInventory(id) {
-        let db = JSON.parse(localStorage.getItem('inwa_db'));
+        let dbKey = `inwa_db_${year}_${currentMonth}`;
+        let db = JSON.parse(localStorage.getItem(dbKey));
         let item = db.find(i => i.id === id);
         item.status = 'awaiting_kss';
         item.submittedBy = currentUser.name;
         item.submitterId = currentUser.charId;
-        localStorage.setItem('inwa_db', JSON.stringify(db));
+        localStorage.setItem(dbKey, JSON.stringify(db));
         
-        // Tworzenie powiadomienia dla KSS
         let notifs = JSON.parse(localStorage.getItem('app_notifications')) || [];
-        notifs.push({ id: Date.now(), to: 'KSS', title: 'NOWA INWENTURA', msg: `Pracownik ${currentUser.name} zakończył: ${item.name} (${item.dept}). Sprawdź to!`, type: 'warning', read: false });
+        notifs.push({ id: Date.now(), to: 'KSS', title: 'NOWA INWENTURA', msg: `Pracownik ${currentUser.name} zakończył inwenturę: ${item.name} (${months[currentMonth]}). Sprawdź to!`, type: 'warning', read: false });
         localStorage.setItem('app_notifications', JSON.stringify(notifs));
         
-        // Trigerujemy zdarzenie storage ręcznie dla tego samego okna (inne zakładki łapią same)
         window.dispatchEvent(new Event('storage'));
-        switchDept(item.dept); // Odśwież UI
+        switchDept(item.dept);
     }
 
-    // --- SYSTEM POWIADOMIEŃ GLOBALNYCH ---
     function checkNotifications() {
         if (isManagerOrKss) {
-            let db = JSON.parse(localStorage.getItem('inwa_db')) || [];
-            let awaiting = db.filter(item => item.status === 'awaiting_kss').length;
             let badge = document.getElementById('kssAlertBadge');
-            if(badge) badge.innerHTML = awaiting > 0 ? `<span class="nav-alert">[!]</span>` : '';
+            let hasAwaiting = false;
+            for(let i=0; i<12; i++) {
+                let db = JSON.parse(localStorage.getItem(`inwa_db_${year}_${i}`)) || [];
+                if(db.filter(item => item.status === 'awaiting_kss').length > 0) hasAwaiting = true;
+            }
+            if(badge) badge.innerHTML = hasAwaiting ? `<span class="nav-alert">[!]</span>` : '';
         }
 
         let notifs = JSON.parse(localStorage.getItem('app_notifications')) || [];
@@ -231,7 +268,7 @@
             else if(n.type === 'error') { box.style.borderColor = '#f44'; document.getElementById('globalPopupTitle').style.color = '#f44'; }
             else { box.style.borderColor = '#ffe800'; document.getElementById('globalPopupTitle').style.color = '#ffe800'; }
             
-            n.read = true; // Oznacz jako przeczytane
+            n.read = true; 
             localStorage.setItem('app_notifications', JSON.stringify(notifs));
         }
     }
@@ -239,7 +276,12 @@
     function closeGlobalPopup() { document.getElementById('globalNotificationModal').style.display = 'none'; }
     window.addEventListener('storage', () => { checkNotifications(); switchDept(document.querySelector('.tab-btn.active').innerText.replace('DZIAŁ ', '')); });
     
-    window.onload = () => { switchDept('IT'); checkNotifications(); };
+    window.onload = () => { 
+        initDB(currentMonth); 
+        renderMonthSelector(); 
+        switchDept('IT'); 
+        checkNotifications(); 
+    };
 </script>
 </body>
 </html>

@@ -433,7 +433,7 @@
     }
 
     // =======================================================
-    // POTĘŻNY SILNIK GENERATORA V5.0 (SZKIELET + BEZPIECZNE SWAPY)
+    // POTĘŻNY SILNIK GENERATORA V5.0 (Z KODEKSEM PRACY)
     // =======================================================
     function getH(shiftStr) {
         if (!shiftStr) return 0;
@@ -452,11 +452,24 @@
         return h; 
     }
 
-    function getStreak(charId, day, schedule) { 
-        let s = 0; 
-        for (let d = day - 1; d >= 1; d--) { let st = schedule[charId][d]; if (st.includes('-') || st === "URLOP" || st === "SZK") s++; else break; } 
-        for (let d = day + 1; d <= 31; d++) { let st = schedule[charId][d]; if (st.includes('-') || st === "URLOP" || st === "SZK") s++; else break; } 
-        return s; 
+    // Kodeks Pracy: Maksymalnie 5 dni pracy z rzędu w grafiku
+    function canWork(charId, day, schedule) {
+        if (schedule[charId][day] !== "") return false; // Już pracuje albo urlop
+
+        let streakBefore = 0;
+        for (let d = day - 1; d >= 1; d--) {
+            if (schedule[charId][d] !== "") streakBefore++;
+            else break;
+        }
+
+        let streakAfter = 0;
+        for (let d = day + 1; d <= 31; d++) {
+            if (schedule[charId][d] && schedule[charId][d] !== "") streakAfter++;
+            else break;
+        }
+
+        if (streakBefore + 1 + streakAfter > 5) return false; // Nie pozwalamy na 6 dni
+        return true;
     }
 
     function shuffle(array) { 
@@ -464,33 +477,9 @@
         return array; 
     }
 
-    // SPRAWDZENIE CZY USUNIĘCIE ZMIANY ZEPSUJE SZKIELET (3+1)
-    function isSafeToRemove(d, emp, schedule) {
-        let oP = 0, cP = 0, oS = 0, cS = 0;
-        employees.forEach(e => {
-            if(e.charId === emp.charId || e.dept === 'ME') return;
-            let s = schedule[e.charId][d];
-            if(s.includes('-')) {
-                let isO = parseInt(s.split('-')[0]) <= 11;
-                let isC = parseInt(s.split('-')[1]) >= 19;
-                if(e.p) { if(isO) oP++; if(isC) cP++; } 
-                else { if(isO) oS++; if(isC) cS++; }
-            }
-        });
-        
-        if (emp.p) {
-            if (oP < 1 && parseInt(schedule[emp.charId][d].split('-')[0]) <= 11) return false;
-            if (cP < 1 && parseInt(schedule[emp.charId][d].split('-')[1]) >= 19) return false;
-        } else {
-            if (oS < 3 && parseInt(schedule[emp.charId][d].split('-')[0]) <= 11) return false;
-            if (cS < 3 && parseInt(schedule[emp.charId][d].split('-')[1]) >= 19) return false;
-        }
-        return true;
-    }
-
     function startGeneration() {
         if (localPlanMeta.locked === true) return;
-        document.getElementById('loadingData').innerHTML = "Generowanie optymalnego szkieletu... <span>Trwa przeliczanie</span>";
+        document.getElementById('loadingData').innerHTML = "Obliczanie najlepszego pokrycia... <span>Może to zająć kilka sekund</span>";
         document.getElementById('loadingData').style.display = 'flex';
         
         setTimeout(() => {
@@ -509,7 +498,7 @@
             let closeShifts = shiftDefs.filter(s => s.end >= 19);
             let openShiftStr = openShifts.length > 0 ? openShifts[0].val : shiftDefs[0].val;
             let closeShiftStr = closeShifts.length > 0 ? closeShifts[0].val : shiftDefs[0].val;
-            let fullShiftStr = shiftDefs[shiftDefs.length - 1].val; // Najdłuższa dostępna
+            let fullShiftStr = shiftDefs[shiftDefs.length - 1].val;
 
             let memorySchedule = {};
             let weekendCounts = {};
@@ -537,13 +526,13 @@
 
                 let available = employees.filter(e => memorySchedule[e.charId][d] === "" && e.dept !== 'ME'); 
                 shuffle(available); 
-                available.sort((a,b) => weekendCounts[a.charId] - weekendCounts[b.charId]); // Ci co nie pracowali w weekend idą pierwsi!
+                available.sort((a,b) => weekendCounts[a.charId] - weekendCounts[b.charId]); // Najpierw ci co nie pracowali!
                 
                 let poks = available.filter(e => e.p); let sales = available.filter(e => !e.p); 
                 let toWork = []; 
-                if (poks.length > 0) { toWork.push(poks[0]); } // Min 1 POK na weekend
+                if (poks.length > 0) { toWork.push(poks[0]); } // Min 1 POK
                 
-                let salesNeeded = toWork.length === 0 ? 6 : 5; // 6 osób łącznie
+                let salesNeeded = toWork.length === 0 ? 6 : 5;
                 for (let i = 0; i < salesNeeded && sales.length > 0; i++) { toWork.push(sales[0]); sales.shift(); }
                 toWork.forEach(w => { memorySchedule[w.charId][d] = targetShift; weekendCounts[w.charId]++; });
             });
@@ -553,20 +542,29 @@
                 let dateObj = new Date(year, curM, d);
                 if (dateObj.getDay() === 6 || dateObj.getDay() === 0 || !isWorkDay(d)) continue;
                 
-                // --- POK (1 OTW, 1 ZAM) ---
-                let availPoks = employees.filter(e => e.p && memorySchedule[e.charId][d] === "");
-                // Sortujemy po tych, co mają najmniej godzin (chciwie dajemy im zmiany w szkielecie)
+                // --- POK (1 OTW, 1 ZAM LUB 1 NA CAŁY DZIEŃ) ---
+                let availPoks = employees.filter(e => e.p && canWork(e.charId, d, memorySchedule));
                 availPoks.sort((a,b) => calcRealH(a.charId, memorySchedule) - calcRealH(b.charId, memorySchedule));
                 
                 if (availPoks.length >= 2) {
-                    memorySchedule[availPoks[0].charId][d] = openShiftStr; 
-                    memorySchedule[availPoks[1].charId][d] = closeShiftStr;
+                    // Aby zaoszczędzić POKom godzin, system często daje jednemu całodniową zmianę, a drugiemu wolne
+                    // Zamiast bezmyślnie wpisywać ich na zakładkę (co zżerało 16h dziennie z puli 2 osób)
+                    let p1 = availPoks[0]; let p2 = availPoks[1];
+                    let h1 = calcRealH(p1.charId, memorySchedule); let h2 = calcRealH(p2.charId, memorySchedule);
+                    
+                    if (h1 + 16 > baseNorm && h2 + 16 > baseNorm) { 
+                        // Obaj są na granicy normy, ratujemy sytuację! Jeden ciągnie sklep, drugi ma wolne.
+                        memorySchedule[p1.charId][d] = fullShiftStr; 
+                    } else {
+                        memorySchedule[p1.charId][d] = openShiftStr; 
+                        memorySchedule[p2.charId][d] = closeShiftStr;
+                    }
                 } else if (availPoks.length === 1) {
-                    memorySchedule[availPoks[0].charId][d] = fullShiftStr; // Musi ciągnąć cały dzień
+                    memorySchedule[availPoks[0].charId][d] = fullShiftStr;
                 }
 
                 // --- SPRZEDAŻ (3 OTW, 3 ZAM) ---
-                let availSales = employees.filter(e => !e.p && e.dept !== 'ME' && memorySchedule[e.charId][d] === "");
+                let availSales = employees.filter(e => !e.p && e.dept !== 'ME' && canWork(e.charId, d, memorySchedule));
                 availSales.sort((a,b) => calcRealH(a.charId, memorySchedule) - calcRealH(b.charId, memorySchedule));
                 
                 let openNeed = 3; let closeNeed = 3;
@@ -588,7 +586,7 @@
             // FAZA 3: BALANSOWANIE I BEZPIECZNE SWAPY
             let iterations = 0; let balanced = false;
             
-            while (!balanced && iterations < 1500) {
+            while (!balanced && iterations < 500) {
                 balanced = true; 
                 let status = employees.map(e => ({ e: e, diff: baseNorm - calcRealH(e.charId, memorySchedule) })).filter(s => s.e.dept !== 'ME');
                 shuffle(status); status.sort((a, b) => Math.abs(b.diff) - Math.abs(a.diff));
@@ -598,88 +596,44 @@
                     if (st.diff === 0) continue; 
                     let emp = st.e; 
                     
-                    if (st.diff > 0) { // BRAKUJE GODZIN (Potrzebuje więcej pracy)
-                        // Akcja 1: Próba dodania nowej zmiany (jeśli brakuje dużo np 8h) na dzień wolny
-                        if (st.diff >= 8) {
+                    if (st.diff >= 8) { // BRAKUJE CAŁEGO DNIA
+                        for (let d = 1; d <= daysInMonth; d++) {
+                            let dateObj = new Date(year, curM, d);
+                            if (isWorkDay(d) && dateObj.getDay() !== 0 && dateObj.getDay() !== 6 && canWork(emp.charId, d, memorySchedule)) {
+                                memorySchedule[emp.charId][d] = openShiftStr; changed = true; break;
+                            }
+                        }
+                    } else if (st.diff > 0 && st.diff < 8) { // BRAKUJE 2-4 GODZIN
+                        for (let d = 1; d <= daysInMonth; d++) {
+                            let s = memorySchedule[emp.charId][d]; let dateObj = new Date(year, curM, d);
+                            if (dateObj.getDay() !== 0 && dateObj.getDay() !== 6 && (s === openShiftStr || s === closeShiftStr)) {
+                                memorySchedule[emp.charId][d] = fullShiftStr; changed = true; break;
+                            }
+                        }
+                    } else if (st.diff <= -8) { // MA ZA DUŻO O CAŁY DZIEŃ -> SZUKAMY KOGOŚ DO ZAMIANY!
+                        let underW = status.find(s => s.diff >= 8 && s.e.p === emp.p)?.e;
+                        if (underW) {
                             for (let d = 1; d <= daysInMonth; d++) {
                                 let dateObj = new Date(year, curM, d);
-                                if (isWorkDay(d) && dateObj.getDay() !== 0 && dateObj.getDay() !== 6 && memorySchedule[emp.charId][d] === "" && getStreak(emp.charId, d, memorySchedule) < 5) {
-                                    memorySchedule[emp.charId][d] = openShiftStr; // dodajemy mu najkrótszą zmianę
-                                    changed = true; break;
+                                if (dateObj.getDay() === 0 || dateObj.getDay() === 6) continue;
+                                let sOver = memorySchedule[emp.charId][d]; let sUnder = memorySchedule[underW.charId][d];
+                                
+                                // Wymieniają się dniami
+                                if (sOver.includes('-') && sUnder === "" && canWork(underW.charId, d, memorySchedule)) {
+                                    memorySchedule[emp.charId][d] = ""; memorySchedule[underW.charId][d] = sOver; changed = true; break;
                                 }
                             }
                         }
-                        
-                        // Akcja 2: Próba wydłużenia zmiany z 8h na 10h (jeśli brakuje lekko np 2h)
-                        if (!changed && st.diff >= 2 && shiftDefs.length > 1) {
-                            for (let d = 1; d <= daysInMonth; d++) {
-                                let s = memorySchedule[emp.charId][d];
-                                let dateObj = new Date(year, curM, d);
-                                if (dateObj.getDay() !== 0 && dateObj.getDay() !== 6 && (s === openShiftStr || s === closeShiftStr)) {
-                                    memorySchedule[emp.charId][d] = fullShiftStr;
-                                    changed = true; break;
-                                }
-                            }
-                        }
-
-                    } else if (st.diff < 0) { // ZA DUŻO GODZIN (Potrzebuje wolnego)
-                        
-                        // Akcja 1: Ucinanie długiej zmiany na krótką (jeśli bezpieczne)
-                        if (st.diff <= -2 && shiftDefs.length > 1) {
-                            for (let d = 1; d <= daysInMonth; d++) {
-                                let s = memorySchedule[emp.charId][d];
-                                let dateObj = new Date(year, curM, d);
-                                if (dateObj.getDay() !== 0 && dateObj.getDay() !== 6 && s === fullShiftStr) {
-                                    memorySchedule[emp.charId][d] = openShiftStr; // ucinamy do krótkiej otwarciowej
-                                    changed = true; break;
-                                }
-                            }
-                        }
-                        
-                        // Akcja 2: Zdejmowanie całego dnia pracy (TYLKO JEŚLI BEZPIECZNE DLA SZKIELETU)
-                        if (!changed && st.diff <= -8) {
-                            for (let d = 1; d <= daysInMonth; d++) {
-                                let s = memorySchedule[emp.charId][d];
-                                let dateObj = new Date(year, curM, d);
-                                if (dateObj.getDay() !== 0 && dateObj.getDay() !== 6 && s.includes('-')) {
-                                    if (isSafeToRemove(d, emp, memorySchedule)) { // SPRAWDZAMY SZKIELET!
-                                        memorySchedule[emp.charId][d] = "";
-                                        changed = true; break;
-                                    }
-                                }
+                    } else if (st.diff < 0 && st.diff > -8) { // MA ZA DUŻO O KILKA GODZIN
+                        for (let d = 1; d <= daysInMonth; d++) {
+                            let s = memorySchedule[emp.charId][d]; let dateObj = new Date(year, curM, d);
+                            if (dateObj.getDay() !== 0 && dateObj.getDay() !== 6 && s === fullShiftStr) {
+                                memorySchedule[emp.charId][d] = openShiftStr; changed = true; break;
                             }
                         }
                     }
                     if (changed) { balanced = false; break; }
                 } 
-                
-                // Jeśli standardowe metody nie dały rady, wymuszamy BEZPIECZNY SWAP między pracownikami
-                if (!balanced && !changed) {
-                    let overW = status.find(s => s.diff <= -8);
-                    if (overW) {
-                        // Szukamy drugiego pracownika Z TEGO SAMEGO DZIAŁU (POK -> POK), który ma za mało godzin!
-                        let underW = status.find(s => s.diff >= 8 && s.e.p === overW.e.p);
-                        if (underW) {
-                            let swapped = false;
-                            for (let d = 1; d <= daysInMonth; d++) {
-                                let dateObj = new Date(year, curM, d);
-                                if (dateObj.getDay() === 0 || dateObj.getDay() === 6) continue;
-                                
-                                let sOver = memorySchedule[overW.e.charId][d];
-                                let sUnder = memorySchedule[underW.e.charId][d];
-                                
-                                // Zamiana dnia wolnego na pracujący! (Nie niszczy to szkieletu, bo to ten sam "typ" pracownika)
-                                if (sOver.includes('-') && sUnder === "" && getStreak(underW.e.charId, d, memorySchedule) < 5) {
-                                    memorySchedule[overW.e.charId][d] = "";
-                                    memorySchedule[underW.e.charId][d] = sOver;
-                                    swapped = true; changed = true; balanced = false; break;
-                                }
-                            }
-                        }
-                    }
-                }
-                
-                if(!changed) break; // Totalny ślepy zaułek (niemożliwe matematycznie zadanymi zmianami)
                 iterations++;
             }
             

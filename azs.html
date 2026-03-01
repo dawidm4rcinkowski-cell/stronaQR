@@ -5,80 +5,62 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Media Expert - AZS</title>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&display=swap" rel="stylesheet">
+    <script>
+        const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+        const storeSetup = JSON.parse(localStorage.getItem('store_setup'));
+        if (!currentUser || !storeSetup) { window.location.href = 'login.html'; }
+        const isManagerOrKss = (currentUser.dept === 'ME' || currentUser.isKss);
+    </script>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Montserrat', sans-serif; }
         body { background: #080808; color: white; display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
-        ::-webkit-scrollbar { width: 12px; height: 12px; }
-        ::-webkit-scrollbar-track { background: #111; border-left: 1px solid #222; border-top: 1px solid #222; }
-        ::-webkit-scrollbar-thumb { background: #ffe800; border-radius: 2px; }
-        ::-webkit-scrollbar-thumb:hover { background: #e6d100; }
-        
-        /* WSPÓLNY HEADER I MENU */
-        header { background: #ffe800; height: 50px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; z-index: 9999; border-bottom: 2px solid #000; position: relative; box-shadow: 0 2px 10px rgba(255, 232, 0, 0.2); }
-        .logo { color: #000; font-weight: 900; font-size: 1.4rem; text-transform: uppercase; letter-spacing: 1px; }
+        ::-webkit-scrollbar { width: 12px; height: 12px; } ::-webkit-scrollbar-track { background: #111; border-left: 1px solid #222; border-top: 1px solid #222; } ::-webkit-scrollbar-thumb { background: #ffe800; border-radius: 2px; }
+        header { background: #ffe800; height: 50px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; z-index: 9999; border-bottom: 2px solid #000; position: relative; }
+        .logo { color: #000; font-weight: 900; font-size: 1.2rem; text-transform: uppercase; letter-spacing: 1px; display: flex; align-items: center; gap: 10px;}
         .logo span { background: #000; color: #ffe800; padding: 0 6px; border-radius: 3px; }
-        .menu-btn { position: absolute; left: 15px; cursor: pointer; color: #000; font-size: 1.5rem; transition: 0.2s; }
-        
+        .store-badge { font-size: 0.7rem; background: rgba(0,0,0,0.1); padding: 4px 8px; border-radius: 20px; font-weight: 800; border: 1px solid #000; }
+        .menu-btn { position: absolute; left: 15px; cursor: pointer; color: #000; font-size: 1.5rem; }
         .sidebar { position: fixed; left: -280px; top: 0; width: 260px; height: 100%; background: #0a0a0a; border-right: 3px solid #ffe800; transition: 0.4s; z-index: 10000; padding-top: 60px; display: flex; flex-direction: column; }
         .sidebar.active { left: 0; }
         .sidebar-nav { flex-grow: 1; overflow-y: auto; }
         .sidebar-header { color: #ffe800; font-weight: 900; font-size: 1rem; padding: 0 25px 15px 25px; letter-spacing: 2px; text-transform: uppercase; }
         .sidebar-link { display: block; color: white; padding: 15px 25px; text-decoration: none; font-weight: 700; font-size: 0.8rem; border-bottom: 1px solid #111; transition: 0.2s; }
         .sidebar-link:hover { background: #1a1a1a; color: #ffe800; padding-left: 35px; }
-        
-        .user-profile { padding: 15px 20px; border-top: 2px solid #1a1a1a; display: flex; align-items: center; gap: 15px; cursor: pointer; transition: 0.3s; background: #0f0f0f; }
-        .user-profile:hover { background: #151515; }
-        .user-profile:hover .user-settings { color: #ffe800; }
-        .user-avatar { width: 45px; height: 45px; border-radius: 50%; background: #151515; border: 2px solid #ffe800; display: flex; align-items: center; justify-content: center; font-weight: 900; color: #ffe800; font-size: 1.2rem; flex-shrink: 0; box-shadow: inset 0 0 10px rgba(0,0,0,0.8); }
+        .user-profile { padding: 15px 20px; border-top: 2px solid #1a1a1a; display: flex; align-items: center; gap: 15px; cursor: pointer; background: #0f0f0f; }
+        .user-avatar { width: 45px; height: 45px; border-radius: 50%; background: #151515; border: 2px solid #ffe800; display: flex; align-items: center; justify-content: center; font-weight: 900; color: #ffe800; font-size: 1.2rem; flex-shrink: 0;}
         .user-info { display: flex; flex-direction: column; }
-        .user-name { font-weight: 900; font-size: 0.85rem; color: #fff; letter-spacing: 0.5px; }
-        .user-settings { font-size: 0.65rem; color: #888; font-weight: 700; margin-top: 4px; transition: 0.2s; }
-        .logout-btn { display: block; width: 100%; text-align: center; background: transparent; color: #f44; border: none; border-top: 1px solid #1a1a1a; padding: 15px; font-weight: 900; font-size: 0.8rem; cursor: pointer; transition: 0.3s; text-transform: uppercase; letter-spacing: 1px; }
-        .logout-btn:hover { background: #f44; color: #000; }
+        .user-name { font-weight: 900; font-size: 0.85rem; color: #fff; }
+        .user-settings { font-size: 0.65rem; color: #888; font-weight: 700; margin-top: 4px; }
+        .logout-btn { display: block; width: 100%; text-align: center; background: transparent; color: #f44; border: none; border-top: 1px solid #1a1a1a; padding: 15px; font-weight: 900; font-size: 0.8rem; cursor: pointer; text-transform: uppercase; }
         .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.8); display: none; z-index: 9500; }
         .overlay.active { display: block; }
-
-        /* ZAWARTOŚĆ AZS */
-        .navigation-area { background: #111; border-bottom: 2px solid #ffe800; flex-shrink: 0; padding: 10px 15px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; z-index: 800; }
+        .navigation-area { background: #111; border-bottom: 2px solid #ffe800; padding: 10px 15px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; z-index: 800; }
         .controls-group { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
         select { background: #000; color: #fff; border: 1px solid #ffe800; padding: 8px 12px; font-weight: 900; border-radius: 8px; outline: none; cursor: pointer; font-size: 0.8rem; }
-        .btn-gen { background: #ffe800; color: #000; border: none; padding: 8px 15px; font-weight: 900; border-radius: 8px; cursor: pointer; font-size: 0.8rem; transition: 0.3s; text-transform: uppercase; }
-        .btn-print { background: #3498db; color: #fff; border: none; padding: 8px 15px; font-weight: 900; border-radius: 8px; cursor: pointer; font-size: 0.8rem; transition: 0.3s; text-transform: uppercase; }
+        .btn-gen, .btn-print { border: none; padding: 8px 15px; font-weight: 900; border-radius: 8px; cursor: pointer; font-size: 0.8rem; transition: 0.3s; text-transform: uppercase; }
+        .btn-gen { background: #ffe800; color: #000; } .btn-print { background: #3498db; color: #fff; }
         .table-container { flex: 1; overflow: auto; background: #080808; width: 100%; padding: 10px; }
         .azs-title { text-align: center; color: #ffe800; font-weight: 900; font-size: 1.5rem; margin-top: 10px; text-transform: uppercase; letter-spacing: 2px; }
         .azs-dates { text-align: center; color: #888; font-weight: 700; font-size: 1rem; margin-bottom: 20px; margin-top: 5px;}
         table { border-collapse: collapse; width: 100%; min-width: 1500px; background: #111; border: 2px solid #333; }
         thead th { background: #1a1a1a; position: sticky; top: 0; padding: 10px 5px; border: 1px solid #333; font-size: 0.6rem; color: #ffe800; text-transform: uppercase; }
-        .th-task { width: 350px; text-align: left; padding-left: 15px !important; }
-        .th-day { width: 75px; text-align: center; }
-        .th-sign { width: 75px; text-align: center; background: #0a0a0a; color: #888; border-bottom: 2px solid #444; }
+        .th-task { width: 350px; text-align: left; padding-left: 15px !important; } .th-day, .th-sign { width: 75px; text-align: center; } .th-sign { background: #0a0a0a; color: #888; border-bottom: 2px solid #444; }
         .header-main-row th { border-bottom: 3px solid #ffe800; }
-        tbody tr { border-bottom: 1px solid #222; transition: background-color 0.2s; }
-        tbody tr:hover { background-color: #1a1a1a; }
         td { border: 1px solid #333; padding: 6px 4px; font-size: 0.75rem; font-weight: 700; color: #fff; text-align: center; vertical-align: middle; }
         .td-task { text-align: left; padding-left: 15px; font-size: 0.65rem; color: #ccc; font-weight: 600; line-height: 1.3; }
-        .td-name { color: #ffe800; font-weight: 900; text-transform: uppercase; letter-spacing: 0.5px; }
-        .td-blocked { background-color: #000 !important; color: transparent !important; }
-        .td-sign { background: #151515; } 
+        .td-name { color: #ffe800; font-weight: 900; text-transform: uppercase; }
+        .td-blocked { background-color: #000 !important; color: transparent !important; } .td-sign { background: #151515; } 
         .error-msg { text-align: center; color: #f44; font-weight: bold; margin-top: 20px; font-size: 1.2rem; display: none; }
-
         @media print {
-            @page { size: A4 landscape; margin: 3mm 8mm; } 
-            body { background: white; color: black; font-family: Arial, sans-serif; overflow: hidden; margin: 0; padding: 0; height: 100vh; }
+            @page { size: A4 landscape; margin: 3mm 8mm; } body { background: white; color: black; font-family: Arial, sans-serif; margin: 0; padding: 0; }
             header, .sidebar, .overlay, .navigation-area, .menu-btn, .error-msg { display: none !important; }
-            .table-container { overflow: hidden; padding: 0; height: 100%; width: 100%; display: flex; flex-direction: column; }
-            .azs-title { color: black; margin-top: 0; font-size: 13px; margin-bottom: 2px; }
-            .azs-dates { color: black; font-size: 10px; font-weight: bold; margin-bottom: 5px; }
+            .azs-title { color: black; margin-top: 0; font-size: 13px; margin-bottom: 2px; } .azs-dates { color: black; font-size: 10px; font-weight: bold; margin-bottom: 5px; }
             table { min-width: 100%; border: 2px solid black; background: white; table-layout: fixed; margin: 0; }
             thead th { background: #eee !important; color: black !important; border: 1px solid black !important; position: static; font-size: 6.5px !important; padding: 2px !important; }
             .header-main-row th { border-bottom: 1px solid black !important; }
-            tbody tr { border-bottom: 1px solid black; height: auto !important; }
             td { border: 1px solid black !important; color: black !important; padding: 1.5px 2px !important; font-size: 6.5px !important; line-height: 1 !important; }
-            .th-task { width: 33%; } 
-            .td-task { font-weight: bold; font-size: 5.5px !important; padding-left: 2px !important; word-wrap: break-word; }
-            .td-name { font-weight: 900; font-size: 6.5px !important; }
-            .td-blocked { background-color: #666 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; color: transparent !important; } 
-            .td-sign { background: white !important; }
+            .th-task { width: 33%; } .td-task { font-weight: bold; font-size: 5.5px !important; padding-left: 2px !important; word-wrap: break-word; } .td-name { font-weight: 900; font-size: 6.5px !important; }
+            .td-blocked { background-color: #666 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; color: transparent !important; } .td-sign { background: white !important; }
             tr, td, th { page-break-inside: avoid !important; }
         }
     </style>
@@ -87,7 +69,7 @@
 
 <header>
     <div class="menu-btn" onclick="toggleNav()">☰</div>
-    <div class="logo">EXPERT <span>TOOL</span></div>
+    <div class="logo">EXPERT <span>TOOL</span> <div class="store-badge" id="headerStore">SXXX</div></div>
 </header>
 
 <div class="sidebar" id="sidebar">
@@ -96,19 +78,19 @@
         <a href="index.html" class="sidebar-link">Strona główna</a>
         <a href="plan.html" class="sidebar-link">Plan pracy</a>
         <a href="inwa.html" class="sidebar-link">Inwentury</a>
-        <a href="inwak.html" class="sidebar-link">Inwentury (ME/KSS)</a>
+        <a href="inwak.html" class="sidebar-link" id="navInwaKSS">Inwentury (ME/KSS)</a>
         <a href="azs.html" class="sidebar-link" style="color:#ffe800">AZS (Agenda Zadań)</a>
         <a href="kwt.html" class="sidebar-link">KWT</a>
         <a href="qr.html" class="sidebar-link">Kod QR</a>
     </div>
     <div class="user-profile" onclick="window.location.href='ustawienia.html'">
-        <div class="user-avatar">P</div>
+        <div class="user-avatar" id="sideAvatar">?</div>
         <div class="user-info">
-            <span class="user-name">PAWEŁ (ME)</span>
+            <span class="user-name" id="sideName">Ladowanie...</span>
             <span class="user-settings">⚙️ Ustawienia konta</span>
         </div>
     </div>
-    <button class="logout-btn" onclick="alert('System wylogowywania aktywny.')">Wyloguj się</button>
+    <button class="logout-btn" onclick="logout()">Wyloguj się</button>
 </div>
 <div class="overlay" id="overlay" onclick="toggleNav()"></div>
 
@@ -116,7 +98,7 @@
     <div class="controls-group">
         <select id="monthSelect" onchange="updateWeeks()"></select>
         <select id="weekSelect"></select>
-        <button class="btn-gen" onclick="generateAZS()">🔄 GENERUJ AZS Z PLANU</button>
+        <button class="btn-gen" onclick="generateAZS()" id="btnGenAZS">🔄 GENERUJ AZS Z PLANU</button>
     </div>
     <button class="btn-print" onclick="window.print()">🖨️ DRUKUJ AZS</button>
 </div>
@@ -125,7 +107,6 @@
     <div class="azs-title">AGENDA ZADAŃ SKLEPU (AZS)</div>
     <div class="azs-dates" id="azsDates">Wybierz tydzień i kliknij generuj...</div>
     <div id="errorMsg" class="error-msg">⚠️ BRAK DANYCH GRAFIKU - Wygenerowano zastępczą listę zadań.</div>
-
     <table id="azsTable">
         <thead>
             <tr>
@@ -134,11 +115,8 @@
                 <th colspan="7" style="font-size:0.8rem;">TU PODPISUJĄ SIĘ OSOBY PO WYKONANIU ZADANIA:</th>
             </tr>
             <tr class="header-main-row">
-                <th class="th-day">PON</th><th class="th-day">WTO</th><th class="th-day">ŚRO</th>
-                <th class="th-day">CZW</th><th class="th-day">PIĄ</th><th class="th-day">SOB</th>
-                <th class="th-day" style="border-right: 2px solid #ffe800;">NIE</th>
-                <th class="th-sign">PON</th><th class="th-sign">WTO</th><th class="th-sign">ŚRO</th>
-                <th class="th-sign">CZW</th><th class="th-sign">PIĄ</th><th class="th-sign">SOB</th><th class="th-sign">NIE</th>
+                <th class="th-day">PON</th><th class="th-day">WTO</th><th class="th-day">ŚRO</th><th class="th-day">CZW</th><th class="th-day">PIĄ</th><th class="th-day">SOB</th><th class="th-day" style="border-right: 2px solid #ffe800;">NIE</th>
+                <th class="th-sign">PON</th><th class="th-sign">WTO</th><th class="th-sign">ŚRO</th><th class="th-sign">CZW</th><th class="th-sign">PIĄ</th><th class="th-sign">SOB</th><th class="th-sign">NIE</th>
             </tr>
         </thead>
         <tbody id="azsBody"></tbody>
@@ -146,16 +124,16 @@
 </div>
 
 <script>
+    // DANE BAZOWE I UI
+    document.getElementById('headerStore').innerText = `${storeSetup.sNumber} ${storeSetup.city}`;
+    document.getElementById('sideName').innerText = `${currentUser.name} (${currentUser.dept})`;
+    document.getElementById('sideAvatar').innerText = currentUser.charId.charAt(0);
+    if(!isManagerOrKss) { document.getElementById('navInwaKSS').style.display = 'none'; document.getElementById('btnGenAZS').style.display = 'none'; }
     function toggleNav() { document.getElementById('sidebar').classList.toggle('active'); document.getElementById('overlay').classList.toggle('active'); }
+    function logout() { localStorage.removeItem('currentUser'); window.location.href = 'login.html'; }
 
-    const employees = [
-        {n: "PAWEŁ", p: false, dept: "ME"}, {n: "MICHAŁ", p: false, dept: "KSS"},
-        {n: "NATALIA", p: true, dept: "POK"}, {n: "MAGDA", p: true, dept: "POK"},
-        {n: "JAKUB", p: false, dept: "IT"}, {n: "ADRIAN", p: false, dept: "IT"},
-        {n: "DAWID", p: false, dept: "IT"}, {n: "DAREK", p: false, dept: "IT"},
-        {n: "ŁUKASZ", p: false, dept: "AGD"}, {n: "ILONA", p: false, dept: "AGD"},
-        {n: "ARIEL", p: false, dept: "RTV"}
-    ];
+    const rawUsers = JSON.parse(localStorage.getItem('users')) || [];
+    const employees = rawUsers.filter(u => u.charId !== 'ADMIN').map(u => ({ n: u.name, p: u.dept === 'POK', dept: u.dept }));
 
     const azsTasksData = [
         { name: "Reagowanie na SMS i KOMUNIKAT W MARKECIE informujący o złożeniu zamówienia OZG i SZS + wysłanie potwierdzenia max. do 15 minut", days: [1,2,3,4,5,6] },
@@ -194,14 +172,13 @@
         { name: "Kontrola CZYSTOŚCI towaru i regałów", days: [3] },
         { name: "Kontrola TOP (ZA POMOCĄ KOLEKTORA)", days: [4] }, 
         { name: "Kontrola oznaczeń AKCJI PROMOCYJNYCH w całym sklepie", days: [4] },
-        { name: "Kontrola NTOL LISTA VM - REKLAMACJE (zrealizuj w dniach od poniedziałku do czwartku)", days: [4] },
-        { name: "Kontrola NTOL LISTA VM - DZIAŁ AGD DROBNE (zrealizuj w dniach od poniedziałku do czwartku)", days: [4] },
-        { name: "Kontrola NTOL LISTA VM - DZIAŁ AGD DUŻE (zrealizuj w dniach od poniedziałku do czwartku)", days: [4] },
-        { name: "Kontrola NTOL LISTA VM - DZIAŁ IT (zrealizuj w dniach od poniedziałku do czwartku)", days: [4] },
-        { name: "Kontrola NTOL LISTA VM - DZIAŁ RTV i ROZRYWKA (zrealizuj w dniach od poniedziałku do czwartku)", days: [4] },
-        { name: "Kontrola NTOL LISTA VM - DZIAŁ RS (zrealizuj w dniach od poniedziałku do czwartku)", days: [4] },
-        { name: "Kontrola NTOL LISTA VM - POK (zrealizuj w dniach od poniedziałku do czwartku)", days: [4] },
-        { name: "Kontrola NTOL LISTA VM - OGÓLNE (zrealizuj w dniach od poniedziałku do czwartku)", days: [4] }
+        { name: "Kontrola NTOL LISTA VM - REKLAMACJE", days: [4] },
+        { name: "Kontrola NTOL LISTA VM - DZIAŁ AGD DROBNE", days: [4] },
+        { name: "Kontrola NTOL LISTA VM - DZIAŁ AGD DUŻE", days: [4] },
+        { name: "Kontrola NTOL LISTA VM - DZIAŁ IT", days: [4] },
+        { name: "Kontrola NTOL LISTA VM - DZIAŁ RTV", days: [4] },
+        { name: "Kontrola NTOL LISTA VM - POK", days: [4] },
+        { name: "Kontrola NTOL LISTA VM - OGÓLNE", days: [4] }
     ];
 
     const months = ["STYCZEŃ", "LUTY", "MARZEC", "KWIECIEŃ", "MAJ", "CZERWIEC", "LIPIEC", "SIERPIEŃ", "WRZESIEŃ", "PAŹDZIERNIK", "LISTOPAD", "GRUDZIEŃ"];
@@ -239,10 +216,12 @@
             let endStr = `${String(week[6].getDate()).padStart(2, '0')}.${String(week[6].getMonth()+1).padStart(2, '0')}`;
             opt.innerText = `Tydzień ${i + 1} (${startStr} - ${endStr})`; wSel.appendChild(opt);
         });
+        generateAZS(); // Zawsze wygeneruj przy zmianie!
     }
 
     function generateAZS() {
         const wIndex = parseInt(document.getElementById('weekSelect').value);
+        if(isNaN(wIndex)) return;
         const weekDays = currentWeeks[wIndex];
         let startStr = `${String(weekDays[0].getDate()).padStart(2, '0')}.${String(weekDays[0].getMonth()+1).padStart(2, '0')}`;
         let endStr = `${String(weekDays[6].getDate()).padStart(2, '0')}.${String(weekDays[6].getMonth()+1).padStart(2, '0')}`;
@@ -254,7 +233,7 @@
         weekDays.forEach(dayObj => {
             let currentDayOfWeek = dayObj.getDay(); let dateIso = dayObj.toISOString();
             let actualWorkingToday = employees.filter(e => {
-                let shift = getShiftOnly(e.n, dayObj); return shift !== "" && shift !== "WOLNE" && shift !== "URLOP" && shift !== "Ż" && e.dept !== 'ME';
+                let shift = getShiftOnly(e.n, dayObj); return shift !== "" && shift !== "WOLNE" && shift !== "URLOP" && shift !== "Ż" && shift !== "SZK" && e.dept !== 'ME';
             });
             if(actualWorkingToday.length > 0) hasAnyRealData = true;
             let workingToday = actualWorkingToday.length > 0 ? actualWorkingToday : employees.filter(e => e.dept !== 'ME');
@@ -288,7 +267,7 @@
         });
     }
 
-    window.onload = () => { initSelectors(); generateAZS(); };
+    window.onload = () => { initSelectors(); };
 </script>
 </body>
 </html>

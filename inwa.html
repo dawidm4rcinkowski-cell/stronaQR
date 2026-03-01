@@ -5,27 +5,47 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Media Expert - Inwentury</title>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&display=swap" rel="stylesheet">
+    
+    <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-database-compat.js"></script>
+    
     <script>
         const currentUser = JSON.parse(localStorage.getItem('currentUser'));
-        const storeSetup = JSON.parse(localStorage.getItem('store_setup'));
-        if (!currentUser || !storeSetup) { window.location.href = 'login.html'; }
+        const myStore = localStorage.getItem('myStore');
+        if (!currentUser || !myStore) { window.location.href = 'login.html'; }
         const isManagerOrKss = (currentUser.dept === 'ME' || currentUser.isKss);
+
+        // INICJALIZACJA FIREBASE
+        const firebaseConfig = {
+            apiKey: "AIzaSyD0N6Bjyzs34piOoujEn9mxKir8LDGdD2k",
+            authDomain: "expert-tool.firebaseapp.com",
+            databaseURL: "https://expert-tool-default-rtdb.europe-west1.firebasedatabase.app/",
+            projectId: "expert-tool",
+            storageBucket: "expert-tool.firebasestorage.app",
+            messagingSenderId: "880843997228",
+            appId: "1:880843997228:web:fa37aa80b7f9f017705189"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
     </script>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Montserrat', sans-serif; }
         body { background: #080808; color: white; display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
         ::-webkit-scrollbar { width: 12px; height: 12px; } ::-webkit-scrollbar-track { background: #111; } ::-webkit-scrollbar-thumb { background: #ffe800; border-radius: 2px; }
+        
         header { background: #ffe800; height: 50px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; z-index: 9999; border-bottom: 2px solid #000; position: relative; }
         .logo { color: #000; font-weight: 900; font-size: 1.2rem; text-transform: uppercase; letter-spacing: 1px; display: flex; align-items: center; gap: 10px;}
         .logo span { background: #000; color: #ffe800; padding: 0 6px; border-radius: 3px; }
         .store-badge { font-size: 0.7rem; background: rgba(0,0,0,0.1); padding: 4px 8px; border-radius: 20px; font-weight: 800; border: 1px solid #000; }
         .menu-btn { position: absolute; left: 15px; cursor: pointer; color: #000; font-size: 1.5rem; }
+        
         .sidebar { position: fixed; left: -280px; top: 0; width: 260px; height: 100%; background: #0a0a0a; border-right: 3px solid #ffe800; transition: 0.4s; z-index: 10000; padding-top: 60px; display: flex; flex-direction: column; }
         .sidebar.active { left: 0; }
         .sidebar-nav { flex-grow: 1; overflow-y: auto; }
         .sidebar-header { color: #ffe800; font-weight: 900; font-size: 1rem; padding: 0 25px 15px 25px; letter-spacing: 2px; text-transform: uppercase; }
         .sidebar-link { display: block; color: white; padding: 15px 25px; text-decoration: none; font-weight: 700; font-size: 0.8rem; border-bottom: 1px solid #111; transition: 0.2s; }
         .sidebar-link:hover { background: #1a1a1a; color: #ffe800; padding-left: 35px; }
+        
         .user-profile { padding: 15px 20px; border-top: 2px solid #1a1a1a; display: flex; align-items: center; gap: 15px; cursor: pointer; background: #0f0f0f; }
         .user-avatar { width: 45px; height: 45px; border-radius: 50%; background: #151515; border: 2px solid #ffe800; display: flex; align-items: center; justify-content: center; font-weight: 900; color: #ffe800; font-size: 1.2rem; flex-shrink: 0;}
         .user-info { display: flex; flex-direction: column; }
@@ -34,35 +54,47 @@
         .logout-btn { display: block; width: 100%; text-align: center; background: transparent; color: #f44; border: none; border-top: 1px solid #1a1a1a; padding: 15px; font-weight: 900; font-size: 0.8rem; cursor: pointer; text-transform: uppercase; }
         .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.8); display: none; z-index: 9500; }
         .overlay.active { display: block; }
+        
         .content { flex-grow: 1; overflow-y: auto; padding: 30px 20px; }
         .content-inner { max-width: 1400px; margin: 0 auto; }
+        
         .page-header { display: flex; flex-direction: column; align-items: center; margin-bottom: 30px; }
         .page-title { font-size: 2rem; font-weight: 900; margin-bottom: 15px; text-transform: uppercase; text-align: center; } .page-title span { color: #ffe800; }
+        
         .month-selector { display: flex; gap: 8px; overflow-x: auto; white-space: nowrap; scrollbar-width: none; padding-bottom: 10px; max-width: 100%; justify-content: center; }
         .month-btn { padding: 8px 16px; border-radius: 20px; border: 1px solid #333; background: #111; color: #888; font-size: 0.75rem; font-weight: 700; cursor: pointer; transition: 0.3s; }
         .month-btn.active { background: #ffe800; color: #000; border-color: #ffe800; box-shadow: 0 0 10px rgba(255, 232, 0, 0.4); }
         .month-btn:hover:not(.active) { background: #222; color: #fff; }
+
         .dept-tabs { display: flex; gap: 15px; margin-bottom: 40px; flex-wrap: wrap; justify-content: center;}
         .tab-btn { background: #151515; border: 1px solid #333; color: #fff; padding: 12px 30px; border-radius: 12px; font-weight: 900; cursor: pointer; transition: 0.3s; font-size: 0.9rem; flex: 1; max-width: 200px;}
         .tab-btn.active { background: #ffe800; color: #000; border-color: #ffe800; }
+        
         .inwa-section { margin-bottom: 50px; } 
         .section-label { font-size: 1rem; color: #ffe800; text-transform: uppercase; margin-bottom: 20px; border-left: 4px solid #ffe800; padding-left: 10px; }
         .items-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 15px; }
         .item-card { background: #111; border: 1px solid #222; border-radius: 15px; padding: 20px; display: flex; flex-direction: column; justify-content: space-between; transition: 0.3s; }
         .item-card h3 { font-size: 1.1rem; font-weight: 900; text-transform: uppercase; margin-bottom: 15px; min-height: 2.5rem; line-height: 1.3;}
+        
         .status-row { display: flex; align-items: center; gap: 10px; margin-bottom: 20px; font-size: 0.75rem; font-weight: 800; color: #888; }
         .dot { width: 10px; height: 10px; background: #ff4444; border-radius: 50%; box-shadow: 0 0 8px rgba(255, 68, 68, 0.6); }
+        
         .status-waiting .dot { background: #ffa502; box-shadow: 0 0 8px rgba(255, 165, 2, 0.6); } .status-waiting { color: #ffa502; }
         .status-done .dot { background: #0a0; box-shadow: 0 0 8px rgba(0, 170, 0, 0.6); } .status-done { color: #0a0; }
         .status-rejected .dot { background: #f44; animation: blink 1s infinite; } .status-rejected { color: #f44; }
+        
         .approve-btn { width: 100%; background: transparent; border: 2px solid #ffe800; color: #ffe800; padding: 10px; border-radius: 8px; font-weight: 900; cursor: pointer; transition: 0.3s; text-transform: uppercase; }
         .approve-btn:hover:not(:disabled) { background: #ffe800; color: #000; }
         .approve-btn:disabled { border-color: #333; color: #555; background: transparent; cursor: not-allowed; }
+        
+        /* GLOBALNY MODAL POWIADOMIEŃ */
         .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 11000; align-items: center; justify-content: center; padding: 20px; backdrop-filter: blur(5px); }
         .modal-content { background: #0a0a0a; border: 3px solid #ffe800; padding: 30px; width: 100%; max-width: 450px; border-radius: 15px; text-align: center; box-shadow: 0 0 30px rgba(255, 232, 0, 0.2); }
         .btn-modal { background: #ffe800; color: #000; border: none; padding: 15px 20px; font-weight: 900; border-radius: 8px; cursor: pointer; width: 100%; margin-top: 10px; text-transform: uppercase; letter-spacing: 1px;}
+        
         @keyframes blink { 0% { opacity: 1; } 50% { opacity: 0.3; } 100% { opacity: 1; } }
         .nav-alert { color: #f44; font-weight: 900; animation: blink 1s infinite; font-size: 1rem; margin-left: 5px; }
+        .loading-overlay { position: absolute; inset: 0; background: rgba(0,0,0,0.8); z-index: 2000; display: flex; align-items: center; justify-content: center; color: #ffe800; font-weight: bold; font-size: 1.5rem; display: none;}
     </style>
 </head>
 <body>
@@ -94,7 +126,8 @@
 </div>
 <div class="overlay" id="overlay" onclick="toggleNav()"></div>
 
-<div class="content">
+<div class="content" style="position: relative;">
+    <div class="loading-overlay" id="loadingData">Synchronizacja z chmurą...</div>
     <div class="content-inner">
         <div class="page-header">
             <h1 class="page-title">LISTA <span>INWENTUR</span></h1>
@@ -124,39 +157,56 @@
     const year = 2026;
     const months = ["STYCZEŃ", "LUTY", "MARZEC", "KWIECIEŃ", "MAJ", "CZERWIEC", "LIPIEC", "SIERPIEŃ", "WRZESIEŃ", "PAŹDZIERNIK", "LISTOPAD", "GRUDZIEŃ"];
     let currentMonth = new Date().getMonth();
+    let inwaDataLive = {}; // Tu Firebase będzie pakował dane na żywo
+    let inwaListener = null;
 
     const defaultInventoryList = [
-        // IT
         { id: "it_w1", dept: "IT", period: "weekly", name: "Myszki gamingowe" }, { id: "it_w2", dept: "IT", period: "weekly", name: "Słuchawki Truewireless" }, { id: "it_w3", dept: "IT", period: "weekly", name: "Smartfony" },
         { id: "it_2w1", dept: "IT", period: "twoWeeks", name: "Słuchawki Nauszne" },
         { id: "it_m1", dept: "IT", period: "monthly", name: "Tusze" }, { id: "it_m2", dept: "IT", period: "monthly", name: "Papier" }, { id: "it_m3", dept: "IT", period: "monthly", name: "Głośniki mobilne" }, { id: "it_m4", dept: "IT", period: "monthly", name: "Słuchawki douszne" }, { id: "it_m5", dept: "IT", period: "monthly", name: "Smartbandy" }, { id: "it_m6", dept: "IT", period: "monthly", name: "Smartwatche" }, { id: "it_m7", dept: "IT", period: "monthly", name: "Folie ochronne" }, { id: "it_m8", dept: "IT", period: "monthly", name: "Dyski PSSD" }, { id: "it_m9", dept: "IT", period: "monthly", name: "Dyski SSD M.2 NVME" }, { id: "it_m10", dept: "IT", period: "monthly", name: "Dyski SSD SATA" }, { id: "it_m11", dept: "IT", period: "monthly", name: "Dyski zewnętrzne" }, { id: "it_m12", dept: "IT", period: "monthly", name: "Słuchawki gamingowe" }, { id: "it_m13", dept: "IT", period: "monthly", name: "Nośniki logistyczne" },
-        // RTV
         { id: "rtv_2w1", dept: "RTV", period: "twoWeeks", name: "Konsole" }, { id: "rtv_2w2", dept: "RTV", period: "twoWeeks", name: "Android TV" }, { id: "rtv_2w3", dept: "RTV", period: "twoWeeks", name: "Alkomaty" }, { id: "rtv_2w4", dept: "RTV", period: "twoWeeks", name: "Wideorejestratory" },
         { id: "rtv_m1", dept: "RTV", period: "monthly", name: "Akcesoria do konsol" }, { id: "rtv_m2", dept: "RTV", period: "monthly", name: "Komunikatory drogowe" }, { id: "rtv_m3", dept: "RTV", period: "monthly", name: "Kamery sportowe" }, { id: "rtv_m4", dept: "RTV", period: "monthly", name: "Nawigacje" },
-        // AGD
         { id: "agd_m1", dept: "AGD", period: "monthly", name: "Akcesoria do golarek" }, { id: "agd_m2", dept: "AGD", period: "monthly", name: "Depilatory świetlne" }, { id: "agd_m3", dept: "AGD", period: "monthly", name: "Szczoteczki" }, { id: "agd_m4", dept: "AGD", period: "monthly", name: "Trymery" }, { id: "agd_m5", dept: "AGD", period: "monthly", name: "Urządzenia do pielęgnacji twarzy i ciała" }, { id: "agd_m6", dept: "AGD", period: "monthly", name: "Akcesoria do urządzeń SODASTREAM" }, { id: "agd_m7", dept: "AGD", period: "monthly", name: "Kawa ziarnista" }, { id: "agd_m8", dept: "AGD", period: "monthly", name: "Kawa w kapsułkach" }, { id: "agd_m9", dept: "AGD", period: "monthly", name: "Syropy" }
     ];
 
-    // ALGORYTM GENEROWANIA (ROZMNAŻANIA) INWENTUR
-    function initDB(m) {
-        let dbKey = `inwa_db_${year}_${m}`;
-        let db = localStorage.getItem(dbKey);
-        if (!db) {
-            let initialDb = [];
-            defaultInventoryList.forEach(item => {
-                if (item.period === 'weekly') {
-                    for(let i=1; i<=4; i++) {
-                        initialDb.push({ ...item, id: `${item.id}_t${i}`, name: `${item.name} <span style="color:#ffe800; font-size:0.8rem; display:block; margin-top:5px;">(Tydzień ${i})</span>`, status: 'do_zrobienia', submittedBy: null, submitterId: null });
+    // INICJALIZACJA FIREBASE DLA DANEGO MIESIĄCA
+    function loadMonthDataFromFirebase(m) {
+        document.getElementById('loadingData').style.display = 'flex';
+        if (inwaListener) { db.ref(`Stores/${myStore}/Inwentury/${year}_${curM}`).off('value', inwaListener); }
+        
+        curM = m;
+        const dbRef = db.ref(`Stores/${myStore}/Inwentury/${year}_${curM}`);
+        
+        // Najpierw sprawdzamy, czy baza istnieje
+        dbRef.once('value', snapshot => {
+            if (!snapshot.exists()) {
+                // Jeśli nie istnieje - generator tworzy klony
+                let initialDb = {};
+                defaultInventoryList.forEach(item => {
+                    if (item.period === 'weekly') {
+                        for(let i=1; i<=4; i++) {
+                            initialDb[`${item.id}_t${i}`] = { ...item, id: `${item.id}_t${i}`, name: `${item.name} <span style="color:#ffe800; font-size:0.8rem; display:block; margin-top:5px;">(Tydzień ${i})</span>`, status: 'do_zrobienia', submittedBy: null, submitterId: null };
+                        }
+                    } else if (item.period === 'twoWeeks') {
+                        initialDb[`${item.id}_p1`] = { ...item, id: `${item.id}_p1`, name: `${item.name} <span style="color:#ffe800; font-size:0.8rem; display:block; margin-top:5px;">(Tydzień 1-2)</span>`, status: 'do_zrobienia', submittedBy: null, submitterId: null };
+                        initialDb[`${item.id}_p2`] = { ...item, id: `${item.id}_p2`, name: `${item.name} <span style="color:#ffe800; font-size:0.8rem; display:block; margin-top:5px;">(Tydzień 3-4)</span>`, status: 'do_zrobienia', submittedBy: null, submitterId: null };
+                    } else {
+                        initialDb[item.id] = { ...item, status: 'do_zrobienia', submittedBy: null, submitterId: null };
                     }
-                } else if (item.period === 'twoWeeks') {
-                    initialDb.push({ ...item, id: `${item.id}_p1`, name: `${item.name} <span style="color:#ffe800; font-size:0.8rem; display:block; margin-top:5px;">(Tydzień 1-2)</span>`, status: 'do_zrobienia', submittedBy: null, submitterId: null });
-                    initialDb.push({ ...item, id: `${item.id}_p2`, name: `${item.name} <span style="color:#ffe800; font-size:0.8rem; display:block; margin-top:5px;">(Tydzień 3-4)</span>`, status: 'do_zrobienia', submittedBy: null, submitterId: null });
-                } else {
-                    initialDb.push({ ...item, status: 'do_zrobienia', submittedBy: null, submitterId: null });
-                }
+                });
+                dbRef.set(initialDb); // Wypycha do chmury
+            }
+            
+            // Podpięcie nasłuchu na żywo
+            inwaListener = dbRef.on('value', snap => {
+                inwaDataLive = snap.val() || {};
+                document.getElementById('loadingData').style.display = 'none';
+                let activeTabBtn = document.querySelector('.tab-btn.active');
+                let activeTab = activeTabBtn ? activeTabBtn.innerText.replace('DZIAŁ ', '') : 'IT';
+                switchDept(activeTab);
+                updateKssBadge(); // Sprawdzamy czy coś z tego miesiąca nie wisi dla kierownika
             });
-            localStorage.setItem(dbKey, JSON.stringify(initialDb));
-        }
+        });
     }
 
     function renderMonthSelector() {
@@ -166,37 +216,29 @@
             const b = document.createElement('button');
             b.className = `month-btn ${i === currentMonth ? 'active' : ''}`;
             b.innerText = m;
-            b.onclick = () => setMonth(i);
+            b.onclick = () => { currentMonth = i; renderMonthSelector(); loadMonthDataFromFirebase(i); };
             div.appendChild(b);
         });
     }
 
-    function setMonth(m) {
-        currentMonth = m;
-        initDB(m);
-        renderMonthSelector();
-        let activeTabBtn = document.querySelector('.tab-btn.active');
-        let activeTab = activeTabBtn ? activeTabBtn.innerText.replace('DZIAŁ ', '') : 'IT';
-        switchDept(activeTab);
-    }
-
     // Inicjalizacja UI
-    document.getElementById('headerStore').innerText = `${storeSetup.sNumber} ${storeSetup.city}`;
-    document.getElementById('sideName').innerText = `${currentUser.name} (${currentUser.dept})`;
+    document.getElementById('headerStore').innerText = myStore;
+    let finalDept = currentUser.dept; if(currentUser.isKss && currentUser.dept !== 'ME') finalDept = 'KSS';
+    document.getElementById('sideName').innerText = `${currentUser.name} (${finalDept})`;
     document.getElementById('sideAvatar').innerText = currentUser.charId.charAt(0);
     if(!isManagerOrKss) document.getElementById('navInwaKSS').style.display = 'none';
 
     function toggleNav() { document.getElementById('sidebar').classList.toggle('active'); document.getElementById('overlay').classList.toggle('active'); }
     function logout() { localStorage.removeItem('currentUser'); window.location.href = 'login.html'; }
 
-    // RENDEROWANIE KART
+    // RENDEROWANIE KART (Z pobranych live danych)
     function switchDept(dept) {
         document.querySelectorAll('.tab-btn').forEach(btn => { btn.classList.remove('active'); if(btn.innerText.includes(dept)) btn.classList.add('active'); });
-        let dbKey = `inwa_db_${year}_${currentMonth}`;
-        let db = JSON.parse(localStorage.getItem(dbKey)) || [];
-        renderSection('gridWeekly', db.filter(i => i.dept === dept && i.period === 'weekly'), 'secWeekly');
-        renderSection('grid2Weeks', db.filter(i => i.dept === dept && i.period === 'twoWeeks'), 'secTwoWeeks');
-        renderSection('gridMonthly', db.filter(i => i.dept === dept && i.period === 'monthly'), 'secMonthly');
+        
+        let dataArray = Object.values(inwaDataLive); // Przerabia obiekt Firebase na tablicę
+        renderSection('gridWeekly', dataArray.filter(i => i.dept === dept && i.period === 'weekly'), 'secWeekly');
+        renderSection('grid2Weeks', dataArray.filter(i => i.dept === dept && i.period === 'twoWeeks'), 'secTwoWeeks');
+        renderSection('gridMonthly', dataArray.filter(i => i.dept === dept && i.period === 'monthly'), 'secMonthly');
     }
 
     function renderSection(gridId, data, sectionId) {
@@ -226,36 +268,35 @@
         }).join('');
     }
 
-    function submitInventory(id) {
-        let dbKey = `inwa_db_${year}_${currentMonth}`;
-        let db = JSON.parse(localStorage.getItem(dbKey));
-        let item = db.find(i => i.id === id);
-        item.status = 'awaiting_kss';
-        item.submittedBy = currentUser.name;
-        item.submitterId = currentUser.charId;
-        localStorage.setItem(dbKey, JSON.stringify(db));
+    // AKCJA: ZAPIS DO CHMURY I POWIADOMIENIE
+    function submitInventory(itemId) {
+        let item = inwaDataLive[itemId];
         
-        let cleanName = item.name.replace(/<[^>]*>?/gm, ''); // Usuwa tagi HTML do powiadomienia
-        let notifs = JSON.parse(localStorage.getItem('app_notifications')) || [];
-        notifs.push({ id: Date.now(), to: 'KSS', title: 'NOWA INWENTURA', msg: `Pracownik ${currentUser.name} zakończył inwenturę: ${cleanName} (${months[currentMonth]}). Sprawdź to!`, type: 'warning', read: false });
-        localStorage.setItem('app_notifications', JSON.stringify(notifs));
+        // Zapis stanu w Inwenturze
+        db.ref(`Stores/${myStore}/Inwentury/${year}_${curM}/${itemId}`).update({
+            status: 'awaiting_kss',
+            submittedBy: currentUser.name,
+            submitterId: currentUser.charId
+        });
         
-        window.dispatchEvent(new Event('storage'));
-        switchDept(item.dept);
+        // Wypchnięcie powiadomienia do chmury (do rąk KSS)
+        let cleanName = item.name.replace(/<[^>]*>?/gm, ''); // czyści tagi html
+        db.ref(`Stores/${myStore}/Notifications`).push({
+            to: 'KSS',
+            title: 'NOWA INWENTURA',
+            msg: `Pracownik ${currentUser.name} zakończył inwenturę: ${cleanName} (${months[currentMonth]}). Sprawdź to!`,
+            type: 'warning',
+            read: false,
+            timestamp: Date.now()
+        });
     }
 
-    function checkNotifications() {
-        if (isManagerOrKss) {
-            let badge = document.getElementById('kssAlertBadge');
-            let hasAwaiting = false;
-            for(let i=0; i<12; i++) {
-                let db = JSON.parse(localStorage.getItem(`inwa_db_${year}_${i}`)) || [];
-                if(db.filter(item => item.status === 'awaiting_kss').length > 0) hasAwaiting = true;
-            }
-            if(badge) badge.innerHTML = hasAwaiting ? `<span class="nav-alert">[!]</span>` : '';
-        }
-
-        let notifs = JSON.parse(localStorage.getItem('app_notifications')) || [];
+    // NASŁUCH NA POWIADOMIENIA PUSH Z FIREBASE
+    db.ref(`Stores/${myStore}/Notifications`).on('value', snap => {
+        let notifsObj = snap.val() || {};
+        let notifs = Object.keys(notifsObj).map(key => ({ keyId: key, ...notifsObj[key] }));
+        
+        // Szuka nieprzeczytanych przeznaczonych dla mnie lub (jeśli jestem KSS) dla KSS
         let myUnread = notifs.filter(n => !n.read && (n.to === currentUser.charId || (n.to === 'KSS' && isManagerOrKss)));
         
         if (myUnread.length > 0) {
@@ -264,24 +305,7 @@
             document.getElementById('globalPopupMsg').innerText = n.msg;
             document.getElementById('globalNotificationModal').style.display = 'flex';
             let box = document.getElementById('popupBox');
+            
             if(n.type === 'success') { box.style.borderColor = '#0a0'; document.getElementById('globalPopupTitle').style.color = '#0a0'; }
             else if(n.type === 'error') { box.style.borderColor = '#f44'; document.getElementById('globalPopupTitle').style.color = '#f44'; }
-            else { box.style.borderColor = '#ffe800'; document.getElementById('globalPopupTitle').style.color = '#ffe800'; }
-            
-            n.read = true; 
-            localStorage.setItem('app_notifications', JSON.stringify(notifs));
-        }
-    }
-
-    function closeGlobalPopup() { document.getElementById('globalNotificationModal').style.display = 'none'; }
-    window.addEventListener('storage', () => { checkNotifications(); let activeTab = document.querySelector('.tab-btn.active'); if(activeTab) switchDept(activeTab.innerText.replace('DZIAŁ ', '')); });
-    
-    window.onload = () => { 
-        initDB(currentMonth); 
-        renderMonthSelector(); 
-        switchDept('IT'); 
-        checkNotifications(); 
-    };
-</script>
-</body>
-</html>
+            else { box.style.borderColor = '#ffe80

@@ -19,6 +19,7 @@
         const firebaseConfig = {
             apiKey: "AIzaSyD0N6Bjyzs34piOoujEn9mxKir8LDGdD2k",
             authDomain: "expert-tool.firebaseapp.com",
+            databaseURL: "https://expert-tool-default-rtdb.europe-west1.firebasedatabase.app/",
             projectId: "expert-tool",
             storageBucket: "expert-tool.firebasestorage.app",
             messagingSenderId: "880843997228",
@@ -40,19 +41,22 @@
         .menu-btn { position: absolute; left: 15px; cursor: pointer; color: #000; font-size: 1.5rem; transition: 0.2s; }
         .menu-btn:hover { transform: scale(1.1); }
         
-        .sidebar { position: fixed; left: -280px; top: 0; width: 260px; height: 100%; background: #0a0a0a; border-right: 3px solid #ffe800; transition: 0.4s; z-index: 10000; padding-top: 60px; display: flex; flex-direction: column; }
+        .sidebar { position: fixed; left: -280px; top: 0; width: 260px; height: 100%; background: #0a0a0a; border-right: 3px solid #ffe800; transition: 0.4s; z-index: 10000; padding-top: 60px; box-shadow: 5px 0 15px rgba(0,0,0,0.8); display: flex; flex-direction: column; }
         .sidebar.active { left: 0; }
         .sidebar-nav { flex-grow: 1; overflow-y: auto; }
         .sidebar-header { color: #ffe800; font-weight: 900; font-size: 1rem; padding: 0 25px 15px 25px; letter-spacing: 2px; text-transform: uppercase; }
         .sidebar-link { display: block; color: white; padding: 15px 25px; text-decoration: none; font-weight: 700; font-size: 0.8rem; border-bottom: 1px solid #111; transition: 0.2s; }
         .sidebar-link:hover { background: #1a1a1a; color: #ffe800; padding-left: 35px; }
         
-        .user-profile { padding: 15px 20px; border-top: 2px solid #1a1a1a; display: flex; align-items: center; gap: 15px; cursor: pointer; background: #0f0f0f; }
-        .user-avatar { width: 45px; height: 45px; border-radius: 50%; background: #151515; border: 2px solid #ffe800; display: flex; align-items: center; justify-content: center; font-weight: 900; color: #ffe800; font-size: 1.2rem; flex-shrink: 0;}
+        .user-profile { padding: 15px 20px; border-top: 2px solid #1a1a1a; display: flex; align-items: center; gap: 15px; cursor: pointer; transition: 0.3s; background: #0f0f0f; }
+        .user-profile:hover { background: #151515; }
+        .user-profile:hover .user-settings { color: #ffe800; }
+        .user-avatar { width: 45px; height: 45px; border-radius: 50%; background: #151515; border: 2px solid #ffe800; display: flex; align-items: center; justify-content: center; font-weight: 900; color: #ffe800; font-size: 1.2rem; flex-shrink: 0; box-shadow: inset 0 0 10px rgba(0,0,0,0.8); }
         .user-info { display: flex; flex-direction: column; }
         .user-name { font-weight: 900; font-size: 0.85rem; color: #fff; letter-spacing: 0.5px; }
-        .user-settings { font-size: 0.65rem; color: #888; font-weight: 700; margin-top: 4px; }
-        .logout-btn { display: block; width: 100%; text-align: center; background: transparent; color: #f44; border: none; border-top: 1px solid #1a1a1a; padding: 15px; font-weight: 900; font-size: 0.8rem; cursor: pointer; text-transform: uppercase; }
+        .user-settings { font-size: 0.65rem; color: #888; font-weight: 700; margin-top: 4px; transition: 0.2s; }
+        .logout-btn { display: block; width: 100%; text-align: center; background: transparent; color: #f44; border: none; border-top: 1px solid #1a1a1a; padding: 15px; font-weight: 900; font-size: 0.8rem; cursor: pointer; transition: 0.3s; text-transform: uppercase; letter-spacing: 1px; }
+        .logout-btn:hover { background: #f44; color: #000; }
         .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.8); display: none; z-index: 9500; }
         .overlay.active { display: block; }
 
@@ -64,12 +68,16 @@
         .greeting span { color: #ffe800; }
 
         .clock-container { display: flex; justify-content: center; gap: 15px; margin-bottom: 40px; perspective: 1000px; }
-        .time-box { background: #151515; border: 2px solid #333; border-radius: 15px; padding: 15px 20px; display: flex; flex-direction: column; align-items: center; min-width: 100px; }
+        .time-box { background: #151515; border: 2px solid #333; border-radius: 15px; padding: 15px 20px; display: flex; flex-direction: column; align-items: center; min-width: 100px; box-shadow: 0 10px 30px rgba(0,0,0,0.6); transform-style: preserve-3d; }
         .time-box .label { font-size: 0.55rem; color: #888; font-weight: 900; letter-spacing: 2px; margin-bottom: 5px; }
         .time-box .digits { font-size: 3rem; font-weight: 900; color: #ffe800; height: 50px; display: flex; justify-content: center; align-items: center; }
         
+        .flip-anim { animation: fullFlip 0.5s ease-in-out; }
+        @keyframes fullFlip { 0% { transform: rotateX(0deg); background: #151515; } 50% { transform: rotateX(-90deg); background: #222; } 100% { transform: rotateX(0deg); background: #151515; } }
+
         .daily-info-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 15px; margin-bottom: 40px; }
-        .info-card { background: #0a0a0a; border: 1px solid #222; border-radius: 15px; padding: 20px; display: flex; align-items: center; gap: 15px; transition: 0.3s; }
+        .info-card { background: #0a0a0a; border: 1px solid #222; border-radius: 15px; padding: 20px; display: flex; align-items: center; gap: 15px; transition: 0.3s; box-shadow: inset 0 0 20px rgba(0,0,0,0.5); }
+        .info-card:hover { border-color: #ffe800; transform: translateY(-3px); box-shadow: 0 5px 15px rgba(255, 232, 0, 0.1); background: #111; }
         .info-icon { font-size: 2rem; flex-shrink: 0; background: #151515; width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 1px solid #333; }
         .info-text-group { display: flex; flex-direction: column; }
         .info-label { font-size: 0.65rem; color: #888; font-weight: 900; letter-spacing: 1px; margin-bottom: 4px; text-transform: uppercase; }
@@ -79,13 +87,15 @@
         .section-title { font-size: 0.9rem; color: #666; font-weight: 900; margin-bottom: 20px; letter-spacing: 2px; border-bottom: 2px solid #222; padding-bottom: 8px; text-transform: uppercase; }
         
         .shortcuts-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; margin-bottom: 40px; }
-        .shortcut-card { background: linear-gradient(145deg, #151515, #0a0a0a); border: 1px solid #333; border-radius: 15px; padding: 25px; text-align: center; cursor: pointer; text-decoration: none; color: white; display: flex; flex-direction: column; align-items: center; gap: 12px; }
+        .shortcut-card { background: linear-gradient(145deg, #151515, #0a0a0a); border: 1px solid #333; border-radius: 15px; padding: 25px; text-align: center; cursor: pointer; text-decoration: none; color: white; transition: 0.3s; display: flex; flex-direction: column; align-items: center; gap: 12px; }
+        .shortcut-card:hover { transform: translateY(-5px); border-color: #ffe800; box-shadow: 0 8px 25px rgba(255, 232, 0, 0.15); }
         .shortcut-icon { font-size: 2.5rem; }
         .shortcut-title { font-weight: 900; font-size: 0.9rem; letter-spacing: 1px; }
 
         .team-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 15px; }
-        .team-card { background: #0a0a0a; border: 1px solid #222; border-radius: 12px; padding: 18px; display: flex; align-items: center; gap: 15px; }
-        .team-avatar { width: 50px; height: 50px; border-radius: 50%; background: #151515; border: 2px solid #ffe800; display: flex; align-items: center; justify-content: center; font-weight: 900; color: #ffe800; font-size: 1.5rem; flex-shrink: 0; }
+        .team-card { background: #0a0a0a; border: 1px solid #222; border-radius: 12px; padding: 18px; display: flex; align-items: center; gap: 15px; transition: 0.3s; }
+        .team-card:hover { background: #111; border-color: #ffe800; box-shadow: 0 5px 15px rgba(255, 232, 0, 0.05); }
+        .team-avatar { width: 50px; height: 50px; border-radius: 50%; background: #151515; border: 2px solid #ffe800; display: flex; align-items: center; justify-content: center; font-weight: 900; color: #ffe800; font-size: 1.5rem; flex-shrink: 0; box-shadow: inset 0 0 10px rgba(0,0,0,0.8); }
         .team-info { display: flex; flex-direction: column; }
         .team-name { font-weight: 900; font-size: 1rem; color: #fff; letter-spacing: 0.5px; }
         .team-dept { font-size: 0.75rem; color: #ffe800; font-weight: 900; margin-top: 4px; }
@@ -123,6 +133,7 @@
 
 <div class="content">
     <div class="content-inner">
+        
         <div class="greeting">
             <h1>Cześć, <span id="greetName">Ekipa</span>!</h1>
         </div>

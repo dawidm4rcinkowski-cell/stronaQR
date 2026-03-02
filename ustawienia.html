@@ -4,8 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Media Expert - Ustawienia Konta</title>
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&display=swap" rel="stylesheet">
+    
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='48' fill='%23ffe800'/><path d='M75.6,24.4c-9.1-9.1-23.9-9.1-33,0c-7.3,7.3-8.8,17.7-4.7,26.5L12.4,76.4c-1.6,1.6-1.6,4.1,0,5.7l5.5,5.5c1.6,1.6,4.1,1.6,5.7,0l25.5-25.5c8.8,4.1,19.2,2.6,26.5-4.7C84.7,48.3,84.7,33.5,75.6,24.4z M66.8,41.2c-3.1,3.1-8.2,3.1-11.3,0s-3.1-8.2,0-11.3s8.2-3.1,11.3,0S69.9,38.1,66.8,41.2z' fill='%23000'/></svg>">
+    
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&display=swap" rel="stylesheet">
+    
     <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-database-compat.js"></script>
     
@@ -50,7 +53,7 @@
         .sidebar-feedback, .sidebar-feedback:visited, .sidebar-feedback:link { display: block; margin-top: auto; background: #111; color: #ffe800 !important; padding: 15px 25px; text-decoration: none !important; font-weight: 900; font-size: 0.8rem; border-top: 1px solid #222; border-bottom: 1px solid #222; transition: 0.3s; text-transform: uppercase; letter-spacing: 0.5px; }
         .sidebar-feedback:hover { background: #ffe800 !important; color: #000 !important; padding-left: 35px; }
         
-        .user-profile { padding: 15px 20px; border-top: 2px solid #1a1a1a; display: flex; align-items: center; gap: 15px; cursor: pointer; background: #151515; }
+        .user-profile { padding: 15px 20px; display: flex; align-items: center; gap: 15px; cursor: pointer; background: #151515; }
         .user-avatar { width: 45px; height: 45px; border-radius: 50%; background: #151515; border: 2px solid #ffe800; display: flex; align-items: center; justify-content: center; font-weight: 900; color: #ffe800; font-size: 1.2rem; flex-shrink: 0; overflow: hidden; }
         .user-info { display: flex; flex-direction: column; }
         .user-name { font-weight: 900; font-size: 0.85rem; color: #fff; }
@@ -67,7 +70,7 @@
         @media (max-width: 768px) { .settings-grid { grid-template-columns: 1fr; } }
         
         .card { background: #111; border: 1px solid #222; border-radius: 15px; padding: 25px; display: flex; flex-direction: column; gap: 15px; height: fit-content; }
-        .card.full-width { grid-column: 1 / -1; margin-top: 10px; border-color: #333; }
+        .card.full-width { grid-column: 1 / -1; margin-top: 10px; border-color: #333; } 
         
         .card-title { color: #ffe800; font-weight: 900; font-size: 1.1rem; border-bottom: 1px solid #333; padding-bottom: 10px; margin-bottom: 10px; text-transform: uppercase; display: flex; justify-content: space-between; align-items: center; }
         .profile-section { display: flex; align-items: center; gap: 20px; }
@@ -90,6 +93,11 @@
         .msg-error { background: rgba(255, 68, 68, 0.2); border: 1px solid #f44; color: #f44; }
         .msg-success { background: rgba(0, 170, 0, 0.2); border: 1px solid #0a0; color: #0a0; }
 
+        /* LISTA ZESPOŁU DO RESETU I DODAWANIA */
+        .team-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+        .btn-add-emp { background: #0a0; color: #fff; border: none; padding: 8px 15px; border-radius: 6px; font-weight: 900; font-size: 0.7rem; cursor: pointer; text-transform: uppercase; transition: 0.3s;}
+        .btn-add-emp:hover { background: #0c0; box-shadow: 0 4px 10px rgba(0,170,0,0.3); }
+
         .team-list-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 15px; margin-top: 10px; }
         .team-row { display: flex; justify-content: space-between; align-items: center; background: #0a0a0a; padding: 15px; border-radius: 10px; border: 1px solid #222; transition: 0.3s; }
         .team-row:hover { border-color: #ffe800; background: #111; }
@@ -97,8 +105,15 @@
         .btn-reset { background: transparent; border: 1px solid #f44; color: #f44; padding: 8px 12px; border-radius: 5px; font-weight: 900; font-size: 0.7rem; cursor: pointer; transition: 0.3s; text-transform: uppercase; }
         .btn-reset:hover { background: #f44; color: #000; }
 
+        /* MODALE GŁÓWNE */
         .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 11000; align-items: center; justify-content: center; padding: 20px; backdrop-filter: blur(5px); }
         .modal-content { background: #0a0a0a; border: 2px solid #ffe800; padding: 30px; width: 100%; max-width: 450px; border-radius: 15px; text-align: center; box-shadow: 0 0 30px rgba(255, 232, 0, 0.2); }
+        
+        select { background: #0a0a0a; color: #fff; outline: none; cursor: pointer; }
+        select:focus { border-color: #ffe800; }
+        .role-checkboxes { background: #111; border: 1px solid #333; padding: 15px; border-radius: 8px; display: flex; flex-direction: column; gap: 10px; }
+        .role-label { color: #fff; font-size: 0.85rem; display: flex; align-items: center; gap: 10px; cursor: pointer; }
+        .role-label input { width: 18px; height: 18px; cursor: pointer; }
     </style>
 </head>
 <body>
@@ -150,7 +165,7 @@
                 
                 <div style="border-top: 1px solid #333; margin-top: 15px; padding-top: 15px; display: flex; flex-direction: column; gap: 15px;">
                     <div class="input-group">
-                        <label>Twoja data urodzenia (Dzień i Miesiąc)</label>
+                        <label>Twoja data urodzenia (Dzień, Miesiąc, Rok)</label>
                         <input type="date" class="form-input" id="birthDateInput">
                     </div>
                     <div class="input-group">
@@ -172,8 +187,16 @@
             </div>
             
             <div class="card full-width" id="teamManagementCard" style="display:none;">
-                <div class="card-title">Zarządzanie Zespołem <span style="font-size:0.6rem; color:#888; background:#1a1a1a; padding:4px 8px; border-radius:10px;">TYLKO KIEROWNICTWO</span></div>
-                <p style="font-size:0.8rem; color:#888; margin-bottom:10px;">Zresetowanie hasła pracownika przywróci jego konto do ustawień początkowych. Nowym hasłem logowania stanie się ponownie jego unikalny kod (CharID).</p>
+                <div class="card-title">
+                    Zarządzanie Zespołem 
+                    <span style="font-size:0.6rem; color:#888; background:#1a1a1a; padding:4px 8px; border-radius:10px;">TYLKO KIEROWNICTWO</span>
+                </div>
+                
+                <div class="team-header">
+                    <p style="font-size:0.8rem; color:#888; margin:0;">Zarządzaj hasłami swojej ekipy lub dodawaj nowe osoby do bazy.</p>
+                    <button class="btn-add-emp" onclick="openAddEmployeeModal()">+ Dodaj Pracownika</button>
+                </div>
+                
                 <div class="team-list-grid" id="teamList">
                     <div style="color: #666; font-size:0.8rem; font-weight:bold; width:100%; text-align:center; padding:20px;">POBIERANIE DANYCH EKIPY...</div>
                 </div>
@@ -196,6 +219,44 @@
     </div>
 </div>
 
+<div class="modal" id="addEmployeeModal">
+    <div class="modal-content" style="max-width: 450px;">
+        <h3 style="color:#ffe800; margin-bottom:15px; text-align:center; font-size: 1.3rem;">DODAJ PRACOWNIKA</h3>
+        
+        <div class="input-group" style="margin-bottom: 15px; text-align: left;">
+            <label>Imię (widoczne w systemie)</label>
+            <input type="text" class="form-input" id="newEmpName" placeholder="np. TOMASZ">
+        </div>
+        
+        <div class="input-group" style="margin-bottom: 15px; text-align: left;">
+            <label>Unikalny Kod Logowania (CharID)</label>
+            <input type="text" class="form-input" id="newEmpCharId" placeholder="np. TOMEK1 (bez spacji)">
+        </div>
+        
+        <div class="input-group" style="margin-bottom: 15px; text-align: left;">
+            <label>Dział</label>
+            <select class="form-input" id="newEmpDept">
+                <option value="IT">Dział IT</option>
+                <option value="RTV">Dział RTV</option>
+                <option value="AGD">Dział AGD</option>
+                <option value="POK">Punkt Obsługi Klienta (POK)</option>
+                <option value="ME">Kierownik Sklepu (ME)</option>
+            </select>
+        </div>
+        
+        <div class="role-checkboxes" style="margin-top: 15px; text-align: left;">
+            <label class="role-label"><input type="checkbox" id="newEmpIsKss"> Pracownik posiada uprawnienia KSS</label>
+        </div>
+        
+        <div id="addEmpMsg" class="msg-box" style="margin-top:15px;"></div>
+        
+        <div style="display:flex; gap:10px; margin-top:25px;">
+            <button class="btn-action" style="flex:1; background:#333; color:#fff; margin-top:0;" onclick="closeAddEmployeeModal()">ANULUJ</button>
+            <button class="btn-action" style="flex:2; margin-top:0;" onclick="saveNewEmployee()">DODAJ DO BAZY</button>
+        </div>
+    </div>
+</div>
+
 <script>
     document.getElementById('headerStore').innerText = myStore;
     document.getElementById('profileName').innerText = currentUser.name;
@@ -206,13 +267,14 @@
     document.getElementById('sideName').innerText = `${currentUser.name} (${finalDept})`;
 
     function renderAvatars() {
-        const avatarHtml = currentUser.avatar ? `<img src="${currentUser.avatar}" style="width:100%; height:100%; object-fit:cover; border-radius:50%;">` : currentUser.charId.charAt(0);
+        const avatarHtml = currentUser.avatar 
+            ? `<img src="${currentUser.avatar}" style="width:100%; height:100%; object-fit:cover; border-radius:50%;">` 
+            : currentUser.charId.charAt(0);
         document.getElementById('profileAvatar').innerHTML = avatarHtml;
         document.getElementById('sideAvatar').innerHTML = avatarHtml;
     }
     renderAvatars();
 
-    // ŁADOWANIE DANYCH PROFILU Z BAZY NA START
     db.ref(`Stores/${myStore}/Users/${currentUser.charId}`).once('value', snap => {
         const userData = snap.val() || {};
         if (userData.birthDate) document.getElementById('birthDateInput').value = userData.birthDate;
@@ -229,9 +291,6 @@
     function toggleNav() { document.getElementById('sidebar').classList.toggle('active'); document.getElementById('overlay').classList.toggle('active'); }
     function logout() { localStorage.removeItem('currentUser'); window.location.href = 'login.html'; }
 
-    // ==========================================
-    // ZAPIS DANYCH OSOBOWYCH
-    // ==========================================
     function saveProfileData() {
         const birthDate = document.getElementById('birthDateInput').value;
         const workYear = document.getElementById('workYearInput').value;
@@ -262,7 +321,7 @@
     }
 
     // ==========================================
-    // ZARZĄDZANIE ZESPOŁEM
+    // ZARZĄDZANIE ZESPOŁEM (RESET & DODAWANIE)
     // ==========================================
     function loadTeamForReset() {
         db.ref(`Stores/${myStore}/Users`).on('value', snap => {
@@ -290,7 +349,7 @@
                                 <div style="font-size:0.65rem; font-weight:bold; color:#ffe800;">Dział: ${displayDept}</div>
                             </div>
                         </div>
-                        <button class="btn-reset" onclick="confirmPasswordReset('${u.charId}', '${u.name}')">RESETUJ</button>
+                        <button class="btn-reset" onclick="confirmPasswordReset('${u.charId}', '${u.name}')">RESETUJ HASŁO</button>
                     </div>`;
                 });
             }
@@ -309,8 +368,66 @@
     }
     function closeResetModal() { document.getElementById('resetSuccessModal').style.display = 'none'; }
 
+    // Logika dodawania nowego pracownika
+    function openAddEmployeeModal() {
+        document.getElementById('addEmployeeModal').style.display = 'flex';
+        document.getElementById('newEmpName').value = '';
+        document.getElementById('newEmpCharId').value = '';
+        document.getElementById('newEmpDept').value = 'IT';
+        document.getElementById('newEmpIsKss').checked = false;
+        document.getElementById('addEmpMsg').style.display = 'none';
+    }
+
+    function closeAddEmployeeModal() {
+        document.getElementById('addEmployeeModal').style.display = 'none';
+    }
+
+    async function saveNewEmployee() {
+        const name = document.getElementById('newEmpName').value.trim().toUpperCase();
+        let charId = document.getElementById('newEmpCharId').value.trim().toUpperCase().replace(/\s+/g, '');
+        const dept = document.getElementById('newEmpDept').value;
+        const isKss = document.getElementById('newEmpIsKss').checked;
+        const msgBox = document.getElementById('addEmpMsg');
+
+        msgBox.style.display = 'block';
+        msgBox.className = 'msg-box';
+
+        if(!name || !charId) {
+            msgBox.classList.add('msg-error');
+            msgBox.innerText = "Wypełnij Imię i Kod logowania!";
+            return;
+        }
+
+        try {
+            const snap = await db.ref(`Stores/${myStore}/Users/${charId}`).once('value');
+            if (snap.exists()) {
+                msgBox.classList.add('msg-error');
+                msgBox.innerText = "Taki kod (CharID) już istnieje w bazie! Wymyśl inny.";
+                return;
+            }
+
+            await db.ref(`Stores/${myStore}/Users/${charId}`).set({
+                charId: charId,
+                name: name,
+                dept: dept,
+                isKss: isKss,
+                password: charId, 
+                avatar: ""
+            });
+
+            msgBox.classList.add('msg-success');
+            msgBox.innerText = "Pracownik dodany pomyślnie!";
+            setTimeout(() => { closeAddEmployeeModal(); }, 1500);
+
+        } catch(e) {
+            msgBox.classList.add('msg-error');
+            msgBox.innerText = "Błąd komunikacji z chmurą: " + e.message;
+        }
+    }
+
+
     // ==========================================
-    // AWATARY I HASŁO
+    // AWATARY I HASŁO WŁASNE
     // ==========================================
     function triggerAvatarUpload() { document.getElementById('avatarInput').click(); }
     function handleAvatarUpload(event) {

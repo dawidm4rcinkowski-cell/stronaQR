@@ -47,7 +47,6 @@
         .sidebar-link { display: block; color: white; padding: 15px 25px; text-decoration: none; font-weight: 700; font-size: 0.8rem; border-bottom: 1px solid #111; transition: 0.2s; }
         .sidebar-link:hover { background: #1a1a1a; color: #ffe800; padding-left: 35px; }
         
-        /* LINK FEEDBACKU */
         .sidebar-feedback, .sidebar-feedback:visited, .sidebar-feedback:link { display: block; margin-top: auto; background: #111; color: #ffe800 !important; padding: 15px 25px; text-decoration: none !important; font-weight: 900; font-size: 0.8rem; border-top: 1px solid #222; border-bottom: 1px solid #222; transition: 0.3s; text-transform: uppercase; letter-spacing: 0.5px; }
         .sidebar-feedback:hover { background: #ffe800 !important; color: #000 !important; padding-left: 35px; }
         
@@ -64,12 +63,11 @@
         .content-inner { max-width: 900px; margin: 0 auto; }
         .page-title { font-size: 2rem; font-weight: 900; margin-bottom: 30px; text-transform: uppercase; } .page-title span { color: #ffe800; }
         
-        /* GRID KART USTAWIEN */
-        .settings-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .settings-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; align-items: start; }
         @media (max-width: 768px) { .settings-grid { grid-template-columns: 1fr; } }
         
-        .card { background: #111; border: 1px solid #222; border-radius: 15px; padding: 25px; display: flex; flex-direction: column; gap: 15px; }
-        .card.full-width { grid-column: 1 / -1; margin-top: 10px; border-color: #333; } /* Karta zajmująca całą szerokość dla Kierownika */
+        .card { background: #111; border: 1px solid #222; border-radius: 15px; padding: 25px; display: flex; flex-direction: column; gap: 15px; height: fit-content; }
+        .card.full-width { grid-column: 1 / -1; margin-top: 10px; border-color: #333; }
         
         .card-title { color: #ffe800; font-weight: 900; font-size: 1.1rem; border-bottom: 1px solid #333; padding-bottom: 10px; margin-bottom: 10px; text-transform: uppercase; display: flex; justify-content: space-between; align-items: center; }
         .profile-section { display: flex; align-items: center; gap: 20px; }
@@ -82,6 +80,7 @@
         .input-group { display: flex; flex-direction: column; gap: 5px; }
         .input-group label { font-size: 0.75rem; color: #888; font-weight: 800; }
         .form-input { background: #0a0a0a; border: 1px solid #333; color: #fff; padding: 12px; border-radius: 8px; font-size: 0.9rem; font-weight: bold; outline: none; }
+        .form-input[type="date"] { cursor: pointer; }
         
         .btn-action { background: #ffe800; color: #000; border: none; padding: 12px; font-weight: 900; border-radius: 8px; cursor: pointer; text-transform: uppercase; margin-top: 10px; transition:0.3s;}
         .btn-action:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(255,232,0,0.3); }
@@ -91,7 +90,6 @@
         .msg-error { background: rgba(255, 68, 68, 0.2); border: 1px solid #f44; color: #f44; }
         .msg-success { background: rgba(0, 170, 0, 0.2); border: 1px solid #0a0; color: #0a0; }
 
-        /* LISTA ZESPOŁU DO RESETU */
         .team-list-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 15px; margin-top: 10px; }
         .team-row { display: flex; justify-content: space-between; align-items: center; background: #0a0a0a; padding: 15px; border-radius: 10px; border: 1px solid #222; transition: 0.3s; }
         .team-row:hover { border-color: #ffe800; background: #111; }
@@ -99,7 +97,6 @@
         .btn-reset { background: transparent; border: 1px solid #f44; color: #f44; padding: 8px 12px; border-radius: 5px; font-weight: 900; font-size: 0.7rem; cursor: pointer; transition: 0.3s; text-transform: uppercase; }
         .btn-reset:hover { background: #f44; color: #000; }
 
-        /* MODALE GŁÓWNE */
         .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 11000; align-items: center; justify-content: center; padding: 20px; backdrop-filter: blur(5px); }
         .modal-content { background: #0a0a0a; border: 2px solid #ffe800; padding: 30px; width: 100%; max-width: 450px; border-radius: 15px; text-align: center; box-shadow: 0 0 30px rgba(255, 232, 0, 0.2); }
     </style>
@@ -148,8 +145,20 @@
                         <h2 id="profileName">Imię</h2>
                         <p id="profileDept">Dział</p>
                         <p style="color:#ffe800; font-size:0.7rem; margin-top:5px;">CharID: <span id="profileCharId">ID</span></p>
-                        <p style="color:#888; font-size:0.6rem; margin-top:5px;">Kliknij w zdjęcie, by wgrać awatar.</p>
                     </div>
+                </div>
+                
+                <div style="border-top: 1px solid #333; margin-top: 15px; padding-top: 15px; display: flex; flex-direction: column; gap: 15px;">
+                    <div class="input-group">
+                        <label>Twoja data urodzenia (Dzień i Miesiąc)</label>
+                        <input type="date" class="form-input" id="birthDateInput">
+                    </div>
+                    <div class="input-group">
+                        <label>Rok rozpoczęcia pracy w ME (np. 2018)</label>
+                        <input type="number" class="form-input" id="workYearInput" placeholder="Wpisz rok, np. 2020">
+                    </div>
+                    <div id="profileDataMsg" class="msg-box"></div>
+                    <button class="btn-action" onclick="saveProfileData()" id="btnSaveProfile">Zapisz Dane Profilu</button>
                 </div>
             </div>
 
@@ -196,17 +205,20 @@
     document.getElementById('profileCharId').innerText = currentUser.charId;
     document.getElementById('sideName').innerText = `${currentUser.name} (${finalDept})`;
 
-    // Wczytanie awatara zalogowanego użytkownika
     function renderAvatars() {
-        const avatarHtml = currentUser.avatar 
-            ? `<img src="${currentUser.avatar}" style="width:100%; height:100%; object-fit:cover; border-radius:50%;">` 
-            : currentUser.charId.charAt(0);
+        const avatarHtml = currentUser.avatar ? `<img src="${currentUser.avatar}" style="width:100%; height:100%; object-fit:cover; border-radius:50%;">` : currentUser.charId.charAt(0);
         document.getElementById('profileAvatar').innerHTML = avatarHtml;
         document.getElementById('sideAvatar').innerHTML = avatarHtml;
     }
     renderAvatars();
 
-    // SPRAWDZANIE UPRAWNIEŃ DO KARTY ZESPOŁU
+    // ŁADOWANIE DANYCH PROFILU Z BAZY NA START
+    db.ref(`Stores/${myStore}/Users/${currentUser.charId}`).once('value', snap => {
+        const userData = snap.val() || {};
+        if (userData.birthDate) document.getElementById('birthDateInput').value = userData.birthDate;
+        if (userData.workYear) document.getElementById('workYearInput').value = userData.workYear;
+    });
+
     if(!isManagerOrKss) { 
         document.getElementById('navInwaKSS').style.display = 'none'; 
     } else {
@@ -218,13 +230,43 @@
     function logout() { localStorage.removeItem('currentUser'); window.location.href = 'login.html'; }
 
     // ==========================================
-    // FUNKCJA ZARZĄDZANIA ZESPOŁEM (RESET HASEŁ)
+    // ZAPIS DANYCH OSOBOWYCH
+    // ==========================================
+    function saveProfileData() {
+        const birthDate = document.getElementById('birthDateInput').value;
+        const workYear = document.getElementById('workYearInput').value;
+        const btn = document.getElementById('btnSaveProfile');
+        const msgBox = document.getElementById('profileDataMsg');
+        
+        btn.disabled = true;
+        btn.innerText = "ZAPISYWANIE...";
+        msgBox.style.display = 'block';
+        msgBox.className = 'msg-box';
+        msgBox.innerText = "Trwa zapisywanie do chmury...";
+
+        db.ref(`Stores/${myStore}/Users/${currentUser.charId}`).update({
+            birthDate: birthDate || null,
+            workYear: workYear || null
+        }).then(() => {
+            msgBox.classList.add('msg-success');
+            msgBox.innerText = "Pomyślnie zapisano dane!";
+            btn.disabled = false;
+            btn.innerText = "Zapisz Dane Profilu";
+            setTimeout(() => msgBox.style.display = 'none', 3000);
+        }).catch(err => {
+            msgBox.classList.add('msg-error');
+            msgBox.innerText = "Błąd zapisu: " + err.message;
+            btn.disabled = false;
+            btn.innerText = "Zapisz Dane Profilu";
+        });
+    }
+
+    // ==========================================
+    // ZARZĄDZANIE ZESPOŁEM
     // ==========================================
     function loadTeamForReset() {
         db.ref(`Stores/${myStore}/Users`).on('value', snap => {
             const usersObj = snap.val() || {};
-            
-            // Pobieramy wszystkich poza ADMINEM i samym sobą (Kierownik nie powinien resetować siebie z poziomu listy)
             let usersForReset = Object.keys(usersObj)
                 .map(key => ({ charId: key, ...usersObj[key] }))
                 .filter(u => u.charId !== 'ADMIN' && u.charId !== currentUser.charId);
@@ -258,62 +300,47 @@
 
     function confirmPasswordReset(empCharId, empName) {
         if(confirm(`UWAGA!\nCzy na pewno chcesz usunąć hasło użytkownika ${empName}?\n\nPracownik zostanie wylogowany, a jego nowym hasłem do pierwszego logowania stanie się ponownie jego krótki kod CharID.`)) {
-            
-            // Reset w bazie (nadpisanie starego hasła wartością CharID)
-            db.ref(`Stores/${myStore}/Users/${empCharId}`).update({
-                password: empCharId
-            }).then(() => {
-                // Wyświetlamy piękny modal ze starym/nowym kodem dla pracownika
+            db.ref(`Stores/${myStore}/Users/${empCharId}`).update({ password: empCharId }).then(() => {
                 document.getElementById('resetEmpName').innerText = empName;
                 document.getElementById('resetEmpCode').innerText = empCharId;
                 document.getElementById('resetSuccessModal').style.display = 'flex';
-            }).catch(err => {
-                alert("Błąd połączenia z bazą: " + err.message);
-            });
+            }).catch(err => alert("Błąd połączenia z bazą: " + err.message));
         }
     }
-
-    function closeResetModal() {
-        document.getElementById('resetSuccessModal').style.display = 'none';
-    }
-
+    function closeResetModal() { document.getElementById('resetSuccessModal').style.display = 'none'; }
 
     // ==========================================
-    // ZMIANA WŁASNEGO ZDJĘCIA (KADROWANIE)
+    // AWATARY I HASŁO
     // ==========================================
     function triggerAvatarUpload() { document.getElementById('avatarInput').click(); }
-    
     function handleAvatarUpload(event) {
         const file = event.target.files[0];
         if(!file) return;
-
         const reader = new FileReader();
         reader.onload = function(e) {
             const img = new Image();
             img.onload = function() {
                 const canvas = document.createElement('canvas');
-                const MAX_SIZE = 150; // Bardzo mocna kompresja dla optymalizacji Firebase
+                const MAX_SIZE = 150; 
                 let size = Math.min(img.width, img.height);
                 let offsetX = (img.width - size) / 2;
                 let offsetY = (img.height - size) / 2;
-
-                canvas.width = MAX_SIZE;
-                canvas.height = MAX_SIZE;
+                canvas.width = MAX_SIZE; canvas.height = MAX_SIZE;
                 const ctx = canvas.getContext('2d');
                 ctx.drawImage(img, offsetX, offsetY, size, size, 0, 0, MAX_SIZE, MAX_SIZE);
-                
                 const dataUrl = canvas.toDataURL('image/jpeg', 0.8);
-                const msgBox = document.getElementById('passMsg');
-                msgBox.style.display = 'block'; msgBox.className = 'msg-box'; msgBox.innerText = "Wgrywanie zdjęcia do chmury...";
+                
+                const msgBox = document.getElementById('profileDataMsg');
+                msgBox.style.display = 'block'; msgBox.className = 'msg-box'; msgBox.innerText = "Wgrywanie zdjęcia...";
 
                 db.ref(`Stores/${myStore}/Users/${currentUser.charId}`).update({ avatar: dataUrl }).then(() => {
                     currentUser.avatar = dataUrl;
                     localStorage.setItem('currentUser', JSON.stringify(currentUser));
                     renderAvatars();
-                    msgBox.classList.add('msg-success'); msgBox.innerText = "Zdjęcie zaktualizowane pomyślnie!";
+                    msgBox.classList.add('msg-success'); msgBox.innerText = "Zdjęcie zapisane!";
                     setTimeout(() => msgBox.style.display='none', 3000);
                 }).catch(err => {
-                    msgBox.classList.add('msg-error'); msgBox.innerText = "Błąd wgrywania zdjęcia do bazy!";
+                    msgBox.classList.add('msg-error'); msgBox.innerText = "Błąd wgrywania!";
                 });
             }
             img.src = e.target.result;
@@ -321,9 +348,6 @@
         reader.readAsDataURL(file);
     }
 
-    // ==========================================
-    // ZMIANA WŁASNEGO HASŁA
-    // ==========================================
     async function changePassword() {
         const oldP = document.getElementById('oldPass').value;
         const newP = document.getElementById('newPass').value;
@@ -347,20 +371,15 @@
                 msgBox.classList.add('msg-error'); msgBox.innerText = "Obecne hasło jest niepoprawne!"; 
                 btn.disabled = false; btn.innerText = "Zaktualizuj Hasło"; return; 
             }
-
             await db.ref(`Stores/${myStore}/Users/${currentUser.charId}`).update({ password: newP });
-
-            msgBox.classList.add('msg-success'); msgBox.innerText = "Hasło zostało zaktualizowane w chmurze!";
+            msgBox.classList.add('msg-success'); msgBox.innerText = "Hasło zaktualizowane w chmurze!";
             document.getElementById('oldPass').value=''; document.getElementById('newPass').value=''; document.getElementById('newPassConfirm').value='';
-            
             setTimeout(() => { msgBox.style.display='none'; }, 3000);
         } catch(e) {
             msgBox.classList.add('msg-error'); msgBox.innerText = "Błąd połączenia z bazą!";
         }
-        
         btn.disabled = false; btn.innerText = "Zaktualizuj Hasło";
     }
 </script>
-
 </body>
 </html>

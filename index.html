@@ -98,19 +98,28 @@
         .shortcut-title { font-weight: 900; font-size: 0.9rem; letter-spacing: 1px; }
 
         .team-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 15px; }
-        .team-card { background: #0a0a0a; border: 1px solid #222; border-radius: 12px; padding: 18px; display: flex; align-items: center; gap: 15px; transition: 0.3s; }
+        .team-card { background: #0a0a0a; border: 1px solid #222; border-radius: 12px; padding: 18px; display: flex; align-items: center; gap: 15px; transition: 0.3s; cursor: pointer; }
         .team-card:hover { background: #111; border-color: #ffe800; box-shadow: 0 5px 15px rgba(255, 232, 0, 0.05); }
         .team-avatar { width: 50px; height: 50px; border-radius: 50%; background: #151515; border: 2px solid #ffe800; display: flex; align-items: center; justify-content: center; font-weight: 900; color: #ffe800; font-size: 1.5rem; flex-shrink: 0; box-shadow: inset 0 0 10px rgba(0,0,0,0.8); overflow: hidden;}
         .team-info { display: flex; flex-direction: column; }
         .team-name { font-weight: 900; font-size: 1rem; color: #fff; letter-spacing: 0.5px; }
         .team-dept { font-size: 0.75rem; color: #ffe800; font-weight: 900; margin-top: 4px; }
+        
+        /* MODAL PRACOWNIKA (PROFIL ZESPOŁU) */
+        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 11000; align-items: center; justify-content: center; padding: 20px; backdrop-filter: blur(5px); }
+        .emp-modal-content { background: #0a0a0a; border: 2px solid #ffe800; padding: 40px 20px; width: 100%; max-width: 350px; border-radius: 15px; text-align: center; box-shadow: 0 0 30px rgba(255, 232, 0, 0.15); }
+        .emp-avatar-large { width: 90px; height: 90px; border-radius: 50%; background: #151515; border: 3px solid #ffe800; display: flex; align-items: center; justify-content: center; font-weight: 900; color: #ffe800; font-size: 2.5rem; overflow: hidden; margin: 0 auto 20px; box-shadow: 0 0 15px rgba(255,232,0,0.3); }
+        .emp-stats { display: flex; justify-content: space-around; background: #111; padding: 15px; border-radius: 10px; border: 1px solid #222; margin-bottom: 20px; }
+        .emp-stat-box { display: flex; flex-direction: column; align-items: center; }
+        .btn-modal-close { background: #ffe800; color: #000; border: none; padding: 12px 20px; font-weight: 900; border-radius: 8px; cursor: pointer; width: 100%; text-transform: uppercase; margin-top: 10px; }
     </style>
 </head>
 <body>
 
 <header>
     <div class="menu-btn" onclick="toggleNav()">☰</div>
-    <div class="logo">EXPERT <span>TOOL</span> <div class="store-badge" id="headerStore">Łączenie z bazą...</div></div>
+    <div class="logo">EXPERT <span>TOOL</span></div>
+    <div class="store-badge" id="headerStore">Łączenie z bazą...</div>
 </header>
 
 <div class="sidebar" id="sidebar">
@@ -185,11 +194,30 @@
     </div>
 </div>
 
+<div class="modal" id="employeeModal">
+    <div class="emp-modal-content">
+        <div id="empModalAvatar" class="emp-avatar-large"></div>
+        <h2 id="empModalName" style="color: #fff; font-size: 1.5rem; margin-bottom: 5px; text-transform: uppercase;">Imię</h2>
+        <p id="empModalDept" style="color: #ffe800; font-weight: 900; margin-bottom: 25px;">Dział</p>
+        
+        <div class="emp-stats">
+            <div class="emp-stat-box">
+                <div style="font-size: 0.65rem; color: #888; font-weight: 900;">URODZINY</div>
+                <div id="empModalBirth" style="color: #fff; font-weight: bold; font-size: 1rem; margin-top: 5px;">-</div>
+            </div>
+            <div class="emp-stat-box">
+                <div style="font-size: 0.65rem; color: #888; font-weight: 900;">W FIRMIE OD</div>
+                <div id="empModalWork" style="color: #fff; font-weight: bold; font-size: 1rem; margin-top: 5px;">-</div>
+            </div>
+        </div>
+        <button class="btn-modal-close" onclick="closeEmployeeModal()">ZAMKNIJ KARTĘ</button>
+    </div>
+</div>
+
 <script>
     document.getElementById('greetName').innerText = currentUser.name;
     document.getElementById('sideName').innerText = `${currentUser.name} (${currentUser.dept})`;
     
-    // Wczytywanie awatara z local storage dla bocznego paska
     const avatarHtml = currentUser.avatar ? `<img src="${currentUser.avatar}" style="width:100%; height:100%; object-fit:cover; border-radius:50%;">` : currentUser.charId.charAt(0);
     document.getElementById('sideAvatar').innerHTML = avatarHtml;
 
@@ -205,7 +233,7 @@
 
     let globalUsersList = [];
 
-    // POBRANIE EKIPY Z FIREBASE
+    // POBRANIE EKIPY Z FIREBASE I WYSWIETLENIE ICH AVATAROW
     db.ref(`Stores/${myStore}/Users`).on('value', snap => {
         const usersObj = snap.val() || {};
         globalUsersList = Object.keys(usersObj).map(key => ({ charId: key, ...usersObj[key] }));
@@ -223,16 +251,20 @@
         usersForDisplay.sort((a, b) => {
             let rankA = deptRank[a.displayDept] || 99;
             let rankB = deptRank[b.displayDept] || 99;
-            if (rankA === rankB) return a.name.localeCompare(b.name, 'pl');
+            if (rankA === rankB) {
+                return a.name.localeCompare(b.name, 'pl');
+            }
             return rankA - rankB;
         });
 
         usersForDisplay.forEach(member => {
             const card = document.createElement('div');
             card.className = 'team-card';
-            let deptColor = member.dept === 'ME' ? '#f44' : '#ffe800';
             
-            // Wczytywanie avatara kolegi z pracy
+            // Kliknięcie w dowolną osobę w zespole otwiera jej profil z datami
+            card.onclick = () => openEmployeeModal(member.charId);
+            
+            let deptColor = member.dept === 'ME' ? '#f44' : '#ffe800';
             let memberAvatarHtml = member.avatar ? `<img src="${member.avatar}" style="width:100%; height:100%; object-fit:cover; border-radius:50%;">` : member.charId.charAt(0);
 
             card.innerHTML = `<div class="team-avatar">${memberAvatarHtml}</div><div class="team-info"><span class="team-name">${member.name}</span><span class="team-dept" style="color: ${deptColor};">${member.displayDept}</span></div>`;
@@ -241,6 +273,49 @@
 
         fetchPlanData();
     });
+
+    // ===============================================
+    // SYSTEM OTWIERANIA MODALA Z INFORMACJAMI O OSOBIE
+    // ===============================================
+    function openEmployeeModal(charId) {
+        const emp = globalUsersList.find(u => u.charId === charId);
+        if(!emp) return;
+        
+        const avatarHtml = emp.avatar ? `<img src="${emp.avatar}" style="width:100%; height:100%; object-fit:cover; border-radius:50%;">` : emp.charId.charAt(0);
+        document.getElementById('empModalAvatar').innerHTML = avatarHtml;
+        document.getElementById('empModalName').innerText = emp.name;
+        document.getElementById('empModalDept').innerText = emp.displayDept || emp.dept;
+        
+        // Formatyzacja daty urodzin
+        let bDay = "Brak danych";
+        if(emp.birthDate) {
+            const parts = emp.birthDate.split('-');
+            if(parts.length === 3) {
+                bDay = `${parts[2]}.${parts[1]}`; // Wyświetlamy tylko Dzień i Miesiąc, ukrywamy rok urodzenia
+            }
+        }
+        
+        // Kalkulacja stażu pracy w Media Expert
+        let wYearStr = "Brak danych";
+        if (emp.workYear) {
+            const currentYear = new Date().getFullYear();
+            const years = currentYear - parseInt(emp.workYear);
+            let suffix = "lat";
+            if (years === 1) suffix = "rok";
+            else if (years >= 2 && years <= 4) suffix = "lata";
+            
+            wYearStr = years > 0 ? `${emp.workYear} (${years} ${suffix})` : `${emp.workYear} (1. rok)`;
+        }
+        
+        document.getElementById('empModalBirth').innerText = bDay;
+        document.getElementById('empModalWork').innerText = wYearStr;
+        
+        document.getElementById('employeeModal').style.display = 'flex';
+    }
+
+    function closeEmployeeModal() { 
+        document.getElementById('employeeModal').style.display = 'none'; 
+    }
 
     function fetchPlanData() {
         const dateObj = new Date();
@@ -282,6 +357,7 @@
         updateTile('minutes', 'box-minutes', m);
         updateTile('seconds', 'box-seconds', s);
     }
+    
     function updateTile(textId, boxId, newValue) {
         const textEl = document.getElementById(textId);
         const boxEl = document.getElementById(boxId);
@@ -290,6 +366,7 @@
             setTimeout(() => { textEl.innerText = newValue; }, 250); 
         }
     }
+    
     setInterval(updateClock, 1000); updateClock();
 
     function toggleNav() { document.getElementById('sidebar').classList.toggle('active'); document.getElementById('overlay').classList.toggle('active'); }

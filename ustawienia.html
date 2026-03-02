@@ -66,6 +66,7 @@
         .content-inner { max-width: 900px; margin: 0 auto; }
         .page-title { font-size: 2rem; font-weight: 900; margin-bottom: 30px; text-transform: uppercase; } .page-title span { color: #ffe800; }
         
+        /* GRID KART USTAWIEN */
         .settings-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; align-items: start; }
         @media (max-width: 768px) { .settings-grid { grid-template-columns: 1fr; } }
         
@@ -94,16 +95,21 @@
         .msg-success { background: rgba(0, 170, 0, 0.2); border: 1px solid #0a0; color: #0a0; }
 
         /* LISTA ZESPOŁU DO RESETU I DODAWANIA */
-        .team-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+        .team-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; flex-wrap: wrap; gap: 10px;}
         .btn-add-emp { background: #0a0; color: #fff; border: none; padding: 8px 15px; border-radius: 6px; font-weight: 900; font-size: 0.7rem; cursor: pointer; text-transform: uppercase; transition: 0.3s;}
         .btn-add-emp:hover { background: #0c0; box-shadow: 0 4px 10px rgba(0,170,0,0.3); }
 
-        .team-list-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 15px; margin-top: 10px; }
+        .team-list-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 15px; margin-top: 10px; }
         .team-row { display: flex; justify-content: space-between; align-items: center; background: #0a0a0a; padding: 15px; border-radius: 10px; border: 1px solid #222; transition: 0.3s; }
         .team-row:hover { border-color: #ffe800; background: #111; }
         .avatar-small { width: 40px; height: 40px; border-radius: 50%; background: #151515; border: 2px solid #ffe800; display: flex; align-items: center; justify-content: center; font-weight: 900; color: #ffe800; font-size: 1rem; overflow: hidden; flex-shrink: 0; }
-        .btn-reset { background: transparent; border: 1px solid #f44; color: #f44; padding: 8px 12px; border-radius: 5px; font-weight: 900; font-size: 0.7rem; cursor: pointer; transition: 0.3s; text-transform: uppercase; }
-        .btn-reset:hover { background: #f44; color: #000; }
+        
+        .action-buttons-group { display: flex; gap: 8px; }
+        .btn-reset { background: transparent; border: 1px solid #ffe800; color: #ffe800; padding: 8px 10px; border-radius: 5px; font-weight: 900; font-size: 0.65rem; cursor: pointer; transition: 0.3s; text-transform: uppercase; }
+        .btn-reset:hover { background: #ffe800; color: #000; }
+        
+        .btn-delete-emp { background: transparent; border: 1px solid #f44; color: #f44; padding: 8px 10px; border-radius: 5px; font-weight: 900; font-size: 0.65rem; cursor: pointer; transition: 0.3s; text-transform: uppercase; }
+        .btn-delete-emp:hover { background: #f44; color: #000; }
 
         /* MODALE GŁÓWNE */
         .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 11000; align-items: center; justify-content: center; padding: 20px; backdrop-filter: blur(5px); }
@@ -193,7 +199,7 @@
                 </div>
                 
                 <div class="team-header">
-                    <p style="font-size:0.8rem; color:#888; margin:0;">Zarządzaj hasłami swojej ekipy lub dodawaj nowe osoby do bazy.</p>
+                    <p style="font-size:0.8rem; color:#888; margin:0;">Zarządzaj hasłami swojej ekipy, dodawaj lub usuwaj pracowników.</p>
                     <button class="btn-add-emp" onclick="openAddEmployeeModal()">+ Dodaj Pracownika</button>
                 </div>
                 
@@ -225,12 +231,12 @@
         
         <div class="input-group" style="margin-bottom: 15px; text-align: left;">
             <label>Imię (widoczne w systemie)</label>
-            <input type="text" class="form-input" id="newEmpName" placeholder=" ">
+            <input type="text" class="form-input" id="newEmpName" placeholder="np. TOMASZ">
         </div>
         
         <div class="input-group" style="margin-bottom: 15px; text-align: left;">
             <label>Unikalny Kod Logowania (CharID)</label>
-            <input type="text" class="form-input" id="newEmpCharId" placeholder="np. 1111111 (bez spacji)">
+            <input type="text" class="form-input" id="newEmpCharId" placeholder="np. TOMEK1 (bez spacji)">
         </div>
         
         <div class="input-group" style="margin-bottom: 15px; text-align: left;">
@@ -321,7 +327,7 @@
     }
 
     // ==========================================
-    // ZARZĄDZANIE ZESPOŁEM (RESET & DODAWANIE)
+    // ZARZĄDZANIE ZESPOŁEM (RESET, USUWANIE & DODAWANIE)
     // ==========================================
     function loadTeamForReset() {
         db.ref(`Stores/${myStore}/Users`).on('value', snap => {
@@ -349,7 +355,10 @@
                                 <div style="font-size:0.65rem; font-weight:bold; color:#ffe800;">Dział: ${displayDept}</div>
                             </div>
                         </div>
-                        <button class="btn-reset" onclick="confirmPasswordReset('${u.charId}', '${u.name}')">RESETUJ HASŁO</button>
+                        <div class="action-buttons-group">
+                            <button class="btn-reset" onclick="confirmPasswordReset('${u.charId}', '${u.name}')">RESET</button>
+                            <button class="btn-delete-emp" onclick="confirmDeleteEmployee('${u.charId}', '${u.name}')">USUŃ</button>
+                        </div>
                     </div>`;
                 });
             }
@@ -358,7 +367,7 @@
     }
 
     function confirmPasswordReset(empCharId, empName) {
-        if(confirm(`UWAGA!\nCzy na pewno chcesz usunąć hasło użytkownika ${empName}?\n\nPracownik zostanie wylogowany, a jego nowym hasłem do pierwszego logowania stanie się ponownie jego krótki kod CharID.`)) {
+        if(confirm(`UWAGA!\nCzy na pewno chcesz zresetować hasło użytkownika ${empName}?\n\nPracownik zostanie wylogowany, a jego nowym hasłem do logowania stanie się jego kod CharID.`)) {
             db.ref(`Stores/${myStore}/Users/${empCharId}`).update({ password: empCharId }).then(() => {
                 document.getElementById('resetEmpName').innerText = empName;
                 document.getElementById('resetEmpCode').innerText = empCharId;
@@ -367,6 +376,14 @@
         }
     }
     function closeResetModal() { document.getElementById('resetSuccessModal').style.display = 'none'; }
+
+    function confirmDeleteEmployee(empCharId, empName) {
+        if(confirm(`OSTRZEŻENIE!\nCzy na pewno chcesz całkowicie USUNĄĆ pracownika ${empName} (Kod: ${empCharId}) z bazy sklepu?\n\nTej operacji nie można cofnąć, pracownik straci natychmiastowy dostęp do systemu.`)) {
+            db.ref(`Stores/${myStore}/Users/${empCharId}`).remove()
+                .then(() => alert(`Pracownik ${empName} został poprawnie usunięty z bazy.`))
+                .catch(err => alert("Błąd usuwania z bazy: " + err.message));
+        }
+    }
 
     // Logika dodawania nowego pracownika
     function openAddEmployeeModal() {

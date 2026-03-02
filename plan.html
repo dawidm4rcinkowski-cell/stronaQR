@@ -268,7 +268,11 @@
         
         <h3 style="color:#ffe800; margin-bottom:10px; font-size:0.8rem; text-align:center;">URLOPY I ŻYCZENIA EKIPY</h3>
         <div class="worker-grid" id="workerGrid"></div>
-        <button class="btn-gen" style="width:100%; margin-top:20px; height:45px; font-size: 0.8rem;" onclick="saveSettings()">ZAPISZ USTAWIENIA</button>
+        
+        <div style="display:flex; gap:10px; margin-top:20px;">
+            <button class="btn-settings" style="flex:1; height:45px; font-size: 0.8rem;" onclick="toggleModal(false)">ANULUJ</button>
+            <button class="btn-gen" style="flex:2; height:45px; font-size: 0.8rem;" onclick="saveSettings()">ZAPISZ USTAWIENIA</button>
+        </div>
     </div>
 </div>
 
@@ -341,6 +345,7 @@
             return rA - rB;
         });
 
+        // DOŁĄCZAMY DANE AVATARA
         employees = rawUsers.map(u => ({
             n: u.name, i: u.charId.charAt(0), p: u.dept === 'POK', dept: u.dept, displayDept: u.displayDept, charId: u.charId, avatar: u.avatar 
         }));
@@ -746,7 +751,7 @@
     }
 
     // ==========================================
-    // RENDER TABELI NA EKRANIE
+    // RENDER TABELI NA EKRANIE Z AWATARAMI
     // ==========================================
     function render() {
         if (employees.length === 0) return; 

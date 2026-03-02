@@ -258,6 +258,12 @@
                     <input id="sunHours" style="width:100%; background:#000; border:1px solid #ffe800; color:#fff; padding:10px; border-radius:5px; margin-top:5px; font-weight:bold; text-align:center;" value="10-18">
                 </div>
             </div>
+
+            <div style="border-top: 1px solid #333; padding-top: 15px; margin-top: 5px;">
+                <label style="font-size:0.65rem; color:#888; font-weight:bold;">SKRÓTY KLAWISZOWE W EDYCJI (oddziel przecinkiem):</label>
+                <input id="customShortcuts" style="width:100%; background:#000; border:1px solid #ffe800; color:#fff; padding:10px; border-radius:5px; margin-top:5px; font-weight:bold;" value="10-18, 12-20, 10-20, 13-20, 10-17, WOLNE, URLOP, Ż, SZK">
+                <span style="font-size:0.55rem; color:#666;">Te przyciski pojawią się w panelu ręcznej edycji dnia dla pracownika.</span>
+            </div>
         </div>
         
         <h3 style="color:#ffe800; margin-bottom:10px; font-size:0.8rem; text-align:center;">URLOPY I ŻYCZENIA EKIPY</h3>
@@ -271,16 +277,7 @@
         <h3 id="cellModalTitle" style="color:#ffe800; margin-bottom:15px; text-align:center;">EDYTUJ DZIEŃ</h3>
         
         <div class="edit-grid" id="modalShiftButtons">
-            <button class="btn-shift" onclick="setModalShift('10-18', this)">10-18</button>
-            <button class="btn-shift" onclick="setModalShift('12-20', this)">12-20</button>
-            <button class="btn-shift" onclick="setModalShift('10-20', this)">10-20</button>
-            <button class="btn-shift" onclick="setModalShift('13-20', this)">13-20</button>
-            <button class="btn-shift" onclick="setModalShift('10-17', this)">10-17</button>
-            <button class="btn-shift" onclick="setModalShift('WOLNE', this)">WOLNE</button>
-            <button class="btn-shift" onclick="setModalShift('URLOP', this)">URLOP</button>
-            <button class="btn-shift" onclick="setModalShift('Ż', this)">ŻYCZENIE</button>
-            <button class="btn-shift" onclick="setModalShift('SZK', this)">SZK</button>
-        </div>
+            </div>
         
         <input type="text" id="modalCustomShift" style="width:100%; background:#000; color:#fff; border:1px solid #444; padding:10px; text-align:center; font-weight:bold; margin-bottom:15px; border-radius:5px;" placeholder="Lub wpisz ręcznie (np. 8-16)" oninput="clearShiftButtons()">
         
@@ -306,7 +303,7 @@
     let finalDept = currentUser.dept; if (currentUser.isKss && currentUser.dept !== 'ME') finalDept = 'KSS';
     document.getElementById('sideName').innerText = `${currentUser.name} (${finalDept})`;
     
-    // WCZYTANIE AVATARA W BOKU (Sidebar)
+    // Wczytywanie awatara z local storage dla bocznego paska
     const sideAvatarHtml = currentUser.avatar ? `<img src="${currentUser.avatar}" style="width:100%; height:100%; object-fit:cover; border-radius:50%;">` : currentUser.charId.charAt(0);
     document.getElementById('sideAvatar').innerHTML = sideAvatarHtml;
     
@@ -324,7 +321,7 @@
     const tradingSundays2026 = ["1-25", "3-29", "4-26", "6-28", "8-30", "12-13", "12-20"]; 
 
     let localPlanData = {};
-    let localPlanMeta = { norm: 160, locked: false, globalShifts: "10-18, 12-20, 10-20", satHours: "10-20", sunHours: "10-18" };
+    let localPlanMeta = { norm: 160, locked: false, globalShifts: "10-18, 12-20, 10-20", satHours: "10-20", sunHours: "10-18", customShortcuts: "10-18, 12-20, 10-20, 13-20, 10-17, WOLNE, URLOP, Ż, SZK" };
     let employees = [];
     let planListener = null;
     let metaListener = null;
@@ -344,7 +341,6 @@
             return rA - rB;
         });
 
-        // DOŁĄCZAMY DANE AVATARA
         employees = rawUsers.map(u => ({
             n: u.name, i: u.charId.charAt(0), p: u.dept === 'POK', dept: u.dept, displayDept: u.displayDept, charId: u.charId, avatar: u.avatar 
         }));
@@ -367,12 +363,15 @@
             const meta = snap.val() || {};
             localPlanMeta.norm = meta.norm || 160; localPlanMeta.locked = meta.locked || false;
             localPlanMeta.globalShifts = meta.globalShifts || "10-18, 12-20, 10-20";
-            localPlanMeta.satHours = meta.satHours || "10-20"; localPlanMeta.sunHours = meta.sunHours || "10-18";
+            localPlanMeta.satHours = meta.satHours || "10-20"; 
+            localPlanMeta.sunHours = meta.sunHours || "10-18";
+            localPlanMeta.customShortcuts = meta.customShortcuts || "10-18, 12-20, 10-20, 13-20, 10-17, WOLNE, URLOP, Ż, SZK";
             
             if(document.getElementById('hourNormInput')) document.getElementById('hourNormInput').value = localPlanMeta.norm;
             if(document.getElementById('globalShifts')) document.getElementById('globalShifts').value = localPlanMeta.globalShifts;
             if(document.getElementById('satHours')) document.getElementById('satHours').value = localPlanMeta.satHours;
             if(document.getElementById('sunHours')) document.getElementById('sunHours').value = localPlanMeta.sunHours;
+            if(document.getElementById('customShortcuts')) document.getElementById('customShortcuts').value = localPlanMeta.customShortcuts;
             
             employees.forEach(e => {
                 localPlanMeta[`set_z_${e.charId}`] = meta[`set_z_${e.charId}`] || "";
@@ -403,7 +402,20 @@
         let shift = getShiftOnly(charId, day); let roles = getRolesOnly(charId, day);
         document.getElementById('cellModalTitle').innerText = `${empName} - DZIEŃ ${day}`;
         document.getElementById('modalCustomShift').value = shift;
-        document.querySelectorAll('.btn-shift').forEach(b => { b.classList.remove('active'); if (b.innerText === shift) b.classList.add('active'); });
+        
+        // DYNAMICZNE GENEROWANIE PRZYCISKÓW
+        const btnContainer = document.getElementById('modalShiftButtons');
+        btnContainer.innerHTML = '';
+        const shortcuts = (localPlanMeta.customShortcuts || "10-18, 12-20, 10-20, 13-20, 10-17, WOLNE, URLOP, Ż, SZK").split(',').map(s => s.trim()).filter(s => s);
+        
+        shortcuts.forEach(s => {
+            const btn = document.createElement('button');
+            btn.className = `btn-shift ${s === shift ? 'active' : ''}`;
+            btn.innerText = s;
+            btn.onclick = function() { setModalShift(s, this); };
+            btnContainer.appendChild(btn);
+        });
+
         document.getElementById('modalRoleK').checked = roles.includes('K'); document.getElementById('modalRoleD').checked = roles.includes('D'); document.getElementById('modalRoleS').checked = roles.includes('S');
         document.getElementById('cellEditModal').style.display = 'flex';
     }
@@ -542,7 +554,7 @@
                 toWork.forEach(w => memorySchedule[w.e.charId][d] = w.shift);
             });
 
-            // 2. DNI ROBOCZE
+            // 2. DNI ROBOCZE Z MATEMATYKĄ POK
             for(let d=1; d<=daysInMonth; d++) {
                 if(new Date(year, curM, d).getDay() === 6 || new Date(year, curM, d).getDay() === 0 || !isWorkDay(d)) continue;
                 
@@ -734,7 +746,7 @@
     }
 
     // ==========================================
-    // RENDER TABELI NA EKRANIE Z AWATARAMI
+    // RENDER TABELI NA EKRANIE
     // ==========================================
     function render() {
         if (employees.length === 0) return; 
@@ -827,6 +839,7 @@
         metaUpdates['globalShifts'] = document.getElementById('globalShifts').value;
         metaUpdates['satHours'] = document.getElementById('satHours').value;
         metaUpdates['sunHours'] = document.getElementById('sunHours').value;
+        metaUpdates['customShortcuts'] = document.getElementById('customShortcuts').value;
 
         employees.forEach(e => { for (let d = 1; d <= daysInMonth; d++) { let s = getShiftOnly(e.charId, d); if (s === "URLOP" || s === "Ż") { planUpdates[`${e.charId}_${d}`] = null; } } });
 

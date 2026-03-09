@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Media Expert - KWT</title>
+    
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='48' fill='%23ffe800'/><path d='M75.6,24.4c-9.1-9.1-23.9-9.1-33,0c-7.3,7.3-8.8,17.7-4.7,26.5L12.4,76.4c-1.6,1.6-1.6,4.1,0,5.7l5.5,5.5c1.6,1.6,4.1,1.6,5.7,0l25.5-25.5c8.8,4.1,19.2,2.6,26.5-4.7C84.7,48.3,84.7,33.5,75.6,24.4z M66.8,41.2c-3.1,3.1-8.2,3.1-11.3,0s-3.1-8.2,0-11.3s8.2-3.1,11.3,0S69.9,38.1,66.8,41.2z' fill='%23000'/></svg>">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&display=swap" rel="stylesheet">
     
@@ -11,14 +12,9 @@
     <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-database-compat.js"></script>
     
     <script>
-        // SPRAWDZENIE LOGOWANIA
         const currentUser = JSON.parse(localStorage.getItem('currentUser'));
         const myStore = localStorage.getItem('myStore');
-        
-        if (!currentUser || !myStore) { 
-            window.location.href = 'login.html'; 
-        }
-        
+        if (!currentUser || !myStore) { window.location.href = 'login.html'; }
         const isManagerOrKss = (currentUser.dept === 'ME' || currentUser.isKss);
 
         const firebaseConfig = {
@@ -66,9 +62,14 @@
 
         .content { flex-grow: 1; overflow-y: auto; padding: 30px 20px; position: relative; }
         .content-inner { max-width: 1400px; margin: 0 auto; }
-        .page-title { font-size: 2rem; font-weight: 900; margin-bottom: 30px; text-transform: uppercase; text-align: center; }
+        .page-title { font-size: 2rem; font-weight: 900; margin-bottom: 10px; text-transform: uppercase; text-align: center; }
         .page-title span { color: #ffe800; }
         
+        /* PRZYCISK RESETOWANIA DLA KIEROWNIKA */
+        .admin-controls-area { display: flex; justify-content: center; margin-bottom: 30px; }
+        .btn-reset-all { background: #f44; color: #fff; border: 2px solid #f44; padding: 12px 25px; border-radius: 12px; font-weight: 900; cursor: pointer; transition: 0.3s; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px; box-shadow: 0 4px 15px rgba(255, 68, 68, 0.2); }
+        .btn-reset-all:hover { background: #000; color: #f44; }
+
         .dept-tabs { display: flex; gap: 15px; margin-bottom: 40px; flex-wrap: wrap; justify-content: center; }
         .tab-btn { background: #151515; border: 1px solid #333; color: #fff; padding: 12px 30px; border-radius: 12px; font-weight: 900; cursor: pointer; transition: 0.3s; font-size: 0.9rem; flex: 1; max-width: 200px; }
         .tab-btn.active { background: #ffe800; color: #000; border-color: #ffe800; }
@@ -134,6 +135,10 @@
     <div class="content-inner">
         <h1 class="page-title">KONTROLA WYSTAWIONYCH <span>TOWARÓW (KWT)</span></h1>
         
+        <div class="admin-controls-area" id="adminControlsArea" style="display: none;">
+            <button class="btn-reset-all" onclick="resetAllKWT()">🔄 ZRESETUJ CAŁE KWT NA NOWY TYDZIEŃ</button>
+        </div>
+        
         <div class="dept-tabs">
             <button class="tab-btn active" onclick="filterKwtDept('it', this)">DZIAŁ IT</button>
             <button class="tab-btn" onclick="filterKwtDept('rtv', this)">DZIAŁ RTV</button>
@@ -162,7 +167,13 @@
     const sideAvatarHtml = currentUser.avatar ? `<img src="${currentUser.avatar}" style="width:100%; height:100%; object-fit:cover; border-radius:50%;">` : currentUser.charId.charAt(0);
     document.getElementById('sideAvatar').innerHTML = sideAvatarHtml;
     
-    if(!isManagerOrKss) { document.getElementById('navInwaKSS').style.display = 'none'; }
+    if(!isManagerOrKss) { 
+        document.getElementById('navInwaKSS').style.display = 'none'; 
+    } else {
+        // POKAZUJEMY PRZYCISK RESETU KWT DLA KIEROWNICTWA
+        document.getElementById('adminControlsArea').style.display = 'flex';
+    }
+    
     function toggleNav() { document.getElementById('sidebar').classList.toggle('active'); document.getElementById('overlay').classList.toggle('active'); }
     function logout() { localStorage.removeItem('currentUser'); window.location.href = 'login.html'; }
 
@@ -298,6 +309,26 @@
         const timeStr = now.toLocaleDateString('pl-PL') + ' | ' + now.toLocaleTimeString('pl-PL', {hour: '2-digit', minute:'2-digit'});
         
         db.ref(`Stores/${myStore}/KWT/${id}`).set({ status: 'done', time: timeStr, user: currentUser.name });
+    }
+
+    // --- FUNKCJA RESETOWANIA CAŁEGO KWT (Tylko dla Kierownika) ---
+    function resetAllKWT() {
+        if(confirm("🛑 OSTRZEŻENIE 🛑\n\nCzy na pewno chcesz bezpowrotnie usunąć i ZRESETOWAĆ wszystkie statusy KWT ze wszystkich działów?\nZrób to tylko, jeśli zaczynacie nowy tydzień kontroli!")) {
+            
+            document.getElementById('loadingData').style.display = 'flex';
+            
+            db.ref(`Stores/${myStore}/KWT`).remove().then(() => {
+                document.getElementById('loadingData').style.display = 'none';
+                document.getElementById('globalPopupTitle').innerText = "KWT ZRESETOWANE";
+                document.getElementById('globalPopupMsg').innerText = "Wyczyszczono statusy KWT ze wszystkich działów. Możecie zaczynać nowy tydzień.";
+                document.getElementById('popupBox').style.borderColor = '#0a0';
+                document.getElementById('globalPopupTitle').style.color = '#0a0';
+                document.getElementById('globalNotificationModal').style.display = 'flex';
+            }).catch(err => {
+                document.getElementById('loadingData').style.display = 'none';
+                alert("Błąd podczas resetowania: " + err.message);
+            });
+        }
     }
 
     db.ref(`Stores/${myStore}/Notifications`).on('value', snap => {

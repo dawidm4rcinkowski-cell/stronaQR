@@ -4,17 +4,20 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Media Expert - Logowanie</title>
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&display=swap" rel="stylesheet">
+    
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='48' fill='%23ffe800'/><path d='M75.6,24.4c-9.1-9.1-23.9-9.1-33,0c-7.3,7.3-8.8,17.7-4.7,26.5L12.4,76.4c-1.6,1.6-1.6,4.1,0,5.7l5.5,5.5c1.6,1.6,4.1,1.6,5.7,0l25.5-25.5c8.8,4.1,19.2,2.6,26.5-4.7C84.7,48.3,84.7,33.5,75.6,24.4z M66.8,41.2c-3.1,3.1-8.2,3.1-11.3,0s-3.1-8.2,0-11.3s8.2-3.1,11.3,0S69.9,38.1,66.8,41.2z' fill='%23000'/></svg>">
+    
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&display=swap" rel="stylesheet">
+    
     <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-database-compat.js"></script>
     
     <script>
-        // INICJALIZACJA BAZY DANYCH
+        // INICJALIZACJA FIREBASE
         const firebaseConfig = {
             apiKey: "AIzaSyD0N6Bjyzs34piOoujEn9mxKir8LDGdD2k",
             authDomain: "expert-tool.firebaseapp.com",
-            databaseURL: "https://expert-tool-default-rtdb.europe-west1.firebasedatabase.app/", 
+            databaseURL: "https://expert-tool-default-rtdb.europe-west1.firebasedatabase.app/",
             projectId: "expert-tool",
             storageBucket: "expert-tool.firebasestorage.app",
             messagingSenderId: "880843997228",
@@ -23,293 +26,197 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
     </script>
-    
+
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Montserrat', sans-serif; }
-        body { background: #080808; color: white; display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 20px; overflow-y: auto; }
-        ::-webkit-scrollbar { width: 10px; } ::-webkit-scrollbar-track { background: #111; } ::-webkit-scrollbar-thumb { background: #ffe800; border-radius: 5px; }
-
-        .container { background: #111; border: 2px solid #222; border-radius: 20px; width: 100%; max-width: 450px; padding: 40px; box-shadow: 0 15px 40px rgba(0,0,0,0.8); transition: 0.3s; }
-        .container.wide { max-width: 800px; }
         
-        .logo-box { text-align: center; margin-bottom: 30px; }
-        .logo-box h1 { font-weight: 900; font-size: 2.2rem; color: #fff; letter-spacing: 2px; }
-        .logo-box h1 span { color: #000; background: #ffe800; padding: 0 10px; border-radius: 5px; }
-        .logo-box p { color: #666; font-weight: 700; font-size: 0.8rem; margin-top: 5px; letter-spacing: 2px; text-transform: uppercase; }
+        body {
+            background-color: #080808;
+            /* NOWE TŁO - SUBTELNA SIATKA + ŻÓŁTY BLASK */
+            background-image: 
+                radial-gradient(circle at 50% 50%, rgba(255, 232, 0, 0.08) 0%, transparent 60%),
+                linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+            background-size: 100% 100%, 40px 40px, 40px 40px;
+            background-position: center center;
+            
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            overflow: hidden;
+            flex-direction: column;
+        }
 
-        .input-group { margin-bottom: 20px; display: flex; flex-direction: column; gap: 8px; }
-        .input-group label { font-size: 0.8rem; color: #888; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; }
-        .form-input { background: #0a0a0a; border: 2px solid #333; color: #fff; padding: 15px; border-radius: 10px; font-size: 1rem; font-weight: 700; outline: none; transition: 0.3s; width: 100%; }
-        .form-input:focus { border-color: #ffe800; box-shadow: 0 0 15px rgba(255, 232, 0, 0.2); }
+        .login-wrapper {
+            width: 100%;
+            max-width: 400px;
+            padding: 20px;
+            z-index: 10;
+        }
+
+        .login-box {
+            background: #0a0a0a;
+            border: 2px solid #222;
+            padding: 40px 30px;
+            border-radius: 20px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.9), inset 0 0 20px rgba(255,232,0,0.02);
+            position: relative;
+            text-align: center;
+            transition: 0.3s;
+        }
         
-        .btn-main { width: 100%; background: #ffe800; color: #000; border: none; padding: 18px; font-weight: 900; border-radius: 10px; cursor: pointer; font-size: 1rem; transition: 0.3s; text-transform: uppercase; letter-spacing: 2px; margin-top: 10px; }
-        .btn-main:hover { transform: translateY(-3px); box-shadow: 0 10px 25px rgba(255, 232, 0, 0.3); }
+        .login-box:hover {
+            border-color: #ffe800;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.9), 0 0 30px rgba(255,232,0,0.1);
+        }
 
-        .error-msg { background: rgba(255, 68, 68, 0.1); border: 1px solid #f44; color: #f44; padding: 12px; border-radius: 8px; font-weight: bold; font-size: 0.85rem; text-align: center; margin-bottom: 20px; display: none; }
+        .logo { color: #fff; font-weight: 900; font-size: 1.8rem; text-transform: uppercase; letter-spacing: 2px; display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 30px; }
+        .logo span { background: #ffe800; color: #000; padding: 2px 10px; border-radius: 5px; }
 
-        /* VIEW TOGGLES */
-        .view { display: none; }
-        .view.active { display: block; animation: fadeIn 0.4s ease; }
-        @keyframes fadeIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+        .input-group { margin-bottom: 20px; text-align: left; }
+        .input-group label { font-size: 0.75rem; color: #888; font-weight: 900; letter-spacing: 1px; margin-bottom: 8px; display: block; text-transform: uppercase; }
+        .form-input { width: 100%; background: #111; border: 1px solid #333; color: #fff; padding: 15px; border-radius: 10px; font-size: 1rem; font-weight: bold; outline: none; transition: 0.3s; text-transform: uppercase; }
+        .form-input:focus { border-color: #ffe800; background: #151515; }
+        .form-input::placeholder { color: #444; font-weight: normal; text-transform: none; }
 
-        /* KREATOR SKLEPU */
-        .setup-title { color: #ffe800; font-size: 1.2rem; font-weight: 900; margin-bottom: 15px; text-transform: uppercase; border-bottom: 1px solid #333; padding-bottom: 10px; }
-        .crew-row { display: grid; grid-template-columns: 2fr 1fr 1.5fr auto auto; gap: 10px; align-items: center; margin-bottom: 10px; background: #0a0a0a; padding: 10px; border-radius: 8px; border: 1px solid #222; }
-        .crew-row input, .crew-row select { padding: 10px; background: #000; border: 1px solid #333; color: #fff; border-radius: 5px; outline: none; font-weight: bold; }
-        .crew-row input:focus, .crew-row select:focus { border-color: #ffe800; }
-        .btn-add { background: #333; color: #fff; border: 1px solid #555; padding: 10px; border-radius: 8px; font-weight: bold; cursor: pointer; margin-bottom: 20px; }
-        .btn-add:hover { background: #555; }
-        .btn-remove { background: #a00; color: #fff; border: none; padding: 10px; border-radius: 5px; cursor: pointer; font-weight: bold; }
+        .btn-login { width: 100%; background: #ffe800; color: #000; border: none; padding: 16px; font-weight: 900; border-radius: 10px; cursor: pointer; text-transform: uppercase; margin-top: 10px; transition: 0.3s; font-size: 1rem; letter-spacing: 1px; }
+        .btn-login:hover:not(:disabled) { transform: translateY(-3px); box-shadow: 0 10px 20px rgba(255, 232, 0, 0.3); }
+        .btn-login:disabled { background: #333; color: #666; cursor: not-allowed; }
 
-        /* WYNIK GENERATORA HASEŁ */
-        .pwd-list { max-height: 400px; overflow-y: auto; background: #0a0a0a; padding: 15px; border-radius: 10px; border: 1px solid #333; margin-bottom: 20px; }
-        .pwd-item { display: flex; justify-content: space-between; padding: 10px; border-bottom: 1px solid #222; }
-        .pwd-item span { color: #888; font-weight: bold; }
-        .pwd-item strong { color: #ffe800; font-weight: 900; letter-spacing: 1px; }
+        .msg-box { padding: 12px; border-radius: 8px; font-size: 0.85rem; font-weight: bold; text-align: center; display: none; margin-top: 20px; }
+        .msg-error { background: rgba(255, 68, 68, 0.1); border: 1px solid #f44; color: #f44; }
+        .msg-success { background: rgba(0, 170, 0, 0.1); border: 1px solid #0a0; color: #0a0; }
+
+        .footer-text { margin-top: 30px; font-size: 0.65rem; color: #555; font-weight: bold; letter-spacing: 1px; text-transform: uppercase; text-align: center; }
     </style>
 </head>
 <body>
 
-<div class="container" id="mainContainer">
-    <div class="logo-box">
-        <h1>EXPERT <span>TOOL</span></h1>
-        <p>System Centralny Sklepu</p>
-    </div>
-
-    <div id="viewLogin" class="view active">
-        <div class="error-msg" id="loginError"></div>
-        <div class="input-group">
-            <label>Numer Sklepu</label>
-            <input type="text" id="loginStore" class="form-input" placeholder="np. S878">
-        </div>
-        <div class="input-group">
-            <label>CharID (Login)</label>
-            <input type="text" id="loginCharId" class="form-input" placeholder="np. M123 lub ADMIN">
-        </div>
-        <div class="input-group">
-            <label>Hasło</label>
-            <input type="password" id="loginPass" class="form-input" placeholder="••••••••">
-        </div>
-        <button class="btn-main" onclick="attemptLogin()">Zaloguj się</button>
-    </div>
-
-    <div id="viewChangePwd" class="view">
-        <div class="setup-title">Pierwsze logowanie</div>
-        <p style="color:#888; font-size:0.85rem; margin-bottom:20px;">Witaj <span id="welcomeName" style="color:#fff; font-weight:bold;"></span>! Ze względów bezpieczeństwa ustaw własne hasło.</p>
-        <div class="error-msg" id="changePwdError"></div>
-        <div class="input-group">
-            <label>Nowe Hasło</label>
-            <input type="password" id="newPwd1" class="form-input" placeholder="Min. 6 znaków">
-        </div>
-        <div class="input-group">
-            <label>Powtórz Nowe Hasło</label>
-            <input type="password" id="newPwd2" class="form-input" placeholder="Potwierdź hasło">
-        </div>
-        <button class="btn-main" onclick="saveNewPassword()">Zapisz i wejdź</button>
-    </div>
-
-    <div id="viewSetup" class="view">
-        <div class="setup-title">Kreator Sklepu (Inicjalizacja Bazy)</div>
-        <p style="color:#888; font-size:0.8rem; margin-bottom:20px;">Zbuduj strukturę sklepu. Twoje dane zostaną zapisane w bezpiecznej chmurze Firebase.</p>
-        
-        <div style="display:flex; gap:15px;">
-            <div class="input-group" style="flex:1;">
-                <label>Sklep (S)</label>
-                <input type="text" id="setupSNum" class="form-input" placeholder="np. S878">
+    <div class="login-wrapper">
+        <div class="login-box">
+            <div class="logo">EXPERT <span>TOOL</span></div>
+            
+            <div class="input-group">
+                <label>Numer Sklepu</label>
+                <input type="text" class="form-input" id="storeNum" placeholder="np. S255" autocomplete="off">
             </div>
-            <div class="input-group" style="flex:2;">
-                <label>Miejscowość</label>
-                <input type="text" id="setupCity" class="form-input" placeholder="np. Grodzisk Wlkp.">
+            
+            <div class="input-group">
+                <label>Twój Kod (CharID)</label>
+                <input type="text" class="form-input" id="charId" placeholder="np. TOMEK" autocomplete="off">
             </div>
-        </div>
+            
+            <div class="input-group" style="margin-bottom: 10px;">
+                <label>Hasło</label>
+                <input type="password" class="form-input" id="password" placeholder="Wpisz hasło" style="text-transform: none;">
+            </div>
 
-        <div class="setup-title" style="margin-top:10px;">Główny Kierownik ME</div>
-        <div style="display:flex; gap:15px; margin-bottom: 20px;">
-            <input type="text" id="mgrName" class="form-input" placeholder="Imię" style="flex:2;">
-            <input type="text" id="mgrCharId" class="form-input" placeholder="CharID (Twój stały login)" style="flex:1;">
-            <input type="password" id="mgrPass" class="form-input" placeholder="Nowe Hasło" style="flex:1;">
-        </div>
+            <div id="loginMsg" class="msg-box"></div>
 
-        <div class="setup-title">Ekipa Sklepu</div>
-        <div id="crewContainer"></div>
-        <button class="btn-add" onclick="addCrewRow()">+ Dodaj Pracownika</button>
+            <button class="btn-login" id="loginBtn" onclick="attemptLogin()">ZALOGUJ SIĘ</button>
+        </div>
         
-        <div class="error-msg" id="setupError"></div>
-        <button class="btn-main" onclick="finishSetup()" id="btnGenerate">Generuj Bazę Danych</button>
+        <div class="footer-text">
+            System Zarządzania Sklepem &copy; 2026
+        </div>
     </div>
 
-    <div id="viewPasswords" class="view">
-        <div class="setup-title" style="color:#0a0;">Sukces! Chmura aktywna.</div>
-        <p style="color:#888; font-size:0.85rem; margin-bottom:15px;">Rozdaj poniższe jednorazowe hasła swojej ekipie. Będą musieli je zmienić przy pierwszym wejściu.</p>
-        <div class="pwd-list" id="pwdListContainer"></div>
-        <button class="btn-main" onclick="goToLogin()">Zakończ i Zaloguj się</button>
-    </div>
-</div>
-
-<script>
-    window.onload = () => { 
-        // Weryfikacja czy użytkownik jest zalogowany i ma przypisany sklep - zapobiega pętli
-        if(localStorage.getItem('currentUser') && localStorage.getItem('myStore')) { 
-            window.location.href = 'index.html'; 
-        } else {
-            localStorage.removeItem('currentUser');
-        }
-
-        // Uzupełnij sklep jeśli tablet go zapamiętał
-        let savedStore = localStorage.getItem('myStore');
-        if(savedStore) document.getElementById('loginStore').value = savedStore;
-    }
-
-    function switchView(viewId, makeWide = false) {
-        document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
-        document.getElementById(viewId).classList.add('active');
-        const cont = document.getElementById('mainContainer');
-        makeWide ? cont.classList.add('wide') : cont.classList.remove('wide');
-    }
-
-    async function attemptLogin() {
-        const storeId = document.getElementById('loginStore').value.trim().toUpperCase();
-        const charId = document.getElementById('loginCharId').value.trim().toUpperCase();
-        const pass = document.getElementById('loginPass').value.trim();
-        const err = document.getElementById('loginError');
-
-        if(!charId || !pass) { err.innerText = "Wpisz CharID i Hasło!"; err.style.display = 'block'; return; }
-
-        // Trigger instalatora
-        if(charId === 'ADMIN' && pass === 'Welcome1!') {
-            switchView('viewSetup', true);
-            if(storeId) document.getElementById('setupSNum').value = storeId;
-            addCrewRow(); return;
-        }
-
-        if(!storeId) { err.innerText = "Wpisz numer swojego sklepu!"; err.style.display = 'block'; return; }
-
-        try {
-            // Łączymy się z FIREBASE
-            const snapshot = await db.ref(`Stores/${storeId}/Users/${charId}`).once('value');
-            const user = snapshot.val();
-
-            if(user && user.password === pass) {
-                // Zapamiętanie na jakim sklepie działa ten tablet
-                localStorage.setItem('myStore', storeId); 
-                
-                if(user.isFirstLogin) {
-                    sessionStorage.setItem('tempCharId', charId);
-                    document.getElementById('welcomeName').innerText = user.name;
-                    switchView('viewChangePwd');
-                } else {
-                    localStorage.setItem('currentUser', JSON.stringify({ charId: charId, name: user.name, dept: user.dept, isKss: user.isKss }));
-                    window.location.href = 'index.html';
-                }
-            } else {
-                err.innerText = "Nieprawidłowy Sklep, CharID lub Hasło!"; err.style.display = 'block';
+    <script>
+        // Sprawdź czy ktoś nie jest już zalogowany, jeśli tak - przerzuć od razu na główną stronę
+        window.onload = () => {
+            if(localStorage.getItem('currentUser') && localStorage.getItem('myStore')) {
+                window.location.href = 'index.html';
             }
-        } catch(error) {
-            console.error(error);
-            err.innerText = "Błąd połączenia z bazą chmurową!"; err.style.display = 'block';
-        }
-    }
+        };
 
-    async function saveNewPassword() {
-        const p1 = document.getElementById('newPwd1').value;
-        const p2 = document.getElementById('newPwd2').value;
-        const err = document.getElementById('changePwdError');
-
-        if(p1.length < 6) { err.innerText = "Hasło musi mieć min. 6 znaków."; err.style.display = 'block'; return; }
-        if(p1 !== p2) { err.innerText = "Hasła nie są identyczne!"; err.style.display = 'block'; return; }
-
-        const charId = sessionStorage.getItem('tempCharId');
-        const myStore = localStorage.getItem('myStore');
-
-        try {
-            // Zapis nowego hasła w FIREBASE
-            await db.ref(`Stores/${myStore}/Users/${charId}`).update({
-                password: p1,
-                isFirstLogin: false
-            });
-
-            // Pobierz zaktualizowanego użytkownika by go zalogować
-            const snap = await db.ref(`Stores/${myStore}/Users/${charId}`).once('value');
-            const user = snap.val();
-
-            localStorage.setItem('currentUser', JSON.stringify({ charId: charId, name: user.name, dept: user.dept, isKss: user.isKss }));
-            window.location.href = 'index.html';
-        } catch(e) {
-            err.innerText = "Błąd serwera. Spróbuj ponownie."; err.style.display = 'block';
-        }
-    }
-
-    function addCrewRow() {
-        const cont = document.getElementById('crewContainer');
-        const div = document.createElement('div');
-        div.className = 'crew-row';
-        div.innerHTML = `
-            <input type="text" placeholder="Imię (np. Dawid)" class="c-name">
-            <input type="text" placeholder="CharID" class="c-char">
-            <select class="c-dept">
-                <option value="IT">IT</option><option value="RTV">RTV</option><option value="AGD">AGD</option><option value="POK">POK</option>
-            </select>
-            <label style="color:#fff; font-size:0.8rem; cursor:pointer;"><input type="checkbox" class="c-kss"> Jest KSS</label>
-            <button class="btn-remove" onclick="this.parentElement.remove()">X</button>
-        `;
-        cont.appendChild(div);
-    }
-
-    function generateRandomPassword() { return Math.random().toString(36).slice(-6).toUpperCase(); }
-
-    async function finishSetup() {
-        const sNum = document.getElementById('setupSNum').value.trim().toUpperCase();
-        const city = document.getElementById('setupCity').value.trim();
-        const mgrName = document.getElementById('mgrName').value.trim();
-        const mgrChar = document.getElementById('mgrCharId').value.trim().toUpperCase();
-        const mgrPass = document.getElementById('mgrPass').value.trim();
-        const err = document.getElementById('setupError');
-        const btn = document.getElementById('btnGenerate');
-
-        if(!sNum || !city || !mgrName || !mgrChar || !mgrPass) {
-            err.innerText = "Uzupełnij dane sklepu i Kierownika na samej górze!"; err.style.display = 'block'; return;
-        }
-
-        err.style.display = 'none';
-        btn.innerText = "Trwa zapis do chmury...";
-        btn.disabled = true;
-        
-        let updates = {};
-        updates[mgrChar] = { name: mgrName, dept: 'ME', isKss: true, password: mgrPass, isFirstLogin: false };
-
-        let generatedPasswordsHtml = "";
-        
-        document.querySelectorAll('.crew-row').forEach(row => {
-            const name = row.querySelector('.c-name').value.trim();
-            const charId = row.querySelector('.c-char').value.trim().toUpperCase();
-            const isKss = row.querySelector('.c-kss').checked;
-            const finalDept = isKss ? 'KSS' : row.querySelector('.c-dept').value;
-
-            if(name && charId) {
-                const tempPass = generateRandomPassword();
-                updates[charId] = { name: name, dept: finalDept, isKss: isKss, password: tempPass, isFirstLogin: true };
-                generatedPasswordsHtml += `<div class="pwd-item"><span>${name} (${charId}) - ${finalDept}</span> <strong>${tempPass}</strong></div>`;
+        // Obsługa Entera
+        document.addEventListener("keydown", function(event) {
+            if (event.key === "Enter") {
+                attemptLogin();
             }
         });
 
-        try {
-            // WYSYŁANIE DANYCH DO FIREBASE BAZY
-            await db.ref(`Stores/${sNum}/Setup`).set({ sNumber: sNum, city: city });
-            await db.ref(`Stores/${sNum}/Users`).set(updates);
+        async function attemptLogin() {
+            let storeNum = document.getElementById('storeNum').value.trim().toUpperCase().replace(/\s+/g, '');
+            let charId = document.getElementById('charId').value.trim().toUpperCase().replace(/\s+/g, '');
+            let password = document.getElementById('password').value.trim();
+            let msgBox = document.getElementById('loginMsg');
+            let btn = document.getElementById('loginBtn');
 
-            localStorage.setItem('myStore', sNum); 
+            msgBox.style.display = 'block';
+            msgBox.className = 'msg-box';
 
-            document.getElementById('pwdListContainer').innerHTML = generatedPasswordsHtml;
-            switchView('viewPasswords', false);
-        } catch(e) {
-            console.error(e);
-            err.innerText = "Nie można zapisać danych w chmurze! Sprawdź reguły bazy danych."; err.style.display = 'block';
-            btn.innerText = "Generuj Bazę Danych";
-            btn.disabled = false;
+            if (!storeNum || !charId || !password) {
+                msgBox.classList.add('msg-error');
+                msgBox.innerText = "Uzupełnij wszystkie pola!";
+                return;
+            }
+
+            btn.disabled = true;
+            btn.innerText = "WERYFIKACJA...";
+
+            try {
+                // 1. Sprawdzenie czy sklep istnieje
+                const storeSnap = await db.ref(`Stores/${storeNum}`).once('value');
+                if (!storeSnap.exists()) {
+                    msgBox.classList.add('msg-error');
+                    msgBox.innerText = "Taki sklep nie istnieje w bazie!";
+                    btn.disabled = false;
+                    btn.innerText = "ZALOGUJ SIĘ";
+                    return;
+                }
+
+                // 2. Sprawdzenie czy użytkownik istnieje w tym sklepie
+                const userSnap = await db.ref(`Stores/${storeNum}/Users/${charId}`).once('value');
+                if (!userSnap.exists()) {
+                    msgBox.classList.add('msg-error');
+                    msgBox.innerText = "Błędny Kod Logowania (CharID)!";
+                    btn.disabled = false;
+                    btn.innerText = "ZALOGUJ SIĘ";
+                    return;
+                }
+
+                const userData = userSnap.val();
+
+                // 3. Sprawdzenie hasła
+                if (userData.password !== password) {
+                    msgBox.classList.add('msg-error');
+                    msgBox.innerText = "Podano błędne hasło!";
+                    btn.disabled = false;
+                    btn.innerText = "ZALOGUJ SIĘ";
+                    return;
+                }
+
+                // SUKCES - Zapis do pamięci przeglądarki
+                msgBox.classList.add('msg-success');
+                msgBox.innerText = "Logowanie poprawne!";
+                
+                // Usuwamy pole z hasłem przed zapisem lokalnym dla bezpieczeństwa
+                const secureUserData = {
+                    charId: userData.charId,
+                    name: userData.name,
+                    dept: userData.dept,
+                    isKss: userData.isKss || false,
+                    avatar: userData.avatar || ""
+                };
+
+                localStorage.setItem('myStore', storeNum);
+                localStorage.setItem('currentUser', JSON.stringify(secureUserData));
+
+                // Przekierowanie
+                setTimeout(() => {
+                    window.location.href = 'index.html';
+                }, 500);
+
+            } catch (error) {
+                msgBox.classList.add('msg-error');
+                msgBox.innerText = "Błąd połączenia z bazą danych!";
+                btn.disabled = false;
+                btn.innerText = "ZALOGUJ SIĘ";
+            }
         }
-    }
-
-    function goToLogin() { window.location.reload(); }
-</script>
+    </script>
 </body>
 </html>

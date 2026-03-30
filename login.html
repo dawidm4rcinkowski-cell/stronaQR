@@ -6,14 +6,12 @@
     <title>Media Expert - Logowanie</title>
     
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='48' fill='%23ffe800'/><path d='M75.6,24.4c-9.1-9.1-23.9-9.1-33,0c-7.3,7.3-8.8,17.7-4.7,26.5L12.4,76.4c-1.6,1.6-1.6,4.1,0,5.7l5.5,5.5c1.6,1.6,4.1,1.6,5.7,0l25.5-25.5c8.8,4.1,19.2,2.6,26.5-4.7C84.7,48.3,84.7,33.5,75.6,24.4z M66.8,41.2c-3.1,3.1-8.2,3.1-11.3,0s-3.1-8.2,0-11.3s8.2-3.1,11.3,0S69.9,38.1,66.8,41.2z' fill='%23000'/></svg>">
-    
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&display=swap" rel="stylesheet">
     
     <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-database-compat.js"></script>
     
     <script>
-        // INICJALIZACJA FIREBASE
         const firebaseConfig = {
             apiKey: "AIzaSyD0N6Bjyzs34piOoujEn9mxKir8LDGdD2k",
             authDomain: "expert-tool.firebaseapp.com",
@@ -32,49 +30,20 @@
         
         body {
             background-color: #080808;
-            /* NOWE TŁO - SUBTELNA SIATKA + ŻÓŁTY BLASK */
             background-image: 
                 radial-gradient(circle at 50% 50%, rgba(255, 232, 0, 0.08) 0%, transparent 60%),
                 linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
                 linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
             background-size: 100% 100%, 40px 40px, 40px 40px;
             background-position: center center;
-            
-            color: white;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            min-height: 100vh;
-            overflow: hidden;
-            flex-direction: column;
+            color: white; display: flex; align-items: center; justify-content: center; min-height: 100vh; overflow: hidden; flex-direction: column;
         }
 
-        .login-wrapper {
-            width: 100%;
-            max-width: 400px;
-            padding: 20px;
-            z-index: 10;
-        }
-
-        .login-box {
-            background: #0a0a0a;
-            border: 2px solid #222;
-            padding: 40px 30px;
-            border-radius: 20px;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.9), inset 0 0 20px rgba(255,232,0,0.02);
-            position: relative;
-            text-align: center;
-            transition: 0.3s;
-        }
-        
-        .login-box:hover {
-            border-color: #ffe800;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.9), 0 0 30px rgba(255,232,0,0.1);
-        }
+        .login-wrapper { width: 100%; max-width: 400px; padding: 20px; z-index: 10; }
+        .login-box { background: #0a0a0a; border: 2px solid #222; padding: 40px 30px; border-radius: 20px; box-shadow: 0 20px 50px rgba(0,0,0,0.9), inset 0 0 20px rgba(255,232,0,0.02); position: relative; text-align: center; transition: 0.3s; }
+        .login-box:hover { border-color: #ffe800; box-shadow: 0 20px 50px rgba(0,0,0,0.9), 0 0 30px rgba(255,232,0,0.1); }
 
         .logo { color: #fff; font-weight: 900; font-size: 1.8rem; text-transform: uppercase; letter-spacing: 2px; display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 30px; }
-        
-        /* Zmodyfikowany wygląd napisu TOOL (wyłączenie zaznaczania tekstu) */
         .logo span { background: #ffe800; color: #000; padding: 2px 10px; border-radius: 5px; user-select: none; cursor: default; }
 
         .input-group { margin-bottom: 20px; text-align: left; }
@@ -120,51 +89,36 @@
             <button class="btn-login" id="loginBtn" onclick="attemptLogin()">ZALOGUJ SIĘ</button>
         </div>
         
-        <div class="footer-text">
-            System Zarządzania Sklepem &copy; 2026
-        </div>
+        <div class="footer-text">System Zarządzania Sklepem &copy; 2026</div>
     </div>
 
     <script>
-        // Sprawdź czy ktoś nie jest już zalogowany, jeśli tak - przerzuć od razu na główną stronę
         window.onload = () => {
             if(localStorage.getItem('currentUser') && localStorage.getItem('myStore')) {
                 window.location.href = 'index.html';
             }
         };
 
-        // ==========================================
-        // UKRYTY SYSTEM SUPERADMINA (EASTER EGG)
-        // ==========================================
         let secretClicks = 0;
         let secretTimer = null;
 
         function triggerSecretAdmin() {
             secretClicks++;
             clearTimeout(secretTimer);
-            
             if (secretClicks >= 5) {
                 window.location.href = 'superadmin.html';
             } else {
-                // Jeśli użytkownik przestanie klikać na 1 sekundę, licznik się resetuje
-                secretTimer = setTimeout(() => {
-                    secretClicks = 0;
-                }, 1000);
+                secretTimer = setTimeout(() => { secretClicks = 0; }, 1000);
             }
         }
 
-        // ==========================================
-        // STANDARDOWE LOGOWANIE
-        // ==========================================
         document.addEventListener("keydown", function(event) {
-            if (event.key === "Enter") {
-                attemptLogin();
-            }
+            if (event.key === "Enter") { attemptLogin(); }
         });
 
         async function attemptLogin() {
             let storeNum = document.getElementById('storeNum').value.trim().toUpperCase().replace(/\s+/g, '');
-            let charId = document.getElementById('charId').value.trim().toUpperCase().replace(/\s+/g, '');
+            let inputCharId = document.getElementById('charId').value.trim().toUpperCase().replace(/\s+/g, '');
             let password = document.getElementById('password').value.trim();
             let msgBox = document.getElementById('loginMsg');
             let btn = document.getElementById('loginBtn');
@@ -172,7 +126,7 @@
             msgBox.style.display = 'block';
             msgBox.className = 'msg-box';
 
-            if (!storeNum || !charId || !password) {
+            if (!storeNum || !inputCharId || !password) {
                 msgBox.classList.add('msg-error');
                 msgBox.innerText = "Uzupełnij wszystkie pola!";
                 return;
@@ -182,46 +136,36 @@
             btn.innerText = "WERYFIKACJA...";
 
             try {
-                // 1. Sprawdzenie czy sklep istnieje
                 const storeSnap = await db.ref(`Stores/${storeNum}`).once('value');
                 if (!storeSnap.exists()) {
                     msgBox.classList.add('msg-error');
                     msgBox.innerText = "Taki sklep nie istnieje w bazie!";
-                    btn.disabled = false;
-                    btn.innerText = "ZALOGUJ SIĘ";
-                    return;
+                    btn.disabled = false; btn.innerText = "ZALOGUJ SIĘ"; return;
                 }
 
-                // 2. Sprawdzenie czy użytkownik istnieje w tym sklepie
-                const userSnap = await db.ref(`Stores/${storeNum}/Users/${charId}`).once('value');
+                const userSnap = await db.ref(`Stores/${storeNum}/Users/${inputCharId}`).once('value');
                 if (!userSnap.exists()) {
                     msgBox.classList.add('msg-error');
                     msgBox.innerText = "Błędny Kod Logowania (CharID)!";
-                    btn.disabled = false;
-                    btn.innerText = "ZALOGUJ SIĘ";
-                    return;
+                    btn.disabled = false; btn.innerText = "ZALOGUJ SIĘ"; return;
                 }
 
                 const userData = userSnap.val();
 
-                // 3. Sprawdzenie hasła
                 if (userData.password !== password) {
                     msgBox.classList.add('msg-error');
                     msgBox.innerText = "Podano błędne hasło!";
-                    btn.disabled = false;
-                    btn.innerText = "ZALOGUJ SIĘ";
-                    return;
+                    btn.disabled = false; btn.innerText = "ZALOGUJ SIĘ"; return;
                 }
 
-                // SUKCES - Zapis do pamięci przeglądarki
                 msgBox.classList.add('msg-success');
                 msgBox.innerText = "Logowanie poprawne!";
                 
-                // Usuwamy pole z hasłem przed zapisem lokalnym dla bezpieczeństwa
+                // TU BYŁ BŁĄD. Bierzemy charId z wpisanego okienka (inputCharId), a nie z bazy!
                 const secureUserData = {
-                    charId: userData.charId,
-                    name: userData.name,
-                    dept: userData.dept,
+                    charId: inputCharId, 
+                    name: userData.name || "Nieznany",
+                    dept: userData.dept || "ME",
                     isKss: userData.isKss || false,
                     avatar: userData.avatar || ""
                 };
@@ -229,16 +173,12 @@
                 localStorage.setItem('myStore', storeNum);
                 localStorage.setItem('currentUser', JSON.stringify(secureUserData));
 
-                // Przekierowanie
-                setTimeout(() => {
-                    window.location.href = 'index.html';
-                }, 500);
+                setTimeout(() => { window.location.href = 'index.html'; }, 500);
 
             } catch (error) {
                 msgBox.classList.add('msg-error');
                 msgBox.innerText = "Błąd połączenia z bazą danych!";
-                btn.disabled = false;
-                btn.innerText = "ZALOGUJ SIĘ";
+                btn.disabled = false; btn.innerText = "ZALOGUJ SIĘ";
             }
         }
     </script>

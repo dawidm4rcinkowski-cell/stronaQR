@@ -10,7 +10,6 @@
     
     <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-database-compat.js"></script>
-    
     <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.2/Sortable.min.js"></script>
     
     <script>
@@ -80,7 +79,6 @@
         .time-box { background: #151515; border: 2px solid #333; border-radius: 15px; padding: 15px 20px; display: flex; flex-direction: column; align-items: center; min-width: 100px; box-shadow: 0 10px 30px rgba(0,0,0,0.6); transform-style: preserve-3d; }
         .time-box .label { font-size: 0.55rem; color: #888; font-weight: 900; letter-spacing: 2px; margin-bottom: 5px; }
         .time-box .digits { font-size: 3rem; font-weight: 900; color: #ffe800; height: 50px; display: flex; justify-content: center; align-items: center; }
-        
         .flip-anim { animation: fullFlip 0.5s ease-in-out; }
         @keyframes fullFlip { 0% { transform: rotateX(0deg); background: #151515; } 50% { transform: rotateX(-90deg); background: #222; } 100% { transform: rotateX(0deg); background: #151515; } }
 
@@ -95,13 +93,12 @@
 
         .section-title { font-size: 0.9rem; color: #666; font-weight: 900; margin-bottom: 20px; letter-spacing: 2px; border-bottom: 2px solid #222; padding-bottom: 8px; text-transform: uppercase; display: flex; justify-content: space-between; align-items: center; }
         
+        /* GRYWALIZACJA */
         .btn-add-prog { background: #ffe800; color: #000; border: none; padding: 6px 12px; font-weight: 900; border-radius: 8px; cursor: pointer; text-transform: uppercase; font-size: 0.65rem; transition: 0.3s; }
         .btn-add-prog:hover { transform: scale(1.05); box-shadow: 0 0 10px rgba(255, 232, 0, 0.3); }
-
         .btn-reorder-prog { background: transparent; color: #888; border: 1px solid #555; padding: 6px 12px; font-weight: 900; border-radius: 8px; cursor: pointer; text-transform: uppercase; font-size: 0.65rem; transition: 0.3s; }
         .btn-reorder-prog:hover { color: #fff; border-color: #fff; }
 
-        /* NOWE: KONTENERY LICZNIKÓW */
         .counters-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 20px; }
         .counter-card { background: #0a0a0a; border: 1px solid #222; border-radius: 15px; padding: 20px; text-align: center; position: relative; box-shadow: inset 0 0 20px rgba(0,0,0,0.5); transition: 0.3s; display: flex; flex-direction: column; justify-content: space-between;}
         .counter-card:hover { border-color: #ffe800; background: #111; }
@@ -110,7 +107,6 @@
         .counter-value { font-size: 2.5rem; font-weight: 900; color: #ffe800; margin-bottom: 5px; }
         .counter-target-text { font-size: 1rem; color: #555; font-weight: bold; }
 
-        /* WYKRESY */
         .progi-grid { display: flex; flex-wrap: wrap; gap: 15px; margin-bottom: 40px; }
         .prog-card { background: #0a0a0a; border: 1px solid #222; border-radius: 15px; padding: 20px; transition: 0.3s; box-shadow: inset 0 0 20px rgba(0,0,0,0.5); position: relative; }
         .prog-card:hover { border-color: #333; background: #111; }
@@ -118,25 +114,21 @@
         .prog-w-100 { flex: 0 0 100%; max-width: 100%; }
         .prog-w-50 { flex: 0 0 calc(50% - 7.5px); max-width: calc(50% - 7.5px); }
         .prog-w-33 { flex: 0 0 calc(33.333% - 10px); max-width: calc(33.333% - 10px); }
-        @media (max-width: 768px) {
-            .prog-w-50, .prog-w-33 { flex: 0 0 100%; max-width: 100%; }
-        }
+        @media (max-width: 768px) { .prog-w-50, .prog-w-33 { flex: 0 0 100%; max-width: 100%; } }
         
         .sortable-ghost { opacity: 0.4; border: 2px dashed #ffe800 !important; background: #1a1a1a !important; }
+        .drag-handle { color: #555; font-size: 1.2rem; cursor: grab; display: none; padding: 0 5px; }
+        .drag-handle:active { cursor: grabbing; color: #ffe800; }
         
         .prog-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
         .prog-title-group { display: flex; align-items: center; gap: 10px; flex-grow: 1; }
-        .drag-handle { color: #555; font-size: 1.2rem; cursor: grab; display: none; padding: 0 5px; }
-        .drag-handle:active { cursor: grabbing; color: #ffe800; }
         .prog-title { color: #fff; font-weight: 900; font-size: 1rem; text-transform: uppercase; }
         
         .prog-bar-bg { background: #151515; height: 30px; border-radius: 15px; position: relative; border: 1px solid #333; }
         .prog-bar-fill { background: linear-gradient(90deg, #b3a200, #ffe800); height: 100%; width: 0%; border-radius: 15px; transition: width 1s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 0 15px rgba(255, 232, 0, 0.4); }
         .prog-marker { position: absolute; top: 0; height: 100%; width: 3px; background: #000; z-index: 2; border-left: 1px solid rgba(255,255,255,0.3); }
         .prog-marker-label { position: absolute; top: -18px; font-size: 0.55rem; color: #888; font-weight: 900; transform: translateX(-50%); white-space: nowrap; }
-        
         .prog-footer { display: flex; justify-content: space-between; align-items: center; margin-top: 15px; font-size: 0.75rem; font-weight: bold; color: #ccc; }
-        
         .btn-edit-prog { background: transparent; border: 1px solid #555; color: #888; padding: 4px 8px; border-radius: 6px; font-size: 0.6rem; cursor: pointer; text-transform: uppercase; transition: 0.2s; font-weight: 900; flex-shrink:0; }
         .btn-edit-prog:hover { border-color: #ffe800; color: #ffe800; }
 
@@ -176,13 +168,17 @@
         .btn-remove-line { background: transparent; border: none; color: #f44; font-size: 1.2rem; cursor: pointer; padding: 10px 5px 0; transition: 0.2s; }
         .btn-remove-line:hover { transform: scale(1.2); }
 
-        /* Modal Typu Wskaźnika */
         .type-select-grid { display: flex; flex-direction: column; gap: 15px; margin-top: 20px; }
         .btn-type-select { background: #111; border: 2px solid #333; color: #fff; padding: 20px; border-radius: 12px; cursor: pointer; transition: 0.3s; display: flex; flex-direction: column; align-items: center; gap: 10px; }
         .btn-type-select:hover { border-color: #ffe800; background: #1a1a1a; transform: translateY(-3px); }
         .btn-type-select i { font-size: 2rem; color: #ffe800; }
         .btn-type-select span { font-weight: 900; letter-spacing: 1px; }
         .btn-type-select small { font-size: 0.65rem; color: #888; font-weight: bold; }
+
+        /* OKNO KOMUNIKATU GLOBALNEGO */
+        #globalAnnouncementModal .prog-modal-content { border-color: #f44; box-shadow: 0 0 30px rgba(255, 68, 68, 0.2); }
+        #announcementTitle { color: #f44; font-size: 1.4rem; font-weight: 900; margin-bottom: 15px; text-transform: uppercase; text-align: center; }
+        #announcementText { color: #fff; font-size: 0.95rem; line-height: 1.6; margin-bottom: 25px; text-align: center; }
     </style>
 </head>
 <body>
@@ -260,7 +256,6 @@
         </div>
         
         <div class="counters-grid" id="countersContainer"></div>
-        
         <div class="progi-grid" id="progiContainer">
             <div style="color: #666; font-size:0.8rem; font-weight:bold; width:100%; text-align:center;">Brak ustawionych celów.</div>
         </div>
@@ -281,24 +276,21 @@
     </div>
 </div>
 
+<div class="modal" id="globalAnnouncementModal" style="z-index: 15000;">
+    <div class="prog-modal-content">
+        <h2 id="announcementTitle">Tytuł</h2>
+        <div id="announcementText">Treść wiadomości...</div>
+        <button class="btn-modal-close" style="background:#f44; color:#fff;" onclick="closeAnnouncement()">ZROZUMIAŁEM</button>
+    </div>
+</div>
+
 <div class="modal" id="typeModal">
     <div class="prog-modal-content" style="max-width: 400px;">
         <h2 style="color:#ffe800; font-weight:900; text-align:center; text-transform:uppercase;">Co chcesz dodać?</h2>
-        
         <div class="type-select-grid">
-            <div class="btn-type-select" onclick="selectType('counter')">
-                <i>🔢</i>
-                <span>LICZNIK KAFELKOWY</span>
-                <small>Idealne do prostych celów (np. 15 z 30 sztuk)</small>
-            </div>
-            
-            <div class="btn-type-select" onclick="selectType('chart')">
-                <i>📊</i>
-                <span>WYKRES PASKOWY</span>
-                <small>Zaawansowany pasek z 3 progami (np. Obrót)</small>
-            </div>
+            <div class="btn-type-select" onclick="selectType('counter')"><i>🔢</i><span>LICZNIK KAFELKOWY</span><small>Idealne do prostych celów (np. 15 z 30 sztuk)</small></div>
+            <div class="btn-type-select" onclick="selectType('chart')"><i>📊</i><span>WYKRES PASKOWY</span><small>Zaawansowany pasek z 3 progami (np. Obrót)</small></div>
         </div>
-        
         <button class="btn-modal-close" style="background:#333; color:#fff; margin-top:20px;" onclick="closeTypeModal()">ANULUJ</button>
     </div>
 </div>
@@ -306,25 +298,12 @@
 <div class="modal" id="counterModal">
     <div class="prog-modal-content" style="max-width: 400px;">
         <h2 style="color:#ffe800; margin-bottom:20px; font-weight:900; text-align:center; text-transform:uppercase;" id="counterModalTitle">Nowy Licznik</h2>
-        
         <input type="hidden" id="counterId">
-        
-        <div class="input-group">
-            <label>Nazwa celu (np. Gwarancje 5 lat)</label>
-            <input type="text" id="counterName" placeholder="Wpisz nazwę">
-        </div>
-        
+        <div class="input-group"><label>Nazwa celu</label><input type="text" id="counterName" placeholder="Wpisz nazwę"></div>
         <div style="display:flex; gap:10px;">
-            <div class="input-group" style="flex:1;">
-                <label>Obecny wynik</label>
-                <input type="number" id="counterCurrent" placeholder="np. 15">
-            </div>
-            <div class="input-group" style="flex:1;">
-                <label>Cel Miesiąca</label>
-                <input type="number" id="counterTarget" placeholder="np. 30">
-            </div>
+            <div class="input-group" style="flex:1;"><label>Obecny wynik</label><input type="number" id="counterCurrent" placeholder="np. 15"></div>
+            <div class="input-group" style="flex:1;"><label>Cel Miesiąca</label><input type="number" id="counterTarget" placeholder="np. 30"></div>
         </div>
-        
         <div style="display:flex; gap:10px; margin-top:20px;">
             <button class="btn-modal-close" style="background:#333; color:#fff;" onclick="closeCounterModal()">ANULUJ</button>
             <button class="btn-modal-close" style="background:#a00; color:#fff; display:none;" id="btnDeleteCounter" onclick="deleteCounter()">USUŃ</button>
@@ -336,36 +315,16 @@
 <div class="modal" id="progModal">
     <div class="prog-modal-content">
         <h2 style="color:#ffe800; margin-bottom:20px; font-weight:900; text-align:center; text-transform:uppercase;" id="progModalTitle">Nowy Wykres</h2>
-        
         <input type="hidden" id="progId">
-        
         <div class="input-group">
             <label>Szerokość wykresu na ekranie</label>
-            <select id="progLayout">
-                <option value="100">Pełna szerokość (1 w rzędzie)</option>
-                <option value="50">Połowa ekranu (2 w rzędzie)</option>
-                <option value="33" selected>Jedna trzecia (3 w rzędzie)</option>
-            </select>
+            <select id="progLayout"><option value="100">Pełna szerokość (1 w rzędzie)</option><option value="50">Połowa ekranu (2 w rzędzie)</option><option value="33" selected>Jedna trzecia (3 w rzędzie)</option></select>
         </div>
-
-        <div class="input-group">
-            <label>Nazwa Wskaźnika (np. Sprzedaż Usług)</label>
-            <input type="text" id="progName" placeholder="Wpisz nazwę">
-        </div>
-        
-        <div class="input-group">
-            <label>Obecny wynik (Wartość całkowita)</label>
-            <input type="number" id="progCurrent" placeholder="np. 45000">
-        </div>
-        
-        <div style="margin-top: 20px; margin-bottom: 10px; border-bottom: 1px solid #333; padding-bottom: 5px;">
-            <label style="font-size: 0.7rem; color: #ffe800; font-weight: 900; text-transform: uppercase;">Zdefiniuj Progi (od najmniejszego):</label>
-        </div>
-        
+        <div class="input-group"><label>Nazwa Wskaźnika</label><input type="text" id="progName" placeholder="Wpisz nazwę"></div>
+        <div class="input-group"><label>Obecny wynik</label><input type="number" id="progCurrent" placeholder="np. 45000"></div>
+        <div style="margin-top: 20px; margin-bottom: 10px; border-bottom: 1px solid #333; padding-bottom: 5px;"><label style="font-size: 0.7rem; color: #ffe800; font-weight: 900; text-transform: uppercase;">Zdefiniuj Progi (od najmniejszego):</label></div>
         <div id="dynamicThresholds"></div>
-        
         <button class="btn-add-line" onclick="addThresholdInput()">+ DODAJ KOLEJNY PRÓG</button>
-        
         <div style="display:flex; gap:10px; margin-top:20px;">
             <button class="btn-modal-close" style="background:#333; color:#fff;" onclick="closeProgModal()">ANULUJ</button>
             <button class="btn-modal-close" style="background:#a00; color:#fff; display:none;" id="btnDeleteProg" onclick="deleteProgChart()">USUŃ</button>
@@ -379,36 +338,52 @@
         <div id="empModalAvatar" class="emp-avatar-large"></div>
         <h2 id="empModalName" style="color: #fff; font-size: 1.5rem; margin-bottom: 5px; text-transform: uppercase;">Imię</h2>
         <p id="empModalDept" style="color: #ffe800; font-weight: 900; margin-bottom: 25px;">Dział</p>
-        
         <div class="emp-stats">
-            <div class="emp-stat-box">
-                <div style="font-size: 0.65rem; color: #888; font-weight: 900;">URODZINY</div>
-                <div id="empModalBirth" style="color: #fff; font-weight: bold; font-size: 1rem; margin-top: 5px;">-</div>
-            </div>
-            <div class="emp-stat-box">
-                <div style="font-size: 0.65rem; color: #888; font-weight: 900;">W FIRMIE OD</div>
-                <div id="empModalWork" style="color: #fff; font-weight: bold; font-size: 1rem; margin-top: 5px;">-</div>
-            </div>
+            <div class="emp-stat-box"><div style="font-size: 0.65rem; color: #888; font-weight: 900;">URODZINY</div><div id="empModalBirth" style="color: #fff; font-weight: bold; font-size: 1rem; margin-top: 5px;">-</div></div>
+            <div class="emp-stat-box"><div style="font-size: 0.65rem; color: #888; font-weight: 900;">W FIRMIE OD</div><div id="empModalWork" style="color: #fff; font-weight: bold; font-size: 1rem; margin-top: 5px;">-</div></div>
         </div>
         <button class="btn-modal-close" onclick="closeEmployeeModal()">ZAMKNIJ KARTĘ</button>
     </div>
 </div>
 
-
 <script>
     document.getElementById('greetName').innerText = currentUser.name || "Nieznany";
     document.getElementById('sideName').innerText = `${currentUser.name || "Nieznany"} (${currentUser.dept || "ME"})`;
-    
     let safeInitial = currentUser.charId ? currentUser.charId.charAt(0) : '?';
     const avatarHtml = currentUser.avatar ? `<img src="${currentUser.avatar}" style="width:100%; height:100%; object-fit:cover; border-radius:50%;">` : safeInitial;
     document.getElementById('sideAvatar').innerHTML = avatarHtml;
 
-    if(!isManagerOrKss) { 
-        document.getElementById('navInwaKSS').style.display = 'none'; 
-    } else {
-        document.getElementById('addProgBtn').style.display = 'block';
-        document.getElementById('btnReorder').style.display = 'block';
+    if(!isManagerOrKss) { document.getElementById('navInwaKSS').style.display = 'none'; } 
+    else { document.getElementById('addProgBtn').style.display = 'block'; document.getElementById('btnReorder').style.display = 'block'; }
+
+    // ===============================================
+    // KOMUNIKATY GLOBALNE (Wiadomość Dnia)
+    // ===============================================
+    db.ref('Admin/Settings/Announcement').once('value', snap => {
+        const ann = snap.val();
+        // Jeśli jest aktywny komunikat
+        if(ann && ann.active && ann.text) {
+            const todayStr = new Date().toLocaleDateString(); // Pobieramy dzisiejszą datę
+            const storedData = localStorage.getItem('seenAnnouncement');
+            // Unikalny identyfikator: Data + czas aktualizacji posta
+            const currentData = todayStr + "_" + ann.updatedAt;
+            
+            // Jeśli pracownik jeszcze dzisiaj tego NIE widział:
+            if(storedData !== currentData) {
+                document.getElementById('announcementTitle').innerText = ann.title || "KOMUNIKAT";
+                document.getElementById('announcementText').innerText = ann.text;
+                document.getElementById('globalAnnouncementModal').style.display = 'flex';
+                
+                // Zapisz do pamięci przeglądarki, żeby jutro pokazało znowu
+                localStorage.setItem('seenAnnouncement', currentData);
+            }
+        }
+    });
+
+    function closeAnnouncement() {
+        document.getElementById('globalAnnouncementModal').style.display = 'none';
     }
+
 
     db.ref(`Stores/${myStore}/Setup`).once('value', snap => {
         const setup = snap.val();
@@ -419,10 +394,6 @@
     });
 
     let globalUsersList = [];
-
-    // ===============================================
-    // DYNAMICZNY SYSTEM WSKAŹNIKÓW (LICZNIKI + WYKRESY)
-    // ===============================================
     let localProgi = [];
     let isReordering = false;
     let sortableCharts = null;
@@ -432,10 +403,7 @@
         const progiObj = snap.val() || {};
         localProgi = Object.keys(progiObj).map(key => ({ id: key, ...progiObj[key] }));
         localProgi.sort((a, b) => (a.order || 0) - (b.order || 0));
-        
-        if(!isReordering) {
-            renderProgi();
-        }
+        if(!isReordering) { renderProgi(); }
     });
 
     function toggleReorder() {
@@ -466,7 +434,6 @@
                 sortableCounters.toArray().forEach((id, index) => { updates[`Stores/${myStore}/Dashboard/Progi/${id}/order`] = index; });
                 sortableCounters.destroy(); sortableCounters = null;
             }
-            
             db.ref().update(updates);
         }
     }
@@ -485,34 +452,21 @@
         const chartsData = localProgi.filter(p => p.type !== 'counter');
         const countersData = localProgi.filter(p => p.type === 'counter');
 
-        // Renderowanie Liczników
         countersData.forEach(prog => {
             let handleDisplay = isReordering ? 'block' : 'none';
             let editBtnHtml = isManagerOrKss ? `<button class="btn-edit-prog" onclick="openCounterModal('${prog.id}')">EDYTUJ</button>` : '';
-            
             const card = document.createElement('div');
             card.className = 'counter-card';
             card.setAttribute('data-id', prog.id);
-            card.innerHTML = `
-                <div class="counter-header">
-                    <div class="drag-handle" style="display: ${handleDisplay}; margin-right:10px;">☰</div>
-                    <div class="counter-title">${prog.name}</div>
-                    ${editBtnHtml}
-                </div>
-                <div class="counter-value">${prog.current} <span class="counter-target-text">/ ${prog.target}</span></div>
-            `;
+            card.innerHTML = `<div class="counter-header"><div class="drag-handle" style="display: ${handleDisplay}; margin-right:10px;">☰</div><div class="counter-title">${prog.name}</div>${editBtnHtml}</div><div class="counter-value">${prog.current} <span class="counter-target-text">/ ${prog.target}</span></div>`;
             countersContainer.appendChild(card);
         });
 
-        // Renderowanie Wykresów
-        if (chartsData.length === 0 && countersData.length > 0) {
-             chartsContainer.innerHTML = ''; // Nie pokazujemy tekstu "brak" jeśli są chociaż kafelki
-        }
+        if (chartsData.length === 0 && countersData.length > 0) { chartsContainer.innerHTML = ''; }
         
         chartsData.forEach(prog => {
             let thresholds = prog.thresholds || [];
             let maxThreshold = thresholds.length > 0 ? Math.max(...thresholds) : 0;
-            
             let barMax = maxThreshold > 0 ? maxThreshold * 1.05 : (prog.current || 100); 
             if (barMax <= 0) barMax = 100;
             if (prog.current > barMax) barMax = prog.current;
@@ -528,11 +482,7 @@
                 if(tVal > 0) {
                     let pos = (tVal / barMax) * 100;
                     markersHtml += `<div class="prog-marker" style="left: ${pos}%;"><div class="prog-marker-label">PRÓG ${idx+1}<br>${tVal}</div></div>`;
-                    
-                    if(prog.current < tVal && !nextThresholdVal) {
-                        nextThresholdVal = tVal;
-                        nextThresholdName = `Próg ${idx+1}`;
-                    }
+                    if(prog.current < tVal && !nextThresholdVal) { nextThresholdVal = tVal; nextThresholdName = `Próg ${idx+1}`; }
                 }
             });
 
@@ -553,30 +503,11 @@
             const card = document.createElement('div');
             card.className = `prog-card ${layoutClass}`;
             card.setAttribute('data-id', prog.id); 
-            card.innerHTML = `
-                <div class="prog-header">
-                    <div class="prog-title-group">
-                        <div class="drag-handle" style="display: ${handleDisplay};">☰</div>
-                        <div class="prog-title">${prog.name}</div>
-                    </div>
-                    ${editBtnHtml}
-                </div>
-                <div style="margin-top: 25px; margin-bottom: 10px;">
-                    <div class="prog-bar-bg">
-                        ${markersHtml}
-                        <div class="prog-bar-fill" style="width: ${percentFill}%;"></div>
-                    </div>
-                </div>
-                <div class="prog-footer">
-                    <div>WYNIK: <span style="color:#fff; font-size:1rem;">${prog.current}</span></div>
-                    <div>${differenceText}</div>
-                </div>
-            `;
+            card.innerHTML = `<div class="prog-header"><div class="prog-title-group"><div class="drag-handle" style="display: ${handleDisplay};">☰</div><div class="prog-title">${prog.name}</div></div>${editBtnHtml}</div><div style="margin-top: 25px; margin-bottom: 10px;"><div class="prog-bar-bg">${markersHtml}<div class="prog-bar-fill" style="width: ${percentFill}%;"></div></div></div><div class="prog-footer"><div>WYNIK: <span style="color:#fff; font-size:1rem;">${prog.current}</span></div><div>${differenceText}</div></div>`;
             chartsContainer.appendChild(card);
         });
     }
 
-    // --- LOGIKA WYBORU TYPU MODALA ---
     function openTypeModal() {
         if(isReordering) { alert("Najpierw zapisz układ, aby móc dodawać wskaźniki!"); return; }
         document.getElementById('typeModal').style.display = 'flex';
@@ -589,7 +520,6 @@
         if(type === 'counter') openCounterModal(null);
     }
 
-    // --- LOGIKA LICZNIKA ---
     function openCounterModal(id = null) {
         if(isReordering) { alert("Najpierw zapisz układ!"); return; }
         document.getElementById('counterModal').style.display = 'flex';
@@ -628,34 +558,24 @@
         const existingProg = localProgi.find(p => p.id === id);
         const finalOrder = existingProg ? existingProg.order : newOrder;
 
-        db.ref(`Stores/${myStore}/Dashboard/Progi/${id}`).set({
-            type: 'counter', name: name, current: current, target: target, order: finalOrder
-        }).then(() => { closeCounterModal(); });
+        db.ref(`Stores/${myStore}/Dashboard/Progi/${id}`).set({ type: 'counter', name: name, current: current, target: target, order: finalOrder }).then(() => { closeCounterModal(); });
     }
 
     function deleteCounter() {
         const id = document.getElementById('counterId').value;
-        if(confirm("Czy na pewno usunąć ten licznik?")) {
-            db.ref(`Stores/${myStore}/Dashboard/Progi/${id}`).remove().then(() => { closeCounterModal(); });
-        }
+        if(confirm("Czy na pewno usunąć ten licznik?")) { db.ref(`Stores/${myStore}/Dashboard/Progi/${id}`).remove().then(() => { closeCounterModal(); }); }
     }
 
-    // --- LOGIKA WYKRESU PASKOWEGO ---
     function addThresholdInput(val = '') {
         const container = document.getElementById('dynamicThresholds');
         const div = document.createElement('div');
         div.className = 'input-group flex-row';
-        div.innerHTML = `
-            <div style="flex:1;"><label class="dyn-label">Próg</label><input type="number" class="prog-t-input" placeholder="Wartość..." value="${val}"></div>
-            <button class="btn-remove-line" onclick="removeThresholdInput(this)">✖</button>
-        `;
+        div.innerHTML = `<div style="flex:1;"><label class="dyn-label">Próg</label><input type="number" class="prog-t-input" placeholder="Wartość..." value="${val}"></div><button class="btn-remove-line" onclick="removeThresholdInput(this)">✖</button>`;
         container.appendChild(div); updateThresholdLabels();
     }
 
     function removeThresholdInput(btn) { btn.parentElement.remove(); updateThresholdLabels(); }
-    function updateThresholdLabels() {
-        document.querySelectorAll('#dynamicThresholds .dyn-label').forEach((lbl, idx) => { lbl.innerText = `Próg ${idx + 1}`; });
-    }
+    function updateThresholdLabels() { document.querySelectorAll('#dynamicThresholds .dyn-label').forEach((lbl, idx) => { lbl.innerText = `Próg ${idx + 1}`; }); }
 
     function openProgChartModal(id = null) {
         if(isReordering) { alert("Najpierw zapisz układ!"); return; }
@@ -708,21 +628,14 @@
         const existingProg = localProgi.find(p => p.id === id);
         const finalOrder = existingProg ? existingProg.order : newOrder;
 
-        db.ref(`Stores/${myStore}/Dashboard/Progi/${id}`).set({
-            type: 'chart', name: name, current: current, thresholds: thresholdsArr, layout: layout, order: finalOrder
-        }).then(() => { closeProgModal(); });
+        db.ref(`Stores/${myStore}/Dashboard/Progi/${id}`).set({ type: 'chart', name: name, current: current, thresholds: thresholdsArr, layout: layout, order: finalOrder }).then(() => { closeProgModal(); });
     }
 
     function deleteProgChart() {
         const id = document.getElementById('progId').value;
-        if(confirm("Czy na pewno usunąć ten wykres?")) {
-            db.ref(`Stores/${myStore}/Dashboard/Progi/${id}`).remove().then(() => { closeProgModal(); });
-        }
+        if(confirm("Czy na pewno usunąć ten wykres?")) { db.ref(`Stores/${myStore}/Dashboard/Progi/${id}`).remove().then(() => { closeProgModal(); }); }
     }
 
-    // ===============================================
-    // INNE FUNKCJE (Załoga, Zegar, Grafik)
-    // ===============================================
     db.ref(`Stores/${myStore}/Users`).on('value', snap => {
         const usersObj = snap.val() || {};
         globalUsersList = Object.keys(usersObj).map(key => ({ charId: key, ...usersObj[key] }));

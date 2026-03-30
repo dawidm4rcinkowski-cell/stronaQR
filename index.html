@@ -101,29 +101,31 @@
         .btn-reorder-prog { background: transparent; color: #888; border: 1px solid #555; padding: 6px 12px; font-weight: 900; border-radius: 8px; cursor: pointer; text-transform: uppercase; font-size: 0.65rem; transition: 0.3s; }
         .btn-reorder-prog:hover { color: #fff; border-color: #fff; }
 
-        /* NOWY SYSTEM ELASTYCZNEJ SIATKI WYKRESÓW */
+        /* NOWE: KONTENERY LICZNIKÓW */
+        .counters-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 20px; }
+        .counter-card { background: #0a0a0a; border: 1px solid #222; border-radius: 15px; padding: 20px; text-align: center; position: relative; box-shadow: inset 0 0 20px rgba(0,0,0,0.5); transition: 0.3s; display: flex; flex-direction: column; justify-content: space-between;}
+        .counter-card:hover { border-color: #ffe800; background: #111; }
+        .counter-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; min-height: 25px; }
+        .counter-title { font-size: 0.8rem; color: #888; font-weight: 900; text-transform: uppercase; flex-grow: 1; text-align: center; }
+        .counter-value { font-size: 2.5rem; font-weight: 900; color: #ffe800; margin-bottom: 5px; }
+        .counter-target-text { font-size: 1rem; color: #555; font-weight: bold; }
+
+        /* WYKRESY */
         .progi-grid { display: flex; flex-wrap: wrap; gap: 15px; margin-bottom: 40px; }
-        
         .prog-card { background: #0a0a0a; border: 1px solid #222; border-radius: 15px; padding: 20px; transition: 0.3s; box-shadow: inset 0 0 20px rgba(0,0,0,0.5); position: relative; }
         .prog-card:hover { border-color: #333; background: #111; }
         
-        /* KLASY ODPOWIEDZIALNE ZA UKŁAD OBOK SIEBIE */
         .prog-w-100 { flex: 0 0 100%; max-width: 100%; }
-        /* Szerokość na 50% z odjęciem luki (gap) 15px */
         .prog-w-50 { flex: 0 0 calc(50% - 7.5px); max-width: calc(50% - 7.5px); }
-        /* Szerokość na 33% z odjęciem dwóch luk (gap) 15px */
         .prog-w-33 { flex: 0 0 calc(33.333% - 10px); max-width: calc(33.333% - 10px); }
-        
-        /* Zabezpieczenie dla mniejszych ekranów - wszystko ustawia się 100% szerokości */
         @media (max-width: 768px) {
             .prog-w-50, .prog-w-33 { flex: 0 0 100%; max-width: 100%; }
         }
         
-        /* Efekt podczas przeciągania */
         .sortable-ghost { opacity: 0.4; border: 2px dashed #ffe800 !important; background: #1a1a1a !important; }
         
         .prog-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
-        .prog-title-group { display: flex; align-items: center; gap: 10px; }
+        .prog-title-group { display: flex; align-items: center; gap: 10px; flex-grow: 1; }
         .drag-handle { color: #555; font-size: 1.2rem; cursor: grab; display: none; padding: 0 5px; }
         .drag-handle:active { cursor: grabbing; color: #ffe800; }
         .prog-title { color: #fff; font-weight: 900; font-size: 1rem; text-transform: uppercase; }
@@ -134,7 +136,8 @@
         .prog-marker-label { position: absolute; top: -18px; font-size: 0.55rem; color: #888; font-weight: 900; transform: translateX(-50%); white-space: nowrap; }
         
         .prog-footer { display: flex; justify-content: space-between; align-items: center; margin-top: 15px; font-size: 0.75rem; font-weight: bold; color: #ccc; }
-        .btn-edit-prog { background: transparent; border: 1px solid #555; color: #888; padding: 4px 8px; border-radius: 6px; font-size: 0.6rem; cursor: pointer; text-transform: uppercase; transition: 0.2s; font-weight: 900; }
+        
+        .btn-edit-prog { background: transparent; border: 1px solid #555; color: #888; padding: 4px 8px; border-radius: 6px; font-size: 0.6rem; cursor: pointer; text-transform: uppercase; transition: 0.2s; font-weight: 900; flex-shrink:0; }
         .btn-edit-prog:hover { border-color: #ffe800; color: #ffe800; }
 
         .shortcuts-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; margin-bottom: 40px; }
@@ -151,12 +154,14 @@
         .team-name { font-weight: 900; font-size: 1rem; color: #fff; letter-spacing: 0.5px; }
         .team-dept { font-size: 0.75rem; color: #ffe800; font-weight: 900; margin-top: 4px; }
         
+        /* MODALE */
         .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 11000; align-items: center; justify-content: center; padding: 20px; backdrop-filter: blur(5px); }
         .emp-modal-content { background: #0a0a0a; border: 2px solid #ffe800; padding: 40px 20px; width: 100%; max-width: 350px; border-radius: 15px; text-align: center; box-shadow: 0 0 30px rgba(255, 232, 0, 0.15); }
         .emp-avatar-large { width: 90px; height: 90px; border-radius: 50%; background: #151515; border: 3px solid #ffe800; display: flex; align-items: center; justify-content: center; font-weight: 900; color: #ffe800; font-size: 2.5rem; overflow: hidden; margin: 0 auto 20px; box-shadow: 0 0 15px rgba(255,232,0,0.3); }
         .emp-stats { display: flex; justify-content: space-around; background: #111; padding: 15px; border-radius: 10px; border: 1px solid #222; margin-bottom: 20px; }
         .emp-stat-box { display: flex; flex-direction: column; align-items: center; }
-        .btn-modal-close { background: #ffe800; color: #000; border: none; padding: 12px 20px; font-weight: 900; border-radius: 8px; cursor: pointer; width: 100%; text-transform: uppercase; margin-top: 10px; }
+        .btn-modal-close { background: #ffe800; color: #000; border: none; padding: 12px 20px; font-weight: 900; border-radius: 8px; cursor: pointer; width: 100%; text-transform: uppercase; margin-top: 10px; transition: 0.2s;}
+        .btn-modal-close:hover { transform: scale(1.02); box-shadow: 0 5px 15px rgba(255, 232, 0, 0.2); }
         
         .prog-modal-content { background: #0a0a0a; border: 2px solid #ffe800; padding: 30px; width: 100%; max-width: 450px; border-radius: 15px; box-shadow: 0 0 30px rgba(255, 232, 0, 0.15); max-height: 90vh; overflow-y: auto; }
         .input-group { margin-bottom: 15px; }
@@ -170,6 +175,14 @@
         .btn-add-line:hover { background: #ffe800; color: #000; border-style: solid; }
         .btn-remove-line { background: transparent; border: none; color: #f44; font-size: 1.2rem; cursor: pointer; padding: 10px 5px 0; transition: 0.2s; }
         .btn-remove-line:hover { transform: scale(1.2); }
+
+        /* Modal Typu Wskaźnika */
+        .type-select-grid { display: flex; flex-direction: column; gap: 15px; margin-top: 20px; }
+        .btn-type-select { background: #111; border: 2px solid #333; color: #fff; padding: 20px; border-radius: 12px; cursor: pointer; transition: 0.3s; display: flex; flex-direction: column; align-items: center; gap: 10px; }
+        .btn-type-select:hover { border-color: #ffe800; background: #1a1a1a; transform: translateY(-3px); }
+        .btn-type-select i { font-size: 2rem; color: #ffe800; }
+        .btn-type-select span { font-weight: 900; letter-spacing: 1px; }
+        .btn-type-select small { font-size: 0.65rem; color: #888; font-weight: bold; }
     </style>
 </head>
 <body>
@@ -242,9 +255,12 @@
             REALIZACJA CELÓW PREMIOWYCH
             <div style="display:flex; gap:10px;">
                 <button class="btn-reorder-prog" id="btnReorder" style="display:none;" onclick="toggleReorder()">🔄 ZMIEŃ KOLEJNOŚĆ</button>
-                <button class="btn-add-prog" id="addProgBtn" style="display:none;" onclick="openProgModal(null)">+ DODAJ WSKAŹNIK</button>
+                <button class="btn-add-prog" id="addProgBtn" style="display:none;" onclick="openTypeModal()">+ DODAJ WSKAŹNIK</button>
             </div>
         </div>
+        
+        <div class="counters-grid" id="countersContainer"></div>
+        
         <div class="progi-grid" id="progiContainer">
             <div style="color: #666; font-size:0.8rem; font-weight:bold; width:100%; text-align:center;">Brak ustawionych celów.</div>
         </div>
@@ -265,29 +281,61 @@
     </div>
 </div>
 
-<div class="modal" id="employeeModal">
-    <div class="emp-modal-content">
-        <div id="empModalAvatar" class="emp-avatar-large"></div>
-        <h2 id="empModalName" style="color: #fff; font-size: 1.5rem; margin-bottom: 5px; text-transform: uppercase;">Imię</h2>
-        <p id="empModalDept" style="color: #ffe800; font-weight: 900; margin-bottom: 25px;">Dział</p>
+<div class="modal" id="typeModal">
+    <div class="prog-modal-content" style="max-width: 400px;">
+        <h2 style="color:#ffe800; font-weight:900; text-align:center; text-transform:uppercase;">Co chcesz dodać?</h2>
         
-        <div class="emp-stats">
-            <div class="emp-stat-box">
-                <div style="font-size: 0.65rem; color: #888; font-weight: 900;">URODZINY</div>
-                <div id="empModalBirth" style="color: #fff; font-weight: bold; font-size: 1rem; margin-top: 5px;">-</div>
+        <div class="type-select-grid">
+            <div class="btn-type-select" onclick="selectType('counter')">
+                <i>🔢</i>
+                <span>LICZNIK KAFELKOWY</span>
+                <small>Idealne do prostych celów (np. 15 z 30 sztuk)</small>
             </div>
-            <div class="emp-stat-box">
-                <div style="font-size: 0.65rem; color: #888; font-weight: 900;">W FIRMIE OD</div>
-                <div id="empModalWork" style="color: #fff; font-weight: bold; font-size: 1rem; margin-top: 5px;">-</div>
+            
+            <div class="btn-type-select" onclick="selectType('chart')">
+                <i>📊</i>
+                <span>WYKRES PASKOWY</span>
+                <small>Zaawansowany pasek z 3 progami (np. Obrót)</small>
             </div>
         </div>
-        <button class="btn-modal-close" onclick="closeEmployeeModal()">ZAMKNIJ KARTĘ</button>
+        
+        <button class="btn-modal-close" style="background:#333; color:#fff; margin-top:20px;" onclick="closeTypeModal()">ANULUJ</button>
+    </div>
+</div>
+
+<div class="modal" id="counterModal">
+    <div class="prog-modal-content" style="max-width: 400px;">
+        <h2 style="color:#ffe800; margin-bottom:20px; font-weight:900; text-align:center; text-transform:uppercase;" id="counterModalTitle">Nowy Licznik</h2>
+        
+        <input type="hidden" id="counterId">
+        
+        <div class="input-group">
+            <label>Nazwa celu (np. Gwarancje 5 lat)</label>
+            <input type="text" id="counterName" placeholder="Wpisz nazwę">
+        </div>
+        
+        <div style="display:flex; gap:10px;">
+            <div class="input-group" style="flex:1;">
+                <label>Obecny wynik</label>
+                <input type="number" id="counterCurrent" placeholder="np. 15">
+            </div>
+            <div class="input-group" style="flex:1;">
+                <label>Cel Miesiąca</label>
+                <input type="number" id="counterTarget" placeholder="np. 30">
+            </div>
+        </div>
+        
+        <div style="display:flex; gap:10px; margin-top:20px;">
+            <button class="btn-modal-close" style="background:#333; color:#fff;" onclick="closeCounterModal()">ANULUJ</button>
+            <button class="btn-modal-close" style="background:#a00; color:#fff; display:none;" id="btnDeleteCounter" onclick="deleteCounter()">USUŃ</button>
+            <button class="btn-modal-close" onclick="saveCounter()">ZAPISZ</button>
+        </div>
     </div>
 </div>
 
 <div class="modal" id="progModal">
     <div class="prog-modal-content">
-        <h2 style="color:#ffe800; margin-bottom:20px; font-weight:900; text-align:center; text-transform:uppercase;" id="progModalTitle">Nowy Wskaźnik</h2>
+        <h2 style="color:#ffe800; margin-bottom:20px; font-weight:900; text-align:center; text-transform:uppercase;" id="progModalTitle">Nowy Wykres</h2>
         
         <input type="hidden" id="progId">
         
@@ -314,18 +362,38 @@
             <label style="font-size: 0.7rem; color: #ffe800; font-weight: 900; text-transform: uppercase;">Zdefiniuj Progi (od najmniejszego):</label>
         </div>
         
-        <div id="dynamicThresholds">
-            </div>
+        <div id="dynamicThresholds"></div>
         
         <button class="btn-add-line" onclick="addThresholdInput()">+ DODAJ KOLEJNY PRÓG</button>
         
         <div style="display:flex; gap:10px; margin-top:20px;">
             <button class="btn-modal-close" style="background:#333; color:#fff;" onclick="closeProgModal()">ANULUJ</button>
-            <button class="btn-modal-close" style="background:#a00; color:#fff; display:none;" id="btnDeleteProg" onclick="deleteProg()">USUŃ</button>
-            <button class="btn-modal-close" onclick="saveProg()">ZAPISZ</button>
+            <button class="btn-modal-close" style="background:#a00; color:#fff; display:none;" id="btnDeleteProg" onclick="deleteProgChart()">USUŃ</button>
+            <button class="btn-modal-close" onclick="saveProgChart()">ZAPISZ</button>
         </div>
     </div>
 </div>
+
+<div class="modal" id="employeeModal">
+    <div class="emp-modal-content">
+        <div id="empModalAvatar" class="emp-avatar-large"></div>
+        <h2 id="empModalName" style="color: #fff; font-size: 1.5rem; margin-bottom: 5px; text-transform: uppercase;">Imię</h2>
+        <p id="empModalDept" style="color: #ffe800; font-weight: 900; margin-bottom: 25px;">Dział</p>
+        
+        <div class="emp-stats">
+            <div class="emp-stat-box">
+                <div style="font-size: 0.65rem; color: #888; font-weight: 900;">URODZINY</div>
+                <div id="empModalBirth" style="color: #fff; font-weight: bold; font-size: 1rem; margin-top: 5px;">-</div>
+            </div>
+            <div class="emp-stat-box">
+                <div style="font-size: 0.65rem; color: #888; font-weight: 900;">W FIRMIE OD</div>
+                <div id="empModalWork" style="color: #fff; font-weight: bold; font-size: 1rem; margin-top: 5px;">-</div>
+            </div>
+        </div>
+        <button class="btn-modal-close" onclick="closeEmployeeModal()">ZAMKNIJ KARTĘ</button>
+    </div>
+</div>
+
 
 <script>
     document.getElementById('greetName').innerText = currentUser.name || "Nieznany";
@@ -353,20 +421,18 @@
     let globalUsersList = [];
 
     // ===============================================
-    // DYNAMICZNY SYSTEM PROGÓW Z DRAG & DROP I SZEROKOŚCIĄ
+    // DYNAMICZNY SYSTEM WSKAŹNIKÓW (LICZNIKI + WYKRESY)
     // ===============================================
     let localProgi = [];
     let isReordering = false;
-    let sortableInstance = null;
+    let sortableCharts = null;
+    let sortableCounters = null;
 
     db.ref(`Stores/${myStore}/Dashboard/Progi`).on('value', snap => {
         const progiObj = snap.val() || {};
         localProgi = Object.keys(progiObj).map(key => ({ id: key, ...progiObj[key] }));
-        
-        // Sortujemy bazując na zapisanej kolejności
         localProgi.sort((a, b) => (a.order || 0) - (b.order || 0));
         
-        // Jeśli kierownik nie układa właśnie klocków, renderujemy na nowo
         if(!isReordering) {
             renderProgi();
         }
@@ -374,55 +440,76 @@
 
     function toggleReorder() {
         isReordering = !isReordering;
-        const container = document.getElementById('progiContainer');
+        const chartsContainer = document.getElementById('progiContainer');
+        const countersContainer = document.getElementById('countersContainer');
         const btn = document.getElementById('btnReorder');
         const handles = document.querySelectorAll('.drag-handle');
 
         if(isReordering) {
-            // Włączamy tryb przeciągania
             btn.innerText = "💾 ZAPISZ UKŁAD";
-            btn.style.background = "#0a0";
-            btn.style.color = "#fff";
-            btn.style.borderColor = "#0a0";
+            btn.style.background = "#0a0"; btn.style.color = "#fff"; btn.style.borderColor = "#0a0";
             handles.forEach(h => h.style.display = 'block');
 
-            sortableInstance = new Sortable(container, {
-                animation: 200,
-                handle: '.drag-handle',
-                ghostClass: 'sortable-ghost'
-            });
+            sortableCharts = new Sortable(chartsContainer, { animation: 200, handle: '.drag-handle', ghostClass: 'sortable-ghost' });
+            sortableCounters = new Sortable(countersContainer, { animation: 200, handle: '.drag-handle', ghostClass: 'sortable-ghost' });
         } else {
-            // Zapisujemy nowy układ
             btn.innerText = "🔄 ZMIEŃ KOLEJNOŚĆ";
-            btn.style.background = "transparent";
-            btn.style.color = "#888";
-            btn.style.borderColor = "#555";
+            btn.style.background = "transparent"; btn.style.color = "#888"; btn.style.borderColor = "#555";
             handles.forEach(h => h.style.display = 'none');
 
-            if(sortableInstance) {
-                const orderIds = sortableInstance.toArray();
-                let updates = {};
-                orderIds.forEach((id, index) => {
-                    updates[`Stores/${myStore}/Dashboard/Progi/${id}/order`] = index;
-                });
-                db.ref().update(updates);
-                
-                sortableInstance.destroy();
-                sortableInstance = null;
+            let updates = {};
+            if(sortableCharts) {
+                sortableCharts.toArray().forEach((id, index) => { updates[`Stores/${myStore}/Dashboard/Progi/${id}/order`] = index; });
+                sortableCharts.destroy(); sortableCharts = null;
             }
+            if(sortableCounters) {
+                sortableCounters.toArray().forEach((id, index) => { updates[`Stores/${myStore}/Dashboard/Progi/${id}/order`] = index; });
+                sortableCounters.destroy(); sortableCounters = null;
+            }
+            
+            db.ref().update(updates);
         }
     }
 
     function renderProgi() {
-        const container = document.getElementById('progiContainer');
-        container.innerHTML = '';
+        const chartsContainer = document.getElementById('progiContainer');
+        const countersContainer = document.getElementById('countersContainer');
+        chartsContainer.innerHTML = '';
+        countersContainer.innerHTML = '';
 
         if(localProgi.length === 0) {
-            container.innerHTML = '<div style="color: #666; font-size:0.8rem; font-weight:bold; width:100%; text-align:center;">Brak ustawionych celów. Kierownik musi dodać wskaźniki.</div>';
+            chartsContainer.innerHTML = '<div style="color: #666; font-size:0.8rem; font-weight:bold; width:100%; text-align:center;">Brak ustawionych celów. Kierownik musi dodać wskaźniki.</div>';
             return;
         }
 
-        localProgi.forEach(prog => {
+        const chartsData = localProgi.filter(p => p.type !== 'counter');
+        const countersData = localProgi.filter(p => p.type === 'counter');
+
+        // Renderowanie Liczników
+        countersData.forEach(prog => {
+            let handleDisplay = isReordering ? 'block' : 'none';
+            let editBtnHtml = isManagerOrKss ? `<button class="btn-edit-prog" onclick="openCounterModal('${prog.id}')">EDYTUJ</button>` : '';
+            
+            const card = document.createElement('div');
+            card.className = 'counter-card';
+            card.setAttribute('data-id', prog.id);
+            card.innerHTML = `
+                <div class="counter-header">
+                    <div class="drag-handle" style="display: ${handleDisplay}; margin-right:10px;">☰</div>
+                    <div class="counter-title">${prog.name}</div>
+                    ${editBtnHtml}
+                </div>
+                <div class="counter-value">${prog.current} <span class="counter-target-text">/ ${prog.target}</span></div>
+            `;
+            countersContainer.appendChild(card);
+        });
+
+        // Renderowanie Wykresów
+        if (chartsData.length === 0 && countersData.length > 0) {
+             chartsContainer.innerHTML = ''; // Nie pokazujemy tekstu "brak" jeśli są chociaż kafelki
+        }
+        
+        chartsData.forEach(prog => {
             let thresholds = prog.thresholds || [];
             let maxThreshold = thresholds.length > 0 ? Math.max(...thresholds) : 0;
             
@@ -459,16 +546,13 @@
                 differenceText = `<span style="color:#888;">Brak ustalonych progów.</span>`;
             }
 
-            let editBtnHtml = isManagerOrKss ? `<button class="btn-edit-prog" onclick="openProgModal('${prog.id}')">EDYTUJ</button>` : '';
-
-            // PRZYPISANIE KLASY SZEROKOŚCI (100, 50, 33)
+            let editBtnHtml = isManagerOrKss ? `<button class="btn-edit-prog" onclick="openProgChartModal('${prog.id}')">EDYTUJ</button>` : '';
             let layoutClass = `prog-w-${prog.layout || '33'}`;
             let handleDisplay = isReordering ? 'block' : 'none';
 
             const card = document.createElement('div');
             card.className = `prog-card ${layoutClass}`;
             card.setAttribute('data-id', prog.id); 
-            
             card.innerHTML = `
                 <div class="prog-header">
                     <div class="prog-title-group">
@@ -488,47 +572,100 @@
                     <div>${differenceText}</div>
                 </div>
             `;
-            container.appendChild(card);
+            chartsContainer.appendChild(card);
         });
     }
 
+    // --- LOGIKA WYBORU TYPU MODALA ---
+    function openTypeModal() {
+        if(isReordering) { alert("Najpierw zapisz układ, aby móc dodawać wskaźniki!"); return; }
+        document.getElementById('typeModal').style.display = 'flex';
+    }
+    function closeTypeModal() { document.getElementById('typeModal').style.display = 'none'; }
+
+    function selectType(type) {
+        closeTypeModal();
+        if(type === 'chart') openProgChartModal(null);
+        if(type === 'counter') openCounterModal(null);
+    }
+
+    // --- LOGIKA LICZNIKA ---
+    function openCounterModal(id = null) {
+        if(isReordering) { alert("Najpierw zapisz układ!"); return; }
+        document.getElementById('counterModal').style.display = 'flex';
+        const delBtn = document.getElementById('btnDeleteCounter');
+        
+        if(id) {
+            document.getElementById('counterModalTitle').innerText = "Edytuj Licznik";
+            const prog = localProgi.find(p => p.id === id);
+            document.getElementById('counterId').value = prog.id;
+            document.getElementById('counterName').value = prog.name;
+            document.getElementById('counterCurrent').value = prog.current;
+            document.getElementById('counterTarget').value = prog.target || 0;
+            delBtn.style.display = 'block';
+        } else {
+            document.getElementById('counterModalTitle').innerText = "Nowy Licznik";
+            document.getElementById('counterId').value = '';
+            document.getElementById('counterName').value = '';
+            document.getElementById('counterCurrent').value = '';
+            document.getElementById('counterTarget').value = '';
+            delBtn.style.display = 'none';
+        }
+    }
+    
+    function closeCounterModal() { document.getElementById('counterModal').style.display = 'none'; }
+
+    function saveCounter() {
+        const id = document.getElementById('counterId').value || 'prog_' + Date.now();
+        const name = document.getElementById('counterName').value.trim();
+        const current = parseFloat(document.getElementById('counterCurrent').value) || 0;
+        const target = parseFloat(document.getElementById('counterTarget').value) || 0;
+        
+        if(!name) { alert("Podaj nazwę wskaźnika!"); return; }
+
+        let newOrder = 0;
+        if(localProgi.length > 0) newOrder = Math.max(...localProgi.map(p => p.order || 0)) + 1;
+        const existingProg = localProgi.find(p => p.id === id);
+        const finalOrder = existingProg ? existingProg.order : newOrder;
+
+        db.ref(`Stores/${myStore}/Dashboard/Progi/${id}`).set({
+            type: 'counter', name: name, current: current, target: target, order: finalOrder
+        }).then(() => { closeCounterModal(); });
+    }
+
+    function deleteCounter() {
+        const id = document.getElementById('counterId').value;
+        if(confirm("Czy na pewno usunąć ten licznik?")) {
+            db.ref(`Stores/${myStore}/Dashboard/Progi/${id}`).remove().then(() => { closeCounterModal(); });
+        }
+    }
+
+    // --- LOGIKA WYKRESU PASKOWEGO ---
     function addThresholdInput(val = '') {
         const container = document.getElementById('dynamicThresholds');
         const div = document.createElement('div');
         div.className = 'input-group flex-row';
         div.innerHTML = `
-            <div style="flex:1;">
-                <label class="dyn-label">Próg</label>
-                <input type="number" class="prog-t-input" placeholder="Wartość..." value="${val}">
-            </div>
+            <div style="flex:1;"><label class="dyn-label">Próg</label><input type="number" class="prog-t-input" placeholder="Wartość..." value="${val}"></div>
             <button class="btn-remove-line" onclick="removeThresholdInput(this)">✖</button>
         `;
-        container.appendChild(div);
-        updateThresholdLabels();
+        container.appendChild(div); updateThresholdLabels();
     }
 
-    function removeThresholdInput(btn) {
-        btn.parentElement.remove();
-        updateThresholdLabels();
-    }
-
+    function removeThresholdInput(btn) { btn.parentElement.remove(); updateThresholdLabels(); }
     function updateThresholdLabels() {
-        const labels = document.querySelectorAll('#dynamicThresholds .dyn-label');
-        labels.forEach((lbl, idx) => {
-            lbl.innerText = `Próg ${idx + 1}`;
-        });
+        document.querySelectorAll('#dynamicThresholds .dyn-label').forEach((lbl, idx) => { lbl.innerText = `Próg ${idx + 1}`; });
     }
 
-    function openProgModal(id = null) {
-        if(isReordering) { alert("Najpierw zapisz układ, aby móc edytować wskaźniki!"); return; }
-        
+    function openProgChartModal(id = null) {
+        if(isReordering) { alert("Najpierw zapisz układ!"); return; }
         document.getElementById('progModal').style.display = 'flex';
         const delBtn = document.getElementById('btnDeleteProg');
         const container = document.getElementById('dynamicThresholds');
         container.innerHTML = ''; 
         
         if(id) {
-            document.getElementById('progModalTitle').innerText = "Edytuj Wskaźnik";
+            document.getElementById('progModalTitle').innerText = "Edytuj Wykres";
             const prog = localProgi.find(p => p.id === id);
             document.getElementById('progId').value = prog.id;
             document.getElementById('progName').value = prog.name;
@@ -536,16 +673,14 @@
             document.getElementById('progLayout').value = prog.layout || '33';
             
             let th = prog.thresholds || [];
-            if(th.length === 0) { addThresholdInput(); } 
-            else { th.forEach(tVal => addThresholdInput(tVal)); }
-            
+            if(th.length === 0) { addThresholdInput(); } else { th.forEach(tVal => addThresholdInput(tVal)); }
             delBtn.style.display = 'block';
         } else {
-            document.getElementById('progModalTitle').innerText = "Nowy Wskaźnik";
+            document.getElementById('progModalTitle').innerText = "Nowy Wykres";
             document.getElementById('progId').value = '';
             document.getElementById('progName').value = '';
             document.getElementById('progCurrent').value = '';
-            document.getElementById('progLayout').value = '100'; // Domyślnie szeroki
+            document.getElementById('progLayout').value = '100'; 
             addThresholdInput(); 
             delBtn.style.display = 'none';
         }
@@ -553,7 +688,7 @@
 
     function closeProgModal() { document.getElementById('progModal').style.display = 'none'; }
 
-    function saveProg() {
+    function saveProgChart() {
         const id = document.getElementById('progId').value || 'prog_' + Date.now();
         const name = document.getElementById('progName').value.trim();
         const current = parseFloat(document.getElementById('progCurrent').value) || 0;
@@ -561,44 +696,33 @@
         
         if(!name) { alert("Podaj nazwę wskaźnika!"); return; }
 
-        const tInputs = document.querySelectorAll('.prog-t-input');
         let thresholdsArr = [];
-        tInputs.forEach(inp => {
+        document.querySelectorAll('.prog-t-input').forEach(inp => {
             let val = parseFloat(inp.value);
-            if(!isNaN(val) && val > 0) { thresholdsArr.push(val); }
+            if(!isNaN(val) && val > 0) thresholdsArr.push(val);
         });
-
-        // Sortowanie progów dla porządku
         thresholdsArr.sort((a, b) => a - b);
 
         let newOrder = 0;
-        if(localProgi.length > 0) {
-            newOrder = Math.max(...localProgi.map(p => p.order || 0)) + 1;
-        }
-
+        if(localProgi.length > 0) newOrder = Math.max(...localProgi.map(p => p.order || 0)) + 1;
         const existingProg = localProgi.find(p => p.id === id);
         const finalOrder = existingProg ? existingProg.order : newOrder;
 
         db.ref(`Stores/${myStore}/Dashboard/Progi/${id}`).set({
-            name: name, 
-            current: current, 
-            thresholds: thresholdsArr,
-            layout: layout,
-            order: finalOrder
-        }).then(() => {
-            closeProgModal();
-        });
+            type: 'chart', name: name, current: current, thresholds: thresholdsArr, layout: layout, order: finalOrder
+        }).then(() => { closeProgModal(); });
     }
 
-    function deleteProg() {
+    function deleteProgChart() {
         const id = document.getElementById('progId').value;
-        if(confirm("Czy na pewno usunąć ten wskaźnik?")) {
-            db.ref(`Stores/${myStore}/Dashboard/Progi/${id}`).remove().then(() => {
-                closeProgModal();
-            });
+        if(confirm("Czy na pewno usunąć ten wykres?")) {
+            db.ref(`Stores/${myStore}/Dashboard/Progi/${id}`).remove().then(() => { closeProgModal(); });
         }
     }
 
+    // ===============================================
+    // INNE FUNKCJE (Załoga, Zegar, Grafik)
+    // ===============================================
     db.ref(`Stores/${myStore}/Users`).on('value', snap => {
         const usersObj = snap.val() || {};
         globalUsersList = Object.keys(usersObj).map(key => ({ charId: key, ...usersObj[key] }));

@@ -11,6 +11,8 @@
     <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-database-compat.js"></script>
     
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.2/Sortable.min.js"></script>
+    
     <script>
         const currentUser = JSON.parse(localStorage.getItem('currentUser'));
         const myStore = localStorage.getItem('myStore');
@@ -96,22 +98,21 @@
         .btn-add-prog { background: #ffe800; color: #000; border: none; padding: 6px 12px; font-weight: 900; border-radius: 8px; cursor: pointer; text-transform: uppercase; font-size: 0.65rem; transition: 0.3s; }
         .btn-add-prog:hover { transform: scale(1.05); box-shadow: 0 0 10px rgba(255, 232, 0, 0.3); }
 
-        /* NOWY SYSTEM ELASTYCZNEJ SIATKI WYKRESÓW */
-        .progi-grid { display: flex; flex-wrap: wrap; gap: 20px; margin-bottom: 40px; }
-        .prog-card { background: #0a0a0a; border: 1px solid #222; border-radius: 15px; padding: 20px; transition: 0.3s; box-shadow: inset 0 0 20px rgba(0,0,0,0.5); flex-grow: 1; }
+        .btn-reorder-prog { background: transparent; color: #888; border: 1px solid #555; padding: 6px 12px; font-weight: 900; border-radius: 8px; cursor: pointer; text-transform: uppercase; font-size: 0.65rem; transition: 0.3s; }
+        .btn-reorder-prog:hover { color: #fff; border-color: #fff; }
+
+        /* LISTA PROGÓW (Jeden pod drugim) */
+        .progi-grid { display: flex; flex-direction: column; gap: 15px; margin-bottom: 40px; }
+        .prog-card { background: #0a0a0a; border: 1px solid #222; border-radius: 15px; padding: 20px; transition: 0.3s; box-shadow: inset 0 0 20px rgba(0,0,0,0.5); width: 100%; position: relative; }
         .prog-card:hover { border-color: #333; background: #111; }
         
-        /* Klasy rozmiarów (sterowane przez kierownika) */
-        .prog-w-100 { flex: 0 0 100%; max-width: 100%; }
-        .prog-w-50 { flex: 0 0 calc(50% - 10px); max-width: calc(50% - 10px); }
-        .prog-w-33 { flex: 0 0 calc(33.333% - 14px); max-width: calc(33.333% - 14px); }
+        /* Efekt podczas przeciągania */
+        .sortable-ghost { opacity: 0.4; border: 2px dashed #ffe800 !important; background: #1a1a1a !important; }
         
-        /* Ochrona dla telefonów - wszystko spada do 100% */
-        @media (max-width: 768px) {
-            .prog-w-50, .prog-w-33 { flex: 0 0 100%; max-width: 100%; }
-        }
-
         .prog-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+        .prog-title-group { display: flex; align-items: center; gap: 10px; }
+        .drag-handle { color: #555; font-size: 1.2rem; cursor: grab; display: none; padding: 0 5px; }
+        .drag-handle:active { cursor: grabbing; color: #ffe800; }
         .prog-title { color: #fff; font-weight: 900; font-size: 1rem; text-transform: uppercase; }
         
         .prog-bar-bg { background: #151515; height: 30px; border-radius: 15px; position: relative; border: 1px solid #333; }
@@ -147,9 +148,8 @@
         .prog-modal-content { background: #0a0a0a; border: 2px solid #ffe800; padding: 30px; width: 100%; max-width: 450px; border-radius: 15px; box-shadow: 0 0 30px rgba(255, 232, 0, 0.15); max-height: 90vh; overflow-y: auto; }
         .input-group { margin-bottom: 15px; }
         .input-group label { display: block; font-size: 0.7rem; color: #888; font-weight: 900; text-transform: uppercase; margin-bottom: 5px; }
-        .input-group input, .input-group select { width: 100%; background: #111; border: 1px solid #333; color: #fff; padding: 10px; border-radius: 8px; font-size: 0.9rem; font-weight: bold; outline: none; }
-        .input-group input:focus, .input-group select:focus { border-color: #ffe800; }
-        .input-group select { cursor: pointer; appearance: auto; -webkit-appearance: auto; }
+        .input-group input { width: 100%; background: #111; border: 1px solid #333; color: #fff; padding: 10px; border-radius: 8px; font-size: 0.9rem; font-weight: bold; outline: none; }
+        .input-group input:focus { border-color: #ffe800; }
         
         .flex-row { display: flex; gap: 10px; align-items: center; }
         .btn-add-line { background: transparent; border: 1px dashed #ffe800; color: #ffe800; padding: 8px; width: 100%; border-radius: 8px; cursor: pointer; font-size: 0.7rem; font-weight: 900; text-transform: uppercase; transition: 0.2s; margin-bottom: 15px; }
@@ -226,7 +226,10 @@
 
         <div class="section-title">
             REALIZACJA CELÓW PREMIOWYCH
-            <button class="btn-add-prog" id="addProgBtn" style="display:none;" onclick="openProgModal(null)">+ DODAJ WSKAŹNIK</button>
+            <div style="display:flex; gap:10px;">
+                <button class="btn-reorder-prog" id="btnReorder" style="display:none;" onclick="toggleReorder()">🔄 ZMIEŃ KOLEJNOŚĆ</button>
+                <button class="btn-add-prog" id="addProgBtn" style="display:none;" onclick="openProgModal(null)">+ DODAJ WSKAŹNIK</button>
+            </div>
         </div>
         <div class="progi-grid" id="progiContainer">
             <div style="color: #666; font-size:0.8rem; font-weight:bold; width:100%; text-align:center;">Brak ustawionych celów.</div>
@@ -275,15 +278,6 @@
         <input type="hidden" id="progId">
         
         <div class="input-group">
-            <label>Szerokość wykresu na ekranie (Układ)</label>
-            <select id="progLayout">
-                <option value="100">Pełna szerokość (1 w rzędzie na górze)</option>
-                <option value="50">Połowa szerokości (2 obok siebie)</option>
-                <option value="33" selected>Jedna trzecia (3 obok siebie)</option>
-            </select>
-        </div>
-
-        <div class="input-group">
             <label>Nazwa Wskaźnika (np. Sprzedaż Usług)</label>
             <input type="text" id="progName" placeholder="Wpisz nazwę">
         </div>
@@ -322,6 +316,7 @@
         document.getElementById('navInwaKSS').style.display = 'none'; 
     } else {
         document.getElementById('addProgBtn').style.display = 'block';
+        document.getElementById('btnReorder').style.display = 'block';
     }
 
     db.ref(`Stores/${myStore}/Setup`).once('value', snap => {
@@ -335,15 +330,66 @@
     let globalUsersList = [];
 
     // ===============================================
-    // DYNAMICZNY SYSTEM PROGÓW Z UKŁADEM
+    // DYNAMICZNY SYSTEM PROGÓW Z DRAG & DROP
     // ===============================================
     let localProgi = [];
+    let isReordering = false;
+    let sortableInstance = null;
 
     db.ref(`Stores/${myStore}/Dashboard/Progi`).on('value', snap => {
         const progiObj = snap.val() || {};
         localProgi = Object.keys(progiObj).map(key => ({ id: key, ...progiObj[key] }));
-        renderProgi();
+        
+        // Sortujemy bazując na zapisanej kolejności
+        localProgi.sort((a, b) => (a.order || 0) - (b.order || 0));
+        
+        // Jeśli kierownik nie układa właśnie klocków, renderujemy na nowo
+        if(!isReordering) {
+            renderProgi();
+        }
     });
+
+    function toggleReorder() {
+        isReordering = !isReordering;
+        const container = document.getElementById('progiContainer');
+        const btn = document.getElementById('btnReorder');
+        const handles = document.querySelectorAll('.drag-handle');
+
+        if(isReordering) {
+            // Włączamy tryb przeciągania
+            btn.innerText = "💾 ZAPISZ UKŁAD";
+            btn.style.background = "#0a0";
+            btn.style.color = "#fff";
+            btn.style.borderColor = "#0a0";
+            handles.forEach(h => h.style.display = 'block');
+
+            sortableInstance = new Sortable(container, {
+                animation: 200,
+                handle: '.drag-handle',
+                ghostClass: 'sortable-ghost'
+            });
+        } else {
+            // Zapisujemy nowy układ
+            btn.innerText = "🔄 ZMIEŃ KOLEJNOŚĆ";
+            btn.style.background = "transparent";
+            btn.style.color = "#888";
+            btn.style.borderColor = "#555";
+            handles.forEach(h => h.style.display = 'none');
+
+            if(sortableInstance) {
+                const orderIds = sortableInstance.toArray();
+                let updates = {};
+                orderIds.forEach((id, index) => {
+                    updates[`Stores/${myStore}/Dashboard/Progi/${id}/order`] = index;
+                });
+                // Zapis w Firebase
+                db.ref().update(updates);
+                
+                sortableInstance.destroy();
+                sortableInstance = null;
+            }
+        }
+    }
 
     function renderProgi() {
         const container = document.getElementById('progiContainer');
@@ -393,14 +439,19 @@
 
             let editBtnHtml = isManagerOrKss ? `<button class="btn-edit-prog" onclick="openProgModal('${prog.id}')">EDYTUJ</button>` : '';
 
-            // PRZYPISANIE KLASY SZEROKOŚCI (100, 50, 33)
-            let layoutClass = `prog-w-${prog.layout || '33'}`;
-
             const card = document.createElement('div');
-            card.className = `prog-card ${layoutClass}`;
+            card.className = 'prog-card';
+            card.setAttribute('data-id', prog.id); // Kluczowe dla SortableJS
+            
+            // Styl wyświetlania przycisku przenoszenia zależy od trybu edycji
+            let handleDisplay = isReordering ? 'block' : 'none';
+
             card.innerHTML = `
                 <div class="prog-header">
-                    <div class="prog-title">${prog.name}</div>
+                    <div class="prog-title-group">
+                        <div class="drag-handle" style="display: ${handleDisplay};">☰</div>
+                        <div class="prog-title">${prog.name}</div>
+                    </div>
                     ${editBtnHtml}
                 </div>
                 <div style="margin-top: 25px; margin-bottom: 10px;">
@@ -446,6 +497,8 @@
     }
 
     function openProgModal(id = null) {
+        if(isReordering) { alert("Najpierw zapisz układ, aby móc edytować wskaźniki!"); return; }
+        
         document.getElementById('progModal').style.display = 'flex';
         const delBtn = document.getElementById('btnDeleteProg');
         const container = document.getElementById('dynamicThresholds');
@@ -457,7 +510,6 @@
             document.getElementById('progId').value = prog.id;
             document.getElementById('progName').value = prog.name;
             document.getElementById('progCurrent').value = prog.current;
-            document.getElementById('progLayout').value = prog.layout || '33';
             
             let th = prog.thresholds || [];
             if(th.length === 0) { addThresholdInput(); } 
@@ -469,7 +521,6 @@
             document.getElementById('progId').value = '';
             document.getElementById('progName').value = '';
             document.getElementById('progCurrent').value = '';
-            document.getElementById('progLayout').value = '100'; // Domyślnie na cały ekran
             addThresholdInput(); 
             delBtn.style.display = 'none';
         }
@@ -481,7 +532,6 @@
         const id = document.getElementById('progId').value || 'prog_' + Date.now();
         const name = document.getElementById('progName').value.trim();
         const current = parseFloat(document.getElementById('progCurrent').value) || 0;
-        const layout = document.getElementById('progLayout').value;
         
         if(!name) { alert("Podaj nazwę wskaźnika!"); return; }
 
@@ -489,19 +539,27 @@
         let thresholdsArr = [];
         tInputs.forEach(inp => {
             let val = parseFloat(inp.value);
-            if(!isNaN(val) && val > 0) {
-                thresholdsArr.push(val);
-            }
+            if(!isNaN(val) && val > 0) { thresholdsArr.push(val); }
         });
 
         // Sortowanie progów dla porządku wizualnego
         thresholdsArr.sort((a, b) => a - b);
 
+        // Znalezienie odpowiedniego `order` dla nowego wskaźnika (żeby wpadł na sam dół)
+        let newOrder = 0;
+        if(localProgi.length > 0) {
+            newOrder = Math.max(...localProgi.map(p => p.order || 0)) + 1;
+        }
+
+        // Pobranie obecnego orderu (jeśli to edycja)
+        const existingProg = localProgi.find(p => p.id === id);
+        const finalOrder = existingProg ? existingProg.order : newOrder;
+
         db.ref(`Stores/${myStore}/Dashboard/Progi/${id}`).set({
             name: name, 
             current: current, 
             thresholds: thresholdsArr,
-            layout: layout // Zapis nowej opcji
+            order: finalOrder
         }).then(() => {
             closeProgModal();
         });
@@ -533,16 +591,13 @@
         usersForDisplay.sort((a, b) => {
             let rankA = deptRank[a.displayDept] || 99;
             let rankB = deptRank[b.displayDept] || 99;
-            if (rankA === rankB) {
-                return a.name.localeCompare(b.name, 'pl');
-            }
+            if (rankA === rankB) return a.name.localeCompare(b.name, 'pl');
             return rankA - rankB;
         });
 
         usersForDisplay.forEach(member => {
             const card = document.createElement('div');
             card.className = 'team-card';
-            
             card.onclick = () => openEmployeeModal(member.charId);
             
             let deptColor = member.dept === 'ME' ? '#f44' : '#ffe800';

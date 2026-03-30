@@ -93,7 +93,6 @@
 
         .section-title { font-size: 0.9rem; color: #666; font-weight: 900; margin-bottom: 20px; letter-spacing: 2px; border-bottom: 2px solid #222; padding-bottom: 8px; text-transform: uppercase; display: flex; justify-content: space-between; align-items: center; }
         
-        /* SEKCJA WSKAŹNIKÓW / PROGÓW */
         .btn-add-prog { background: #ffe800; color: #000; border: none; padding: 6px 12px; font-weight: 900; border-radius: 8px; cursor: pointer; text-transform: uppercase; font-size: 0.65rem; transition: 0.3s; }
         .btn-add-prog:hover { transform: scale(1.05); box-shadow: 0 0 10px rgba(255, 232, 0, 0.3); }
 
@@ -126,7 +125,6 @@
         .team-name { font-weight: 900; font-size: 1rem; color: #fff; letter-spacing: 0.5px; }
         .team-dept { font-size: 0.75rem; color: #ffe800; font-weight: 900; margin-top: 4px; }
         
-        /* MODALE */
         .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 11000; align-items: center; justify-content: center; padding: 20px; backdrop-filter: blur(5px); }
         .emp-modal-content { background: #0a0a0a; border: 2px solid #ffe800; padding: 40px 20px; width: 100%; max-width: 350px; border-radius: 15px; text-align: center; box-shadow: 0 0 30px rgba(255, 232, 0, 0.15); }
         .emp-avatar-large { width: 90px; height: 90px; border-radius: 50%; background: #151515; border: 3px solid #ffe800; display: flex; align-items: center; justify-content: center; font-weight: 900; color: #ffe800; font-size: 2.5rem; overflow: hidden; margin: 0 auto 20px; box-shadow: 0 0 15px rgba(255,232,0,0.3); }
@@ -134,7 +132,6 @@
         .emp-stat-box { display: flex; flex-direction: column; align-items: center; }
         .btn-modal-close { background: #ffe800; color: #000; border: none; padding: 12px 20px; font-weight: 900; border-radius: 8px; cursor: pointer; width: 100%; text-transform: uppercase; margin-top: 10px; }
         
-        /* Modal Wskaźników */
         .prog-modal-content { background: #0a0a0a; border: 2px solid #ffe800; padding: 30px; width: 100%; max-width: 450px; border-radius: 15px; box-shadow: 0 0 30px rgba(255, 232, 0, 0.15); }
         .input-group { margin-bottom: 15px; }
         .input-group label { display: block; font-size: 0.7rem; color: #888; font-weight: 900; text-transform: uppercase; margin-bottom: 5px; }
@@ -293,10 +290,12 @@
 </div>
 
 <script>
-    document.getElementById('greetName').innerText = currentUser.name;
-    document.getElementById('sideName').innerText = `${currentUser.name} (${currentUser.dept})`;
+    document.getElementById('greetName').innerText = currentUser.name || "Nieznany";
+    document.getElementById('sideName').innerText = `${currentUser.name || "Nieznany"} (${currentUser.dept || "ME"})`;
     
-    const avatarHtml = currentUser.avatar ? `<img src="${currentUser.avatar}" style="width:100%; height:100%; object-fit:cover; border-radius:50%;">` : currentUser.charId.charAt(0);
+    // KULOODPORNE POBIERANIE AWATARA - zapobiega błędom jak komuś brakuje ID w starym koncie
+    let safeInitial = currentUser.charId ? currentUser.charId.charAt(0) : '?';
+    const avatarHtml = currentUser.avatar ? `<img src="${currentUser.avatar}" style="width:100%; height:100%; object-fit:cover; border-radius:50%;">` : safeInitial;
     document.getElementById('sideAvatar').innerHTML = avatarHtml;
 
     if(!isManagerOrKss) { 
@@ -336,11 +335,10 @@
         }
 
         localProgi.forEach(prog => {
-            // Obliczamy max wartość na pasku. To będzie największy próg + 5% żeby pasek miał margines
             let maxThreshold = Math.max(prog.t1 || 0, prog.t2 || 0, prog.t3 || 0);
             let barMax = maxThreshold > 0 ? maxThreshold * 1.05 : (prog.current || 100); 
-            if (barMax === 0) barMax = 100; // Zabezpieczenie przed dzieleniem przez zero
-            if (prog.current > barMax) barMax = prog.current; // Jeśli wynik przebił wszystko
+            if (barMax === 0) barMax = 100;
+            if (prog.current > barMax) barMax = prog.current;
 
             let percentFill = (prog.current / barMax) * 100;
             if (percentFill > 100) percentFill = 100;
@@ -349,19 +347,16 @@
             let nextThresholdVal = null;
             let nextThresholdName = "Maksimum";
 
-            // Marker Próg 1
             if(prog.t1 > 0) {
                 let pos1 = (prog.t1 / barMax) * 100;
                 markersHtml += `<div class="prog-marker" style="left: ${pos1}%;"><div class="prog-marker-label">PRÓG 1<br>${prog.t1}</div></div>`;
                 if(prog.current < prog.t1 && !nextThresholdVal) { nextThresholdVal = prog.t1; nextThresholdName = "Próg 1"; }
             }
-            // Marker Próg 2
             if(prog.t2 > 0) {
                 let pos2 = (prog.t2 / barMax) * 100;
                 markersHtml += `<div class="prog-marker" style="left: ${pos2}%;"><div class="prog-marker-label">PRÓG 2<br>${prog.t2}</div></div>`;
                 if(prog.current >= prog.t1 && prog.current < prog.t2 && !nextThresholdVal) { nextThresholdVal = prog.t2; nextThresholdName = "Próg 2"; }
             }
-            // Marker Próg 3
             if(prog.t3 > 0) {
                 let pos3 = (prog.t3 / barMax) * 100;
                 markersHtml += `<div class="prog-marker" style="left: ${pos3}%;"><div class="prog-marker-label">PRÓG 3<br>${prog.t3}</div></div>`;
@@ -405,7 +400,6 @@
         const delBtn = document.getElementById('btnDeleteProg');
         
         if(id) {
-            // Tryb Edycji
             document.getElementById('progModalTitle').innerText = "Edytuj Wskaźnik";
             const prog = localProgi.find(p => p.id === id);
             document.getElementById('progId').value = prog.id;
@@ -416,7 +410,6 @@
             document.getElementById('progT3').value = prog.t3 || '';
             delBtn.style.display = 'block';
         } else {
-            // Tryb Nowy
             document.getElementById('progModalTitle').innerText = "Nowy Wskaźnik";
             document.getElementById('progId').value = '';
             document.getElementById('progName').value = '';
@@ -456,9 +449,6 @@
         }
     }
 
-    // ===============================================
-    // SYSTEM POBIERANIA ZAŁOGI I PROFILÓW
-    // ===============================================
     db.ref(`Stores/${myStore}/Users`).on('value', snap => {
         const usersObj = snap.val() || {};
         globalUsersList = Object.keys(usersObj).map(key => ({ charId: key, ...usersObj[key] }));
@@ -489,7 +479,9 @@
             card.onclick = () => openEmployeeModal(member.charId);
             
             let deptColor = member.dept === 'ME' ? '#f44' : '#ffe800';
-            let memberAvatarHtml = member.avatar ? `<img src="${member.avatar}" style="width:100%; height:100%; object-fit:cover; border-radius:50%;">` : member.charId.charAt(0);
+            // Zabezpieczamy awatar przed awarią u starych członków
+            let mInitial = member.charId ? member.charId.charAt(0) : '?';
+            let memberAvatarHtml = member.avatar ? `<img src="${member.avatar}" style="width:100%; height:100%; object-fit:cover; border-radius:50%;">` : mInitial;
 
             card.innerHTML = `<div class="team-avatar">${memberAvatarHtml}</div><div class="team-info"><span class="team-name">${member.name}</span><span class="team-dept" style="color: ${deptColor};">${member.displayDept}</span></div>`;
             teamContainer.appendChild(card);
@@ -502,7 +494,8 @@
         const emp = globalUsersList.find(u => u.charId === charId);
         if(!emp) return;
         
-        const avatarHtml = emp.avatar ? `<img src="${emp.avatar}" style="width:100%; height:100%; object-fit:cover; border-radius:50%;">` : emp.charId.charAt(0);
+        let mInitial = emp.charId ? emp.charId.charAt(0) : '?';
+        const avatarHtml = emp.avatar ? `<img src="${emp.avatar}" style="width:100%; height:100%; object-fit:cover; border-radius:50%;">` : mInitial;
         document.getElementById('empModalAvatar').innerHTML = avatarHtml;
         document.getElementById('empModalName').innerText = emp.name;
         document.getElementById('empModalDept').innerText = emp.displayDept || emp.dept;
@@ -510,9 +503,7 @@
         let bDay = "Brak danych";
         if(emp.birthDate) {
             const parts = emp.birthDate.split('-');
-            if(parts.length === 3) {
-                bDay = `${parts[2]}.${parts[1]}.${parts[0]}`; 
-            }
+            if(parts.length === 3) { bDay = `${parts[2]}.${parts[1]}.${parts[0]}`; }
         }
         
         let wYearStr = "Brak danych";
@@ -522,21 +513,16 @@
             let suffix = "lat";
             if (years === 1) suffix = "rok";
             else if (years >= 2 && years <= 4) suffix = "lata";
-            
             wYearStr = years > 0 ? `${emp.workYear} (${years} ${suffix})` : `${emp.workYear} (1. rok)`;
         }
         
         document.getElementById('empModalBirth').innerText = bDay;
         document.getElementById('empModalWork').innerText = wYearStr;
-        
         document.getElementById('employeeModal').style.display = 'flex';
     }
 
     function closeEmployeeModal() { document.getElementById('employeeModal').style.display = 'none'; }
 
-    // ===============================================
-    // POZOSTAŁE FUNKCJE (Plan, Zegar)
-    // ===============================================
     function fetchPlanData() {
         const dateObj = new Date();
         const year = 2026; 

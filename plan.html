@@ -250,12 +250,23 @@
             
             <div style="display:flex; gap:15px;">
                 <div style="flex:1;">
-                    <label style="font-size:0.65rem; color:#888; font-weight:bold;">SZTYWNA SOBOTA:</label>
+                    <label style="font-size:0.65rem; color:#888; font-weight:bold;">SZTYWNA SOBOTA (Godziny):</label>
                     <input id="satHours" style="width:100%; background:#000; border:1px solid #ffe800; color:#fff; padding:10px; border-radius:5px; margin-top:5px; font-weight:bold; text-align:center;" value="10-20">
                 </div>
                 <div style="flex:1;">
-                    <label style="font-size:0.65rem; color:#888; font-weight:bold;">SZTYWNA NIEDZIELA:</label>
+                    <label style="font-size:0.65rem; color:#ffe800; font-weight:bold;">OBSADA SOBOTY (Ilość osób):</label>
+                    <input id="satStaffCount" type="number" style="width:100%; background:#000; border:1px solid #ffe800; color:#ffe800; padding:10px; border-radius:5px; margin-top:5px; font-weight:bold; text-align:center;" value="6">
+                </div>
+            </div>
+
+            <div style="display:flex; gap:15px;">
+                <div style="flex:1;">
+                    <label style="font-size:0.65rem; color:#888; font-weight:bold;">NIEDZIELA (Godziny):</label>
                     <input id="sunHours" style="width:100%; background:#000; border:1px solid #ffe800; color:#fff; padding:10px; border-radius:5px; margin-top:5px; font-weight:bold; text-align:center;" value="10-18">
+                </div>
+                <div style="flex:1;">
+                    <label style="font-size:0.65rem; color:#ffe800; font-weight:bold;">OBSADA NIEDZIELI (Ilość osób):</label>
+                    <input id="sunStaffCount" type="number" style="width:100%; background:#000; border:1px solid #ffe800; color:#ffe800; padding:10px; border-radius:5px; margin-top:5px; font-weight:bold; text-align:center;" value="6">
                 </div>
             </div>
 
@@ -325,7 +336,16 @@
     const tradingSundays2026 = ["1-25", "3-29", "4-26", "6-28", "8-30", "12-13", "12-20"]; 
 
     let localPlanData = {};
-    let localPlanMeta = { norm: 160, locked: false, globalShifts: "10-18, 12-20, 10-20", satHours: "10-20", sunHours: "10-18", customShortcuts: "10-18, 12-20, 10-20, 13-20, 10-17, WOLNE, URLOP, Ż, SZK" };
+    let localPlanMeta = { 
+        norm: 160, 
+        locked: false, 
+        globalShifts: "10-18, 12-20, 10-20", 
+        satHours: "10-20", 
+        sunHours: "10-18", 
+        satStaffCount: 6, // Nowa zmienna
+        sunStaffCount: 6, // Nowa zmienna
+        customShortcuts: "10-18, 12-20, 10-20, 13-20, 10-17, WOLNE, URLOP, Ż, SZK" 
+    };
     let employees = [];
     let planListener = null;
     let metaListener = null;
@@ -366,16 +386,21 @@
 
         metaListener = db.ref(`Stores/${myStore}/PlanMeta/${year}_${curM}`).on('value', snap => {
             const meta = snap.val() || {};
-            localPlanMeta.norm = meta.norm || 160; localPlanMeta.locked = meta.locked || false;
+            localPlanMeta.norm = meta.norm || 160; 
+            localPlanMeta.locked = meta.locked || false;
             localPlanMeta.globalShifts = meta.globalShifts || "10-18, 12-20, 10-20";
             localPlanMeta.satHours = meta.satHours || "10-20"; 
             localPlanMeta.sunHours = meta.sunHours || "10-18";
+            localPlanMeta.satStaffCount = meta.satStaffCount || 6;
+            localPlanMeta.sunStaffCount = meta.sunStaffCount || 6;
             localPlanMeta.customShortcuts = meta.customShortcuts || "10-18, 12-20, 10-20, 13-20, 10-17, WOLNE, URLOP, Ż, SZK";
             
             if(document.getElementById('hourNormInput')) document.getElementById('hourNormInput').value = localPlanMeta.norm;
             if(document.getElementById('globalShifts')) document.getElementById('globalShifts').value = localPlanMeta.globalShifts;
             if(document.getElementById('satHours')) document.getElementById('satHours').value = localPlanMeta.satHours;
             if(document.getElementById('sunHours')) document.getElementById('sunHours').value = localPlanMeta.sunHours;
+            if(document.getElementById('satStaffCount')) document.getElementById('satStaffCount').value = localPlanMeta.satStaffCount;
+            if(document.getElementById('sunStaffCount')) document.getElementById('sunStaffCount').value = localPlanMeta.sunStaffCount;
             if(document.getElementById('customShortcuts')) document.getElementById('customShortcuts').value = localPlanMeta.customShortcuts;
             
             employees.forEach(e => {
@@ -456,9 +481,8 @@
         } 
     }
 
-
     // =======================================================
-    // 5. POTĘŻNY SILNIK GENERATORA (BEZ KRÓTKICH DNI - STABILNY, BRUTALNY)
+    // 5. POTĘŻNY SILNIK GENERATORA (Z UWZGLĘDNIENIEM DYNAMICZNEJ OBSADY WEEKENDÓW)
     // =======================================================
     function getH(shiftStr) {
         if (!shiftStr) return 0;
@@ -535,14 +559,17 @@
                 }
             });
 
-            // 1. WEEKENDY
+            // 1. WEEKENDY Z DYNAMICZNĄ OBSADĄ
             let sats = []; 
             for(let d=1; d<=daysInMonth; d++) { 
                 if((new Date(year, curM, d).getDay() === 6 || new Date(year, curM, d).getDay() === 0) && isWorkDay(d)) sats.push(d); 
             }
 
             sats.forEach(d => {
-                let targetShift = new Date(year, curM, d).getDay() === 6 ? satShiftStr : sunShiftStr;
+                let isSaturday = new Date(year, curM, d).getDay() === 6;
+                let targetShift = isSaturday ? satShiftStr : sunShiftStr;
+                let totalNeeded = isSaturday ? (parseInt(localPlanMeta.satStaffCount) || 6) : (parseInt(localPlanMeta.sunStaffCount) || 6);
+
                 let available = employees.filter(e => memorySchedule[e.charId][d] === "" && e.dept !== 'ME'); 
                 shuffle(available);
                 available.sort((a,b) => {
@@ -552,10 +579,12 @@
                     return aWork - bWork; 
                 });
 
-                let toWork = []; let poks = available.filter(e => e.p); let sales = available.filter(e => !e.p); let totalNeeded = 6;
-                if(poks.length > 0) { toWork.push({ e: poks[0], shift: targetShift }); if(poks.length > 1) sales.push(poks[1]); totalNeeded--; }
-                let it = sales.find(e => e.dept === 'IT'); if(it) { toWork.push({ e: it, shift: targetShift }); sales = sales.filter(e => e.charId !== it.charId); totalNeeded--; }
-                let agd = sales.find(e => e.dept === 'AGD'); if(agd) { toWork.push({ e: agd, shift: targetShift }); sales = sales.filter(e => e.charId !== agd.charId); totalNeeded--; }
+                let toWork = []; let poks = available.filter(e => e.p); let sales = available.filter(e => !e.p); 
+                
+                if(poks.length > 0 && totalNeeded > 0) { toWork.push({ e: poks[0], shift: targetShift }); if(poks.length > 1) sales.push(poks[1]); totalNeeded--; }
+                let it = sales.find(e => e.dept === 'IT'); if(it && totalNeeded > 0) { toWork.push({ e: it, shift: targetShift }); sales = sales.filter(e => e.charId !== it.charId); totalNeeded--; }
+                let agd = sales.find(e => e.dept === 'AGD'); if(agd && totalNeeded > 0) { toWork.push({ e: agd, shift: targetShift }); sales = sales.filter(e => e.charId !== agd.charId); totalNeeded--; }
+                
                 for(let i=0; i<totalNeeded && sales.length>0; i++) { toWork.push({ e: sales[0], shift: targetShift }); sales.shift(); }
                 toWork.forEach(w => memorySchedule[w.e.charId][d] = w.shift);
             });
@@ -841,6 +870,8 @@
         metaUpdates['globalShifts'] = document.getElementById('globalShifts').value;
         metaUpdates['satHours'] = document.getElementById('satHours').value;
         metaUpdates['sunHours'] = document.getElementById('sunHours').value;
+        metaUpdates['satStaffCount'] = parseInt(document.getElementById('satStaffCount').value) || 6;
+        metaUpdates['sunStaffCount'] = parseInt(document.getElementById('sunStaffCount').value) || 6;
         metaUpdates['customShortcuts'] = document.getElementById('customShortcuts').value;
 
         employees.forEach(e => { for (let d = 1; d <= daysInMonth; d++) { let s = getShiftOnly(e.charId, d); if (s === "URLOP" || s === "Ż") { planUpdates[`${e.charId}_${d}`] = null; } } });

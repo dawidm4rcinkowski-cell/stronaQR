@@ -132,12 +132,17 @@
         .emp-stat-box { display: flex; flex-direction: column; align-items: center; }
         .btn-modal-close { background: #ffe800; color: #000; border: none; padding: 12px 20px; font-weight: 900; border-radius: 8px; cursor: pointer; width: 100%; text-transform: uppercase; margin-top: 10px; }
         
-        .prog-modal-content { background: #0a0a0a; border: 2px solid #ffe800; padding: 30px; width: 100%; max-width: 450px; border-radius: 15px; box-shadow: 0 0 30px rgba(255, 232, 0, 0.15); }
+        .prog-modal-content { background: #0a0a0a; border: 2px solid #ffe800; padding: 30px; width: 100%; max-width: 450px; border-radius: 15px; box-shadow: 0 0 30px rgba(255, 232, 0, 0.15); max-height: 90vh; overflow-y: auto; }
         .input-group { margin-bottom: 15px; }
         .input-group label { display: block; font-size: 0.7rem; color: #888; font-weight: 900; text-transform: uppercase; margin-bottom: 5px; }
         .input-group input { width: 100%; background: #111; border: 1px solid #333; color: #fff; padding: 10px; border-radius: 8px; font-size: 0.9rem; font-weight: bold; outline: none; }
         .input-group input:focus { border-color: #ffe800; }
-        .flex-row { display: flex; gap: 10px; }
+        
+        .flex-row { display: flex; gap: 10px; align-items: center; }
+        .btn-add-line { background: transparent; border: 1px dashed #ffe800; color: #ffe800; padding: 8px; width: 100%; border-radius: 8px; cursor: pointer; font-size: 0.7rem; font-weight: 900; text-transform: uppercase; transition: 0.2s; margin-bottom: 15px; }
+        .btn-add-line:hover { background: #ffe800; color: #000; border-style: solid; }
+        .btn-remove-line { background: transparent; border: none; color: #f44; font-size: 1.2rem; cursor: pointer; padding: 10px 5px 0; transition: 0.2s; }
+        .btn-remove-line:hover { transform: scale(1.2); }
     </style>
 </head>
 <body>
@@ -266,20 +271,14 @@
             <input type="number" id="progCurrent" placeholder="np. 45000">
         </div>
         
-        <div class="flex-row">
-            <div class="input-group" style="flex:1;">
-                <label>Próg 1</label>
-                <input type="number" id="progT1" placeholder="np. 40000">
-            </div>
-            <div class="input-group" style="flex:1;">
-                <label>Próg 2</label>
-                <input type="number" id="progT2" placeholder="np. 50000">
-            </div>
-            <div class="input-group" style="flex:1;">
-                <label>Próg 3</label>
-                <input type="number" id="progT3" placeholder="np. 60000">
-            </div>
+        <div style="margin-top: 20px; margin-bottom: 10px; border-bottom: 1px solid #333; padding-bottom: 5px;">
+            <label style="font-size: 0.7rem; color: #ffe800; font-weight: 900; text-transform: uppercase;">Zdefiniuj Progi:</label>
         </div>
+        
+        <div id="dynamicThresholds">
+            </div>
+        
+        <button class="btn-add-line" onclick="addThresholdInput()">+ DODAJ KOLEJNY PRÓG</button>
         
         <div style="display:flex; gap:10px; margin-top:20px;">
             <button class="btn-modal-close" style="background:#333; color:#fff;" onclick="closeProgModal()">ANULUJ</button>
@@ -293,7 +292,6 @@
     document.getElementById('greetName').innerText = currentUser.name || "Nieznany";
     document.getElementById('sideName').innerText = `${currentUser.name || "Nieznany"} (${currentUser.dept || "ME"})`;
     
-    // KULOODPORNE POBIERANIE AWATARA - zapobiega błędom jak komuś brakuje ID w starym koncie
     let safeInitial = currentUser.charId ? currentUser.charId.charAt(0) : '?';
     const avatarHtml = currentUser.avatar ? `<img src="${currentUser.avatar}" style="width:100%; height:100%; object-fit:cover; border-radius:50%;">` : safeInitial;
     document.getElementById('sideAvatar').innerHTML = avatarHtml;
@@ -315,7 +313,7 @@
     let globalUsersList = [];
 
     // ===============================================
-    // SYSTEM PROGÓW (Wykresy Premiowe)
+    // DYNAMICZNY SYSTEM PROGÓW (Grywalizacja)
     // ===============================================
     let localProgi = [];
 
@@ -335,9 +333,11 @@
         }
 
         localProgi.forEach(prog => {
-            let maxThreshold = Math.max(prog.t1 || 0, prog.t2 || 0, prog.t3 || 0);
+            let thresholds = prog.thresholds || [];
+            let maxThreshold = thresholds.length > 0 ? Math.max(...thresholds) : 0;
+            
             let barMax = maxThreshold > 0 ? maxThreshold * 1.05 : (prog.current || 100); 
-            if (barMax === 0) barMax = 100;
+            if (barMax <= 0) barMax = 100;
             if (prog.current > barMax) barMax = prog.current;
 
             let percentFill = (prog.current / barMax) * 100;
@@ -347,21 +347,19 @@
             let nextThresholdVal = null;
             let nextThresholdName = "Maksimum";
 
-            if(prog.t1 > 0) {
-                let pos1 = (prog.t1 / barMax) * 100;
-                markersHtml += `<div class="prog-marker" style="left: ${pos1}%;"><div class="prog-marker-label">PRÓG 1<br>${prog.t1}</div></div>`;
-                if(prog.current < prog.t1 && !nextThresholdVal) { nextThresholdVal = prog.t1; nextThresholdName = "Próg 1"; }
-            }
-            if(prog.t2 > 0) {
-                let pos2 = (prog.t2 / barMax) * 100;
-                markersHtml += `<div class="prog-marker" style="left: ${pos2}%;"><div class="prog-marker-label">PRÓG 2<br>${prog.t2}</div></div>`;
-                if(prog.current >= prog.t1 && prog.current < prog.t2 && !nextThresholdVal) { nextThresholdVal = prog.t2; nextThresholdName = "Próg 2"; }
-            }
-            if(prog.t3 > 0) {
-                let pos3 = (prog.t3 / barMax) * 100;
-                markersHtml += `<div class="prog-marker" style="left: ${pos3}%;"><div class="prog-marker-label">PRÓG 3<br>${prog.t3}</div></div>`;
-                if(prog.current >= prog.t2 && prog.current < prog.t3 && !nextThresholdVal) { nextThresholdVal = prog.t3; nextThresholdName = "Próg 3"; }
-            }
+            // Rysowanie dynamicznych znaczników
+            thresholds.forEach((tVal, idx) => {
+                if(tVal > 0) {
+                    let pos = (tVal / barMax) * 100;
+                    markersHtml += `<div class="prog-marker" style="left: ${pos}%;"><div class="prog-marker-label">PRÓG ${idx+1}<br>${tVal}</div></div>`;
+                    
+                    // Szukamy pierwszego progu, którego jeszcze nie osiągnięto
+                    if(prog.current < tVal && !nextThresholdVal) {
+                        nextThresholdVal = tVal;
+                        nextThresholdName = `Próg ${idx+1}`;
+                    }
+                }
+            });
 
             let differenceText = "";
             if(nextThresholdVal) {
@@ -369,6 +367,8 @@
                 differenceText = `Brakuje <span style="color:#ffe800;">${diff}</span> do: ${nextThresholdName}`;
             } else if (prog.current >= maxThreshold && maxThreshold > 0) {
                 differenceText = `<span style="color:#0a0;">Wszystkie progi osiągnięte! 🚀</span>`;
+            } else {
+                differenceText = `<span style="color:#888;">Brak ustalonych progów.</span>`;
             }
 
             let editBtnHtml = isManagerOrKss ? `<button class="btn-edit-prog" onclick="openProgModal('${prog.id}')">EDYTUJ</button>` : '';
@@ -395,9 +395,39 @@
         });
     }
 
+    // Funkcje do zarządzania dynamicznymi inputami w modalu
+    function addThresholdInput(val = '') {
+        const container = document.getElementById('dynamicThresholds');
+        const div = document.createElement('div');
+        div.className = 'input-group flex-row';
+        div.innerHTML = `
+            <div style="flex:1;">
+                <label class="dyn-label">Próg</label>
+                <input type="number" class="prog-t-input" placeholder="Wartość..." value="${val}">
+            </div>
+            <button class="btn-remove-line" onclick="removeThresholdInput(this)">✖</button>
+        `;
+        container.appendChild(div);
+        updateThresholdLabels();
+    }
+
+    function removeThresholdInput(btn) {
+        btn.parentElement.remove();
+        updateThresholdLabels();
+    }
+
+    function updateThresholdLabels() {
+        const labels = document.querySelectorAll('#dynamicThresholds .dyn-label');
+        labels.forEach((lbl, idx) => {
+            lbl.innerText = `Próg ${idx + 1}`;
+        });
+    }
+
     function openProgModal(id = null) {
         document.getElementById('progModal').style.display = 'flex';
         const delBtn = document.getElementById('btnDeleteProg');
+        const container = document.getElementById('dynamicThresholds');
+        container.innerHTML = ''; // Czyścimy stare inputy
         
         if(id) {
             document.getElementById('progModalTitle').innerText = "Edytuj Wskaźnik";
@@ -405,18 +435,20 @@
             document.getElementById('progId').value = prog.id;
             document.getElementById('progName').value = prog.name;
             document.getElementById('progCurrent').value = prog.current;
-            document.getElementById('progT1').value = prog.t1 || '';
-            document.getElementById('progT2').value = prog.t2 || '';
-            document.getElementById('progT3').value = prog.t3 || '';
+            
+            let th = prog.thresholds || [];
+            if(th.length === 0) {
+                addThresholdInput(); // Domyślnie 1 pusty
+            } else {
+                th.forEach(tVal => addThresholdInput(tVal));
+            }
             delBtn.style.display = 'block';
         } else {
             document.getElementById('progModalTitle').innerText = "Nowy Wskaźnik";
             document.getElementById('progId').value = '';
             document.getElementById('progName').value = '';
             document.getElementById('progCurrent').value = '';
-            document.getElementById('progT1').value = '';
-            document.getElementById('progT2').value = '';
-            document.getElementById('progT3').value = '';
+            addThresholdInput(); // Domyślnie 1 przy nowym
             delBtn.style.display = 'none';
         }
     }
@@ -427,14 +459,26 @@
         const id = document.getElementById('progId').value || 'prog_' + Date.now();
         const name = document.getElementById('progName').value.trim();
         const current = parseFloat(document.getElementById('progCurrent').value) || 0;
-        const t1 = parseFloat(document.getElementById('progT1').value) || 0;
-        const t2 = parseFloat(document.getElementById('progT2').value) || 0;
-        const t3 = parseFloat(document.getElementById('progT3').value) || 0;
-
+        
         if(!name) { alert("Podaj nazwę wskaźnika!"); return; }
 
+        // Pobieranie wartości ze wszystkich dynamicznych inputów
+        const tInputs = document.querySelectorAll('.prog-t-input');
+        let thresholdsArr = [];
+        tInputs.forEach(inp => {
+            let val = parseFloat(inp.value);
+            if(!isNaN(val) && val > 0) {
+                thresholdsArr.push(val);
+            }
+        });
+
+        // Magia: Zawsze sortujemy progi od najmniejszego do największego przed zapisem!
+        thresholdsArr.sort((a, b) => a - b);
+
         db.ref(`Stores/${myStore}/Dashboard/Progi/${id}`).set({
-            name: name, current: current, t1: t1, t2: t2, t3: t3
+            name: name, 
+            current: current, 
+            thresholds: thresholdsArr // Zapisujemy jako tablicę
         }).then(() => {
             closeProgModal();
         });
@@ -479,7 +523,6 @@
             card.onclick = () => openEmployeeModal(member.charId);
             
             let deptColor = member.dept === 'ME' ? '#f44' : '#ffe800';
-            // Zabezpieczamy awatar przed awarią u starych członków
             let mInitial = member.charId ? member.charId.charAt(0) : '?';
             let memberAvatarHtml = member.avatar ? `<img src="${member.avatar}" style="width:100%; height:100%; object-fit:cover; border-radius:50%;">` : mInitial;
 

@@ -101,10 +101,23 @@
         .btn-reorder-prog { background: transparent; color: #888; border: 1px solid #555; padding: 6px 12px; font-weight: 900; border-radius: 8px; cursor: pointer; text-transform: uppercase; font-size: 0.65rem; transition: 0.3s; }
         .btn-reorder-prog:hover { color: #fff; border-color: #fff; }
 
-        /* LISTA PROGÓW (Jeden pod drugim) */
-        .progi-grid { display: flex; flex-direction: column; gap: 15px; margin-bottom: 40px; }
-        .prog-card { background: #0a0a0a; border: 1px solid #222; border-radius: 15px; padding: 20px; transition: 0.3s; box-shadow: inset 0 0 20px rgba(0,0,0,0.5); width: 100%; position: relative; }
+        /* NOWY SYSTEM ELASTYCZNEJ SIATKI WYKRESÓW */
+        .progi-grid { display: flex; flex-wrap: wrap; gap: 15px; margin-bottom: 40px; }
+        
+        .prog-card { background: #0a0a0a; border: 1px solid #222; border-radius: 15px; padding: 20px; transition: 0.3s; box-shadow: inset 0 0 20px rgba(0,0,0,0.5); position: relative; }
         .prog-card:hover { border-color: #333; background: #111; }
+        
+        /* KLASY ODPOWIEDZIALNE ZA UKŁAD OBOK SIEBIE */
+        .prog-w-100 { flex: 0 0 100%; max-width: 100%; }
+        /* Szerokość na 50% z odjęciem luki (gap) 15px */
+        .prog-w-50 { flex: 0 0 calc(50% - 7.5px); max-width: calc(50% - 7.5px); }
+        /* Szerokość na 33% z odjęciem dwóch luk (gap) 15px */
+        .prog-w-33 { flex: 0 0 calc(33.333% - 10px); max-width: calc(33.333% - 10px); }
+        
+        /* Zabezpieczenie dla mniejszych ekranów - wszystko ustawia się 100% szerokości */
+        @media (max-width: 768px) {
+            .prog-w-50, .prog-w-33 { flex: 0 0 100%; max-width: 100%; }
+        }
         
         /* Efekt podczas przeciągania */
         .sortable-ghost { opacity: 0.4; border: 2px dashed #ffe800 !important; background: #1a1a1a !important; }
@@ -148,8 +161,9 @@
         .prog-modal-content { background: #0a0a0a; border: 2px solid #ffe800; padding: 30px; width: 100%; max-width: 450px; border-radius: 15px; box-shadow: 0 0 30px rgba(255, 232, 0, 0.15); max-height: 90vh; overflow-y: auto; }
         .input-group { margin-bottom: 15px; }
         .input-group label { display: block; font-size: 0.7rem; color: #888; font-weight: 900; text-transform: uppercase; margin-bottom: 5px; }
-        .input-group input { width: 100%; background: #111; border: 1px solid #333; color: #fff; padding: 10px; border-radius: 8px; font-size: 0.9rem; font-weight: bold; outline: none; }
-        .input-group input:focus { border-color: #ffe800; }
+        .input-group input, .input-group select { width: 100%; background: #111; border: 1px solid #333; color: #fff; padding: 10px; border-radius: 8px; font-size: 0.9rem; font-weight: bold; outline: none; }
+        .input-group input:focus, .input-group select:focus { border-color: #ffe800; }
+        .input-group select { cursor: pointer; appearance: auto; -webkit-appearance: auto; }
         
         .flex-row { display: flex; gap: 10px; align-items: center; }
         .btn-add-line { background: transparent; border: 1px dashed #ffe800; color: #ffe800; padding: 8px; width: 100%; border-radius: 8px; cursor: pointer; font-size: 0.7rem; font-weight: 900; text-transform: uppercase; transition: 0.2s; margin-bottom: 15px; }
@@ -278,6 +292,15 @@
         <input type="hidden" id="progId">
         
         <div class="input-group">
+            <label>Szerokość wykresu na ekranie</label>
+            <select id="progLayout">
+                <option value="100">Pełna szerokość (1 w rzędzie)</option>
+                <option value="50">Połowa ekranu (2 w rzędzie)</option>
+                <option value="33" selected>Jedna trzecia (3 w rzędzie)</option>
+            </select>
+        </div>
+
+        <div class="input-group">
             <label>Nazwa Wskaźnika (np. Sprzedaż Usług)</label>
             <input type="text" id="progName" placeholder="Wpisz nazwę">
         </div>
@@ -330,7 +353,7 @@
     let globalUsersList = [];
 
     // ===============================================
-    // DYNAMICZNY SYSTEM PROGÓW Z DRAG & DROP
+    // DYNAMICZNY SYSTEM PROGÓW Z DRAG & DROP I SZEROKOŚCIĄ
     // ===============================================
     let localProgi = [];
     let isReordering = false;
@@ -382,7 +405,6 @@
                 orderIds.forEach((id, index) => {
                     updates[`Stores/${myStore}/Dashboard/Progi/${id}/order`] = index;
                 });
-                // Zapis w Firebase
                 db.ref().update(updates);
                 
                 sortableInstance.destroy();
@@ -439,13 +461,14 @@
 
             let editBtnHtml = isManagerOrKss ? `<button class="btn-edit-prog" onclick="openProgModal('${prog.id}')">EDYTUJ</button>` : '';
 
-            const card = document.createElement('div');
-            card.className = 'prog-card';
-            card.setAttribute('data-id', prog.id); // Kluczowe dla SortableJS
-            
-            // Styl wyświetlania przycisku przenoszenia zależy od trybu edycji
+            // PRZYPISANIE KLASY SZEROKOŚCI (100, 50, 33)
+            let layoutClass = `prog-w-${prog.layout || '33'}`;
             let handleDisplay = isReordering ? 'block' : 'none';
 
+            const card = document.createElement('div');
+            card.className = `prog-card ${layoutClass}`;
+            card.setAttribute('data-id', prog.id); 
+            
             card.innerHTML = `
                 <div class="prog-header">
                     <div class="prog-title-group">
@@ -510,6 +533,7 @@
             document.getElementById('progId').value = prog.id;
             document.getElementById('progName').value = prog.name;
             document.getElementById('progCurrent').value = prog.current;
+            document.getElementById('progLayout').value = prog.layout || '33';
             
             let th = prog.thresholds || [];
             if(th.length === 0) { addThresholdInput(); } 
@@ -521,6 +545,7 @@
             document.getElementById('progId').value = '';
             document.getElementById('progName').value = '';
             document.getElementById('progCurrent').value = '';
+            document.getElementById('progLayout').value = '100'; // Domyślnie szeroki
             addThresholdInput(); 
             delBtn.style.display = 'none';
         }
@@ -532,6 +557,7 @@
         const id = document.getElementById('progId').value || 'prog_' + Date.now();
         const name = document.getElementById('progName').value.trim();
         const current = parseFloat(document.getElementById('progCurrent').value) || 0;
+        const layout = document.getElementById('progLayout').value;
         
         if(!name) { alert("Podaj nazwę wskaźnika!"); return; }
 
@@ -542,16 +568,14 @@
             if(!isNaN(val) && val > 0) { thresholdsArr.push(val); }
         });
 
-        // Sortowanie progów dla porządku wizualnego
+        // Sortowanie progów dla porządku
         thresholdsArr.sort((a, b) => a - b);
 
-        // Znalezienie odpowiedniego `order` dla nowego wskaźnika (żeby wpadł na sam dół)
         let newOrder = 0;
         if(localProgi.length > 0) {
             newOrder = Math.max(...localProgi.map(p => p.order || 0)) + 1;
         }
 
-        // Pobranie obecnego orderu (jeśli to edycja)
         const existingProg = localProgi.find(p => p.id === id);
         const finalOrder = existingProg ? existingProg.order : newOrder;
 
@@ -559,6 +583,7 @@
             name: name, 
             current: current, 
             thresholds: thresholdsArr,
+            layout: layout,
             order: finalOrder
         }).then(() => {
             closeProgModal();

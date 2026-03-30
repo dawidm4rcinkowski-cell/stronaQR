@@ -27,7 +27,6 @@
 
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Montserrat', sans-serif; }
-        
         body {
             background-color: #080808;
             background-image: 
@@ -36,10 +35,10 @@
                 linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
             background-size: 100% 100%, 40px 40px, 40px 40px;
             background-position: center center;
-            color: white; display: flex; align-items: center; justify-content: center; min-height: 100vh; overflow: hidden; flex-direction: column;
+            color: white; display: flex; align-items: center; justify-content: center; min-height: 100vh; overflow-y: auto; flex-direction: column; padding: 20px;
         }
 
-        .login-wrapper { width: 100%; max-width: 400px; padding: 20px; z-index: 10; }
+        .login-wrapper { width: 100%; max-width: 400px; z-index: 10; transition: 0.3s; }
         .login-box { background: #0a0a0a; border: 2px solid #222; padding: 40px 30px; border-radius: 20px; box-shadow: 0 20px 50px rgba(0,0,0,0.9), inset 0 0 20px rgba(255,232,0,0.02); position: relative; text-align: center; transition: 0.3s; }
         .login-box:hover { border-color: #ffe800; box-shadow: 0 20px 50px rgba(0,0,0,0.9), 0 0 30px rgba(255,232,0,0.1); }
 
@@ -48,74 +47,201 @@
 
         .input-group { margin-bottom: 20px; text-align: left; }
         .input-group label { font-size: 0.75rem; color: #888; font-weight: 900; letter-spacing: 1px; margin-bottom: 8px; display: block; text-transform: uppercase; }
-        .form-input { width: 100%; background: #111; border: 1px solid #333; color: #fff; padding: 15px; border-radius: 10px; font-size: 1rem; font-weight: bold; outline: none; transition: 0.3s; text-transform: uppercase; }
-        .form-input:focus { border-color: #ffe800; background: #151515; }
-        .form-input::placeholder { color: #444; font-weight: normal; text-transform: none; }
+        .form-input, select { width: 100%; background: #111; border: 1px solid #333; color: #fff; padding: 15px; border-radius: 10px; font-size: 1rem; font-weight: bold; outline: none; transition: 0.3s; }
+        .form-input.uppercase { text-transform: uppercase; }
+        .form-input:focus, select:focus { border-color: #ffe800; background: #151515; }
+        
+        select { cursor: pointer; appearance: auto; -webkit-appearance: auto; }
 
         .btn-login { width: 100%; background: #ffe800; color: #000; border: none; padding: 16px; font-weight: 900; border-radius: 10px; cursor: pointer; text-transform: uppercase; margin-top: 10px; transition: 0.3s; font-size: 1rem; letter-spacing: 1px; }
         .btn-login:hover:not(:disabled) { transform: translateY(-3px); box-shadow: 0 10px 20px rgba(255, 232, 0, 0.3); }
         .btn-login:disabled { background: #333; color: #666; cursor: not-allowed; }
+
+        .btn-secondary { background: transparent; border: 1px solid #555; color: #888; margin-top: 15px; padding: 12px; }
+        .btn-secondary:hover { border-color: #fff; color: #fff; transform: none; box-shadow: none; }
 
         .msg-box { padding: 12px; border-radius: 8px; font-size: 0.85rem; font-weight: bold; text-align: center; display: none; margin-top: 20px; }
         .msg-error { background: rgba(255, 68, 68, 0.1); border: 1px solid #f44; color: #f44; }
         .msg-success { background: rgba(0, 170, 0, 0.1); border: 1px solid #0a0; color: #0a0; }
 
         .footer-text { margin-top: 30px; font-size: 0.65rem; color: #555; font-weight: bold; letter-spacing: 1px; text-transform: uppercase; text-align: center; }
+
+        /* WIZARD (KREATOR SKLEPU) */
+        #wizardWrapper { display: none; width: 100%; max-width: 600px; z-index: 10; }
+        .wizard-step { display: none; }
+        .wizard-step.active { display: block; animation: fadeIn 0.4s ease; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        
+        .step-header { color: #ffe800; font-size: 1.2rem; font-weight: 900; margin-bottom: 25px; border-bottom: 1px solid #333; padding-bottom: 10px; text-align: left; }
+        .flex-row { display: flex; gap: 15px; }
+        
+        .team-list { background: #000; border: 1px solid #333; border-radius: 10px; padding: 15px; max-height: 250px; overflow-y: auto; margin-bottom: 20px; }
+        .team-item { display: flex; justify-content: space-between; padding: 10px; border-bottom: 1px solid #222; font-size: 0.8rem; font-weight: bold; }
+        .team-item:last-child { border-bottom: none; }
+        .btn-add-emp { background: #111; border: 1px dashed #ffe800; color: #ffe800; padding: 15px; border-radius: 10px; cursor: pointer; font-weight: 900; width: 100%; transition: 0.2s; }
+        .btn-add-emp:hover { background: #ffe800; color: #000; }
     </style>
 </head>
 <body>
 
-    <div class="login-wrapper">
+    <div class="login-wrapper" id="loginForm">
         <div class="login-box">
             <div class="logo">EXPERT <span onclick="triggerSecretAdmin()">TOOL</span></div>
             
             <div class="input-group">
                 <label>Numer Sklepu</label>
-                <input type="text" class="form-input" id="storeNum" placeholder="np. S255" autocomplete="off">
+                <input type="text" class="form-input uppercase" id="storeNum" placeholder="np. S255" autocomplete="off">
             </div>
             
             <div class="input-group">
-                <label>Twój CharID</label>
-                <input type="text" class="form-input" id="charId" placeholder="CharID" autocomplete="off">
+                <label>Twój Kod (CharID)</label>
+                <input type="text" class="form-input uppercase" id="charId" placeholder="np. TOMEK" autocomplete="off">
             </div>
             
             <div class="input-group" style="margin-bottom: 10px;">
                 <label>Hasło</label>
-                <input type="password" class="form-input" id="password" placeholder="Wpisz hasło" style="text-transform: none;">
+                <input type="password" class="form-input" id="password" placeholder="Wpisz hasło">
             </div>
 
             <div id="loginMsg" class="msg-box"></div>
 
             <button class="btn-login" id="loginBtn" onclick="attemptLogin()">ZALOGUJ SIĘ</button>
+            <button class="btn-login btn-secondary" onclick="startWizard()">ZAREJESTRUJ NOWY SKLEP</button>
         </div>
-        
         <div class="footer-text">System Zarządzania Sklepem &copy; 2026</div>
     </div>
 
+    <div class="login-wrapper" id="wizardWrapper" style="max-width: 600px;">
+        <div class="login-box" style="text-align: left;">
+            <div class="logo" style="justify-content: flex-start;">NOWY <span>SKLEP</span></div>
+            
+            <div class="wizard-step active" id="step1">
+                <div class="step-header">KROK 1: Autoryzacja</div>
+                <p style="font-size: 0.8rem; color:#888; margin-bottom: 20px;">Wpisz jednorazowy 6-cyfrowy kod dostępu otrzymany od Administratora Systemu.</p>
+                <div class="input-group">
+                    <input type="text" class="form-input" id="wizToken" placeholder="np. 123456" style="text-align:center; font-size:1.5rem; letter-spacing:5px;">
+                </div>
+                <div id="wizMsg1" class="msg-box"></div>
+                <button class="btn-login" onclick="verifyToken()">WERYFIKUJ KOD</button>
+                <button class="btn-login btn-secondary" onclick="cancelWizard()">WRÓĆ DO LOGOWANIA</button>
+            </div>
+
+            <div class="wizard-step" id="step2">
+                <div class="step-header">KROK 2: Parametry Sklepu</div>
+                <div class="flex-row">
+                    <div class="input-group" style="flex:1;">
+                        <label>Numer Sklepu</label>
+                        <input type="text" class="form-input uppercase" id="wizStoreNum" placeholder="np. S255">
+                    </div>
+                    <div class="input-group" style="flex:2;">
+                        <label>Miejscowość / Galeria</label>
+                        <input type="text" class="form-input" id="wizCity" placeholder="np. Warszawa Plaza">
+                    </div>
+                </div>
+                <div class="input-group">
+                    <label>Typ Sklepu (Wpływa na algorytm obsady weekendów)</label>
+                    <select id="wizStoreType">
+                        <option value="small">Mały Sklep (ok. 4 os. na weekend)</option>
+                        <option value="medium" selected>Średni Sklep (ok. 8 os. na weekend)</option>
+                        <option value="large">Duży Sklep (ok. 15 os. na weekend)</option>
+                    </select>
+                </div>
+                <div id="wizMsg2" class="msg-box"></div>
+                <button class="btn-login" onclick="goToStep3()">DALEJ</button>
+            </div>
+
+            <div class="wizard-step" id="step3">
+                <div class="step-header">KROK 3: Konto Głównego Kierownika</div>
+                <p style="font-size: 0.8rem; color:#888; margin-bottom: 20px;">Założymy teraz Twoje konto, które będzie miało pełne uprawnienia (ME).</p>
+                <div class="input-group">
+                    <label>Twoje Imię i Nazwisko</label>
+                    <input type="text" class="form-input uppercase" id="wizMgrName" placeholder="np. JAN KOWALSKI">
+                </div>
+                <div class="flex-row">
+                    <div class="input-group" style="flex:1;">
+                        <label>CharID (Twój kod logowania)</label>
+                        <input type="text" class="form-input uppercase" id="wizMgrChar" placeholder="np. JANK">
+                    </div>
+                    <div class="input-group" style="flex:1;">
+                        <label>Ustaw swoje Tajne Hasło</label>
+                        <input type="password" class="form-input" id="wizMgrPass" placeholder="Min. 6 znaków">
+                    </div>
+                </div>
+                <div id="wizMsg3" class="msg-box"></div>
+                <button class="btn-login" onclick="goToStep4()">DALEJ: Zbuduj Ekipę</button>
+            </div>
+
+            <div class="wizard-step" id="step4">
+                <div class="step-header">KROK 4: Dodawanie Pracowników</div>
+                <p style="font-size: 0.75rem; color:#888; margin-bottom: 15px;">Dodaj załogę. Dla każdego pracownika hasło startowe będzie takie samo jak jego CharID (każdy zmieni je sam po pierwszym logowaniu).</p>
+                
+                <div class="team-list" id="wizTeamList">
+                    <div style="color:#555; text-align:center;">Jeszcze nikt nie został dodany.</div>
+                </div>
+
+                <div style="background:#111; padding:15px; border-radius:10px; border:1px solid #333; margin-bottom:20px;">
+                    <div class="flex-row">
+                        <div class="input-group" style="flex:2; margin-bottom:10px;">
+                            <label>Imię pracownika</label>
+                            <input type="text" class="form-input uppercase" id="wizEmpName" placeholder="np. ANIA">
+                        </div>
+                        <div class="input-group" style="flex:1; margin-bottom:10px;">
+                            <label>CharID</label>
+                            <input type="text" class="form-input uppercase" id="wizEmpChar" placeholder="np. ANIA1">
+                        </div>
+                    </div>
+                    <div class="flex-row">
+                        <div class="input-group" style="flex:1; margin-bottom:0;">
+                            <label>Dział</label>
+                            <select id="wizEmpDept" onchange="togglePromoterFields()">
+                                <option value="IT">IT</option><option value="RTV">RTV</option><option value="AGD">AGD</option>
+                                <option value="RS">RS</option><option value="POK">POK</option><option value="PWS">Magazyn (PWS)</option>
+                                <option value="KSS">KSS / Z-ca Kier.</option><option value="PROM">Przedstawiciel / Promotor</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="flex-row" id="promoterFields" style="display:none; margin-top:15px; padding-top:15px; border-top:1px dashed #444;">
+                        <div class="input-group" style="flex:1; margin-bottom:0;">
+                            <label style="color:#ffe800;">Nazwa Marki</label>
+                            <input type="text" class="form-input uppercase" id="wizPromBrand" placeholder="np. SAMSUNG">
+                        </div>
+                        <div class="input-group" style="flex:1; margin-bottom:0;">
+                            <label style="color:#ffe800;">Podpięty pod dział (Dla grafiku)</label>
+                            <select id="wizPromAttach">
+                                <option value="IT">IT</option><option value="RTV">RTV</option>
+                                <option value="AGD">AGD</option><option value="RS">RS</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <button class="btn-add-emp" style="margin-top:15px;" onclick="addEmployeeToList()">+ Dodaj do listy</button>
+                </div>
+                
+                <div id="wizMsg4" class="msg-box"></div>
+                <button class="btn-login" style="background:#0a0; color:#fff;" onclick="finishAndBuildStore()">ZAKOŃCZ I STWÓRZ SKLEP!</button>
+            </div>
+
+        </div>
+    </div>
+
     <script>
+        // SPRAWDZENIE SESJI (Ominięcie logowania)
         window.onload = () => {
             if(localStorage.getItem('currentUser') && localStorage.getItem('myStore')) {
                 window.location.href = 'index.html';
             }
         };
 
-        let secretClicks = 0;
-        let secretTimer = null;
-
+        // EASTER EGG (Ukryty panel admina)
+        let secretClicks = 0, secretTimer = null;
         function triggerSecretAdmin() {
-            secretClicks++;
-            clearTimeout(secretTimer);
-            if (secretClicks >= 5) {
-                window.location.href = 'superadmin.html';
-            } else {
-                secretTimer = setTimeout(() => { secretClicks = 0; }, 1000);
-            }
+            secretClicks++; clearTimeout(secretTimer);
+            if (secretClicks >= 5) { window.location.href = 'superadmin.html'; } 
+            else { secretTimer = setTimeout(() => { secretClicks = 0; }, 1000); }
         }
 
-        document.addEventListener("keydown", function(event) {
-            if (event.key === "Enter") { attemptLogin(); }
-        });
-
+        // STANDARDOWE LOGOWANIE
         async function attemptLogin() {
             let storeNum = document.getElementById('storeNum').value.trim().toUpperCase().replace(/\s+/g, '');
             let inputCharId = document.getElementById('charId').value.trim().toUpperCase().replace(/\s+/g, '');
@@ -123,45 +249,23 @@
             let msgBox = document.getElementById('loginMsg');
             let btn = document.getElementById('loginBtn');
 
-            msgBox.style.display = 'block';
-            msgBox.className = 'msg-box';
+            msgBox.style.display = 'block'; msgBox.className = 'msg-box';
+            if (!storeNum || !inputCharId || !password) { msgBox.classList.add('msg-error'); msgBox.innerText = "Uzupełnij wszystkie pola!"; return; }
 
-            if (!storeNum || !inputCharId || !password) {
-                msgBox.classList.add('msg-error');
-                msgBox.innerText = "Uzupełnij wszystkie pola!";
-                return;
-            }
-
-            btn.disabled = true;
-            btn.innerText = "WERYFIKACJA...";
+            btn.disabled = true; btn.innerText = "WERYFIKACJA...";
 
             try {
                 const storeSnap = await db.ref(`Stores/${storeNum}`).once('value');
-                if (!storeSnap.exists()) {
-                    msgBox.classList.add('msg-error');
-                    msgBox.innerText = "Taki sklep nie istnieje w bazie!";
-                    btn.disabled = false; btn.innerText = "ZALOGUJ SIĘ"; return;
-                }
+                if (!storeSnap.exists()) { msgBox.classList.add('msg-error'); msgBox.innerText = "Sklep nie istnieje!"; btn.disabled=false; btn.innerText="ZALOGUJ SIĘ"; return; }
 
                 const userSnap = await db.ref(`Stores/${storeNum}/Users/${inputCharId}`).once('value');
-                if (!userSnap.exists()) {
-                    msgBox.classList.add('msg-error');
-                    msgBox.innerText = "Błędny Kod Logowania (CharID)!";
-                    btn.disabled = false; btn.innerText = "ZALOGUJ SIĘ"; return;
-                }
+                if (!userSnap.exists()) { msgBox.classList.add('msg-error'); msgBox.innerText = "Błędny Kod Logowania!"; btn.disabled=false; btn.innerText="ZALOGUJ SIĘ"; return; }
 
                 const userData = userSnap.val();
+                if (userData.password !== password) { msgBox.classList.add('msg-error'); msgBox.innerText = "Podano błędne hasło!"; btn.disabled=false; btn.innerText="ZALOGUJ SIĘ"; return; }
 
-                if (userData.password !== password) {
-                    msgBox.classList.add('msg-error');
-                    msgBox.innerText = "Podano błędne hasło!";
-                    btn.disabled = false; btn.innerText = "ZALOGUJ SIĘ"; return;
-                }
-
-                msgBox.classList.add('msg-success');
-                msgBox.innerText = "Logowanie poprawne!";
+                msgBox.classList.add('msg-success'); msgBox.innerText = "Logowanie poprawne!";
                 
-                // TU BYŁ BŁĄD. Bierzemy charId z wpisanego okienka (inputCharId), a nie z bazy!
                 const secureUserData = {
                     charId: inputCharId, 
                     name: userData.name || "Nieznany",
@@ -172,13 +276,225 @@
 
                 localStorage.setItem('myStore', storeNum);
                 localStorage.setItem('currentUser', JSON.stringify(secureUserData));
-
                 setTimeout(() => { window.location.href = 'index.html'; }, 500);
 
             } catch (error) {
-                msgBox.classList.add('msg-error');
-                msgBox.innerText = "Błąd połączenia z bazą danych!";
-                btn.disabled = false; btn.innerText = "ZALOGUJ SIĘ";
+                msgBox.classList.add('msg-error'); msgBox.innerText = "Błąd połączenia z bazą!"; btn.disabled=false; btn.innerText="ZALOGUJ SIĘ";
+            }
+        }
+
+
+        // ==========================================
+        // KREATOR NOWEGO SKLEPU (WIZARD)
+        // ==========================================
+        let validWizardToken = "";
+        let newStoreEmployees = [];
+
+        function startWizard() {
+            document.getElementById('loginForm').style.display = 'none';
+            document.getElementById('wizardWrapper').style.display = 'block';
+        }
+
+        function cancelWizard() {
+            document.getElementById('loginForm').style.display = 'block';
+            document.getElementById('wizardWrapper').style.display = 'none';
+        }
+
+        function showStep(stepNum) {
+            document.querySelectorAll('.wizard-step').forEach(el => el.classList.remove('active'));
+            document.getElementById(`step${stepNum}`).classList.add('active');
+        }
+
+        // KROK 1: TOKEN
+        async function verifyToken() {
+            const token = document.getElementById('wizToken').value.trim();
+            const msg = document.getElementById('wizMsg1');
+            msg.style.display = 'block'; msg.className = 'msg-box';
+
+            if(!token) { msg.classList.add('msg-error'); msg.innerText = "Wpisz kod dostępu!"; return; }
+
+            try {
+                const snap = await db.ref(`Admin/Tokens/${token}`).once('value');
+                if(snap.exists() && snap.val().valid) {
+                    validWizardToken = token;
+                    showStep(2);
+                } else {
+                    msg.classList.add('msg-error'); msg.innerText = "Kod jest nieprawidłowy lub został już wykorzystany.";
+                }
+            } catch(e) {
+                msg.classList.add('msg-error'); msg.innerText = "Błąd weryfikacji połączenia.";
+            }
+        }
+
+        // KROK 2: DANE SKLEPU
+        function goToStep3() {
+            const sNum = document.getElementById('wizStoreNum').value.trim();
+            const city = document.getElementById('wizCity').value.trim();
+            const msg = document.getElementById('wizMsg2');
+            
+            if(!sNum || !city) { msg.style.display='block'; msg.className='msg-box msg-error'; msg.innerText="Wypełnij Numer i Miejscowość!"; return; }
+            msg.style.display = 'none';
+            showStep(3);
+        }
+
+        // KROK 3: KIEROWNIK
+        function goToStep4() {
+            const name = document.getElementById('wizMgrName').value.trim();
+            const charId = document.getElementById('wizMgrChar').value.trim().replace(/\s+/g, '');
+            const pass = document.getElementById('wizMgrPass').value.trim();
+            const msg = document.getElementById('wizMsg3');
+            
+            if(!name || !charId || !pass) { msg.style.display='block'; msg.className='msg-box msg-error'; msg.innerText="Uzupełnij wszystkie pola!"; return; }
+            if(pass.length < 6) { msg.style.display='block'; msg.className='msg-box msg-error'; msg.innerText="Hasło musi mieć minimum 6 znaków!"; return; }
+            
+            msg.style.display = 'none';
+            showStep(4);
+        }
+
+        // KROK 4: ZAŁOGA
+        function togglePromoterFields() {
+            const dept = document.getElementById('wizEmpDept').value;
+            const promFields = document.getElementById('promoterFields');
+            if(dept === 'PROM') { promFields.style.display = 'flex'; } 
+            else { promFields.style.display = 'none'; }
+        }
+
+        function addEmployeeToList() {
+            const name = document.getElementById('wizEmpName').value.trim().toUpperCase();
+            const charId = document.getElementById('wizEmpChar').value.trim().toUpperCase().replace(/\s+/g, '');
+            const rawDept = document.getElementById('wizEmpDept').value;
+            
+            if(!name || !charId) { alert("Podaj Imię i CharID pracownika!"); return; }
+            if(newStoreEmployees.find(e => e.charId === charId)) { alert("Pracownik o takim CharID jest już na liście!"); return; }
+            if(charId === document.getElementById('wizMgrChar').value.trim().toUpperCase()) { alert("To jest Twoje własne CharID!"); return; }
+
+            let empObj = {
+                name: name,
+                charId: charId,
+                password: charId, // Hasło startowe to jego kod logowania
+                dept: rawDept,
+                isKss: rawDept === 'KSS'
+            };
+
+            // Jeśli to KSS, oficjalnym działem w bazie i tak jest Sales, tylko ma isKss=true (lub dział na który został przyjęty, ale uprośćmy na razie jako 'Sales/KSS')
+            if(rawDept === 'KSS') { empObj.dept = 'Sales'; }
+
+            // Logika dla Promotora
+            if(rawDept === 'PROM') {
+                const brand = document.getElementById('wizPromBrand').value.trim().toUpperCase();
+                const attached = document.getElementById('wizPromAttach').value;
+                if(!brand) { alert("Musisz podać nazwę marki (np. SAMSUNG)!"); return; }
+                empObj.brand = brand;
+                empObj.attachedTo = attached;
+            }
+
+            newStoreEmployees.push(empObj);
+            
+            // Czyszczenie inputów
+            document.getElementById('wizEmpName').value = '';
+            document.getElementById('wizEmpChar').value = '';
+            document.getElementById('wizPromBrand').value = '';
+            renderTeamList();
+        }
+
+        function renderTeamList() {
+            const list = document.getElementById('wizTeamList');
+            if(newStoreEmployees.length === 0) {
+                list.innerHTML = '<div style="color:#555; text-align:center;">Jeszcze nikt nie został dodany.</div>';
+                return;
+            }
+            let html = '';
+            newStoreEmployees.forEach((emp, index) => {
+                let desc = emp.dept === 'PROM' ? `PROM (${emp.brand}) -> ${emp.attachedTo}` : (emp.isKss ? 'KSS' : emp.dept);
+                html += `
+                    <div class="team-item">
+                        <span>${emp.name} [${emp.charId}] - <span style="color:#ffe800;">${desc}</span></span>
+                        <button style="background:transparent; border:none; color:#f44; cursor:pointer;" onclick="removeEmp(${index})">Usuń</button>
+                    </div>`;
+            });
+            list.innerHTML = html;
+        }
+
+        function removeEmp(index) {
+            newStoreEmployees.splice(index, 1);
+            renderTeamList();
+        }
+
+        // FINAŁ - TWORZENIE BAZY
+        async function finishAndBuildStore() {
+            const msg = document.getElementById('wizMsg4');
+            msg.style.display = 'block'; msg.className = 'msg-box';
+            msg.innerText = "Tworzenie infrastruktury w chmurze...";
+
+            const sNum = document.getElementById('wizStoreNum').value.trim().toUpperCase();
+            
+            try {
+                // Sprawdzenie czy sklep już nie istnieje (zabezpieczenie)
+                const checkSnap = await db.ref(`Stores/${sNum}`).once('value');
+                if(checkSnap.exists()) {
+                    msg.classList.add('msg-error'); msg.innerText = "Sklep o tym numerze już istnieje w bazie! Skontaktuj się z adminem."; return;
+                }
+
+                let updates = {};
+                
+                // 1. SETUP
+                updates[`Stores/${sNum}/Setup`] = {
+                    sNumber: sNum,
+                    city: document.getElementById('wizCity').value.trim()
+                };
+
+                // 2. KIEROWNIK GŁÓWNY (Ty)
+                const mgrChar = document.getElementById('wizMgrChar').value.trim().toUpperCase();
+                updates[`Stores/${sNum}/Users/${mgrChar}`] = {
+                    charId: mgrChar,
+                    name: document.getElementById('wizMgrName').value.trim().toUpperCase(),
+                    password: document.getElementById('wizMgrPass').value.trim(),
+                    dept: "ME",
+                    isKss: true,
+                    avatar: ""
+                };
+
+                // 3. PRACOWNICY
+                newStoreEmployees.forEach(emp => {
+                    updates[`Stores/${sNum}/Users/${emp.charId}`] = emp;
+                });
+
+                // 4. KONTO ZABEZPIECZAJĄCE (Admin)
+                updates[`Stores/${sNum}/Users/ADMIN`] = { charId: "ADMIN", name: "SYSTEM", dept: "IT", password: "xxx" };
+
+                // 5. USTAWIENIA WEEKENDÓW BAZUJĄC NA TYPIE SKLEPU
+                const sType = document.getElementById('wizStoreType').value;
+                let satCount = 6, sunCount = 6;
+                if(sType === 'small') { satCount = 4; sunCount = 4; }
+                if(sType === 'large') { satCount = 15; sunCount = 15; }
+                
+                updates[`Stores/${sNum}/PlanMeta/2026_0`] = { satStaffCount: satCount, sunStaffCount: sunCount }; // Domyslne wartosci zapisu np. dla pierwszego m-ca
+
+                // Zapis do bazy
+                await db.ref().update(updates);
+                
+                // Unieważnienie Tokena
+                await db.ref(`Admin/Tokens/${validWizardToken}`).remove();
+
+                msg.classList.add('msg-success');
+                msg.innerText = "Sklep gotowy! Trwa logowanie...";
+
+                // Logowanie kierownika
+                const secureUserData = {
+                    charId: mgrChar, 
+                    name: document.getElementById('wizMgrName').value.trim().toUpperCase(),
+                    dept: "ME",
+                    isKss: true,
+                    avatar: ""
+                };
+
+                localStorage.setItem('myStore', sNum);
+                localStorage.setItem('currentUser', JSON.stringify(secureUserData));
+
+                setTimeout(() => { window.location.href = 'index.html'; }, 1000);
+
+            } catch(e) {
+                msg.classList.add('msg-error'); msg.innerText = "Krytyczny błąd: " + e.message;
             }
         }
     </script>

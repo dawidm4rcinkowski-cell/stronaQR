@@ -6,7 +6,6 @@
     <title>Media Expert - Plan Pracy</title>
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='48' fill='%23ffe800'/><path d='M75.6,24.4c-9.1-9.1-23.9-9.1-33,0c-7.3,7.3-8.8,17.7-4.7,26.5L12.4,76.4c-1.6,1.6-1.6,4.1,0,5.7l5.5,5.5c1.6,1.6,4.1,1.6,5.7,0l25.5-25.5c8.8,4.1,19.2,2.6,26.5-4.7C84.7,48.3,84.7,33.5,75.6,24.4z M66.8,41.2c-3.1,3.1-8.2,3.1-11.3,0s-3.1-8.2,0-11.3s8.2-3.1,11.3,0S69.9,38.1,66.8,41.2z' fill='%23000'/></svg>">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&display=swap" rel="stylesheet">
-    
     <script src="https://cdn.jsdelivr.net/npm/xlsx-js-style@1.2.0/dist/xlsx.bundle.js"></script>
     
     <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app-compat.js"></script>
@@ -22,6 +21,7 @@
         
         const isManagerOrKss = (currentUser.dept === 'ME' || currentUser.isKss);
 
+        // INICJALIZACJA FIREBASE
         const firebaseConfig = {
             apiKey: "AIzaSyD0N6Bjyzs34piOoujEn9mxKir8LDGdD2k",
             authDomain: "expert-tool.firebaseapp.com",
@@ -85,7 +85,7 @@
         .admin-controls { display: flex; align-items: center; gap: 8px; border-left: 1px solid #333; padding-left: 10px; }
         .norm-input { width: 55px; background: #000; color: #ffe800; border: 1px solid #ffe800; text-align: center; font-weight: 900; padding: 4px; font-size: 0.8rem; border-radius: 4px; outline: none; }
         
-        /* TABELA */
+        /* TABELA - Dostosowana do poziomego scrolla przy wielu osobach */
         .table-container { flex: 1; overflow: auto; background: #080808; width: 100vw; max-width: 100%; display: block; position: relative; }
         table { border-collapse: collapse; width: 100%; min-width: max-content; background: #080808; }
         
@@ -167,15 +167,6 @@
         
         .loading-overlay { position: absolute; inset: 0; background: rgba(0,0,0,0.8); z-index: 2000; display: flex; align-items: center; justify-content: center; color: #ffe800; font-weight: bold; font-size: 1.5rem; display: none; flex-direction: column;}
         .loading-overlay span { font-size: 0.8rem; color: #ccc; margin-top: 10px; font-weight: normal;}
-
-        /* MODAL KRÓTKICH DNI (WIGILIA / WIELKA SOBOTA) */
-        .short-days-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)); gap: 8px; margin-top: 15px; max-height: 40vh; overflow-y: auto; }
-        .short-day-btn { background: #151515; border: 1px solid #333; color: #888; padding: 15px 5px; border-radius: 8px; cursor: pointer; font-weight: 900; font-size: 0.8rem; transition: 0.3s; display: flex; flex-direction: column; align-items: center; justify-content: center; }
-        .short-day-btn.selected { background: #ffe800; color: #000; border-color: #ffe800; box-shadow: 0 0 10px rgba(255,232,0,0.4); }
-        .short-day-btn span.day-date { font-size: 1.2rem; }
-        .short-day-btn span.day-name { font-size: 0.5rem; text-transform: uppercase; margin-top: 4px; }
-        .short-day-btn input { width: 90%; background: #000; border: 1px solid #555; color: #fff; margin-top: 8px; font-size: 0.65rem; text-align: center; padding: 4px; border-radius: 4px; display: none; }
-        .short-day-btn.selected input { display: block; }
     </style>
 </head>
 <body>
@@ -218,7 +209,7 @@
             <input type="number" id="hourNormInput" class="norm-input" value="160" onchange="saveNorm(this.value)">
             <button class="btn-settings" onclick="toggleModal(true)">⚙️ USTAWIENIA</button>
             <button class="btn-settings" style="background:#a00; color:#fff; border-color:#a00;" onclick="clearMonth()" id="clearBtn">🗑️ WYCZYŚĆ</button>
-            <button class="btn-gen" onclick="openShortDaysModal()" id="genBtn">🚀 GENERUJ PLAN</button>
+            <button class="btn-gen" onclick="startGeneration()" id="genBtn">🚀 GENERUJ PLAN</button>
             <button class="btn-settings" id="approveBtn" style="background:#0a0; color:#fff; border-color:#0a0;" onclick="toggleApprove()">✅ ZATWIERDŹ</button>
             <button class="btn-excel" onclick="exportToExcel()" id="excelBtn">📊 EXCEL</button>
         </div>
@@ -308,21 +299,6 @@
     </div>
 </div>
 
-<div class="modal" id="shortDaysModal">
-    <div class="modal-content" style="max-width: 600px;">
-        <h3 style="color:#ffe800; margin-bottom:10px; font-size:1.2rem; text-align:center;">CZY W TYM MIESIĄCU SĄ "KRÓTKIE DNI"?</h3>
-        <p style="color:#888; font-size:0.75rem; margin-bottom:20px; line-height:1.4;">Zaznacz dni takie jak Wigilia, Sylwester czy Wielka Sobota, w które sklep jest czynny krócej. Algorytm przypisze wszystkim pracującym wybraną przez Ciebie zmianę (np. 09-14) zamiast domyślnych otwarć i zamknięć.</p>
-        
-        <div class="short-days-grid" id="shortDaysGrid">
-            </div>
-        
-        <div style="display:flex; gap:10px; margin-top:25px;">
-            <button class="btn-settings" style="flex:1; height:45px; font-size: 0.8rem;" onclick="closeShortDaysModal()">ANULUJ</button>
-            <button class="btn-gen" style="flex:2; height:45px; font-size: 0.8rem;" onclick="proceedWithGeneration()">OK, GENERUJ GRAFIK</button>
-        </div>
-    </div>
-</div>
-
 <script>
     // =======================================================
     // 1. INICJALIZACJA I ZMIENNE
@@ -353,9 +329,6 @@
     let employees = [];
     let planListener = null;
     let metaListener = null;
-    
-    // Obiekt do przetrzymywania tymczasowych krótkich dni przed generacją
-    let customShortDays = {};
 
     // =======================================================
     // 2. POBIERANIE ZAŁOGI FIREBASE
@@ -364,7 +337,7 @@
         const usersObj = snap.val() || {};
         let rawUsers = Object.keys(usersObj).map(key => ({ charId: key, ...usersObj[key] })).filter(u => u.charId !== 'ADMIN');
         
-        const deptRank = { 'ME': 1, 'KSS': 2, 'POK': 3, 'IT': 4, 'AGD': 5, 'RTV': 6 };
+        const deptRank = { 'ME': 1, 'KSS': 2, 'POK': 3, 'IT': 4, 'AGD': 5, 'RTV': 6, 'RS': 7, 'PWS': 8 };
         rawUsers.forEach(u => { u.displayDept = (u.isKss && u.dept !== 'ME') ? 'KSS' : u.dept; });
         rawUsers.sort((a, b) => {
             let rA = deptRank[a.displayDept] || 99; let rB = deptRank[b.displayDept] || 99;
@@ -483,76 +456,9 @@
         } 
     }
 
-    // =======================================================
-    // NOWY MODUŁ: OKNO KRÓTKICH DNI PRZED GENERACJĄ
-    // =======================================================
-    function openShortDaysModal() {
-        if(localPlanMeta.locked === true) return;
-        customShortDays = {}; // Reset pamieci
-        
-        const daysInMonth = new Date(year, curM + 1, 0).getDate();
-        const grid = document.getElementById('shortDaysGrid');
-        grid.innerHTML = '';
-        
-        for(let d=1; d<=daysInMonth; d++) {
-            let isWknd = new Date(year, curM, d).getDay() === 0 || new Date(year, curM, d).getDay() === 6;
-            let isHol = holidays2026.includes(`${curM+1}-${d}`);
-            let isTradeSun = tradingSundays2026.includes(`${curM+1}-${d}`);
-            
-            // Pokazujemy tylko dni potencjalnie robocze, ktore mogą zostac skrocone (pomijamy zwykle niedziele i swieta, bo i tak są wolne)
-            if((!isWknd && !isHol) || isTradeSun || (isWknd && new Date(year, curM, d).getDay() === 6)) {
-                let dayName = ['ND','PN','WT','ŚR','CZ','PT','SB'][new Date(year, curM, d).getDay()];
-                
-                let box = document.createElement('div');
-                box.className = 'short-day-btn';
-                box.innerHTML = `<span class="day-date">${d}</span><span class="day-name">${dayName}</span><input type="text" id="shortInp_${d}" placeholder="np. 09-14" onclick="event.stopPropagation()">`;
-                
-                box.onclick = function() {
-                    if(this.classList.contains('selected')) {
-                        this.classList.remove('selected');
-                        delete customShortDays[d];
-                        document.getElementById(`shortInp_${d}`).value = '';
-                    } else {
-                        this.classList.add('selected');
-                        customShortDays[d] = "09-14"; // domyślna propozycja
-                        document.getElementById(`shortInp_${d}`).value = "09-14";
-                        document.getElementById(`shortInp_${d}`).focus();
-                    }
-                };
-                
-                // Zmiana wartości w inputcie aktualizuje obiekt
-                box.querySelector('input').onchange = function() {
-                    if(this.value.trim() !== '') {
-                        customShortDays[d] = this.value.trim().toUpperCase();
-                    }
-                }
-                
-                grid.appendChild(box);
-            }
-        }
-        
-        document.getElementById('shortDaysModal').style.display = 'flex';
-    }
-
-    function closeShortDaysModal() {
-        document.getElementById('shortDaysModal').style.display = 'none';
-    }
-
-    function proceedWithGeneration() {
-        // Zapisz wpisane z palca wartosci do customShortDays
-        for(let d in customShortDays) {
-            let inp = document.getElementById(`shortInp_${d}`);
-            if(inp && inp.value.trim() !== '') {
-                customShortDays[d] = inp.value.trim().toUpperCase();
-            }
-        }
-        closeShortDaysModal();
-        executeGenerationCore();
-    }
-
 
     // =======================================================
-    // 5. POTĘŻNY SILNIK GENERATORA V6 (Fuzja + Brutal Mode + Krótkie Dni)
+    // 5. POTĘŻNY SILNIK GENERATORA (BEZ KRÓTKICH DNI - STABILNY, BRUTALNY)
     // =======================================================
     function getH(shiftStr) {
         if (!shiftStr) return 0;
@@ -596,7 +502,8 @@
         return array;
     }
 
-    function executeGenerationCore() {
+    function startGeneration() {
+        if(localPlanMeta.locked === true) return;
         document.getElementById('loadingData').innerHTML = "Budowanie szkieletu i balansowanie godzin... <span>To może chwilę potrwać</span>";
         document.getElementById('loadingData').style.display = 'flex';
 
@@ -628,25 +535,10 @@
                 }
             });
 
-            // 0. APLIKOWANIE KRÓTKICH DNI (Wigilia, Sylwester itp.) Z WYBORU UŻYTKOWNIKA
-            let appliedShortDaysCount = 0;
-            for(let sd in customShortDays) {
-                let d = parseInt(sd);
-                let customShift = customShortDays[d];
-                appliedShortDaysCount++;
-                
-                // Dla krotkiego dnia bierzemy wszystkich dostępnych pracowników i wrzucamy im tę samą zmianę
-                employees.forEach(e => {
-                    if(e.dept !== 'ME' && memorySchedule[e.charId][d] === "") {
-                        memorySchedule[e.charId][d] = customShift;
-                    }
-                });
-            }
-
-            // 1. WEEKENDY (Omijamy dni które zostały już nadpisane w kroku 0 jako Krótkie Dni)
+            // 1. WEEKENDY
             let sats = []; 
             for(let d=1; d<=daysInMonth; d++) { 
-                if((new Date(year, curM, d).getDay() === 6 || new Date(year, curM, d).getDay() === 0) && isWorkDay(d) && !customShortDays[d]) sats.push(d); 
+                if((new Date(year, curM, d).getDay() === 6 || new Date(year, curM, d).getDay() === 0) && isWorkDay(d)) sats.push(d); 
             }
 
             sats.forEach(d => {
@@ -668,9 +560,9 @@
                 toWork.forEach(w => memorySchedule[w.e.charId][d] = w.shift);
             });
 
-            // 2. DNI ROBOCZE Z MATEMATYKĄ POK (Również omijamy krótkie dni)
+            // 2. DNI ROBOCZE Z MATEMATYKĄ POK
             for(let d=1; d<=daysInMonth; d++) {
-                if(new Date(year, curM, d).getDay() === 6 || new Date(year, curM, d).getDay() === 0 || !isWorkDay(d) || customShortDays[d]) continue;
+                if(new Date(year, curM, d).getDay() === 6 || new Date(year, curM, d).getDay() === 0 || !isWorkDay(d)) continue;
                 
                 let availPoks = employees.filter(e => e.p && canWork(e.charId, d, memorySchedule));
                 
@@ -719,7 +611,7 @@
                 let possibleDays = [];
                 for(let d=1; d<=daysInMonth; d++) {
                     let isWknd = new Date(year, curM, d).getDay() === 0 || new Date(year, curM, d).getDay() === 6;
-                    if(isWorkDay(d) && !isWknd && !customShortDays[d] && memorySchedule[emp.charId][d] === "" && getStreak(emp.charId, d, memorySchedule) < 5) {
+                    if(isWorkDay(d) && !isWknd && memorySchedule[emp.charId][d] === "" && getStreak(emp.charId, d, memorySchedule) < 5) {
                         let c = 0; employees.forEach(em => { if(em.dept !== 'ME' && memorySchedule[em.charId][d].includes('-')) c++; }); possibleDays.push({ d, staff: c });
                     }
                 }
@@ -731,7 +623,7 @@
                 let possibleDays = [];
                 for(let d=1; d<=daysInMonth; d++) {
                     let isWknd = new Date(year, curM, d).getDay() === 0 || new Date(year, curM, d).getDay() === 6; let v = memorySchedule[emp.charId][d];
-                    if(!isWknd && !customShortDays[d] && (v === openShiftStr || v === closeShiftStr) && getStreak(emp.charId, d, memorySchedule) < 5) possibleDays.push(d);
+                    if(!isWknd && (v === openShiftStr || v === closeShiftStr) && getStreak(emp.charId, d, memorySchedule) < 5) possibleDays.push(d);
                 }
                 if(possibleDays.length > 0) { shuffle(possibleDays); memorySchedule[emp.charId][possibleDays[0]] = fullShiftStr; return true; }
                 return false;
@@ -741,7 +633,7 @@
                 let possibleDays = [];
                 for(let d=1; d<=daysInMonth; d++) {
                     let v = memorySchedule[emp.charId][d]; let isWknd = new Date(year, curM, d).getDay() === 0 || new Date(year, curM, d).getDay() === 6;
-                    if(!isWknd && !customShortDays[d] && (v === openShiftStr || v === closeShiftStr || v === fullShiftStr)) {
+                    if(!isWknd && (v === openShiftStr || v === closeShiftStr || v === fullShiftStr)) {
                         let otwSales = 0, zamSales = 0, otwPok = 0, zamPok = 0, itCount = 0, agdCount = 0;
                         employees.forEach(em => {
                             if(em.charId === emp.charId || em.dept === 'ME') return; let ev = memorySchedule[em.charId][d];
@@ -772,7 +664,7 @@
                 let possibleDays = [];
                 for(let d=1; d<=daysInMonth; d++) {
                     let isWknd = new Date(year, curM, d).getDay() === 0 || new Date(year, curM, d).getDay() === 6; let v = memorySchedule[emp.charId][d];
-                    if(!isWknd && !customShortDays[d] && v === fullShiftStr) {
+                    if(!isWknd && v === fullShiftStr) {
                         let isSafe = true;
                         if(strict && emp.p) {
                             let oP = 0, zP = 0;
@@ -817,7 +709,7 @@
                         if(!actionTaken && !strictMode) {
                              for(let d=1; d<=daysInMonth; d++) {
                                 let isWknd = new Date(year, curM, d).getDay() === 0 || new Date(year, curM, d).getDay() === 6;
-                                if(isWorkDay(d) && !isWknd && !customShortDays[d] && memorySchedule[emp.charId][d] === "" && (getStreak(emp.charId, d, memorySchedule) < 5 || brutalMode)) { 
+                                if(isWorkDay(d) && !isWknd && memorySchedule[emp.charId][d] === "" && (getStreak(emp.charId, d, memorySchedule) < 5 || brutalMode)) { 
                                     memorySchedule[emp.charId][d] = openShiftStr; 
                                     actionTaken = true; break; 
                                 }
@@ -831,7 +723,7 @@
                                 let isWknd = new Date(year, curM, d).getDay() === 0 || new Date(year, curM, d).getDay() === 6; 
                                 let s = memorySchedule[emp.charId][d];
                                 
-                                if(!isWknd && !customShortDays[d] && (s === openShiftStr || s === closeShiftStr || s === fullShiftStr)) {
+                                if(!isWknd && (s === openShiftStr || s === closeShiftStr || s === fullShiftStr)) {
                                     let isLastPok = false;
                                     if(emp.p) { 
                                         let otherPok = 0; 
@@ -1027,7 +919,7 @@
         
         let ws = XLSX.utils.aoa_to_sheet(data); 
         
-        // Zmiana szerokości kolumn (aby tekst się nie łamał i wyglądało profesjonalnie)
+        // Zmiana szerokości kolumn
         let wscols = [{ wch: 12 }]; // DATA
         employees.forEach(() => wscols.push({ wch: 15 })); // Pracownicy
         wscols.push({ wch: 18 }); // OTW-SUM-ZAM

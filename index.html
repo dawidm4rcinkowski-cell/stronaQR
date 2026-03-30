@@ -96,9 +96,21 @@
         .btn-add-prog { background: #ffe800; color: #000; border: none; padding: 6px 12px; font-weight: 900; border-radius: 8px; cursor: pointer; text-transform: uppercase; font-size: 0.65rem; transition: 0.3s; }
         .btn-add-prog:hover { transform: scale(1.05); box-shadow: 0 0 10px rgba(255, 232, 0, 0.3); }
 
-        .progi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; margin-bottom: 40px; }
-        .prog-card { background: #0a0a0a; border: 1px solid #222; border-radius: 15px; padding: 20px; transition: 0.3s; box-shadow: inset 0 0 20px rgba(0,0,0,0.5); }
+        /* NOWY SYSTEM ELASTYCZNEJ SIATKI WYKRESÓW */
+        .progi-grid { display: flex; flex-wrap: wrap; gap: 20px; margin-bottom: 40px; }
+        .prog-card { background: #0a0a0a; border: 1px solid #222; border-radius: 15px; padding: 20px; transition: 0.3s; box-shadow: inset 0 0 20px rgba(0,0,0,0.5); flex-grow: 1; }
         .prog-card:hover { border-color: #333; background: #111; }
+        
+        /* Klasy rozmiarów (sterowane przez kierownika) */
+        .prog-w-100 { flex: 0 0 100%; max-width: 100%; }
+        .prog-w-50 { flex: 0 0 calc(50% - 10px); max-width: calc(50% - 10px); }
+        .prog-w-33 { flex: 0 0 calc(33.333% - 14px); max-width: calc(33.333% - 14px); }
+        
+        /* Ochrona dla telefonów - wszystko spada do 100% */
+        @media (max-width: 768px) {
+            .prog-w-50, .prog-w-33 { flex: 0 0 100%; max-width: 100%; }
+        }
+
         .prog-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
         .prog-title { color: #fff; font-weight: 900; font-size: 1rem; text-transform: uppercase; }
         
@@ -135,8 +147,9 @@
         .prog-modal-content { background: #0a0a0a; border: 2px solid #ffe800; padding: 30px; width: 100%; max-width: 450px; border-radius: 15px; box-shadow: 0 0 30px rgba(255, 232, 0, 0.15); max-height: 90vh; overflow-y: auto; }
         .input-group { margin-bottom: 15px; }
         .input-group label { display: block; font-size: 0.7rem; color: #888; font-weight: 900; text-transform: uppercase; margin-bottom: 5px; }
-        .input-group input { width: 100%; background: #111; border: 1px solid #333; color: #fff; padding: 10px; border-radius: 8px; font-size: 0.9rem; font-weight: bold; outline: none; }
-        .input-group input:focus { border-color: #ffe800; }
+        .input-group input, .input-group select { width: 100%; background: #111; border: 1px solid #333; color: #fff; padding: 10px; border-radius: 8px; font-size: 0.9rem; font-weight: bold; outline: none; }
+        .input-group input:focus, .input-group select:focus { border-color: #ffe800; }
+        .input-group select { cursor: pointer; appearance: auto; -webkit-appearance: auto; }
         
         .flex-row { display: flex; gap: 10px; align-items: center; }
         .btn-add-line { background: transparent; border: 1px dashed #ffe800; color: #ffe800; padding: 8px; width: 100%; border-radius: 8px; cursor: pointer; font-size: 0.7rem; font-weight: 900; text-transform: uppercase; transition: 0.2s; margin-bottom: 15px; }
@@ -262,17 +275,26 @@
         <input type="hidden" id="progId">
         
         <div class="input-group">
+            <label>Szerokość wykresu na ekranie (Układ)</label>
+            <select id="progLayout">
+                <option value="100">Pełna szerokość (1 w rzędzie na górze)</option>
+                <option value="50">Połowa szerokości (2 obok siebie)</option>
+                <option value="33" selected>Jedna trzecia (3 obok siebie)</option>
+            </select>
+        </div>
+
+        <div class="input-group">
             <label>Nazwa Wskaźnika (np. Sprzedaż Usług)</label>
-            <input type="text" id="progName" placeholder="Nazwa">
+            <input type="text" id="progName" placeholder="Wpisz nazwę">
         </div>
         
         <div class="input-group">
-            <label>Obecny wynik (Wartość)</label>
+            <label>Obecny wynik (Wartość całkowita)</label>
             <input type="number" id="progCurrent" placeholder="np. 45000">
         </div>
         
         <div style="margin-top: 20px; margin-bottom: 10px; border-bottom: 1px solid #333; padding-bottom: 5px;">
-            <label style="font-size: 0.7rem; color: #ffe800; font-weight: 900; text-transform: uppercase;">Zdefiniuj Progi:</label>
+            <label style="font-size: 0.7rem; color: #ffe800; font-weight: 900; text-transform: uppercase;">Zdefiniuj Progi (od najmniejszego):</label>
         </div>
         
         <div id="dynamicThresholds">
@@ -313,7 +335,7 @@
     let globalUsersList = [];
 
     // ===============================================
-    // DYNAMICZNY SYSTEM PROGÓW (Grywalizacja)
+    // DYNAMICZNY SYSTEM PROGÓW Z UKŁADEM
     // ===============================================
     let localProgi = [];
 
@@ -347,13 +369,11 @@
             let nextThresholdVal = null;
             let nextThresholdName = "Maksimum";
 
-            // Rysowanie dynamicznych znaczników
             thresholds.forEach((tVal, idx) => {
                 if(tVal > 0) {
                     let pos = (tVal / barMax) * 100;
                     markersHtml += `<div class="prog-marker" style="left: ${pos}%;"><div class="prog-marker-label">PRÓG ${idx+1}<br>${tVal}</div></div>`;
                     
-                    // Szukamy pierwszego progu, którego jeszcze nie osiągnięto
                     if(prog.current < tVal && !nextThresholdVal) {
                         nextThresholdVal = tVal;
                         nextThresholdName = `Próg ${idx+1}`;
@@ -373,8 +393,11 @@
 
             let editBtnHtml = isManagerOrKss ? `<button class="btn-edit-prog" onclick="openProgModal('${prog.id}')">EDYTUJ</button>` : '';
 
+            // PRZYPISANIE KLASY SZEROKOŚCI (100, 50, 33)
+            let layoutClass = `prog-w-${prog.layout || '33'}`;
+
             const card = document.createElement('div');
-            card.className = 'prog-card';
+            card.className = `prog-card ${layoutClass}`;
             card.innerHTML = `
                 <div class="prog-header">
                     <div class="prog-title">${prog.name}</div>
@@ -395,7 +418,6 @@
         });
     }
 
-    // Funkcje do zarządzania dynamicznymi inputami w modalu
     function addThresholdInput(val = '') {
         const container = document.getElementById('dynamicThresholds');
         const div = document.createElement('div');
@@ -427,7 +449,7 @@
         document.getElementById('progModal').style.display = 'flex';
         const delBtn = document.getElementById('btnDeleteProg');
         const container = document.getElementById('dynamicThresholds');
-        container.innerHTML = ''; // Czyścimy stare inputy
+        container.innerHTML = ''; 
         
         if(id) {
             document.getElementById('progModalTitle').innerText = "Edytuj Wskaźnik";
@@ -435,20 +457,20 @@
             document.getElementById('progId').value = prog.id;
             document.getElementById('progName').value = prog.name;
             document.getElementById('progCurrent').value = prog.current;
+            document.getElementById('progLayout').value = prog.layout || '33';
             
             let th = prog.thresholds || [];
-            if(th.length === 0) {
-                addThresholdInput(); // Domyślnie 1 pusty
-            } else {
-                th.forEach(tVal => addThresholdInput(tVal));
-            }
+            if(th.length === 0) { addThresholdInput(); } 
+            else { th.forEach(tVal => addThresholdInput(tVal)); }
+            
             delBtn.style.display = 'block';
         } else {
             document.getElementById('progModalTitle').innerText = "Nowy Wskaźnik";
             document.getElementById('progId').value = '';
             document.getElementById('progName').value = '';
             document.getElementById('progCurrent').value = '';
-            addThresholdInput(); // Domyślnie 1 przy nowym
+            document.getElementById('progLayout').value = '100'; // Domyślnie na cały ekran
+            addThresholdInput(); 
             delBtn.style.display = 'none';
         }
     }
@@ -459,10 +481,10 @@
         const id = document.getElementById('progId').value || 'prog_' + Date.now();
         const name = document.getElementById('progName').value.trim();
         const current = parseFloat(document.getElementById('progCurrent').value) || 0;
+        const layout = document.getElementById('progLayout').value;
         
         if(!name) { alert("Podaj nazwę wskaźnika!"); return; }
 
-        // Pobieranie wartości ze wszystkich dynamicznych inputów
         const tInputs = document.querySelectorAll('.prog-t-input');
         let thresholdsArr = [];
         tInputs.forEach(inp => {
@@ -472,13 +494,14 @@
             }
         });
 
-        // Magia: Zawsze sortujemy progi od najmniejszego do największego przed zapisem!
+        // Sortowanie progów dla porządku wizualnego
         thresholdsArr.sort((a, b) => a - b);
 
         db.ref(`Stores/${myStore}/Dashboard/Progi/${id}`).set({
             name: name, 
             current: current, 
-            thresholds: thresholdsArr // Zapisujemy jako tablicę
+            thresholds: thresholdsArr,
+            layout: layout // Zapis nowej opcji
         }).then(() => {
             closeProgModal();
         });

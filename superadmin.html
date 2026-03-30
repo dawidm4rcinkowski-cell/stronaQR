@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Expert Tool - SUPERADMIN</title>
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%23f44'/><text x='50%' y='53%' font-family='Arial, sans-serif' font-size='45' font-weight='900' fill='%23fff' text-anchor='middle' dominant-baseline='middle'>GOD</text></svg>">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&display=swap" rel="stylesheet">
+    
+    <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-database-compat.js"></script>
+    
+    <script>
+        // INICJALIZACJA FIREBASE
+        const firebaseConfig = {
+            apiKey: "AIzaSyD0N6Bjyzs34piOoujEn9mxKir8LDGdD2k",
+            authDomain: "expert-tool.firebaseapp.com",
+            databaseURL: "https://expert-tool-default-rtdb.europe-west1.firebasedatabase.app/",
+            projectId: "expert-tool",
+            storageBucket: "expert-tool.firebasestorage.app",
+            messagingSenderId: "880843997228",
+            appId: "1:880843997228:web:fa37aa80b7f9f017705189"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+    </script>
+
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Montserrat', sans-serif; }
+        body { background: #080808; color: white; display: flex; flex-direction: column; min-height: 100vh; }
+        ::-webkit-scrollbar { width: 12px; height: 12px; } ::-webkit-scrollbar-track { background: #111; } ::-webkit-scrollbar-thumb { background: #f44; border-radius: 2px; }
+
+        header { background: #050505; height: 60px; display: flex; align-items: center; justify-content: center; border-bottom: 2px solid #f44; box-shadow: 0 0 20px rgba(255, 68, 68, 0.3); }
+        .logo { color: #fff; font-weight: 900; font-size: 1.5rem; text-transform: uppercase; letter-spacing: 2px; display: flex; align-items: center; gap: 10px; }
+        .logo span { background: #f44; color: #000; padding: 0 8px; border-radius: 3px; }
+
+        /* EKRAN LOGOWANIA ADMINA */
+        .login-container { display: flex; flex-direction: column; align-items: center; justify-content: center; flex-grow: 1; padding: 20px; }
+        .login-box { background: #111; border: 2px solid #333; padding: 40px; border-radius: 15px; width: 100%; max-width: 400px; text-align: center; box-shadow: 0 15px 30px rgba(0,0,0,0.8); }
+        .login-box h2 { color: #f44; margin-bottom: 20px; font-size: 1.5rem; }
+        .input-group { margin-bottom: 15px; text-align: left; }
+        .input-group label { font-size: 0.75rem; color: #888; font-weight: bold; margin-bottom: 5px; display: block; }
+        .form-input { width: 100%; background: #000; border: 1px solid #444; color: #fff; padding: 15px; border-radius: 8px; font-size: 1rem; font-weight: bold; outline: none; transition: 0.3s; }
+        .form-input:focus { border-color: #f44; box-shadow: 0 0 10px rgba(255, 68, 68, 0.3); }
+        .btn-login { width: 100%; background: #f44; color: #000; border: none; padding: 15px; font-weight: 900; border-radius: 8px; cursor: pointer; text-transform: uppercase; margin-top: 10px; transition: 0.3s; font-size: 1rem; }
+        .btn-login:hover { background: #ff6666; transform: translateY(-2px); box-shadow: 0 5px 15px rgba(255, 68, 68, 0.4); }
+
+        /* DASHBOARD ADMINA */
+        #adminDashboard { display: none; padding: 30px 20px; max-width: 1200px; margin: 0 auto; width: 100%; }
+        .dashboard-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; flex-wrap: wrap; gap: 15px; }
+        .btn-create { background: #0a0; color: #fff; border: none; padding: 12px 20px; font-weight: 900; border-radius: 8px; cursor: pointer; text-transform: uppercase; transition: 0.3s; font-size: 0.9rem; }
+        .btn-create:hover { background: #0c0; box-shadow: 0 0 15px rgba(0, 170, 0, 0.4); }
+        .btn-logout { background: transparent; border: 1px solid #666; color: #888; padding: 10px 15px; border-radius: 8px; font-weight: bold; cursor: pointer; transition: 0.3s; }
+        .btn-logout:hover { color: #fff; border-color: #fff; }
+
+        .stores-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; }
+        .store-card { background: #111; border: 1px solid #333; border-radius: 12px; padding: 20px; display: flex; flex-direction: column; gap: 15px; transition: 0.3s; position: relative; overflow: hidden; }
+        .store-card::before { content: ''; position: absolute; top: 0; left: 0; width: 4px; height: 100%; background: #f44; }
+        .store-card:hover { border-color: #f44; transform: translateY(-3px); box-shadow: 0 10px 20px rgba(0,0,0,0.5); }
+        .store-title { font-size: 1.5rem; font-weight: 900; color: #fff; }
+        .store-city { font-size: 0.85rem; color: #888; text-transform: uppercase; letter-spacing: 1px; }
+        .store-stats { display: flex; gap: 15px; background: #0a0a0a; padding: 10px; border-radius: 8px; border: 1px solid #222; }
+        .stat-box { flex: 1; text-align: center; }
+        .stat-val { font-size: 1.2rem; font-weight: 900; color: #ffe800; }
+        .stat-label { font-size: 0.55rem; color: #666; font-weight: bold; letter-spacing: 1px; }
+        
+        .btn-ghost { width: 100%; background: transparent; border: 2px solid #ffe800; color: #ffe800; padding: 12px; font-weight: 900; border-radius: 8px; cursor: pointer; text-transform: uppercase; transition: 0.3s; margin-top: auto; }
+        .btn-ghost:hover { background: #ffe800; color: #000; }
+        .btn-delete { background: transparent; border: none; color: #555; font-size: 0.7rem; font-weight: bold; cursor: pointer; text-align: right; margin-top: 5px; transition: 0.2s; }
+        .btn-delete:hover { color: #f44; text-decoration: underline; }
+
+        /* MODAL TWORZENIA SKLEPU */
+        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 11000; align-items: center; justify-content: center; padding: 20px; backdrop-filter: blur(5px); }
+        .modal-content { background: #0a0a0a; border: 2px solid #0a0; padding: 30px; width: 100%; max-width: 500px; border-radius: 15px; box-shadow: 0 0 30px rgba(0, 170, 0, 0.2); }
+        .modal-title { color: #0a0; margin-bottom: 20px; font-size: 1.3rem; font-weight: 900; text-align: center; text-transform: uppercase; }
+        
+        .msg-box { padding: 10px; border-radius: 5px; font-size: 0.8rem; font-weight: bold; text-align: center; display: none; margin-top: 15px; }
+        .msg-error { background: rgba(255, 68, 68, 0.2); border: 1px solid #f44; color: #f44; }
+        .msg-success { background: rgba(0, 170, 0, 0.2); border: 1px solid #0a0; color: #0a0; }
+    </style>
+</head>
+<body>
+
+<header>
+    <div class="logo">SUPER <span>ADMIN</span></div>
+</header>
+
+<div class="login-container" id="loginScreen">
+    <div class="login-box">
+        <h2>AUTORYZACJA</h2>
+        <div class="input-group">
+            <label>ID Autoryzacyjne</label>
+            <input type="text" class="form-input" id="adminLogin" placeholder="Wpisz ID" autocomplete="off">
+        </div>
+        <div class="input-group">
+            <label>Hasło Główne</label>
+            <input type="password" class="form-input" id="adminPass" placeholder="Wpisz hasło" autocomplete="off">
+        </div>
+        <div id="loginMsg" class="msg-box msg-error">Błędne dane!</div>
+        <button class="btn-login" onclick="verifyAdmin()">WEJDŹ DO SYSTEMU</button>
+    </div>
+</div>
+
+<div id="adminDashboard">
+    <div class="dashboard-header">
+        <div>
+            <h1 style="font-size: 2rem; font-weight: 900; text-transform: uppercase;">Zarządzanie <span style="color:#f44;">Siecią</span></h1>
+            <p style="color:#888; font-size:0.8rem; font-weight:bold; margin-top:5px;">Pełen nadzór nad wszystkimi bazami danych.</p>
+        </div>
+        <div style="display: flex; gap: 15px;">
+            <button class="btn-create" onclick="openCreateModal()">+ POSTAW NOWY SKLEP</button>
+            <button class="btn-logout" onclick="logoutAdmin()">WYLOGUJ</button>
+        </div>
+    </div>
+    
+    <div class="stores-grid" id="storesGrid">
+        <div style="color: #666; font-size:0.9rem; font-weight:bold; width:100%; text-align:center; padding:40px;">Pobieranie infrastruktury...</div>
+    </div>
+</div>
+
+<div class="modal" id="createStoreModal">
+    <div class="modal-content">
+        <h2 class="modal-title">Konfiguracja Nowego Sklepu</h2>
+        
+        <div style="display:flex; gap:15px;">
+            <div class="input-group" style="flex:1;">
+                <label>Numer Sklepu (np. S255)</label>
+                <input type="text" class="form-input" id="newStoreNum" placeholder="S..." style="text-transform: uppercase;">
+            </div>
+            <div class="input-group" style="flex:2;">
+                <label>Miejscowość / Galeria</label>
+                <input type="text" class="form-input" id="newStoreCity" placeholder="np. Warszawa Plaza">
+            </div>
+        </div>
+
+        <div style="background:#111; padding:15px; border-radius:8px; border:1px solid #222; margin-top:10px;">
+            <h3 style="color:#888; font-size:0.7rem; margin-bottom:15px; text-transform:uppercase;">Konto Głównego Kierownika</h3>
+            <div class="input-group">
+                <label>Imię i Nazwisko Kierownika</label>
+                <input type="text" class="form-input" id="newMgrName" placeholder="np. JAN KOWALSKI">
+            </div>
+            <div class="input-group" style="margin-bottom:0;">
+                <label>CharID Kierownika (Służy jako kod i hasło startowe)</label>
+                <input type="text" class="form-input" id="newMgrChar" placeholder="np. JANK (bez spacji)" style="text-transform: uppercase;">
+            </div>
+        </div>
+        
+        <div id="createMsg" class="msg-box"></div>
+        
+        <div style="display:flex; gap:10px; margin-top:25px;">
+            <button class="btn-login" style="flex:1; background:#333; color:#fff; margin-top:0;" onclick="closeCreateModal()">ANULUJ</button>
+            <button class="btn-login" style="flex:2; background:#0a0; color:#fff; margin-top:0;" onclick="buildStore()">ZBUDUJ INFRASTRUKTURĘ</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    // 1. SYSTEM LOGOWANIA SUPERADMINA
+    const adminID = "782058521";
+    const adminPW = "dawid2902";
+
+    // Sprawdź sesję
+    if(sessionStorage.getItem('superAdminLogged') === 'true') {
+        showDashboard();
+    }
+
+    function verifyAdmin() {
+        const l = document.getElementById('adminLogin').value.trim();
+        const p = document.getElementById('adminPass').value.trim();
+        const msg = document.getElementById('loginMsg');
+        
+        if(l === adminID && p === adminPW) {
+            sessionStorage.setItem('superAdminLogged', 'true');
+            msg.style.display = 'none';
+            showDashboard();
+        } else {
+            msg.style.display = 'block';
+        }
+    }
+
+    function logoutAdmin() {
+        sessionStorage.removeItem('superAdminLogged');
+        document.getElementById('adminDashboard').style.display = 'none';
+        document.getElementById('loginScreen').style.display = 'flex';
+        document.getElementById('adminLogin').value = '';
+        document.getElementById('adminPass').value = '';
+    }
+
+    // 2. DASHBOARD I POBIERANIE SKLEPÓW
+    function showDashboard() {
+        document.getElementById('loginScreen').style.display = 'none';
+        document.getElementById('adminDashboard').style.display = 'block';
+        loadAllStores();
+    }
+
+    function loadAllStores() {
+        db.ref('Stores').on('value', snap => {
+            const stores = snap.val() || {};
+            const grid = document.getElementById('storesGrid');
+            grid.innerHTML = '';
+
+            const storeKeys = Object.keys(stores);
+            
+            if(storeKeys.length === 0) {
+                grid.innerHTML = '<div style="color: #666; font-size:0.9rem; font-weight:bold; width:100%; text-align:center; padding:40px;">Brak sklepów w bazie chmurowej. Utwórz pierwszy!</div>';
+                return;
+            }
+
+            storeKeys.forEach(sNum => {
+                const storeData = stores[sNum];
+                const setup = storeData.Setup || { city: 'Nieznane' };
+                const users = storeData.Users || {};
+                
+                // Liczenie załogi (bez wbudowanego konta ADMIN)
+                const userCount = Object.keys(users).filter(k => k !== 'ADMIN').length;
+
+                const card = document.createElement('div');
+                card.className = 'store-card';
+                card.innerHTML = `
+                    <div>
+                        <div class="store-title">${sNum}</div>
+                        <div class="store-city">${setup.city}</div>
+                    </div>
+                    <div class="store-stats">
+                        <div class="stat-box">
+                            <div class="stat-val">${userCount}</div>
+                            <div class="stat-label">ZAŁOGA</div>
+                        </div>
+                    </div>
+                    <button class="btn-ghost" onclick="possessStore('${sNum}')">👁️ ZALOGUJ JAKO DUCH</button>
+                    <button class="btn-delete" onclick="deleteStore('${sNum}')">Usuń całkowicie ten sklep</button>
+                `;
+                grid.appendChild(card);
+            });
+        });
+    }
+
+    // 3. TWORZENIE NOWEGO SKLEPU
+    function openCreateModal() {
+        document.getElementById('createStoreModal').style.display = 'flex';
+        document.getElementById('newStoreNum').value = '';
+        document.getElementById('newStoreCity').value = '';
+        document.getElementById('newMgrName').value = '';
+        document.getElementById('newMgrChar').value = '';
+        document.getElementById('createMsg').style.display = 'none';
+    }
+
+    function closeCreateModal() {
+        document.getElementById('createStoreModal').style.display = 'none';
+    }
+
+    async function buildStore() {
+        const sNum = document.getElementById('newStoreNum').value.trim().toUpperCase().replace(/\s+/g, '');
+        const city = document.getElementById('newStoreCity').value.trim();
+        const mgrName = document.getElementById('newMgrName').value.trim().toUpperCase();
+        const mgrChar = document.getElementById('newMgrChar').value.trim().toUpperCase().replace(/\s+/g, '');
+        const msg = document.getElementById('createMsg');
+
+        msg.style.display = 'block';
+        msg.className = 'msg-box';
+
+        if(!sNum || !city || !mgrName || !mgrChar) {
+            msg.classList.add('msg-error');
+            msg.innerText = "Uzupełnij wszystkie pola!";
+            return;
+        }
+
+        msg.classList.remove('msg-error');
+        msg.innerText = "Budowanie infrastruktury...";
+
+        try {
+            // Sprawdzenie czy sklep istnieje
+            const snap = await db.ref(`Stores/${sNum}`).once('value');
+            if(snap.exists()) {
+                msg.classList.add('msg-error');
+                msg.innerText = "Sklep o tym numerze już istnieje w bazie!";
+                return;
+            }
+
+            // Tworzenie struktury
+            const updates = {};
+            
+            // Konfiguracja główna
+            updates[`Stores/${sNum}/Setup`] = {
+                sNumber: sNum,
+                city: city
+            };
+
+            // Kierownik
+            updates[`Stores/${sNum}/Users/${mgrChar}`] = {
+                charId: mgrChar,
+                name: mgrName,
+                dept: "ME",
+                isKss: true,
+                password: mgrChar, // Hasło startowe takie jak ID
+                avatar: ""
+            };
+
+            // Zabezpieczenie systemowe
+            updates[`Stores/${sNum}/Users/ADMIN`] = {
+                charId: "ADMIN", name: "SYSTEM", dept: "IT", password: "xxx"
+            };
+
+            await db.ref().update(updates);
+
+            msg.classList.add('msg-success');
+            msg.innerText = "Infrastruktura gotowa!";
+            setTimeout(() => { closeCreateModal(); }, 1500);
+
+        } catch (e) {
+            msg.classList.add('msg-error');
+            msg.innerText = "Błąd: " + e.message;
+        }
+    }
+
+    // 4. GHOST MODE (Logowanie jako niewidzialny szef)
+    function possessStore(storeId) {
+        // Ustawiamy localStorage tak samo jak w login.html, ale narzucamy potężne parametry
+        localStorage.setItem('myStore', storeId);
+        localStorage.setItem('currentUser', JSON.stringify({
+            charId: "SUPERADMIN",
+            name: "Dawid (Twórca)",
+            dept: "ME",
+            isKss: true,
+            isGhost: true, // Ten parametr sprawia, że nie będzie nas widać
+            avatar: ""
+        }));
+        
+        // Przeniesienie do głównej aplikacji
+        window.location.href = 'index.html';
+    }
+
+    // 5. USUWANIE SKLEPU
+    function deleteStore(storeId) {
+        const confirmCode = prompt(`OSTRZEŻENIE KRYTYCZNE!\n\nZamierzasz zniszczyć całą bazę danych dla sklepu ${storeId} (użytkownicy, grafiki, inwentury, KWT).\n\nAby potwierdzić, przepisz numer sklepu:`);
+        
+        if(confirmCode === storeId) {
+            db.ref(`Stores/${storeId}`).remove()
+                .then(() => alert(`Baza sklepu ${storeId} została bezpowrotnie zniszczona.`))
+                .catch(err => alert("Błąd niszczenia: " + err.message));
+        } else if (confirmCode !== null) {
+            alert("Błędny kod bezpieczeństwa. Anulowano niszczenie.");
+        }
+    }
+</script>
+
+</body>
+</html>

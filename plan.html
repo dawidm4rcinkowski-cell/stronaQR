@@ -15,9 +15,7 @@
         const currentUser = JSON.parse(localStorage.getItem('currentUser'));
         const myStore = localStorage.getItem('myStore');
         
-        if (!currentUser || !myStore) { 
-            window.location.href = 'login.html'; 
-        }
+        if (!currentUser || !myStore) { window.location.href = 'login.html'; }
         
         const isManagerOrKss = (currentUser.dept === 'ME' || currentUser.isKss);
 
@@ -85,7 +83,6 @@
         .admin-controls { display: flex; align-items: center; gap: 8px; border-left: 1px solid #333; padding-left: 10px; }
         .norm-input { width: 55px; background: #000; color: #ffe800; border: 1px solid #ffe800; text-align: center; font-weight: 900; padding: 4px; font-size: 0.8rem; border-radius: 4px; outline: none; }
         
-        /* TABELA - Dostosowana do poziomego scrolla przy wielu osobach */
         .table-container { flex: 1; overflow: auto; background: #080808; width: 100vw; max-width: 100%; display: block; position: relative; }
         table { border-collapse: collapse; width: 100%; min-width: max-content; background: #080808; }
         
@@ -139,25 +136,32 @@
         .legend-bar { display: flex; justify-content: center; gap: 20px; background: #0a0a0a; padding: 10px; border-top: 1px solid #222; font-size: 0.7rem; font-weight: bold; color: #888; flex-shrink: 0; z-index: 800; }
         .legend-bar span { display: flex; align-items: center; gap: 5px; }
 
-        /* MODALE */
+        /* NOWE STYLE USTAWIEŃ (ZAKŁADKI I TAGI) */
         .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 11000; align-items: center; justify-content: center; padding: 20px; backdrop-filter: blur(5px); }
-        .modal-content { background: #0a0a0a; border: 2px solid #ffe800; padding: 20px; width: 100%; max-width: 800px; border-radius: 15px; box-shadow: 0 0 30px rgba(255, 232, 0, 0.15); }
+        .modal-content { background: #0a0a0a; border: 2px solid #ffe800; padding: 20px; width: 100%; max-width: 800px; border-radius: 15px; box-shadow: 0 0 30px rgba(255, 232, 0, 0.15); display: flex; flex-direction: column; max-height: 90vh;}
         
-        .edit-grid { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-bottom: 15px; }
-        .btn-shift { background: #151515; border: 1px solid #444; color: #fff; padding: 10px 15px; border-radius: 5px; cursor: pointer; font-weight: bold; transition: 0.2s; }
-        .btn-shift:hover { border-color: #ffe800; color: #ffe800; }
-        .btn-shift.active { background: #ffe800; color: #000; border-color: #ffe800; }
-        .role-checkboxes { background: #111; border: 1px solid #333; padding: 15px; border-radius: 8px; display: flex; flex-direction: column; gap: 10px; }
-        .role-label { color: #fff; font-size: 0.85rem; display: flex; align-items: center; gap: 10px; cursor: pointer; }
-        .role-label input { width: 18px; height: 18px; cursor: pointer; }
-
-        .worker-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 10px; margin-top: 15px; max-height: 60vh; overflow-y: auto; }
-        .worker-card { background: #151515; padding: 10px; border-radius: 8px; border: 1px solid #333; transition: 0.3s; }
+        .settings-tabs { display: flex; border-bottom: 2px solid #333; margin-bottom: 20px; }
+        .s-tab-btn { flex: 1; background: transparent; color: #888; border: none; padding: 12px; font-weight: 900; font-size: 0.8rem; cursor: pointer; transition: 0.3s; border-bottom: 3px solid transparent; text-transform: uppercase; }
+        .s-tab-btn:hover { color: #fff; background: #111; }
+        .s-tab-btn.active { color: #ffe800; border-bottom-color: #ffe800; background: #111; }
+        .s-tab-content { display: none; overflow-y: auto; padding-right: 5px; flex-grow: 1; }
+        .s-tab-content.active { display: block; }
+        
+        .tag-container { display: flex; flex-wrap: wrap; gap: 8px; background: #000; border: 1px solid #444; padding: 10px; border-radius: 8px; min-height: 45px; align-items: center; }
+        .tag-container:focus-within { border-color: #ffe800; }
+        .tag-chip { background: #ffe800; color: #000; font-weight: 900; font-size: 0.75rem; padding: 4px 10px; border-radius: 15px; display: flex; align-items: center; gap: 5px; }
+        .tag-remove { cursor: pointer; font-size: 0.8rem; line-height: 1; color: #a00; font-weight: bold; }
+        .tag-remove:hover { color: #f00; }
+        .tag-input { background: transparent; border: none; color: #fff; font-weight: bold; font-size: 0.85rem; outline: none; min-width: 120px; flex-grow: 1; }
+        
+        .worker-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 12px; }
+        .worker-card { background: #111; padding: 15px; border-radius: 8px; border: 1px solid #333; transition: 0.3s; }
         .worker-card:hover { border-color: #ffe800; }
-        .worker-card label { display: block; font-size: 0.5rem; color: #888; margin-top: 5px; }
-        .worker-card input { width: 100%; background: #000; border: 1px solid #444; color: #fff; padding: 4px; font-size: 0.75rem; border-radius: 3px; outline: none; }
+        .worker-card label { display: block; font-size: 0.6rem; color: #888; margin-top: 10px; margin-bottom: 3px; font-weight: bold; }
+        .worker-card input { width: 100%; background: #000; border: 1px solid #444; color: #fff; padding: 6px; font-size: 0.85rem; border-radius: 4px; outline: none; text-align: center; }
         .worker-card input:focus { border-color: #ffe800; }
-        
+        .worker-card .flex-row { display: flex; gap: 5px; align-items: center; }
+
         .btn-gen { background: #ffe800; color: #000; border: none; padding: 8px 12px; font-weight: 900; border-radius: 20px; cursor: pointer; font-size: 0.65rem; transition: 0.3s; }
         .btn-gen:hover { transform: scale(1.05); box-shadow: 0 0 10px rgba(255, 232, 0, 0.5); }
         .btn-settings { background: #333; color: #ffe800; border: 1px solid #ffe800; padding: 8px 12px; font-weight: 900; border-radius: 20px; cursor: pointer; font-size: 0.65rem; transition: 0.3s; }
@@ -167,6 +171,15 @@
         
         .loading-overlay { position: absolute; inset: 0; background: rgba(0,0,0,0.8); z-index: 2000; display: flex; align-items: center; justify-content: center; color: #ffe800; font-weight: bold; font-size: 1.5rem; display: none; flex-direction: column;}
         .loading-overlay span { font-size: 0.8rem; color: #ccc; margin-top: 10px; font-weight: normal;}
+
+        /* MODAL EDYCJI DNIA */
+        .edit-grid { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-bottom: 15px; }
+        .btn-shift { background: #151515; border: 1px solid #444; color: #fff; padding: 10px 15px; border-radius: 5px; cursor: pointer; font-weight: bold; transition: 0.2s; }
+        .btn-shift:hover { border-color: #ffe800; color: #ffe800; }
+        .btn-shift.active { background: #ffe800; color: #000; border-color: #ffe800; }
+        .role-checkboxes { background: #111; border: 1px solid #333; padding: 15px; border-radius: 8px; display: flex; flex-direction: column; gap: 10px; }
+        .role-label { color: #fff; font-size: 0.85rem; display: flex; align-items: center; gap: 10px; cursor: pointer; }
+        .role-label input { width: 18px; height: 18px; cursor: pointer; }
     </style>
 </head>
 <body>
@@ -204,10 +217,8 @@
 <div class="navigation-area">
     <div class="month-row">
         <div class="month-selector" id="monthSelector"></div>
-        <div class="admin-controls" id="adminControlsPanel">
-            <span style="font-size:0.55rem; font-weight:900; color:#888;">NORMA H:</span>
-            <input type="number" id="hourNormInput" class="norm-input" value="160" onchange="saveNorm(this.value)">
-            <button class="btn-settings" onclick="toggleModal(true)">⚙️ USTAWIENIA</button>
+        <div class="admin-controls" id="adminControlsPanel" style="display:none;">
+            <button class="btn-settings" onclick="openSettingsModal()">⚙️ USTAWIENIA</button>
             <button class="btn-settings" style="background:#a00; color:#fff; border-color:#a00;" onclick="clearMonth()" id="clearBtn">🗑️ WYCZYŚĆ</button>
             <button class="btn-gen" onclick="startGeneration()" id="genBtn">🚀 GENERUJ PLAN</button>
             <button class="btn-settings" id="approveBtn" style="background:#0a0; color:#fff; border-color:#0a0;" onclick="toggleApprove()">✅ ZATWIERDŹ</button>
@@ -239,50 +250,64 @@
 
 <div class="modal" id="settingsModal">
     <div class="modal-content">
-        <h3 style="color:#ffe800; margin-bottom:15px; font-size:1rem; text-align:center;">USTAWIENIA GRAFIKU SKLEPU</h3>
-        
-        <div style="display:flex; flex-direction:column; gap:15px; margin-bottom: 20px; background:#111; padding:15px; border-radius:10px; border:1px solid #333;">
-            <div>
-                <label style="font-size:0.65rem; color:#888; font-weight:bold;">PULA ZMIAN DLA DNI ROBOCZYCH (oddziel przecinkiem):</label>
-                <input id="globalShifts" style="width:100%; background:#000; border:1px solid #ffe800; color:#fff; padding:10px; border-radius:5px; margin-top:5px; font-weight:bold;" value="10-18, 12-20, 10-20">
-                <span style="font-size:0.55rem; color:#666;">Wpisz tu zmiany. Algorytm sam nimi żongluje by zrównać godziny.</span>
-            </div>
-            
-            <div style="display:flex; gap:15px;">
-                <div style="flex:1;">
-                    <label style="font-size:0.65rem; color:#888; font-weight:bold;">SZTYWNA SOBOTA (Godziny):</label>
-                    <input id="satHours" style="width:100%; background:#000; border:1px solid #ffe800; color:#fff; padding:10px; border-radius:5px; margin-top:5px; font-weight:bold; text-align:center;" value="10-20">
-                </div>
-                <div style="flex:1;">
-                    <label style="font-size:0.65rem; color:#ffe800; font-weight:bold;">OBSADA SOBOTY (Ilość osób):</label>
-                    <input id="satStaffCount" type="number" style="width:100%; background:#000; border:1px solid #ffe800; color:#ffe800; padding:10px; border-radius:5px; margin-top:5px; font-weight:bold; text-align:center;" value="6">
-                </div>
+        <div class="settings-tabs">
+            <button class="s-tab-btn active" id="btnTabMain" onclick="switchSettingsTab('main')">⚙️ GŁÓWNE</button>
+            <button class="s-tab-btn" id="btnTabWeekend" onclick="switchSettingsTab('weekend')">📅 WEEKENDY</button>
+            <button class="s-tab-btn" id="btnTabVacation" onclick="switchSettingsTab('vacation')">🏖️ URLOPY / WOLNE</button>
+        </div>
+
+        <div id="tab-main" class="s-tab-content active">
+            <div style="margin-bottom: 20px;">
+                <label style="font-size:0.75rem; color:#ffe800; font-weight:bold;">NORMA GODZIN W MIESIĄCU:</label>
+                <input type="number" id="hourNormInput" style="width:100px; background:#111; color:#fff; border:1px solid #444; text-align:center; font-weight:900; padding:10px; font-size:1.2rem; border-radius:8px; outline:none; margin-top:5px; display:block;" value="160">
             </div>
 
-            <div style="display:flex; gap:15px;">
-                <div style="flex:1;">
-                    <label style="font-size:0.65rem; color:#888; font-weight:bold;">NIEDZIELA (Godziny):</label>
-                    <input id="sunHours" style="width:100%; background:#000; border:1px solid #ffe800; color:#fff; padding:10px; border-radius:5px; margin-top:5px; font-weight:bold; text-align:center;" value="10-18">
+            <div style="margin-bottom: 20px;">
+                <label style="font-size:0.75rem; color:#888; font-weight:bold;">PULA ZMIAN DLA DNI ROBOCZYCH (Naciśnij Enter by dodać):</label>
+                <div class="tag-container" id="shiftsTagContainer">
+                    <input type="text" class="tag-input" id="shiftsTagInput" placeholder="np. 9:45-20:30">
                 </div>
-                <div style="flex:1;">
-                    <label style="font-size:0.65rem; color:#ffe800; font-weight:bold;">OBSADA NIEDZIELI (Ilość osób):</label>
-                    <input id="sunStaffCount" type="number" style="width:100%; background:#000; border:1px solid #ffe800; color:#ffe800; padding:10px; border-radius:5px; margin-top:5px; font-weight:bold; text-align:center;" value="6">
-                </div>
+                <span style="font-size:0.6rem; color:#555; display:block; margin-top:5px;">Kolejność ma znaczenie. Zmiany krótsze/otwierające jako pierwsze. Zmiany na cały dzień na końcu.</span>
             </div>
 
-            <div style="border-top: 1px solid #333; padding-top: 15px; margin-top: 5px;">
-                <label style="font-size:0.65rem; color:#888; font-weight:bold;">SKRÓTY KLAWISZOWE W EDYCJI (oddziel przecinkiem):</label>
-                <input id="customShortcuts" style="width:100%; background:#000; border:1px solid #ffe800; color:#fff; padding:10px; border-radius:5px; margin-top:5px; font-weight:bold;" value="10-18, 12-20, 10-20, 13-20, 10-17, WOLNE, URLOP, Ż, SZK">
-                <span style="font-size:0.55rem; color:#666;">Te przyciski pojawią się w panelu ręcznej edycji dnia dla pracownika.</span>
+            <div style="margin-bottom: 10px;">
+                <label style="font-size:0.75rem; color:#888; font-weight:bold;">SKRÓTY KLAWISZOWE DO EDYCJI RĘCZNEJ (Naciśnij Enter):</label>
+                <div class="tag-container" id="shortcutsTagContainer">
+                    <input type="text" class="tag-input" id="shortcutsTagInput" placeholder="np. URLOP">
+                </div>
             </div>
         </div>
-        
-        <h3 style="color:#ffe800; margin-bottom:10px; font-size:0.8rem; text-align:center;">URLOPY I ŻYCZENIA EKIPY</h3>
-        <div class="worker-grid" id="workerGrid"></div>
-        
-        <div style="display:flex; gap:10px; margin-top:20px;">
-            <button class="btn-settings" style="flex:1; height:45px; font-size: 0.8rem;" onclick="toggleModal(false)">ANULUJ</button>
-            <button class="btn-gen" style="flex:2; height:45px; font-size: 0.8rem;" onclick="saveSettings()">ZAPISZ USTAWIENIA</button>
+
+        <div id="tab-weekend" class="s-tab-content">
+            <div style="display:flex; gap:20px; flex-wrap:wrap;">
+                <div style="flex:1; min-width: 250px; background:#111; padding:20px; border-radius:10px; border:1px solid #333;">
+                    <h4 style="color:#ffe800; text-align:center; margin-bottom:15px;">SOBOTY</h4>
+                    <label style="font-size:0.7rem; color:#888; font-weight:bold;">SZTYWNE GODZINY OTWARCIA:</label>
+                    <input type="text" id="satHours" style="width:100%; background:#000; border:1px solid #444; color:#fff; padding:12px; border-radius:5px; margin-top:5px; margin-bottom:15px; font-weight:bold; text-align:center; font-size:1.1rem;" placeholder="np. 10:00-20:00">
+                    
+                    <label style="font-size:0.7rem; color:#888; font-weight:bold;">WYMAGANA ILOŚĆ OSÓB NA ZMIANIE:</label>
+                    <input type="number" id="satStaffCount" style="width:100%; background:#000; border:1px solid #444; color:#fff; padding:12px; border-radius:5px; margin-top:5px; font-weight:bold; text-align:center; font-size:1.1rem;">
+                </div>
+
+                <div style="flex:1; min-width: 250px; background:#111; padding:20px; border-radius:10px; border:1px solid #333;">
+                    <h4 style="color:#ffe800; text-align:center; margin-bottom:15px;">NIEDZIELE HANDLOWE</h4>
+                    <label style="font-size:0.7rem; color:#888; font-weight:bold;">SZTYWNE GODZINY OTWARCIA:</label>
+                    <input type="text" id="sunHours" style="width:100%; background:#000; border:1px solid #444; color:#fff; padding:12px; border-radius:5px; margin-top:5px; margin-bottom:15px; font-weight:bold; text-align:center; font-size:1.1rem;" placeholder="np. 10:00-18:00">
+                    
+                    <label style="font-size:0.7rem; color:#888; font-weight:bold;">WYMAGANA ILOŚĆ OSÓB NA ZMIANIE:</label>
+                    <input type="number" id="sunStaffCount" style="width:100%; background:#000; border:1px solid #444; color:#fff; padding:12px; border-radius:5px; margin-top:5px; font-weight:bold; text-align:center; font-size:1.1rem;">
+                </div>
+            </div>
+        </div>
+
+        <div id="tab-vacation" class="s-tab-content">
+            <p style="font-size: 0.8rem; color: #ccc; margin-bottom: 15px; text-align: center;">Wpisz daty urlopów lub wypisz po przecinku pojedyncze dni, w które pracownik potrzebuje mieć wolne.</p>
+            <div class="worker-grid" id="workerGrid"></div>
+        </div>
+
+        <div style="display:flex; gap:10px; margin-top:20px; flex-shrink: 0; border-top: 1px solid #333; padding-top: 15px;">
+            <button class="btn-settings" style="flex:1; height:45px; font-size: 0.8rem;" onclick="closeSettingsModal()">ANULUJ</button>
+            <button class="btn-gen" style="flex:2; height:45px; font-size: 0.8rem;" onclick="saveSettings()">💾 ZAPISZ USTAWIENIA</button>
         </div>
     </div>
 </div>
@@ -291,8 +316,7 @@
     <div class="modal-content" style="max-width: 450px;">
         <h3 id="cellModalTitle" style="color:#ffe800; margin-bottom:15px; text-align:center;">EDYTUJ DZIEŃ</h3>
         
-        <div class="edit-grid" id="modalShiftButtons">
-            </div>
+        <div class="edit-grid" id="modalShiftButtons"></div>
         
         <input type="text" id="modalCustomShift" style="width:100%; background:#000; color:#fff; border:1px solid #444; padding:10px; text-align:center; font-weight:bold; margin-bottom:15px; border-radius:5px;" placeholder="Lub wpisz ręcznie (np. 8-16)" oninput="clearShiftButtons()">
         
@@ -310,6 +334,23 @@
     </div>
 </div>
 
+<style>
+    #globalNotificationModal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 15000; align-items: center; justify-content: center; padding: 20px; backdrop-filter: blur(5px); }
+    #popupBox { background: #0a0a0a; border: 3px solid #ffe800; padding: 30px; width: 100%; max-width: 500px; border-radius: 15px; text-align: center; box-shadow: 0 0 30px rgba(0,0,0,0.5); }
+    #globalPopupTitle { margin-bottom: 15px; font-size: 1.3rem; text-transform: uppercase; font-weight: 900; }
+    #globalPopupMsg { color: #fff; font-size: 1rem; margin-bottom: 25px; line-height: 1.5; font-weight: 700; }
+    .btn-close-popup { width: 100%; background: #ffe800; color: #000; border: none; padding: 12px 20px; font-weight: 900; border-radius: 8px; cursor: pointer; text-transform: uppercase; transition: 0.2s; }
+    .btn-close-popup:hover { transform: scale(1.02); }
+</style>
+
+<div id="globalNotificationModal">
+    <div id="popupBox">
+        <h3 id="globalPopupTitle">POWIADOMIENIE</h3>
+        <p id="globalPopupMsg"></p>
+        <button class="btn-close-popup" onclick="closeGlobalPopup()">ZROZUMIAŁEM</button>
+    </div>
+</div>
+
 <script>
     // =======================================================
     // 1. INICJALIZACJA I ZMIENNE
@@ -318,13 +359,13 @@
     let finalDept = currentUser.dept; if (currentUser.isKss && currentUser.dept !== 'ME') finalDept = 'KSS';
     document.getElementById('sideName').innerText = `${currentUser.name} (${finalDept})`;
     
-    // Wczytywanie awatara z local storage dla bocznego paska
     const sideAvatarHtml = currentUser.avatar ? `<img src="${currentUser.avatar}" style="width:100%; height:100%; object-fit:cover; border-radius:50%;">` : currentUser.charId.charAt(0);
     document.getElementById('sideAvatar').innerHTML = sideAvatarHtml;
     
-    if (!isManagerOrKss) {
+    if (isManagerOrKss) {
+        document.getElementById('adminControlsPanel').style.display = 'flex';
+    } else {
         document.getElementById('navInwaKSS').style.display = 'none';
-        document.getElementById('adminControlsPanel').style.display = 'none';
         document.getElementById('employeeControlsPanel').style.display = 'flex';
     }
 
@@ -339,19 +380,70 @@
     let localPlanMeta = { 
         norm: 160, 
         locked: false, 
-        globalShifts: "10-18, 12-20, 10-20", 
-        satHours: "10-20", 
-        sunHours: "10-18", 
-        satStaffCount: 6, // Nowa zmienna
-        sunStaffCount: 6, // Nowa zmienna
-        customShortcuts: "10-18, 12-20, 10-20, 13-20, 10-17, WOLNE, URLOP, Ż, SZK" 
+        globalShifts: "10:00-18:00, 12:00-20:00, 10:00-20:00", 
+        satHours: "10:00-20:00", 
+        sunHours: "10:00-18:00", 
+        satStaffCount: 6,
+        sunStaffCount: 6,
+        customShortcuts: "10:00-18:00, 12:00-20:00, 10:00-20:00, WOLNE, URLOP, Ż, SZK" 
     };
+    
+    // Tablice dla Tagów
+    let globalShiftsArray = [];
+    let customShortcutsArray = [];
+    
     let employees = [];
     let planListener = null;
     let metaListener = null;
 
     // =======================================================
-    // 2. POBIERANIE ZAŁOGI FIREBASE
+    // NOWA MATEMATYKA CZASU (OBSŁUGA UŁAMKÓW I MINUT)
+    // =======================================================
+    
+    // Zmienia "9:45" na 9.75
+    function timeToDecimal(tStr) {
+        if (!tStr) return 0;
+        let t = tStr.toString().trim();
+        if(!t.includes(':')) return parseInt(t) || 0; // Obsługa starych "10-20"
+        let p = t.split(':');
+        let h = parseInt(p[0]) || 0;
+        let m = parseInt(p[1]) || 0;
+        return h + (m / 60);
+    }
+
+    // Zwraca czas trwania zmiany w godzinach dziesiętnych (np. 10.75)
+    function getH(shiftStr) {
+        if (!shiftStr) return 0;
+        if (shiftStr === "URLOP" || shiftStr === "SZK" || shiftStr === "SZK.") return 8;
+        let parts = shiftStr.split('-');
+        if (parts.length === 2) {
+            let start = timeToDecimal(parts[0]);
+            let end = timeToDecimal(parts[1]);
+            let diff = end - start;
+            return diff > 0 ? diff : 0;
+        }
+        return 0;
+    }
+
+    function calcRealH(charId, scheduleObj = null) {
+        let h = 0;
+        for(let d=1; d<=31; d++) {
+            let s = scheduleObj ? scheduleObj[charId][d] : getShiftOnly(charId, d);
+            h += getH(s);
+        } 
+        return h;
+    }
+
+    // Formatowanie z powrotem na ładny tekst (np. 158.5 -> 158h 30m)
+    function formatHours(decimalHours) {
+        let h = Math.floor(decimalHours);
+        let m = Math.round((decimalHours - h) * 60);
+        if (m === 0) return `${h}h`;
+        return `${h}h ${m}m`;
+    }
+
+    // =======================================================
+    // POBIERANIE ZAŁOGI FIREBASE
     // =======================================================
     db.ref(`Stores/${myStore}/Users`).on('value', snap => {
         const usersObj = snap.val() || {};
@@ -365,7 +457,6 @@
             return rA - rB;
         });
 
-        // DOŁĄCZAMY DANE AVATARA
         employees = rawUsers.map(u => ({
             n: u.name, i: u.charId.charAt(0), p: u.dept === 'POK', dept: u.dept, displayDept: u.displayDept, charId: u.charId, avatar: u.avatar 
         }));
@@ -373,7 +464,7 @@
     });
 
     // =======================================================
-    // 3. MIESIĄCE I FIREBASE LISTENERS
+    // MIESIĄCE I FIREBASE LISTENERS
     // =======================================================
     function setMonth(i) { 
         curM = i; document.getElementById('loadingData').style.display = 'flex'; renderMonths(); 
@@ -388,21 +479,17 @@
             const meta = snap.val() || {};
             localPlanMeta.norm = meta.norm || 160; 
             localPlanMeta.locked = meta.locked || false;
-            localPlanMeta.globalShifts = meta.globalShifts || "10-18, 12-20, 10-20";
-            localPlanMeta.satHours = meta.satHours || "10-20"; 
-            localPlanMeta.sunHours = meta.sunHours || "10-18";
+            localPlanMeta.globalShifts = meta.globalShifts || "10:00-18:00, 12:00-20:00, 10:00-20:00";
+            localPlanMeta.satHours = meta.satHours || "10:00-20:00"; 
+            localPlanMeta.sunHours = meta.sunHours || "10:00-18:00";
             localPlanMeta.satStaffCount = meta.satStaffCount || 6;
             localPlanMeta.sunStaffCount = meta.sunStaffCount || 6;
-            localPlanMeta.customShortcuts = meta.customShortcuts || "10-18, 12-20, 10-20, 13-20, 10-17, WOLNE, URLOP, Ż, SZK";
+            localPlanMeta.customShortcuts = meta.customShortcuts || "10:00-18:00, 12:00-20:00, 10:00-20:00, WOLNE, URLOP, Ż, SZK";
             
-            if(document.getElementById('hourNormInput')) document.getElementById('hourNormInput').value = localPlanMeta.norm;
-            if(document.getElementById('globalShifts')) document.getElementById('globalShifts').value = localPlanMeta.globalShifts;
-            if(document.getElementById('satHours')) document.getElementById('satHours').value = localPlanMeta.satHours;
-            if(document.getElementById('sunHours')) document.getElementById('sunHours').value = localPlanMeta.sunHours;
-            if(document.getElementById('satStaffCount')) document.getElementById('satStaffCount').value = localPlanMeta.satStaffCount;
-            if(document.getElementById('sunStaffCount')) document.getElementById('sunStaffCount').value = localPlanMeta.sunStaffCount;
-            if(document.getElementById('customShortcuts')) document.getElementById('customShortcuts').value = localPlanMeta.customShortcuts;
-            
+            // Przygotowanie tablic dla Taggera
+            globalShiftsArray = localPlanMeta.globalShifts.split(',').map(s=>s.trim()).filter(s=>s);
+            customShortcutsArray = localPlanMeta.customShortcuts.split(',').map(s=>s.trim()).filter(s=>s);
+
             employees.forEach(e => {
                 localPlanMeta[`set_z_${e.charId}`] = meta[`set_z_${e.charId}`] || "";
                 localPlanMeta[`set_u1_${e.charId}`] = meta[`set_u1_${e.charId}`] || "";
@@ -433,12 +520,10 @@
         document.getElementById('cellModalTitle').innerText = `${empName} - DZIEŃ ${day}`;
         document.getElementById('modalCustomShift').value = shift;
         
-        // DYNAMICZNE GENEROWANIE PRZYCISKÓW SKRÓTÓW W EDYCJI DNIA
         const btnContainer = document.getElementById('modalShiftButtons');
         btnContainer.innerHTML = '';
-        const shortcuts = (localPlanMeta.customShortcuts || "10-18, 12-20, 10-20, 13-20, 10-17, WOLNE, URLOP, Ż, SZK").split(',').map(s => s.trim()).filter(s => s);
         
-        shortcuts.forEach(s => {
+        customShortcutsArray.forEach(s => {
             const btn = document.createElement('button');
             btn.className = `btn-shift ${s === shift ? 'active' : ''}`;
             btn.innerText = s;
@@ -463,7 +548,6 @@
         closeCellModal();
     }
 
-    function saveNorm(v) { db.ref(`Stores/${myStore}/PlanMeta/${year}_${curM}`).update({ norm: parseInt(v) }); }
     function toggleApprove() { let locked = localPlanMeta.locked === true; db.ref(`Stores/${myStore}/PlanMeta/${year}_${curM}`).update({ locked: !locked }); }
     
     function clearMonth() { 
@@ -482,30 +566,125 @@
     }
 
     // =======================================================
-    // 5. POTĘŻNY SILNIK GENERATORA (Z UWZGLĘDNIENIEM DYNAMICZNEJ OBSADY WEEKENDÓW)
+    // LOGIKA TAGGÓW (CHIPSÓW)
     // =======================================================
-    function getH(shiftStr) {
-        if (!shiftStr) return 0;
-        if (shiftStr === "URLOP" || shiftStr === "SZK" || shiftStr === "SZK.") return 8;
-        let parts = shiftStr.split('-');
-        if (parts.length === 2) return (parseInt(parts[1]) || 0) - (parseInt(parts[0]) || 0);
-        return 0;
-    }
-
-    function calcRealH(charId, scheduleObj = null) {
-        let h = 0;
-        for(let d=1; d<=31; d++) {
-            let s = scheduleObj ? scheduleObj[charId][d] : getShiftOnly(charId, d);
-            if(s && s.includes('-')) { 
-                let p = s.split('-'); 
-                h += (parseInt(p[1]) || 0) - (parseInt(p[0]) || 0); 
-            } else if (s === "URLOP" || s === "SZK" || (s && s.toLowerCase() === "szk.")) {
-                h += 8;
+    function initTags(inputId, containerId, arrayRef) {
+        const input = document.getElementById(inputId);
+        const container = document.getElementById(containerId);
+        
+        input.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                const val = this.value.trim();
+                if(val && !arrayRef.includes(val)) {
+                    arrayRef.push(val);
+                    renderTags(container, input, arrayRef);
+                }
+                this.value = '';
             }
-        } 
-        return h;
+        });
     }
 
+    function renderTags(container, inputEl, arrayRef) {
+        // Usuń wszystko oprócz inputu
+        Array.from(container.children).forEach(c => { if(c !== inputEl) c.remove(); });
+        
+        arrayRef.forEach((tag, index) => {
+            const chip = document.createElement('div');
+            chip.className = 'tag-chip';
+            chip.innerHTML = `<span>${tag}</span><span class="tag-remove" onclick="removeTag(${index}, '${container.id}')">×</span>`;
+            container.insertBefore(chip, inputEl);
+        });
+    }
+
+    function removeTag(index, containerId) {
+        if(containerId === 'shiftsTagContainer') {
+            globalShiftsArray.splice(index, 1);
+            renderTags(document.getElementById(containerId), document.getElementById('shiftsTagInput'), globalShiftsArray);
+        } else {
+            customShortcutsArray.splice(index, 1);
+            renderTags(document.getElementById(containerId), document.getElementById('shortcutsTagInput'), customShortcutsArray);
+        }
+    }
+
+    // Inicjalizacja nasłuchiwaczy tagów
+    initTags('shiftsTagInput', 'shiftsTagContainer', globalShiftsArray);
+    initTags('shortcutsTagInput', 'shortcutsTagContainer', customShortcutsArray);
+
+    // =======================================================
+    // OKNO USTAWIEŃ (MODAL I ZAKŁADKI)
+    // =======================================================
+    function openSettingsModal() {
+        document.getElementById('hourNormInput').value = localPlanMeta.norm;
+        document.getElementById('satHours').value = localPlanMeta.satHours;
+        document.getElementById('satStaffCount').value = localPlanMeta.satStaffCount;
+        document.getElementById('sunHours').value = localPlanMeta.sunHours;
+        document.getElementById('sunStaffCount').value = localPlanMeta.sunStaffCount;
+        
+        renderTags(document.getElementById('shiftsTagContainer'), document.getElementById('shiftsTagInput'), globalShiftsArray);
+        renderTags(document.getElementById('shortcutsTagContainer'), document.getElementById('shortcutsTagInput'), customShortcutsArray);
+        
+        const grid = document.getElementById('workerGrid'); grid.innerHTML = "";
+        employees.forEach(e => {
+            let savedZ = localPlanMeta[`set_z_${e.charId}`] || ""; let savedU1 = localPlanMeta[`set_u1_${e.charId}`] || ""; let savedU2 = localPlanMeta[`set_u2_${e.charId}`] || "";
+            grid.innerHTML += `
+                <div class="worker-card">
+                    <div style="color:#ffe800; font-weight:900; font-size:0.8rem;">${e.n} <span style="color:#666; font-size:0.6rem">(${e.displayDept})</span></div>
+                    <label>URLOP:</label>
+                    <div class="flex-row">
+                        <input id="u1_${e.charId}" type="number" placeholder="Od (np. 1)" value="${savedU1}"> - <input id="u2_${e.charId}" type="number" placeholder="Do (np. 14)" value="${savedU2}">
+                    </div>
+                    <label>POJEDYNCZE DNI WOLNE (ŻYCZENIA):</label>
+                    <input id="z_${e.charId}" placeholder="Dni po przecinku (np. 5, 12, 28)" value="${savedZ}">
+                </div>`;
+        });
+
+        document.getElementById('settingsModal').style.display = 'flex';
+        switchSettingsTab('main');
+    }
+
+    function closeSettingsModal() {
+        document.getElementById('settingsModal').style.display = 'none';
+    }
+
+    function switchSettingsTab(tabName) {
+        document.querySelectorAll('.s-tab-btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.s-tab-content').forEach(c => c.classList.remove('active'));
+        
+        document.getElementById(`btnTab${tabName.charAt(0).toUpperCase() + tabName.slice(1)}`).classList.add('active');
+        document.getElementById(`tab-${tabName}`).classList.add('active');
+    }
+
+    function saveSettings() {
+        const daysInMonth = new Date(year, curM + 1, 0).getDate(); let planUpdates = {}; let metaUpdates = {};
+        
+        metaUpdates['norm'] = parseInt(document.getElementById('hourNormInput').value) || 160;
+        metaUpdates['globalShifts'] = globalShiftsArray.join(', ');
+        metaUpdates['customShortcuts'] = customShortcutsArray.join(', ');
+        metaUpdates['satHours'] = document.getElementById('satHours').value.trim();
+        metaUpdates['sunHours'] = document.getElementById('sunHours').value.trim();
+        metaUpdates['satStaffCount'] = parseInt(document.getElementById('satStaffCount').value) || 6;
+        metaUpdates['sunStaffCount'] = parseInt(document.getElementById('sunStaffCount').value) || 6;
+
+        // Czyszczenie starych urlopów przed nałożeniem nowych
+        employees.forEach(e => { for (let d = 1; d <= daysInMonth; d++) { let s = getShiftOnly(e.charId, d); if (s === "URLOP" || s === "Ż") { planUpdates[`${e.charId}_${d}`] = null; } } });
+
+        employees.forEach(e => {
+            let z = document.getElementById(`z_${e.charId}`)?.value.trim() || ""; let u1 = document.getElementById(`u1_${e.charId}`)?.value.trim() || ""; let u2 = document.getElementById(`u2_${e.charId}`)?.value.trim() || "";
+            metaUpdates[`set_z_${e.charId}`] = z; metaUpdates[`set_u1_${e.charId}`] = u1; metaUpdates[`set_u2_${e.charId}`] = u2;
+
+            if (z) { z.split(',').forEach(d => { let dayNum = parseInt(d.trim()); if (!isNaN(dayNum) && dayNum >= 1 && dayNum <= daysInMonth) { planUpdates[`${e.charId}_${dayNum}`] = "Ż"; } }); }
+            if (u1 && u2) { let start = parseInt(u1); let end = parseInt(u2); if (!isNaN(start) && !isNaN(end)) { for (let d = start; d <= end; d++) { if (d >= 1 && d <= daysInMonth && isWorkDay(d)) { planUpdates[`${e.charId}_${d}`] = "URLOP"; } } } }
+        });
+        
+        db.ref(`Stores/${myStore}/PlanMeta/${year}_${curM}`).update(metaUpdates); 
+        db.ref(`Stores/${myStore}/Plan/${year}_${curM}`).update(planUpdates); 
+        closeSettingsModal(); 
+    }
+
+    // =======================================================
+    // POTĘŻNY SILNIK GENERATORA
+    // =======================================================
     function getStreak(charId, day, scheduleObj) {
         let s = 0;
         for (let d = day-1; d >= 1; d--) { let st = scheduleObj[charId][d]; if(st && (st.includes('-') || st==="URLOP" || st==="SZK" || st.toLowerCase()==="szk.")) s++; else break; }
@@ -532,19 +711,23 @@
         document.getElementById('loadingData').style.display = 'flex';
 
         setTimeout(() => {
-            const baseNorm = parseInt(document.getElementById('hourNormInput').value);
+            const baseNorm = localPlanMeta.norm || 160;
             const daysInMonth = new Date(year, curM + 1, 0).getDate();
             
-            const rawShifts = document.getElementById('globalShifts').value.split(',').map(s => s.trim());
-            let shiftDefs = rawShifts.map(s => { let p = s.split('-'); return { val: s, h: (parseInt(p[1])||0) - (parseInt(p[0])||0) }; }).filter(s => s.h > 0).sort((a,b) => a.h - b.h);
-            if(shiftDefs.length === 0) shiftDefs = [{val:"10-18", h:8}, {val:"12-20", h:8}, {val:"10-20", h:10}];
+            const rawShifts = globalShiftsArray;
+            let shiftDefs = rawShifts.map(s => { 
+                let p = s.split('-'); 
+                return { val: s, h: getH(s) }; 
+            }).filter(s => s.h > 0).sort((a,b) => a.h - b.h);
+            
+            if(shiftDefs.length === 0) shiftDefs = [{val:"10:00-18:00", h:8}, {val:"12:00-20:00", h:8}, {val:"10:00-20:00", h:10}];
             
             const openShiftStr = shiftDefs[0].val; 
             const closeShiftStr = shiftDefs.length > 1 ? shiftDefs[1].val : shiftDefs[0].val;
             const fullShiftStr = shiftDefs[shiftDefs.length - 1].val; 
             
-            const satShiftStr = document.getElementById('satHours').value.trim() || "10-20";
-            const sunShiftStr = document.getElementById('sunHours').value.trim() || "10-18";
+            const satShiftStr = localPlanMeta.satHours || "10:00-20:00";
+            const sunShiftStr = localPlanMeta.sunHours || "10:00-18:00";
 
             let memorySchedule = {};
             employees.forEach(e => {
@@ -559,7 +742,7 @@
                 }
             });
 
-            // 1. WEEKENDY Z DYNAMICZNĄ OBSADĄ
+            // 1. WEEKENDY
             let sats = []; 
             for(let d=1; d<=daysInMonth; d++) { 
                 if((new Date(year, curM, d).getDay() === 6 || new Date(year, curM, d).getDay() === 0) && isWorkDay(d)) sats.push(d); 
@@ -568,7 +751,7 @@
             sats.forEach(d => {
                 let isSaturday = new Date(year, curM, d).getDay() === 6;
                 let targetShift = isSaturday ? satShiftStr : sunShiftStr;
-                let totalNeeded = isSaturday ? (parseInt(localPlanMeta.satStaffCount) || 6) : (parseInt(localPlanMeta.sunStaffCount) || 6);
+                let totalNeeded = isSaturday ? localPlanMeta.satStaffCount : localPlanMeta.sunStaffCount;
 
                 let available = employees.filter(e => memorySchedule[e.charId][d] === "" && e.dept !== 'ME'); 
                 shuffle(available);
@@ -589,7 +772,7 @@
                 toWork.forEach(w => memorySchedule[w.e.charId][d] = w.shift);
             });
 
-            // 2. DNI ROBOCZE Z MATEMATYKĄ POK
+            // 2. DNI ROBOCZE POK
             for(let d=1; d<=daysInMonth; d++) {
                 if(new Date(year, curM, d).getDay() === 6 || new Date(year, curM, d).getDay() === 0 || !isWorkDay(d)) continue;
                 
@@ -602,7 +785,7 @@
                     let h2 = calcRealH(p2.charId, memorySchedule);
                     
                     let daysLeft = daysInMonth - d;
-                    let futureCost = daysLeft * 16; 
+                    let futureCost = daysLeft * 8; // Bezpieczny szacunek
                     let availableCombined = (baseNorm * 2) - (h1 + h2);
                     
                     if (futureCost > availableCombined + 4) {
@@ -633,7 +816,7 @@
                 }
             }
 
-            // 3. BALANSOWANIE (TRYB BRUTALNY)
+            // 3. BALANSOWANIE (BRUTALNY ALGORYTM)
             let allBalanced = false; let iterations = 0;
             
             const tryAddShift = (emp) => {
@@ -667,12 +850,15 @@
                         employees.forEach(em => {
                             if(em.charId === emp.charId || em.dept === 'ME') return; let ev = memorySchedule[em.charId][d];
                             if(ev.includes('-')) {
-                                let p = ev.split('-'); let isO = parseInt(p[0]) <= 11; let isZ = parseInt(p[1]) >= 19;
+                                let p = ev.split('-'); 
+                                let isO = timeToDecimal(p[0]) <= 11.5; // Otwarcie do 11:30
+                                let isZ = timeToDecimal(p[1]) >= 18.75; // Zamkniecie po 18:45
                                 if(isO) { if(em.p) otwPok++; else otwSales++; } if(isZ) { if(em.p) zamPok++; else zamSales++; }
                                 if(em.dept === 'IT') itCount++; if(em.dept === 'AGD') agdCount++;
                             }
                         });
-                        let isOtw = parseInt(v.split('-')[0]) <= 11; let isZam = parseInt(v.split('-')[1]) >= 19; let isSafe = true;
+                        let pV = v.split('-');
+                        let isOtw = timeToDecimal(pV[0]) <= 11.5; let isZam = timeToDecimal(pV[1]) >= 18.75; let isSafe = true;
                         if(strict) {
                             if(isOtw && (otwSales < 3 || otwPok < 1)) isSafe = false;
                             if(isZam && (zamSales < 3 || zamPok < 1)) isSafe = false;
@@ -697,7 +883,7 @@
                         let isSafe = true;
                         if(strict && emp.p) {
                             let oP = 0, zP = 0;
-                            employees.forEach(em => { if(em.charId !== emp.charId && em.p) { let ev = memorySchedule[em.charId][d]; if(ev.includes('-')) { let p = ev.split('-'); if(parseInt(p[0])<=11) oP++; if(parseInt(p[1])>=19) zP++; } } });
+                            employees.forEach(em => { if(em.charId !== emp.charId && em.p) { let ev = memorySchedule[em.charId][d]; if(ev.includes('-')) { let p = ev.split('-'); if(timeToDecimal(p[0])<=11.5) oP++; if(timeToDecimal(p[1])>=18.75) zP++; } } });
                             if(oP === 0 || zP === 0) isSafe = false;
                         }
                         if(isSafe) possibleDays.push(d);
@@ -707,7 +893,7 @@
                     shuffle(possibleDays); let targetD = possibleDays[0]; let newShift = Math.random() > 0.5 ? openShiftStr : closeShiftStr;
                     if(emp.p) {
                         let oP=0, zP=0;
-                        employees.forEach(em => { if(em.charId !== emp.charId && em.p) { let ev = memorySchedule[em.charId][targetD]; if(ev.includes('-')) { let p = ev.split('-'); if(parseInt(p[0])<=11) oP++; if(parseInt(p[1])>=19) zP++; } } });
+                        employees.forEach(em => { if(em.charId !== emp.charId && em.p) { let ev = memorySchedule[em.charId][targetD]; if(ev.includes('-')) { let p = ev.split('-'); if(timeToDecimal(p[0])<=11.5) oP++; if(timeToDecimal(p[1])>=18.75) zP++; } } });
                         if(oP === 0 && zP > 0) newShift = openShiftStr; else if(zP === 0 && oP > 0) newShift = closeShiftStr;
                     }
                     memorySchedule[emp.charId][targetD] = newShift; return true;
@@ -781,7 +967,7 @@
     }
 
     // ==========================================
-    // RENDER TABELI NA EKRANIE Z AWATARAMI I EKSPORTEM
+    // RENDER TABELI NA EKRANIE Z UŁAMKAMI CZASU
     // ==========================================
     function render() {
         if (employees.length === 0) return; 
@@ -789,7 +975,7 @@
         const daysInMonth = new Date(year, curM + 1, 0).getDate(); 
         const body = document.getElementById('daysBody'); 
         const head = document.getElementById('workerRow');
-        const baseNorm = parseInt(document.getElementById('hourNormInput').value);
+        const baseNorm = localPlanMeta.norm || 160;
         const isLocked = localPlanMeta.locked === true;
         
         if (isManagerOrKss) {
@@ -820,7 +1006,12 @@
             
             employees.forEach(e => {
                 let shift = getShiftOnly(e.charId, d); let roles = getRolesOnly(e.charId, d); let cellClass = (shift === "Ż") ? 'wish-cell' : '';
-                if (shift.includes('-')) { suma++; let p = shift.split('-'); if (parseInt(p[0]) <= 11) o++; if (parseInt(p[1]) >= 19) z++; }
+                if (shift.includes('-')) { 
+                    suma++; 
+                    let p = shift.split('-'); 
+                    if (timeToDecimal(p[0]) <= 11.5) o++; 
+                    if (timeToDecimal(p[1]) >= 18.75) z++; 
+                }
                 
                 let ic = ''; if (roles.includes('K')) ic += '🔑'; if (roles.includes('D')) ic += '📦'; if (roles.includes('S')) ic += '☕';
                 let displayHtml = `<div class="cell-shift">${shift}</div>`; if (ic) { displayHtml += `<div class="cell-icons">${ic}</div>`; }
@@ -833,7 +1024,8 @@
         const fSum = document.getElementById('sumRow'); fSum.innerHTML = '<td class="date-col">GODZINY</td>';
         employees.forEach(e => { 
             let h = calcRealH(e.charId); 
-            fSum.innerHTML += `<td style="color:${h == baseNorm ? '#0f0' : '#f44'}; font-size: 0.55rem;">${h} / ${baseNorm}</td>`; 
+            // Formatowanie ładnych godzin
+            fSum.innerHTML += `<td style="color:${h === baseNorm ? '#0f0' : (h > baseNorm ? '#f44' : '#ffe800')}; font-size: 0.55rem;">${formatHours(h)} / ${baseNorm}h</td>`; 
         });
         fSum.innerHTML += '<td class="obsada-col"></td>';
 
@@ -852,72 +1044,17 @@
         fSat.innerHTML += '<td class="obsada-col"></td>';
     }
 
-    function renderSettings() {
-        const grid = document.getElementById('workerGrid'); grid.innerHTML = "";
-        employees.forEach(e => {
-            let savedZ = localPlanMeta[`set_z_${e.charId}`] || ""; let savedU1 = localPlanMeta[`set_u1_${e.charId}`] || ""; let savedU2 = localPlanMeta[`set_u2_${e.charId}`] || "";
-            grid.innerHTML += `
-                <div class="worker-card">
-                    <div style="color:#ffe800; font-weight:900; font-size:0.7rem;">${e.n} <span style="color:#666; font-size:0.5rem">(${e.displayDept})</span></div>
-                    <label>ŻYCZENIA (Dni np. 5,12):</label><input id="z_${e.charId}" value="${savedZ}">
-                    <label>URLOP (Od-Do np. 1-7):</label><div style="display:flex; gap:2px"><input id="u1_${e.charId}" placeholder="Od" value="${savedU1}"><input id="u2_${e.charId}" placeholder="Do" value="${savedU2}"></div>
-                </div>`;
-        });
-    }
-
-    function saveSettings() {
-        const daysInMonth = new Date(year, curM + 1, 0).getDate(); let planUpdates = {}; let metaUpdates = {};
-        metaUpdates['globalShifts'] = document.getElementById('globalShifts').value;
-        metaUpdates['satHours'] = document.getElementById('satHours').value;
-        metaUpdates['sunHours'] = document.getElementById('sunHours').value;
-        metaUpdates['satStaffCount'] = parseInt(document.getElementById('satStaffCount').value) || 6;
-        metaUpdates['sunStaffCount'] = parseInt(document.getElementById('sunStaffCount').value) || 6;
-        metaUpdates['customShortcuts'] = document.getElementById('customShortcuts').value;
-
-        employees.forEach(e => { for (let d = 1; d <= daysInMonth; d++) { let s = getShiftOnly(e.charId, d); if (s === "URLOP" || s === "Ż") { planUpdates[`${e.charId}_${d}`] = null; } } });
-
-        employees.forEach(e => {
-            let z = document.getElementById(`z_${e.charId}`)?.value.trim() || ""; let u1 = document.getElementById(`u1_${e.charId}`)?.value.trim() || ""; let u2 = document.getElementById(`u2_${e.charId}`)?.value.trim() || "";
-            metaUpdates[`set_z_${e.charId}`] = z; metaUpdates[`set_u1_${e.charId}`] = u1; metaUpdates[`set_u2_${e.charId}`] = u2;
-
-            if (z) { z.split(',').forEach(d => { let dayNum = parseInt(d.trim()); if (!isNaN(dayNum) && dayNum >= 1 && dayNum <= daysInMonth) { planUpdates[`${e.charId}_${dayNum}`] = "Ż"; } }); }
-            if (u1 && u2) { let start = parseInt(u1); let end = parseInt(u2); if (!isNaN(start) && !isNaN(end)) { for (let d = start; d <= end; d++) { if (d >= 1 && d <= daysInMonth && isWorkDay(d)) { planUpdates[`${e.charId}_${d}`] = "URLOP"; } } } }
-        });
-        
-        db.ref(`Stores/${myStore}/PlanMeta/${year}_${curM}`).update(metaUpdates); db.ref(`Stores/${myStore}/Plan/${year}_${curM}`).update(planUpdates); toggleModal(false); 
-    }
-
     // ==========================================
-    // NOWY EXPORT DO EXCELA Z ZAAWANSOWANYMI STYLAMI
+    // EXPORT DO EXCELA
     // ==========================================
     function exportToExcel() {
         const daysInMonth = new Date(year, curM + 1, 0).getDate(); 
         let data = []; 
         
-        const borderStyle = {
-            top: { style: "thin", color: { rgb: "000000" } },
-            bottom: { style: "thin", color: { rgb: "000000" } },
-            left: { style: "thin", color: { rgb: "000000" } },
-            right: { style: "thin", color: { rgb: "000000" } }
-        };
-
-        const headerStyle = {
-            font: { bold: true, color: { rgb: "000000" } },
-            fill: { fgColor: { rgb: "FFD966" } }, // Żółty kolor ME
-            alignment: { horizontal: "center", vertical: "center" },
-            border: borderStyle
-        };
-
-        const normalStyle = {
-            alignment: { horizontal: "center", vertical: "center" },
-            border: borderStyle
-        };
-
-        const weekendStyle = {
-            fill: { fgColor: { rgb: "EAEAEA" } }, // Delikatny szary dla weekendu
-            alignment: { horizontal: "center", vertical: "center" },
-            border: borderStyle
-        };
+        const borderStyle = { top: { style: "thin", color: { rgb: "000000" } }, bottom: { style: "thin", color: { rgb: "000000" } }, left: { style: "thin", color: { rgb: "000000" } }, right: { style: "thin", color: { rgb: "000000" } } };
+        const headerStyle = { font: { bold: true, color: { rgb: "000000" } }, fill: { fgColor: { rgb: "FFD966" } }, alignment: { horizontal: "center", vertical: "center" }, border: borderStyle };
+        const normalStyle = { alignment: { horizontal: "center", vertical: "center" }, border: borderStyle };
+        const weekendStyle = { fill: { fgColor: { rgb: "EAEAEA" } }, alignment: { horizontal: "center", vertical: "center" }, border: borderStyle };
         
         let headerRow = [];
         headerRow.push({ v: "DATA", s: headerStyle });
@@ -938,7 +1075,12 @@
             
             employees.forEach(e => {
                 let shift = getShiftOnly(e.charId, d); let roles = getRolesOnly(e.charId, d);
-                if (shift.includes('-')) { suma++; let p = shift.split('-'); if (parseInt(p[0]) <= 11) o++; if (parseInt(p[1]) >= 19) z++; }
+                if (shift.includes('-')) { 
+                    suma++; 
+                    let p = shift.split('-'); 
+                    if (timeToDecimal(p[0]) <= 11.5) o++; 
+                    if (timeToDecimal(p[1]) >= 18.75) z++; 
+                }
                 
                 let cellVal = shift ? `${shift}${roles.includes('K')?'🔑':''}${roles.includes('D')?'📦':''}${roles.includes('S')?'☕':''}` : "";
                 row.push({ v: cellVal, s: rowStyle });
@@ -950,7 +1092,6 @@
         
         let ws = XLSX.utils.aoa_to_sheet(data); 
         
-        // Zmiana szerokości kolumn
         let wscols = [{ wch: 12 }]; // DATA
         employees.forEach(() => wscols.push({ wch: 15 })); // Pracownicy
         wscols.push({ wch: 18 }); // OTW-SUM-ZAM
@@ -962,61 +1103,26 @@
     }
 
     function toggleNav() { document.getElementById('sidebar').classList.toggle('active'); document.getElementById('overlay').classList.toggle('active'); }
-    function toggleModal(s) { document.getElementById('settingsModal').style.display = s ? 'flex' : 'none'; if (s) renderSettings(); }
     function logout() { localStorage.removeItem('currentUser'); window.location.href = 'login.html'; }
 
     window.onload = () => { setMonth(curM); };
-</script>
-</body>
-<style>
-    #globalNotificationModal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 15000; align-items: center; justify-content: center; padding: 20px; backdrop-filter: blur(5px); }
-    #popupBox { background: #0a0a0a; border: 3px solid #ffe800; padding: 30px; width: 100%; max-width: 500px; border-radius: 15px; text-align: center; box-shadow: 0 0 30px rgba(0,0,0,0.5); }
-    #globalPopupTitle { margin-bottom: 15px; font-size: 1.3rem; text-transform: uppercase; font-weight: 900; }
-    #globalPopupMsg { color: #fff; font-size: 1rem; margin-bottom: 25px; line-height: 1.5; font-weight: 700; }
-    .btn-close-popup { width: 100%; background: #ffe800; color: #000; border: none; padding: 12px 20px; font-weight: 900; border-radius: 8px; cursor: pointer; text-transform: uppercase; transition: 0.2s; }
-    .btn-close-popup:hover { transform: scale(1.02); }
-</style>
 
-<div id="globalNotificationModal">
-    <div id="popupBox">
-        <h3 id="globalPopupTitle">POWIADOMIENIE</h3>
-        <p id="globalPopupMsg"></p>
-        <button class="btn-close-popup" onclick="closeGlobalPopup()">ZROZUMIAŁEM</button>
-    </div>
-</div>
-
-<script>
-    // Upewniamy się, że Firebase i dane użytkownika są załadowane
+    // SYSTEM POWIADOMIEŃ
     if (typeof db !== 'undefined' && typeof currentUser !== 'undefined') {
         const isManagerOrKssGlobal = (currentUser.dept === 'ME' || currentUser.isKss);
-
         db.ref(`Stores/${myStore}/Notifications`).on('value', snap => {
-            let notifsObj = snap.val() || {};
-            let notifs = Object.keys(notifsObj).map(key => ({ keyId: key, ...notifsObj[key] }));
-            
-            // Szukamy nieprzeczytanych: skierowanych do mnie LUB do KSS (jeśli jestem kierownikiem/KSS)
+            let notifsObj = snap.val() || {}; let notifs = Object.keys(notifsObj).map(key => ({ keyId: key, ...notifsObj[key] }));
             let myUnread = notifs.filter(n => !n.read && (n.to === currentUser.charId || (n.to === 'KSS' && isManagerOrKssGlobal)));
-            
             if (myUnread.length > 0) {
-                let n = myUnread[0]; // Wyświetla po kolei, zaczynając od najstarszego nieprzeczytanego
-                
-                document.getElementById('globalPopupTitle').innerText = n.title;
-                document.getElementById('globalPopupMsg').innerText = n.msg;
-                document.getElementById('globalNotificationModal').style.display = 'flex';
-                
+                let n = myUnread[0]; 
+                document.getElementById('globalPopupTitle').innerText = n.title; document.getElementById('globalPopupMsg').innerText = n.msg; document.getElementById('globalNotificationModal').style.display = 'flex';
                 let box = document.getElementById('popupBox');
-                if(n.type === 'success') { box.style.borderColor = '#0a0'; document.getElementById('globalPopupTitle').style.color = '#0a0'; }
-                else if(n.type === 'error') { box.style.borderColor = '#f44'; document.getElementById('globalPopupTitle').style.color = '#f44'; }
-                else { box.style.borderColor = '#ffe800'; document.getElementById('globalPopupTitle').style.color = '#ffe800'; }
-                
-                // Oznacz w bazie jako przeczytane, żeby nie pojawiło się po odświeżeniu
+                if(n.type === 'success') { box.style.borderColor = '#0a0'; document.getElementById('globalPopupTitle').style.color = '#0a0'; } else if(n.type === 'error') { box.style.borderColor = '#f44'; document.getElementById('globalPopupTitle').style.color = '#f44'; } else { box.style.borderColor = '#ffe800'; document.getElementById('globalPopupTitle').style.color = '#ffe800'; }
                 db.ref(`Stores/${myStore}/Notifications/${n.keyId}`).update({ read: true });
             }
         });
     }
-
-    function closeGlobalPopup() { 
-        document.getElementById('globalNotificationModal').style.display = 'none'; 
-    }
+    function closeGlobalPopup() { document.getElementById('globalNotificationModal').style.display = 'none'; }
 </script>
+</body>
 </html>

@@ -160,6 +160,7 @@
         .input-group label { display: block; font-size: 0.7rem; color: #888; font-weight: 900; text-transform: uppercase; margin-bottom: 5px; }
         .input-group input, .input-group select { width: 100%; background: #111; border: 1px solid #333; color: #fff; padding: 10px; border-radius: 8px; font-size: 0.9rem; font-weight: bold; outline: none; }
         .input-group input:focus, .input-group select:focus { border-color: #ffe800; }
+        .input-group input[readonly] { color: #888; background: #1a1a1a; border-color: #222; cursor: not-allowed; }
         .input-group select { cursor: pointer; appearance: auto; -webkit-appearance: auto; }
         
         .flex-row { display: flex; gap: 10px; align-items: center; }
@@ -342,6 +343,11 @@
             <div class="emp-stat-box"><div style="font-size: 0.65rem; color: #888; font-weight: 900;">URODZINY</div><div id="empModalBirth" style="color: #fff; font-weight: bold; font-size: 1rem; margin-top: 5px;">-</div></div>
             <div class="emp-stat-box"><div style="font-size: 0.65rem; color: #888; font-weight: 900;">W FIRMIE OD</div><div id="empModalWork" style="color: #fff; font-weight: bold; font-size: 1rem; margin-top: 5px;">-</div></div>
         </div>
+        
+        <div id="empModalPerms" style="margin-bottom: 15px; display: none;">
+            <button id="btnToggleTilePerm" class="btn-modal-close" style="font-size: 0.75rem; border: 1px solid #333; background: #111;">Nadaj dostęp do kafelków</button>
+        </div>
+        
         <button class="btn-modal-close" onclick="closeEmployeeModal()">ZAMKNIJ KARTĘ</button>
     </div>
 </div>
@@ -361,20 +367,15 @@
     // ===============================================
     db.ref('Admin/Settings/Announcement').once('value', snap => {
         const ann = snap.val();
-        // Jeśli jest aktywny komunikat
         if(ann && ann.active && ann.text) {
-            const todayStr = new Date().toLocaleDateString(); // Pobieramy dzisiejszą datę
+            const todayStr = new Date().toLocaleDateString();
             const storedData = localStorage.getItem('seenAnnouncement');
-            // Unikalny identyfikator: Data + czas aktualizacji posta
             const currentData = todayStr + "_" + ann.updatedAt;
             
-            // Jeśli pracownik jeszcze dzisiaj tego NIE widział:
             if(storedData !== currentData) {
                 document.getElementById('announcementTitle').innerText = ann.title || "KOMUNIKAT";
                 document.getElementById('announcementText').innerText = ann.text;
                 document.getElementById('globalAnnouncementModal').style.display = 'flex';
-                
-                // Zapisz do pamięci przeglądarki, żeby jutro pokazało znowu
                 localStorage.setItem('seenAnnouncement', currentData);
             }
         }
@@ -438,6 +439,14 @@
         }
     }
 
+    // Funkcja sprawdzająca czy Zalogowany Pracownik może edytować Kafelki
+    function canEditTiles() {
+        if (isManagerOrKss) return true;
+        const myLiveData = globalUsersList.find(u => u.charId === currentUser.charId);
+        if (myLiveData && myLiveData.canEditTiles) return true;
+        return currentUser.canEditTiles === true;
+    }
+
     function renderProgi() {
         const chartsContainer = document.getElementById('progiContainer');
         const countersContainer = document.getElementById('countersContainer');
@@ -451,10 +460,13 @@
 
         const chartsData = localProgi.filter(p => p.type !== 'counter');
         const countersData = localProgi.filter(p => p.type === 'counter');
+        
+        // KAFELKI - Zwykły pracownik widzi przycisk, jeśli ma uprawnienia "canEditTiles"
+        const hasTileAccess = canEditTiles();
 
         countersData.forEach(prog => {
             let handleDisplay = isReordering ? 'block' : 'none';
-            let editBtnHtml = isManagerOrKss ? `<button class="btn-edit-prog" onclick="openCounterModal('${prog.id}')">EDYTUJ</button>` : '';
+            let editBtnHtml = hasTileAccess ? `<button class="btn-edit-prog" onclick="openCounterModal('${prog.id}')">EDYTUJ</button>` : '';
             const card = document.createElement('div');
             card.className = 'counter-card';
             card.setAttribute('data-id', prog.id);
@@ -464,6 +476,7 @@
 
         if (chartsData.length === 0 && countersData.length > 0) { chartsContainer.innerHTML = ''; }
         
+        // WYKRESY - TYLKO KIEROWNIK / KSS
         chartsData.forEach(prog => {
             let thresholds = prog.thresholds || [];
             let maxThreshold = thresholds.length > 0 ? Math.max(...thresholds) : 0;
@@ -496,6 +509,7 @@
                 differenceText = `<span style="color:#888;">Brak ustalonych progów.</span>`;
             }
 
+            // Przycisk edycji wykresów widoczny tylko dla KSS / Kierownik
             let editBtnHtml = isManagerOrKss ? `<button class="btn-edit-prog" onclick="openProgChartModal('${prog.id}')">EDYTUJ</button>` : '';
             let layoutClass = `prog-w-${prog.layout || '33'}`;
             let handleDisplay = isReordering ? 'block' : 'none';
@@ -522,17 +536,31 @@
 
     function openCounterModal(id = null) {
         if(isReordering) { alert("Najpierw zapisz układ!"); return; }
+        
+        // Dodatkowa blokada w JS - dla pewności
+        if(!canEditTiles()) return;
+
         document.getElementById('counterModal').style.display = 'flex';
         const delBtn = document.getElementById('btnDeleteCounter');
         
+        // Zabezpieczenie wizualne - Zwykły pracownik może tylko zaktualizować wynik
+        if(!isManagerOrKss) {
+            document.getElementById('counterName').readOnly = true;
+            document.getElementById('counterTarget').readOnly = true;
+        } else {
+            document.getElementById('counterName').readOnly = false;
+            document.getElementById('counterTarget').readOnly = false;
+        }
+        
         if(id) {
-            document.getElementById('counterModalTitle').innerText = "Edytuj Licznik";
+            document.getElementById('counterModalTitle').innerText = isManagerOrKss ? "Edytuj Licznik" : "Aktualizuj Wynik";
             const prog = localProgi.find(p => p.id === id);
             document.getElementById('counterId').value = prog.id;
             document.getElementById('counterName').value = prog.name;
             document.getElementById('counterCurrent').value = prog.current;
             document.getElementById('counterTarget').value = prog.target || 0;
-            delBtn.style.display = 'block';
+            // Zwykły pracownik nie widzi przycisku USUŃ
+            delBtn.style.display = isManagerOrKss ? 'block' : 'none';
         } else {
             document.getElementById('counterModalTitle').innerText = "Nowy Licznik";
             document.getElementById('counterId').value = '';
@@ -579,6 +607,8 @@
 
     function openProgChartModal(id = null) {
         if(isReordering) { alert("Najpierw zapisz układ!"); return; }
+        if(!isManagerOrKss) return; // Blokada dla zwykłego pracownika
+        
         document.getElementById('progModal').style.display = 'flex';
         const delBtn = document.getElementById('btnDeleteProg');
         const container = document.getElementById('dynamicThresholds');
@@ -670,6 +700,9 @@
             teamContainer.appendChild(card);
         });
 
+        // Wymuszamy odświeżenie widoku wskaźników po załadowaniu ludzi (żeby zaktualizować uprawnienia w czasie rzeczywistym)
+        if(localProgi.length > 0) renderProgi();
+        
         fetchPlanData();
     });
 
@@ -701,7 +734,38 @@
         
         document.getElementById('empModalBirth').innerText = bDay;
         document.getElementById('empModalWork').innerText = wYearStr;
+        
+        // LOGIKA NADAWANIA UPRAWNIEŃ DLA KIEROWNIKA
+        const permContainer = document.getElementById('empModalPerms');
+        const permBtn = document.getElementById('btnToggleTilePerm');
+        
+        // Kierownik widzi przycisk, ale nie dla samego siebie
+        if(isManagerOrKss && emp.charId !== currentUser.charId) {
+            permContainer.style.display = 'block';
+            
+            if(emp.canEditTiles) {
+                permBtn.innerText = "Zabierz dostęp do kafelków";
+                permBtn.style.color = "#f44";
+                permBtn.style.borderColor = "#f44";
+                permBtn.onclick = () => setTilePermission(emp.charId, false);
+            } else {
+                permBtn.innerText = "Nadaj dostęp do kafelków";
+                permBtn.style.color = "#0a0";
+                permBtn.style.borderColor = "#0a0";
+                permBtn.onclick = () => setTilePermission(emp.charId, true);
+            }
+        } else {
+            permContainer.style.display = 'none';
+        }
+
         document.getElementById('employeeModal').style.display = 'flex';
+    }
+    
+    // Zapis flagi uprawnień do bazy
+    function setTilePermission(charId, canEdit) {
+        db.ref(`Stores/${myStore}/Users/${charId}/canEditTiles`).set(canEdit).then(() => {
+            openEmployeeModal(charId); // Odśwież widok przycisku po kliknięciu
+        });
     }
 
     function closeEmployeeModal() { document.getElementById('employeeModal').style.display = 'none'; }

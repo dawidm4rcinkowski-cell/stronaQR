@@ -176,10 +176,14 @@
         .btn-type-select span { font-weight: 900; letter-spacing: 1px; }
         .btn-type-select small { font-size: 0.65rem; color: #888; font-weight: bold; }
 
-        /* OKNO KOMUNIKATU GLOBALNEGO */
         #globalAnnouncementModal .prog-modal-content { border-color: #f44; box-shadow: 0 0 30px rgba(255, 68, 68, 0.2); }
         #announcementTitle { color: #f44; font-size: 1.4rem; font-weight: 900; margin-bottom: 15px; text-transform: uppercase; text-align: center; }
         #announcementText { color: #fff; font-size: 0.95rem; line-height: 1.6; margin-bottom: 25px; text-align: center; }
+        
+        .history-item { background:#111; padding:10px; margin-bottom:10px; border-radius:8px; border-left:3px solid #ffe800; }
+        .history-meta { display:flex; justify-content:space-between; font-size:0.7rem; color:#888; margin-bottom:5px; }
+        .history-user { color:#fff; font-weight:bold; }
+        .history-action { font-size:0.85rem; }
     </style>
 </head>
 <body>
@@ -251,6 +255,7 @@
         <div class="section-title">
             REALIZACJA CELÓW PREMIOWYCH
             <div style="display:flex; gap:10px;">
+                <button class="btn-reorder-prog" id="btnHistory" style="display:none;" onclick="openHistoryModal()">📜 HISTORIA</button>
                 <button class="btn-reorder-prog" id="btnReorder" style="display:none;" onclick="toggleReorder()">🔄 ZMIEŃ KOLEJNOŚĆ</button>
                 <button class="btn-add-prog" id="addProgBtn" style="display:none;" onclick="openTypeModal()">+ DODAJ WSKAŹNIK</button>
             </div>
@@ -352,6 +357,16 @@
     </div>
 </div>
 
+<div class="modal" id="historyModal">
+    <div class="prog-modal-content" style="max-width: 500px;">
+        <h2 style="color:#ffe800; font-weight:900; text-align:center; text-transform:uppercase;">HISTORIA ZMIAN</h2>
+        <div id="historyContainer" style="max-height: 400px; overflow-y: auto; margin-top: 15px; text-align: left;">
+            <div style="color:#888;text-align:center;">Wczytywanie historii...</div>
+        </div>
+        <button class="btn-modal-close" style="background:#333; color:#fff; margin-top:20px;" onclick="closeHistoryModal()">ZAMKNIJ HISTORIĘ</button>
+    </div>
+</div>
+
 <script>
     document.getElementById('greetName').innerText = currentUser.name || "Nieznany";
     document.getElementById('sideName').innerText = `${currentUser.name || "Nieznany"} (${currentUser.dept || "ME"})`;
@@ -362,9 +377,6 @@
     if(!isManagerOrKss) { document.getElementById('navInwaKSS').style.display = 'none'; } 
     else { document.getElementById('addProgBtn').style.display = 'block'; document.getElementById('btnReorder').style.display = 'block'; }
 
-    // ===============================================
-    // KOMUNIKATY GLOBALNE (Wiadomość Dnia)
-    // ===============================================
     db.ref('Admin/Settings/Announcement').once('value', snap => {
         const ann = snap.val();
         if(ann && ann.active && ann.text) {
@@ -439,13 +451,68 @@
         }
     }
 
-    // Funkcja sprawdzająca czy Zalogowany Pracownik może edytować Kafelki
     function canEditTiles() {
         if (isManagerOrKss) return true;
         const myLiveData = globalUsersList.find(u => u.charId === currentUser.charId);
         if (myLiveData && myLiveData.canEditTiles) return true;
         return currentUser.canEditTiles === true;
     }
+
+    // LOGIKA HISTORII
+    function logHistory(progName, oldVal, newVal, isUpdate) {
+        db.ref(`Stores/${myStore}/Dashboard/History`).push().set({
+            timestamp: Date.now(),
+            userId: currentUser.charId,
+            userName: currentUser.name,
+            progName: progName,
+            oldCurrent: oldVal,
+            newCurrent: newVal,
+            type: isUpdate ? 'update' : 'create'
+        });
+    }
+
+    function openHistoryModal() {
+        document.getElementById('historyModal').style.display = 'flex';
+        const hc = document.getElementById('historyContainer');
+        hc.innerHTML = '<div style="color:#888;text-align:center;">Wczytywanie historii...</div>';
+
+        // Pobiera 50 najnowszych wpisów z bazy
+        db.ref(`Stores/${myStore}/Dashboard/History`).limitToLast(50).once('value', snap => {
+            const historyObj = snap.val();
+            if(!historyObj) {
+                hc.innerHTML = '<div style="color:#888;text-align:center;margin-top:20px;">Brak wpisów w historii. Zmień jakiś wynik, aby to przetestować!</div>';
+                return;
+            }
+            
+            const historyArr = Object.values(historyObj).sort((a,b) => b.timestamp - a.timestamp); // Najnowsze na górze
+            hc.innerHTML = '';
+            
+            historyArr.forEach(h => {
+                const d = new Date(h.timestamp);
+                const dateStr = d.toLocaleDateString() + ' ' + d.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+                
+                let actionText = "";
+                if (h.type === 'create') {
+                    actionText = `Dodano wskaźnik z wynikiem <span style="color:#ffe800">${h.newCurrent}</span>`;
+                } else {
+                    actionText = `Wynik: ${h.oldCurrent} ➔ <span style="color:#ffe800">${h.newCurrent}</span>`;
+                }
+
+                hc.innerHTML += `
+                    <div class="history-item">
+                        <div class="history-meta">
+                            <span>${dateStr}</span>
+                            <span class="history-user">${h.userName}</span>
+                        </div>
+                        <div class="history-action"><strong>${h.progName}</strong>: ${actionText}</div>
+                    </div>
+                `;
+            });
+        });
+    }
+
+    function closeHistoryModal() { document.getElementById('historyModal').style.display = 'none'; }
+
 
     function renderProgi() {
         const chartsContainer = document.getElementById('progiContainer');
@@ -461,7 +528,6 @@
         const chartsData = localProgi.filter(p => p.type !== 'counter');
         const countersData = localProgi.filter(p => p.type === 'counter');
         
-        // KAFELKI - Zwykły pracownik widzi przycisk, jeśli ma uprawnienia "canEditTiles"
         const hasTileAccess = canEditTiles();
 
         countersData.forEach(prog => {
@@ -476,7 +542,6 @@
 
         if (chartsData.length === 0 && countersData.length > 0) { chartsContainer.innerHTML = ''; }
         
-        // WYKRESY - TYLKO KIEROWNIK / KSS
         chartsData.forEach(prog => {
             let thresholds = prog.thresholds || [];
             let maxThreshold = thresholds.length > 0 ? Math.max(...thresholds) : 0;
@@ -509,7 +574,6 @@
                 differenceText = `<span style="color:#888;">Brak ustalonych progów.</span>`;
             }
 
-            // Przycisk edycji wykresów widoczny tylko dla KSS / Kierownik
             let editBtnHtml = isManagerOrKss ? `<button class="btn-edit-prog" onclick="openProgChartModal('${prog.id}')">EDYTUJ</button>` : '';
             let layoutClass = `prog-w-${prog.layout || '33'}`;
             let handleDisplay = isReordering ? 'block' : 'none';
@@ -536,14 +600,11 @@
 
     function openCounterModal(id = null) {
         if(isReordering) { alert("Najpierw zapisz układ!"); return; }
-        
-        // Dodatkowa blokada w JS - dla pewności
         if(!canEditTiles()) return;
 
         document.getElementById('counterModal').style.display = 'flex';
         const delBtn = document.getElementById('btnDeleteCounter');
         
-        // Zabezpieczenie wizualne - Zwykły pracownik może tylko zaktualizować wynik
         if(!isManagerOrKss) {
             document.getElementById('counterName').readOnly = true;
             document.getElementById('counterTarget').readOnly = true;
@@ -559,7 +620,6 @@
             document.getElementById('counterName').value = prog.name;
             document.getElementById('counterCurrent').value = prog.current;
             document.getElementById('counterTarget').value = prog.target || 0;
-            // Zwykły pracownik nie widzi przycisku USUŃ
             delBtn.style.display = isManagerOrKss ? 'block' : 'none';
         } else {
             document.getElementById('counterModalTitle').innerText = "Nowy Licznik";
@@ -586,7 +646,16 @@
         const existingProg = localProgi.find(p => p.id === id);
         const finalOrder = existingProg ? existingProg.order : newOrder;
 
-        db.ref(`Stores/${myStore}/Dashboard/Progi/${id}`).set({ type: 'counter', name: name, current: current, target: target, order: finalOrder }).then(() => { closeCounterModal(); });
+        db.ref(`Stores/${myStore}/Dashboard/Progi/${id}`).set({ type: 'counter', name: name, current: current, target: target, order: finalOrder }).then(() => { 
+            
+            // Rejestracja historii, tylko jeśli wynik się zmienił (lub jest to nowy kafelek)
+            let oldCurrent = existingProg ? existingProg.current : 0;
+            if(oldCurrent !== current || !existingProg) {
+                logHistory(name, oldCurrent, current, !!existingProg);
+            }
+
+            closeCounterModal(); 
+        });
     }
 
     function deleteCounter() {
@@ -607,7 +676,7 @@
 
     function openProgChartModal(id = null) {
         if(isReordering) { alert("Najpierw zapisz układ!"); return; }
-        if(!isManagerOrKss) return; // Blokada dla zwykłego pracownika
+        if(!isManagerOrKss) return; 
         
         document.getElementById('progModal').style.display = 'flex';
         const delBtn = document.getElementById('btnDeleteProg');
@@ -658,7 +727,16 @@
         const existingProg = localProgi.find(p => p.id === id);
         const finalOrder = existingProg ? existingProg.order : newOrder;
 
-        db.ref(`Stores/${myStore}/Dashboard/Progi/${id}`).set({ type: 'chart', name: name, current: current, thresholds: thresholdsArr, layout: layout, order: finalOrder }).then(() => { closeProgModal(); });
+        db.ref(`Stores/${myStore}/Dashboard/Progi/${id}`).set({ type: 'chart', name: name, current: current, thresholds: thresholdsArr, layout: layout, order: finalOrder }).then(() => { 
+            
+            // Rejestracja historii dla wykresów
+            let oldCurrent = existingProg ? existingProg.current : 0;
+            if(oldCurrent !== current || !existingProg) {
+                logHistory(name, oldCurrent, current, !!existingProg);
+            }
+
+            closeProgModal(); 
+        });
     }
 
     function deleteProgChart() {
@@ -700,9 +778,14 @@
             teamContainer.appendChild(card);
         });
 
-        // Wymuszamy odświeżenie widoku wskaźników po załadowaniu ludzi (żeby zaktualizować uprawnienia w czasie rzeczywistym)
+        // Weryfikacja czy pracownikowi pojawił się przycisk historii po załadowaniu danych uprawnień
+        if (canEditTiles()) {
+            document.getElementById('btnHistory').style.display = 'block';
+        } else {
+            document.getElementById('btnHistory').style.display = 'none';
+        }
+
         if(localProgi.length > 0) renderProgi();
-        
         fetchPlanData();
     });
 
@@ -735,11 +818,9 @@
         document.getElementById('empModalBirth').innerText = bDay;
         document.getElementById('empModalWork').innerText = wYearStr;
         
-        // LOGIKA NADAWANIA UPRAWNIEŃ DLA KIEROWNIKA
         const permContainer = document.getElementById('empModalPerms');
         const permBtn = document.getElementById('btnToggleTilePerm');
         
-        // Kierownik widzi przycisk, ale nie dla samego siebie
         if(isManagerOrKss && emp.charId !== currentUser.charId) {
             permContainer.style.display = 'block';
             
@@ -761,10 +842,9 @@
         document.getElementById('employeeModal').style.display = 'flex';
     }
     
-    // Zapis flagi uprawnień do bazy
     function setTilePermission(charId, canEdit) {
         db.ref(`Stores/${myStore}/Users/${charId}/canEditTiles`).set(canEdit).then(() => {
-            openEmployeeModal(charId); // Odśwież widok przycisku po kliknięciu
+            openEmployeeModal(charId); 
         });
     }
 

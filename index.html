@@ -180,10 +180,13 @@
         #announcementTitle { color: #f44; font-size: 1.4rem; font-weight: 900; margin-bottom: 15px; text-transform: uppercase; text-align: center; }
         #announcementText { color: #fff; font-size: 0.95rem; line-height: 1.6; margin-bottom: 25px; text-align: center; }
         
-        .history-item { background:#111; padding:10px; margin-bottom:10px; border-radius:8px; border-left:3px solid #ffe800; }
+        /* STYLE DLA HISTORII Z ELEMENTEM USUWANIA */
+        .history-item { background:#111; padding:10px; margin-bottom:10px; border-radius:8px; border-left:3px solid #ffe800; position: relative; padding-right: 35px; }
         .history-meta { display:flex; justify-content:space-between; font-size:0.7rem; color:#888; margin-bottom:5px; }
         .history-user { color:#fff; font-weight:bold; }
         .history-action { font-size:0.85rem; }
+        .btn-delete-history { position: absolute; top: 10px; right: 10px; background: transparent; border: none; color: #f44; cursor: pointer; font-size: 1rem; transition: 0.2s; }
+        .btn-delete-history:hover { transform: scale(1.2); }
     </style>
 </head>
 <body>
@@ -484,7 +487,8 @@
                 return;
             }
             
-            const historyArr = Object.values(historyObj).sort((a,b) => b.timestamp - a.timestamp); // Najnowsze na górze
+            // Konwersja na tablicę z dodaniem ID klucza z bazy i sortowanie po czasie
+            const historyArr = Object.entries(historyObj).map(([key, val]) => ({ key, ...val })).sort((a,b) => b.timestamp - a.timestamp); 
             hc.innerHTML = '';
             
             historyArr.forEach(h => {
@@ -498,8 +502,12 @@
                     actionText = `Wynik: ${h.oldCurrent} ➔ <span style="color:#ffe800">${h.newCurrent}</span>`;
                 }
 
+                // Generowanie przycisku usuwania TYLKO dla kierownika/KSS
+                let deleteBtnHtml = isManagerOrKss ? `<button class="btn-delete-history" onclick="deleteHistoryItem('${h.key}')">✖</button>` : '';
+
                 hc.innerHTML += `
                     <div class="history-item">
+                        ${deleteBtnHtml}
                         <div class="history-meta">
                             <span>${dateStr}</span>
                             <span class="history-user">${h.userName}</span>
@@ -511,8 +519,15 @@
         });
     }
 
-    function closeHistoryModal() { document.getElementById('historyModal').style.display = 'none'; }
+    function deleteHistoryItem(historyKey) {
+        if(confirm("Czy na pewno usunąć ten pojedynczy wpis z historii?")) {
+            db.ref(`Stores/${myStore}/Dashboard/History/${historyKey}`).remove().then(() => {
+                openHistoryModal(); // Odświeża listę po usunięciu
+            });
+        }
+    }
 
+    function closeHistoryModal() { document.getElementById('historyModal').style.display = 'none'; }
 
     function renderProgi() {
         const chartsContainer = document.getElementById('progiContainer');
@@ -648,7 +663,6 @@
 
         db.ref(`Stores/${myStore}/Dashboard/Progi/${id}`).set({ type: 'counter', name: name, current: current, target: target, order: finalOrder }).then(() => { 
             
-            // Rejestracja historii, tylko jeśli wynik się zmienił (lub jest to nowy kafelek)
             let oldCurrent = existingProg ? existingProg.current : 0;
             if(oldCurrent !== current || !existingProg) {
                 logHistory(name, oldCurrent, current, !!existingProg);
@@ -729,7 +743,6 @@
 
         db.ref(`Stores/${myStore}/Dashboard/Progi/${id}`).set({ type: 'chart', name: name, current: current, thresholds: thresholdsArr, layout: layout, order: finalOrder }).then(() => { 
             
-            // Rejestracja historii dla wykresów
             let oldCurrent = existingProg ? existingProg.current : 0;
             if(oldCurrent !== current || !existingProg) {
                 logHistory(name, oldCurrent, current, !!existingProg);
@@ -778,7 +791,6 @@
             teamContainer.appendChild(card);
         });
 
-        // Weryfikacja czy pracownikowi pojawił się przycisk historii po załadowaniu danych uprawnień
         if (canEditTiles()) {
             document.getElementById('btnHistory').style.display = 'block';
         } else {

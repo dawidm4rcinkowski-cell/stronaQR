@@ -105,9 +105,10 @@
         .avatar-small { width: 40px; height: 40px; border-radius: 50%; background: #151515; border: 2px solid #ffe800; display: flex; align-items: center; justify-content: center; font-weight: 900; color: #ffe800; font-size: 1rem; overflow: hidden; flex-shrink: 0; }
         
         .action-buttons-group { display: flex; gap: 8px; }
+        .btn-edit-emp { background: transparent; border: 1px solid #0a0; color: #0a0; padding: 8px 10px; border-radius: 5px; font-weight: 900; font-size: 0.65rem; cursor: pointer; transition: 0.3s; text-transform: uppercase; }
+        .btn-edit-emp:hover { background: #0a0; color: #000; }
         .btn-reset { background: transparent; border: 1px solid #ffe800; color: #ffe800; padding: 8px 10px; border-radius: 5px; font-weight: 900; font-size: 0.65rem; cursor: pointer; transition: 0.3s; text-transform: uppercase; }
         .btn-reset:hover { background: #ffe800; color: #000; }
-        
         .btn-delete-emp { background: transparent; border: 1px solid #f44; color: #f44; padding: 8px 10px; border-radius: 5px; font-weight: 900; font-size: 0.65rem; cursor: pointer; transition: 0.3s; text-transform: uppercase; }
         .btn-delete-emp:hover { background: #f44; color: #000; }
 
@@ -120,6 +121,14 @@
         .role-checkboxes { background: #111; border: 1px solid #333; padding: 15px; border-radius: 8px; display: flex; flex-direction: column; gap: 10px; }
         .role-label { color: #fff; font-size: 0.85rem; display: flex; align-items: center; gap: 10px; cursor: pointer; }
         .role-label input { width: 18px; height: 18px; cursor: pointer; }
+
+        /* DODATKI DO MODALI POWIADOMIEŃ */
+        #globalNotificationModal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 15000; align-items: center; justify-content: center; padding: 20px; backdrop-filter: blur(5px); }
+        #popupBox { background: #0a0a0a; border: 3px solid #ffe800; padding: 30px; width: 100%; max-width: 500px; border-radius: 15px; text-align: center; box-shadow: 0 0 30px rgba(0,0,0,0.5); }
+        #globalPopupTitle { margin-bottom: 15px; font-size: 1.3rem; text-transform: uppercase; font-weight: 900; }
+        #globalPopupMsg { color: #fff; font-size: 1rem; margin-bottom: 25px; line-height: 1.5; font-weight: 700; }
+        .btn-close-popup { width: 100%; background: #ffe800; color: #000; border: none; padding: 12px 20px; font-weight: 900; border-radius: 8px; cursor: pointer; text-transform: uppercase; transition: 0.2s; }
+        .btn-close-popup:hover { transform: scale(1.02); }
     </style>
 </head>
 <body>
@@ -263,6 +272,55 @@
     </div>
 </div>
 
+<div class="modal" id="editEmployeeModal">
+    <div class="modal-content" style="max-width: 450px;">
+        <h3 style="color:#ffe800; margin-bottom:15px; text-align:center; font-size: 1.3rem;">EDYTUJ PRACOWNIKA</h3>
+        
+        <input type="hidden" id="editEmpOldCharId">
+
+        <div class="input-group" style="margin-bottom: 15px; text-align: left;">
+            <label>Imię</label>
+            <input type="text" class="form-input" id="editEmpName">
+        </div>
+        
+        <div class="input-group" style="margin-bottom: 15px; text-align: left;">
+            <label>Kod Logowania (CharID) <span style="color:#f44; font-size:0.6rem;">(UWAGA!)</span></label>
+            <input type="text" class="form-input" id="editEmpCharId">
+            <span style="font-size:0.6rem; color:#888; margin-top:3px;">Zmiana kodu spowoduje odpięcie pracownika od jego bieżącego planu. Rób to tylko jeśli musisz!</span>
+        </div>
+        
+        <div class="input-group" style="margin-bottom: 15px; text-align: left;">
+            <label>Dział</label>
+            <select class="form-input" id="editEmpDept">
+                <option value="IT">Dział IT</option>
+                <option value="RTV">Dział RTV</option>
+                <option value="AGD">Dział AGD</option>
+                <option value="POK">Punkt Obsługi Klienta (POK)</option>
+                <option value="ME">Kierownik Sklepu (ME)</option>
+            </select>
+        </div>
+        
+        <div class="role-checkboxes" style="margin-top: 15px; text-align: left;">
+            <label class="role-label"><input type="checkbox" id="editEmpIsKss"> Pracownik posiada uprawnienia KSS</label>
+        </div>
+        
+        <div id="editEmpMsg" class="msg-box" style="margin-top:15px;"></div>
+        
+        <div style="display:flex; gap:10px; margin-top:25px;">
+            <button class="btn-action" style="flex:1; background:#333; color:#fff; margin-top:0;" onclick="closeEditEmployeeModal()">ANULUJ</button>
+            <button class="btn-action" style="flex:2; margin-top:0;" onclick="saveEditedEmployee()">ZAPISZ ZMIANY</button>
+        </div>
+    </div>
+</div>
+
+<div id="globalNotificationModal">
+    <div id="popupBox">
+        <h3 id="globalPopupTitle">POWIADOMIENIE</h3>
+        <p id="globalPopupMsg"></p>
+        <button class="btn-close-popup" onclick="closeGlobalPopup()">ZROZUMIAŁEM</button>
+    </div>
+</div>
+
 <script>
     document.getElementById('headerStore').innerText = myStore;
     document.getElementById('profileName').innerText = currentUser.name;
@@ -327,7 +385,7 @@
     }
 
     // ==========================================
-    // ZARZĄDZANIE ZESPOŁEM (RESET, USUWANIE & DODAWANIE)
+    // ZARZĄDZANIE ZESPOŁEM (RESET, USUWANIE, DODAWANIE & EDYCJA)
     // ==========================================
     function loadTeamForReset() {
         db.ref(`Stores/${myStore}/Users`).on('value', snap => {
@@ -340,7 +398,7 @@
 
             let html = '';
             if(usersForReset.length === 0) {
-                html = '<div style="color: #666; font-size:0.8rem; font-weight:bold; padding:20px;">BRAK INNYCH UŻYTKOWNIKÓW W BAZIE.</div>';
+                html = '<div style="color: #666; font-size:0.8rem; font-weight:bold; padding:20px; width:100%; text-align:center;">BRAK INNYCH UŻYTKOWNIKÓW W BAZIE.</div>';
             } else {
                 usersForReset.forEach(u => {
                     let uAvatar = u.avatar ? `<img src="${u.avatar}" style="width:100%; height:100%; object-fit:cover; border-radius:50%;">` : u.charId.charAt(0);
@@ -356,6 +414,7 @@
                             </div>
                         </div>
                         <div class="action-buttons-group">
+                            <button class="btn-edit-emp" onclick="openEditEmployeeModal('${u.charId}')">EDYTUJ</button>
                             <button class="btn-reset" onclick="confirmPasswordReset('${u.charId}', '${u.name}')">RESET</button>
                             <button class="btn-delete-emp" onclick="confirmDeleteEmployee('${u.charId}', '${u.name}')">USUŃ</button>
                         </div>
@@ -385,7 +444,9 @@
         }
     }
 
-    // Logika dodawania nowego pracownika
+    // ==========================================
+    // DODAWANIE PRACOWNIKA
+    // ==========================================
     function openAddEmployeeModal() {
         document.getElementById('addEmployeeModal').style.display = 'flex';
         document.getElementById('newEmpName').value = '';
@@ -439,6 +500,88 @@
         } catch(e) {
             msgBox.classList.add('msg-error');
             msgBox.innerText = "Błąd komunikacji z chmurą: " + e.message;
+        }
+    }
+
+    // ==========================================
+    // EDYCJA PRACOWNIKA
+    // ==========================================
+    async function openEditEmployeeModal(charId) {
+        try {
+            const snap = await db.ref(`Stores/${myStore}/Users/${charId}`).once('value');
+            const user = snap.val();
+            
+            if(!user) return;
+
+            document.getElementById('editEmpOldCharId').value = charId;
+            document.getElementById('editEmpCharId').value = charId;
+            document.getElementById('editEmpName').value = user.name || '';
+            document.getElementById('editEmpDept').value = user.dept || 'IT';
+            document.getElementById('editEmpIsKss').checked = user.isKss || false;
+
+            document.getElementById('editEmpMsg').style.display = 'none';
+            document.getElementById('editEmployeeModal').style.display = 'flex';
+        } catch(e) {
+            alert("Błąd pobierania danych pracownika z bazy.");
+        }
+    }
+
+    function closeEditEmployeeModal() {
+        document.getElementById('editEmployeeModal').style.display = 'none';
+    }
+
+    async function saveEditedEmployee() {
+        const oldCharId = document.getElementById('editEmpOldCharId').value;
+        const name = document.getElementById('editEmpName').value.trim().toUpperCase();
+        let newCharId = document.getElementById('editEmpCharId').value.trim().toUpperCase().replace(/\s+/g, '');
+        const dept = document.getElementById('editEmpDept').value;
+        const isKss = document.getElementById('editEmpIsKss').checked;
+        const msgBox = document.getElementById('editEmpMsg');
+
+        msgBox.style.display = 'block'; msgBox.className = 'msg-box';
+
+        if(!name || !newCharId) {
+            msgBox.classList.add('msg-error'); msgBox.innerText = "Wypełnij Imię i Kod logowania!"; return;
+        }
+
+        try {
+            if (oldCharId !== newCharId) {
+                // Sprawdzenie czy nowe CharID nie jest przypadkiem zajęte
+                const snapCheck = await db.ref(`Stores/${myStore}/Users/${newCharId}`).once('value');
+                if (snapCheck.exists()) {
+                    msgBox.classList.add('msg-error'); msgBox.innerText = "Taki Kod (CharID) jest już przypisany innej osobie!"; return;
+                }
+
+                // Kopiowanie danych na nowy klucz (CharID)
+                const oldSnap = await db.ref(`Stores/${myStore}/Users/${oldCharId}`).once('value');
+                let userData = oldSnap.val();
+                
+                userData.charId = newCharId;
+                userData.name = name;
+                userData.dept = dept;
+                userData.isKss = isKss;
+
+                // Jednoczesne dodanie nowego i usunięcie starego
+                let updates = {};
+                updates[`Stores/${myStore}/Users/${newCharId}`] = userData;
+                updates[`Stores/${myStore}/Users/${oldCharId}`] = null;
+                
+                await db.ref().update(updates);
+            } else {
+                // Aktualizacja bez zmiany klucza
+                await db.ref(`Stores/${myStore}/Users/${oldCharId}`).update({
+                    name: name,
+                    dept: dept,
+                    isKss: isKss
+                });
+            }
+
+            msgBox.classList.add('msg-success');
+            msgBox.innerText = "Dane zaktualizowane pomyślnie!";
+            setTimeout(() => { closeEditEmployeeModal(); }, 1500);
+
+        } catch(e) {
+            msgBox.classList.add('msg-error'); msgBox.innerText = "Błąd komunikacji z chmurą: " + e.message;
         }
     }
 
@@ -514,27 +657,10 @@
         }
         btn.disabled = false; btn.innerText = "Zaktualizuj Hasło";
     }
-</script>
-</body>
-<style>
-    #globalNotificationModal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 15000; align-items: center; justify-content: center; padding: 20px; backdrop-filter: blur(5px); }
-    #popupBox { background: #0a0a0a; border: 3px solid #ffe800; padding: 30px; width: 100%; max-width: 500px; border-radius: 15px; text-align: center; box-shadow: 0 0 30px rgba(0,0,0,0.5); }
-    #globalPopupTitle { margin-bottom: 15px; font-size: 1.3rem; text-transform: uppercase; font-weight: 900; }
-    #globalPopupMsg { color: #fff; font-size: 1rem; margin-bottom: 25px; line-height: 1.5; font-weight: 700; }
-    .btn-close-popup { width: 100%; background: #ffe800; color: #000; border: none; padding: 12px 20px; font-weight: 900; border-radius: 8px; cursor: pointer; text-transform: uppercase; transition: 0.2s; }
-    .btn-close-popup:hover { transform: scale(1.02); }
-</style>
 
-<div id="globalNotificationModal">
-    <div id="popupBox">
-        <h3 id="globalPopupTitle">POWIADOMIENIE</h3>
-        <p id="globalPopupMsg"></p>
-        <button class="btn-close-popup" onclick="closeGlobalPopup()">ZROZUMIAŁEM</button>
-    </div>
-</div>
-
-<script>
-    // Upewniamy się, że Firebase i dane użytkownika są załadowane
+    // ==========================================
+    // SYSTEM POWIADOMIEŃ GLOBALNYCH
+    // ==========================================
     if (typeof db !== 'undefined' && typeof currentUser !== 'undefined') {
         const isManagerOrKssGlobal = (currentUser.dept === 'ME' || currentUser.isKss);
 
@@ -542,11 +668,10 @@
             let notifsObj = snap.val() || {};
             let notifs = Object.keys(notifsObj).map(key => ({ keyId: key, ...notifsObj[key] }));
             
-            // Szukamy nieprzeczytanych: skierowanych do mnie LUB do KSS (jeśli jestem kierownikiem/KSS)
             let myUnread = notifs.filter(n => !n.read && (n.to === currentUser.charId || (n.to === 'KSS' && isManagerOrKssGlobal)));
             
             if (myUnread.length > 0) {
-                let n = myUnread[0]; // Wyświetla po kolei, zaczynając od najstarszego nieprzeczytanego
+                let n = myUnread[0]; 
                 
                 document.getElementById('globalPopupTitle').innerText = n.title;
                 document.getElementById('globalPopupMsg').innerText = n.msg;
@@ -557,7 +682,6 @@
                 else if(n.type === 'error') { box.style.borderColor = '#f44'; document.getElementById('globalPopupTitle').style.color = '#f44'; }
                 else { box.style.borderColor = '#ffe800'; document.getElementById('globalPopupTitle').style.color = '#ffe800'; }
                 
-                // Oznacz w bazie jako przeczytane, żeby nie pojawiło się po odświeżeniu
                 db.ref(`Stores/${myStore}/Notifications/${n.keyId}`).update({ read: true });
             }
         });
@@ -567,4 +691,5 @@
         document.getElementById('globalNotificationModal').style.display = 'none'; 
     }
 </script>
+</body>
 </html>

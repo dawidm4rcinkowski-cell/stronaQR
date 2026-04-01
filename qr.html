@@ -210,4 +210,55 @@
     function closeGlobalPopup() { document.getElementById('globalNotificationModal').style.display = 'none'; }
 </script>
 </body>
+<style>
+    #globalNotificationModal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 15000; align-items: center; justify-content: center; padding: 20px; backdrop-filter: blur(5px); }
+    #popupBox { background: #0a0a0a; border: 3px solid #ffe800; padding: 30px; width: 100%; max-width: 500px; border-radius: 15px; text-align: center; box-shadow: 0 0 30px rgba(0,0,0,0.5); }
+    #globalPopupTitle { margin-bottom: 15px; font-size: 1.3rem; text-transform: uppercase; font-weight: 900; }
+    #globalPopupMsg { color: #fff; font-size: 1rem; margin-bottom: 25px; line-height: 1.5; font-weight: 700; }
+    .btn-close-popup { width: 100%; background: #ffe800; color: #000; border: none; padding: 12px 20px; font-weight: 900; border-radius: 8px; cursor: pointer; text-transform: uppercase; transition: 0.2s; }
+    .btn-close-popup:hover { transform: scale(1.02); }
+</style>
+
+<div id="globalNotificationModal">
+    <div id="popupBox">
+        <h3 id="globalPopupTitle">POWIADOMIENIE</h3>
+        <p id="globalPopupMsg"></p>
+        <button class="btn-close-popup" onclick="closeGlobalPopup()">ZROZUMIAŁEM</button>
+    </div>
+</div>
+
+<script>
+    // Upewniamy się, że Firebase i dane użytkownika są załadowane
+    if (typeof db !== 'undefined' && typeof currentUser !== 'undefined') {
+        const isManagerOrKssGlobal = (currentUser.dept === 'ME' || currentUser.isKss);
+
+        db.ref(`Stores/${myStore}/Notifications`).on('value', snap => {
+            let notifsObj = snap.val() || {};
+            let notifs = Object.keys(notifsObj).map(key => ({ keyId: key, ...notifsObj[key] }));
+            
+            // Szukamy nieprzeczytanych: skierowanych do mnie LUB do KSS (jeśli jestem kierownikiem/KSS)
+            let myUnread = notifs.filter(n => !n.read && (n.to === currentUser.charId || (n.to === 'KSS' && isManagerOrKssGlobal)));
+            
+            if (myUnread.length > 0) {
+                let n = myUnread[0]; // Wyświetla po kolei, zaczynając od najstarszego nieprzeczytanego
+                
+                document.getElementById('globalPopupTitle').innerText = n.title;
+                document.getElementById('globalPopupMsg').innerText = n.msg;
+                document.getElementById('globalNotificationModal').style.display = 'flex';
+                
+                let box = document.getElementById('popupBox');
+                if(n.type === 'success') { box.style.borderColor = '#0a0'; document.getElementById('globalPopupTitle').style.color = '#0a0'; }
+                else if(n.type === 'error') { box.style.borderColor = '#f44'; document.getElementById('globalPopupTitle').style.color = '#f44'; }
+                else { box.style.borderColor = '#ffe800'; document.getElementById('globalPopupTitle').style.color = '#ffe800'; }
+                
+                // Oznacz w bazie jako przeczytane, żeby nie pojawiło się po odświeżeniu
+                db.ref(`Stores/${myStore}/Notifications/${n.keyId}`).update({ read: true });
+            }
+        });
+    }
+
+    function closeGlobalPopup() { 
+        document.getElementById('globalNotificationModal').style.display = 'none'; 
+    }
+</script>
 </html>

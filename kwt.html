@@ -413,4 +413,39 @@
         document.getElementById('globalNotificationModal').style.display = 'none'; 
     }
 </script>
+<script>
+    // Ustaw czas bezczynności w minutach
+    const minutyBezczynnosci = 5; 
+    
+    // Przeliczenie na milisekundy
+    const limitCzasu = minutyBezczynnosci * 60 * 1000; 
+    let timerBezczynnosci;
+
+    // Funkcja resetująca licznik
+    function resetujTimer() {
+        clearTimeout(timerBezczynnosci);
+        timerBezczynnosci = setTimeout(wylogujZPowoduBezczynnosci, limitCzasu);
+    }
+
+    // Funkcja wylogowująca
+    function wylogujZPowoduBezczynnosci() {
+        // Usuwamy dane sesji
+        localStorage.removeItem('currentUser');
+        // Zapisujemy powód wylogowania, żeby strona logowania mogła pokazać komunikat
+        sessionStorage.setItem('powodWylogowania', 'bezczynnosc');
+        // Wyrzucamy do logowania
+        window.location.href = 'login.html';
+    }
+
+    // Lista akcji, które oznaczają, że użytkownik żyje i coś robi na stronie
+    const akcjeUzytkownika = ['mousemove', 'keydown', 'click', 'scroll', 'touchstart'];
+
+    // Podpinamy resetowanie timera pod każdy ruch użytkownika
+    akcjeUzytkownika.forEach(akcja => {
+        document.addEventListener(akcja, resetujTimer, { passive: true });
+    });
+
+    // Uruchamiamy timer przy pierwszym załadowaniu strony
+    resetujTimer();
+</script>
 </html>

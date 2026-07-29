@@ -182,7 +182,7 @@
         </div>
         
         <div id="manageKwtList" style="max-height: 40vh; overflow-y: auto; text-align: left; background: #0a0a0a; border: 1px solid #333; padding: 10px; border-radius: 8px;">
-            <!-- Renderowane z JS -->
+            <!-- Renderowane z JS poprzez createElement, całkowicie bezpieczne -->
         </div>
         
         <button class="btn-modal" style="background:#333; color:#fff;" onclick="closeManageKwtModal()">ZAMKNIJ OKNO</button>
@@ -303,7 +303,6 @@
     // POBIERANIE LISTY TOWARÓW Z BAZY (LUB INICJALIZACJA)
     db.ref(`Stores/${myStore}/KWT_Items`).on('value', snap => {
         if (!snap.exists()) {
-            // Jeśli baza nie ma jeszcze zapisanej listy, wgrywamy naszą "na start"
             let initData = {};
             defaultKwtData.forEach(item => { initData[item.id] = item; });
             db.ref(`Stores/${myStore}/KWT_Items`).set(initData);
@@ -311,13 +310,11 @@
             const data = snap.val();
             kwtItemsDb = Object.keys(data).map(key => data[key]);
             
-            // Sortujemy alfabetycznie dla porządku
             kwtItemsDb.sort((a,b) => a.name.localeCompare(b.name, 'pl'));
             
             document.getElementById('loadingData').style.display = 'none';
             renderKWT();
             
-            // Jeśli modal do edycji jest otwarty, odświeżamy mu listę
             if(document.getElementById('manageKwtModal').style.display === 'flex') {
                 renderManageList();
             }
@@ -384,7 +381,7 @@
     }
 
     // ==========================================
-    // SYSTEM ZARZĄDZANIA (EDYCJI) TOWARAMI KWT
+    // SYSTEM ZARZĄDZANIA (EDYCJI) TOWARAMI KWT (NAPRAWIONY!)
     // ==========================================
     function openManageKwtModal() {
         document.getElementById('manageKwtModal').style.display = 'flex';
@@ -398,6 +395,8 @@
     function renderManageList() {
         const dept = document.getElementById('manageDeptSelect').value;
         const container = document.getElementById('manageKwtList');
+        
+        // Czyścimy starą zawartość
         container.innerHTML = '';
         
         let filtered = kwtItemsDb.filter(i => i.dept === dept);
@@ -407,18 +406,35 @@
             return;
         }
 
+        // BARDZO BEZPIECZNE RENDEROWANIE - ODPORNE NA APOSTROFY I INNE ZNAKI
         filtered.forEach(item => {
-            // Bezpiecznie kodujemy nazwę, by uniknąć problemów z cudzysłowami w onlick
-            const safeName = item.name.replace(/'/g, "\\'").replace(/"/g, '&quot;');
+            const row = document.createElement('div');
+            row.className = 'manage-item-row';
             
-            container.innerHTML += `
-            <div class="manage-item-row">
-                <div class="manage-item-name">${item.name}</div>
-                <div class="manage-btns">
-                    <button class="btn-mini-edit" onclick="editKwtItem('${item.id}', '${safeName}')">EDYTUJ</button>
-                    <button class="btn-mini-del" onclick="deleteKwtItem('${item.id}')">USUŃ</button>
-                </div>
-            </div>`;
+            const nameDiv = document.createElement('div');
+            nameDiv.className = 'manage-item-name';
+            nameDiv.innerText = item.name;
+            
+            const btnsDiv = document.createElement('div');
+            btnsDiv.className = 'manage-btns';
+            
+            const btnEdit = document.createElement('button');
+            btnEdit.className = 'btn-mini-edit';
+            btnEdit.innerText = 'EDYTUJ';
+            btnEdit.onclick = function() { editKwtItem(item.id, item.name); };
+            
+            const btnDel = document.createElement('button');
+            btnDel.className = 'btn-mini-del';
+            btnDel.innerText = 'USUŃ';
+            btnDel.onclick = function() { deleteKwtItem(item.id); };
+            
+            btnsDiv.appendChild(btnEdit);
+            btnsDiv.appendChild(btnDel);
+            
+            row.appendChild(nameDiv);
+            row.appendChild(btnsDiv);
+            
+            container.appendChild(row);
         });
     }
 
@@ -429,7 +445,6 @@
         
         if (!name) { alert("Wpisz nazwę towaru!"); return; }
         
-        // Unikalne ID oparte o dział i aktualny czas
         const newId = `kwt_${dept}_${Date.now()}`;
         
         db.ref(`Stores/${myStore}/KWT_Items/${newId}`).set({
@@ -443,9 +458,7 @@
 
     function deleteKwtItem(id) {
         if(confirm("Czy na pewno chcesz na zawsze USUNĄĆ ten towar z listy KWT?")) {
-            // Usuwamy pozycje z listy asortymentu
             db.ref(`Stores/${myStore}/KWT_Items/${id}`).remove();
-            // Czyścimy jej status z KWT (żeby nie zostawiać śmieci w bazie)
             db.ref(`Stores/${myStore}/KWT/${id}`).remove();
         }
     }
@@ -518,8 +531,7 @@
     }
 
     function closeGlobalPopup() { document.getElementById('globalNotificationModal').style.display = 'none'; }
-</script>
-<script>
+
     // Ustaw czas bezczynności w minutach
     const minutyBezczynnosci = 5; 
     const limitCzasu = minutyBezczynnosci * 60 * 1000; 
@@ -542,3 +554,4 @@
 </script>
 </body>
 </html>
+

@@ -65,10 +65,12 @@
         .page-title { font-size: 2rem; font-weight: 900; margin-bottom: 10px; text-transform: uppercase; text-align: center; }
         .page-title span { color: #ffe800; }
         
-        /* PRZYCISK RESETOWANIA DLA KIEROWNIKA */
-        .admin-controls-area { display: flex; justify-content: center; margin-bottom: 30px; }
+        .admin-controls-area { display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; margin-bottom: 30px; }
         .btn-reset-all { background: #f44; color: #fff; border: 2px solid #f44; padding: 12px 25px; border-radius: 12px; font-weight: 900; cursor: pointer; transition: 0.3s; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px; box-shadow: 0 4px 15px rgba(255, 68, 68, 0.2); }
         .btn-reset-all:hover { background: #000; color: #f44; }
+        
+        .btn-manage-kwt { background: #111; color: #ffe800; border: 2px solid #ffe800; padding: 12px 25px; border-radius: 12px; font-weight: 900; cursor: pointer; transition: 0.3s; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px; box-shadow: 0 4px 15px rgba(255, 232, 0, 0.1); }
+        .btn-manage-kwt:hover { background: #ffe800; color: #000; }
 
         .dept-tabs { display: flex; gap: 15px; margin-bottom: 40px; flex-wrap: wrap; justify-content: center; }
         .tab-btn { background: #151515; border: 1px solid #333; color: #fff; padding: 12px 30px; border-radius: 12px; font-weight: 900; cursor: pointer; transition: 0.3s; font-size: 0.9rem; flex: 1; max-width: 200px; }
@@ -89,12 +91,23 @@
         .card-done .approve-btn { border-color: #0a0; color: #0a0; }
         .card-done .approve-btn:hover { background: #0a0; color: #000; }
         
-        .loading-overlay { position: absolute; inset: 0; background: rgba(0,0,0,0.8); z-index: 2000; display: flex; align-items: center; justify-content: center; color: #ffe800; font-weight: bold; font-size: 1.5rem; display: none; }
+        .loading-overlay { position: absolute; inset: 0; background: rgba(0,0,0,0.8); z-index: 2000; display: flex; align-items: center; justify-content: center; color: #ffe800; font-weight: bold; font-size: 1.5rem; display: none; flex-direction: column; text-align: center; }
+        .loading-overlay span { font-size: 0.9rem; font-weight: normal; color: #aaa; margin-top: 10px; }
         
+        /* MODALE WSPÓLNE */
         .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 11000; align-items: center; justify-content: center; padding: 20px; backdrop-filter: blur(5px); }
-        .modal-content { background: #0a0a0a; border: 3px solid #ffe800; padding: 30px; width: 100%; max-width: 450px; border-radius: 15px; text-align: center; box-shadow: 0 0 30px rgba(255, 232, 0, 0.2); }
+        .modal-content { background: #0a0a0a; border: 3px solid #ffe800; padding: 30px; width: 100%; max-width: 500px; border-radius: 15px; text-align: center; box-shadow: 0 0 30px rgba(255, 232, 0, 0.2); }
         .btn-modal { background: #ffe800; color: #000; border: none; padding: 15px 20px; font-weight: 900; border-radius: 8px; cursor: pointer; width: 100%; margin-top: 10px; text-transform: uppercase; }
         
+        /* STYLE DLA MODALA ZARZĄDZANIA KWT */
+        .form-input { width: 100%; background: #111; border: 1px solid #333; color: #fff; padding: 12px; border-radius: 8px; font-size: 0.9rem; font-weight: bold; outline: none; margin-bottom: 10px; }
+        .form-input:focus { border-color: #ffe800; }
+        .manage-item-row { display: flex; justify-content: space-between; align-items: center; background: #151515; padding: 10px 15px; border-radius: 8px; margin-bottom: 8px; border: 1px solid #222; }
+        .manage-item-name { font-size: 0.85rem; font-weight: bold; color: #fff; text-align: left; }
+        .manage-btns { display: flex; gap: 5px; }
+        .btn-mini-edit { background: transparent; color: #0a0; border: 1px solid #0a0; padding: 5px 10px; border-radius: 5px; cursor: pointer; font-size: 0.65rem; font-weight: bold; }
+        .btn-mini-del { background: transparent; color: #f44; border: 1px solid #f44; padding: 5px 10px; border-radius: 5px; cursor: pointer; font-size: 0.65rem; font-weight: bold; }
+
         @keyframes blink { 0% { opacity: 1; } 50% { opacity: 0.3; } 100% { opacity: 1; } }
         .nav-alert { color: #f44; font-weight: 900; animation: blink 1s infinite; font-size: 1rem; margin-left: 5px; }
     </style>
@@ -131,12 +144,13 @@
 <div class="overlay" id="overlay" onclick="toggleNav()"></div>
 
 <div class="content">
-    <div class="loading-overlay" id="loadingData">Synchronizacja...</div>
+    <div class="loading-overlay" id="loadingData">Synchronizacja... <span>Pobieranie bazy towarów</span></div>
     <div class="content-inner">
         <h1 class="page-title">KONTROLA WYSTAWIONYCH <span>TOWARÓW (KWT)</span></h1>
         
         <div class="admin-controls-area" id="adminControlsArea" style="display: none;">
-            <button class="btn-reset-all" onclick="resetAllKWT()">🔄 ZRESETUJ CAŁE KWT NA NOWY TYDZIEŃ</button>
+            <button class="btn-manage-kwt" onclick="openManageKwtModal()">⚙️ ZARZĄDZAJ TOWARAMI</button>
+            <button class="btn-reset-all" onclick="resetAllKWT()">🔄 ZRESETUJ KWT NA NOWY TYDZIEŃ</button>
         </div>
         
         <div class="dept-tabs">
@@ -149,11 +163,38 @@
     </div>
 </div>
 
-<div class="modal" id="globalNotificationModal">
-    <div class="modal-content" id="popupBox">
-        <h3 id="globalPopupTitle" style="margin-bottom: 15px; font-size: 1.3rem;">POWIADOMIENIE</h3>
-        <p id="globalPopupMsg" style="color: #fff; font-size: 1rem; margin-bottom: 25px; line-height: 1.5; font-weight: 700;"></p>
-        <button class="btn-modal" onclick="closeGlobalPopup()">ZROZUMIAŁEM</button>
+<!-- MODAL ZARZĄDZANIA KWT -->
+<div class="modal" id="manageKwtModal">
+    <div class="modal-content" style="max-width: 600px; padding: 25px;">
+        <h3 style="color:#ffe800; text-align:center; margin-bottom:20px; font-size: 1.3rem;">ZARZĄDZANIE LISTĄ TOWARÓW</h3>
+        
+        <div style="display:flex; gap:10px; margin-bottom:15px;">
+            <select id="manageDeptSelect" class="form-input" style="flex:1; margin:0;" onchange="renderManageList()">
+                <option value="it">Dział IT</option>
+                <option value="rtv">Dział RTV</option>
+                <option value="agd">Dział AGD</option>
+            </select>
+        </div>
+        
+        <div style="display:flex; gap:10px; margin-bottom:20px;">
+            <input type="text" id="newKwtItemName" class="form-input" style="flex:2; margin:0;" placeholder="Nowa pozycja (np. Kable HDMI)">
+            <button class="btn-modal" style="flex:1; margin:0; font-size:0.8rem;" onclick="addKwtItem()">+ DODAJ</button>
+        </div>
+        
+        <div id="manageKwtList" style="max-height: 40vh; overflow-y: auto; text-align: left; background: #0a0a0a; border: 1px solid #333; padding: 10px; border-radius: 8px;">
+            <!-- Renderowane z JS -->
+        </div>
+        
+        <button class="btn-modal" style="background:#333; color:#fff;" onclick="closeManageKwtModal()">ZAMKNIJ OKNO</button>
+    </div>
+</div>
+
+<!-- POWIADOMIENIA -->
+<div id="globalNotificationModal">
+    <div id="popupBox">
+        <h3 id="globalPopupTitle">POWIADOMIENIE</h3>
+        <p id="globalPopupMsg"></p>
+        <button class="btn-close-popup" onclick="closeGlobalPopup()">ZROZUMIAŁEM</button>
     </div>
 </div>
 
@@ -170,15 +211,14 @@
     if(!isManagerOrKss) { 
         document.getElementById('navInwaKSS').style.display = 'none'; 
     } else {
-        // POKAZUJEMY PRZYCISK RESETU KWT DLA KIEROWNICTWA
         document.getElementById('adminControlsArea').style.display = 'flex';
     }
     
     function toggleNav() { document.getElementById('sidebar').classList.toggle('active'); document.getElementById('overlay').classList.toggle('active'); }
     function logout() { localStorage.removeItem('currentUser'); window.location.href = 'login.html'; }
 
-    const kwtData = [
-        // ================== IT ==================
+    // Domyślna lista (Używana TYLKO jeśli baza jest pusta)
+    const defaultKwtData = [
         { id: "kwt_it_1", name: "Drukarki atramentowe", dept: "it" }, 
         { id: "kwt_it_2", name: "Słuchawki douszne", dept: "it" },
         { id: "kwt_it_3", name: "Słuchawki True Wireless", dept: "it" }, 
@@ -201,16 +241,12 @@
         { id: "kwt_it_20", name: "Ładowarki indukcyjne", dept: "it" },
         { id: "kwt_it_21", name: "Urządzenia wielofunkcyjne laserowe", dept: "it" }, 
         { id: "kwt_it_22", name: "Urządzenia wielofunkcyjne CISS", dept: "it" },
-
-        // ================== RTV ==================
         { id: "kwt_rtv_1", name: "Klocki", dept: "rtv" }, 
         { id: "kwt_rtv_2", name: "Akcesoria do konsol", dept: "rtv" },
         { id: "kwt_rtv_3", name: "Konsole", dept: "rtv" }, 
         { id: "kwt_rtv_4", name: "Nawigacje", dept: "rtv" },
         { id: "kwt_rtv_5", name: "Kamery sportowe", dept: "rtv" }, 
         { id: "kwt_rtv_6", name: "Wideorejestratory", dept: "rtv" },
-
-        // ================== AGD ==================
         { id: "kwt_agd_1", name: "Ekspresy automatyczne", dept: "agd" }, 
         { id: "kwt_agd_2", name: "Depilatory świetlne", dept: "agd" },
         { id: "kwt_agd_3", name: "Szczoteczki", dept: "agd" }, 
@@ -259,8 +295,36 @@
     ];
 
     let currentKwtDept = 'it';
-    let kwtLiveDb = {};
+    let kwtLiveDb = {}; // Statusy (czy kliknięto)
+    let kwtItemsDb = []; // Pełna lista produktów z bazy
 
+    document.getElementById('loadingData').style.display = 'flex';
+
+    // POBIERANIE LISTY TOWARÓW Z BAZY (LUB INICJALIZACJA)
+    db.ref(`Stores/${myStore}/KWT_Items`).on('value', snap => {
+        if (!snap.exists()) {
+            // Jeśli baza nie ma jeszcze zapisanej listy, wgrywamy naszą "na start"
+            let initData = {};
+            defaultKwtData.forEach(item => { initData[item.id] = item; });
+            db.ref(`Stores/${myStore}/KWT_Items`).set(initData);
+        } else {
+            const data = snap.val();
+            kwtItemsDb = Object.keys(data).map(key => data[key]);
+            
+            // Sortujemy alfabetycznie dla porządku
+            kwtItemsDb.sort((a,b) => a.name.localeCompare(b.name, 'pl'));
+            
+            document.getElementById('loadingData').style.display = 'none';
+            renderKWT();
+            
+            // Jeśli modal do edycji jest otwarty, odświeżamy mu listę
+            if(document.getElementById('manageKwtModal').style.display === 'flex') {
+                renderManageList();
+            }
+        }
+    });
+
+    // POBIERANIE STATUSÓW KWT
     db.ref(`Stores/${myStore}/KWT`).on('value', snap => {
         kwtLiveDb = snap.val() || {};
         renderKWT();
@@ -279,7 +343,14 @@
         
         container.innerHTML = '';
         
-        kwtData.filter(item => item.dept === currentKwtDept).forEach(item => {
+        let filteredItems = kwtItemsDb.filter(item => item.dept === currentKwtDept);
+        
+        if (filteredItems.length === 0) {
+            container.innerHTML = '<div style="color:#666; font-size:0.9rem; grid-column:1/-1; text-align:center; margin-top:20px;">Brak towarów przypisanych do tego działu.</div>';
+            return;
+        }
+        
+        filteredItems.forEach(item => {
             const saved = kwtLiveDb[item.id] || { status: 'none', time: '', user: '' };
             const isDone = saved.status === 'done';
             
@@ -312,10 +383,87 @@
         db.ref(`Stores/${myStore}/KWT/${id}`).set({ status: 'done', time: timeStr, user: currentUser.name });
     }
 
-    // --- FUNKCJA RESETOWANIA CAŁEGO KWT (Tylko dla Kierownika) ---
+    // ==========================================
+    // SYSTEM ZARZĄDZANIA (EDYCJI) TOWARAMI KWT
+    // ==========================================
+    function openManageKwtModal() {
+        document.getElementById('manageKwtModal').style.display = 'flex';
+        renderManageList();
+    }
+
+    function closeManageKwtModal() {
+        document.getElementById('manageKwtModal').style.display = 'none';
+    }
+
+    function renderManageList() {
+        const dept = document.getElementById('manageDeptSelect').value;
+        const container = document.getElementById('manageKwtList');
+        container.innerHTML = '';
+        
+        let filtered = kwtItemsDb.filter(i => i.dept === dept);
+        
+        if(filtered.length === 0) {
+            container.innerHTML = '<div style="color:#666; text-align:center; padding:10px;">Brak pozycji dla tego działu. Dodaj pierwszą.</div>';
+            return;
+        }
+
+        filtered.forEach(item => {
+            // Bezpiecznie kodujemy nazwę, by uniknąć problemów z cudzysłowami w onlick
+            const safeName = item.name.replace(/'/g, "\\'").replace(/"/g, '&quot;');
+            
+            container.innerHTML += `
+            <div class="manage-item-row">
+                <div class="manage-item-name">${item.name}</div>
+                <div class="manage-btns">
+                    <button class="btn-mini-edit" onclick="editKwtItem('${item.id}', '${safeName}')">EDYTUJ</button>
+                    <button class="btn-mini-del" onclick="deleteKwtItem('${item.id}')">USUŃ</button>
+                </div>
+            </div>`;
+        });
+    }
+
+    function addKwtItem() {
+        const input = document.getElementById('newKwtItemName');
+        const dept = document.getElementById('manageDeptSelect').value;
+        const name = input.value.trim();
+        
+        if (!name) { alert("Wpisz nazwę towaru!"); return; }
+        
+        // Unikalne ID oparte o dział i aktualny czas
+        const newId = `kwt_${dept}_${Date.now()}`;
+        
+        db.ref(`Stores/${myStore}/KWT_Items/${newId}`).set({
+            id: newId,
+            name: name,
+            dept: dept
+        }).then(() => {
+            input.value = '';
+        });
+    }
+
+    function deleteKwtItem(id) {
+        if(confirm("Czy na pewno chcesz na zawsze USUNĄĆ ten towar z listy KWT?")) {
+            // Usuwamy pozycje z listy asortymentu
+            db.ref(`Stores/${myStore}/KWT_Items/${id}`).remove();
+            // Czyścimy jej status z KWT (żeby nie zostawiać śmieci w bazie)
+            db.ref(`Stores/${myStore}/KWT/${id}`).remove();
+        }
+    }
+
+    function editKwtItem(id, currentName) {
+        const newName = prompt("Wpisz nową nazwę dla tego towaru:", currentName);
+        if (newName && newName.trim() !== "" && newName !== currentName) {
+            db.ref(`Stores/${myStore}/KWT_Items/${id}`).update({
+                name: newName.trim()
+            });
+        }
+    }
+
+    // ==========================================
+    // INNE FUNKCJE
+    // ==========================================
     function resetAllKWT() {
         if(confirm("🛑 OSTRZEŻENIE 🛑\n\nCzy na pewno chcesz bezpowrotnie usunąć i ZRESETOWAĆ wszystkie statusy KWT ze wszystkich działów?\nZrób to tylko, jeśli zaczynacie nowy tydzień kontroli!")) {
-            
             document.getElementById('loadingData').style.display = 'flex';
             
             db.ref(`Stores/${myStore}/KWT`).remove().then(() => {
@@ -353,100 +501,44 @@
     });
 
     if(isManagerOrKss) {
-        db.ref(`Stores/${myStore}/Inwentury`).on('value', snap => {
+        const d = new Date();
+        const yearNow = 2026;
+        const monthNow = d.getMonth();
+        
+        db.ref(`Stores/${myStore}/Inwentury/${yearNow}_${monthNow}`).on('value', snap => {
             let hasAwaiting = false;
-            snap.forEach(monthSnap => { monthSnap.forEach(item => { if(item.val().status === 'awaiting_kss') hasAwaiting = true; }); });
-            let badge = document.getElementById('kssAlertBadge'); if(badge) badge.innerHTML = hasAwaiting ? `<span class="nav-alert">[!]</span>` : '';
+            snap.forEach(item => {
+                if(item.val().status === 'awaiting_kss') {
+                    hasAwaiting = true;
+                }
+            });
+            let badge = document.getElementById('kssAlertBadge'); 
+            if(badge) badge.innerHTML = hasAwaiting ? `<span class="nav-alert">[!]</span>` : '';
         });
     }
 
     function closeGlobalPopup() { document.getElementById('globalNotificationModal').style.display = 'none'; }
 </script>
-</body>
-<style>
-    #globalNotificationModal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 15000; align-items: center; justify-content: center; padding: 20px; backdrop-filter: blur(5px); }
-    #popupBox { background: #0a0a0a; border: 3px solid #ffe800; padding: 30px; width: 100%; max-width: 500px; border-radius: 15px; text-align: center; box-shadow: 0 0 30px rgba(0,0,0,0.5); }
-    #globalPopupTitle { margin-bottom: 15px; font-size: 1.3rem; text-transform: uppercase; font-weight: 900; }
-    #globalPopupMsg { color: #fff; font-size: 1rem; margin-bottom: 25px; line-height: 1.5; font-weight: 700; }
-    .btn-close-popup { width: 100%; background: #ffe800; color: #000; border: none; padding: 12px 20px; font-weight: 900; border-radius: 8px; cursor: pointer; text-transform: uppercase; transition: 0.2s; }
-    .btn-close-popup:hover { transform: scale(1.02); }
-</style>
-
-<div id="globalNotificationModal">
-    <div id="popupBox">
-        <h3 id="globalPopupTitle">POWIADOMIENIE</h3>
-        <p id="globalPopupMsg"></p>
-        <button class="btn-close-popup" onclick="closeGlobalPopup()">ZROZUMIAŁEM</button>
-    </div>
-</div>
-
-<script>
-    // Upewniamy się, że Firebase i dane użytkownika są załadowane
-    if (typeof db !== 'undefined' && typeof currentUser !== 'undefined') {
-        const isManagerOrKssGlobal = (currentUser.dept === 'ME' || currentUser.isKss);
-
-        db.ref(`Stores/${myStore}/Notifications`).on('value', snap => {
-            let notifsObj = snap.val() || {};
-            let notifs = Object.keys(notifsObj).map(key => ({ keyId: key, ...notifsObj[key] }));
-            
-            // Szukamy nieprzeczytanych: skierowanych do mnie LUB do KSS (jeśli jestem kierownikiem/KSS)
-            let myUnread = notifs.filter(n => !n.read && (n.to === currentUser.charId || (n.to === 'KSS' && isManagerOrKssGlobal)));
-            
-            if (myUnread.length > 0) {
-                let n = myUnread[0]; // Wyświetla po kolei, zaczynając od najstarszego nieprzeczytanego
-                
-                document.getElementById('globalPopupTitle').innerText = n.title;
-                document.getElementById('globalPopupMsg').innerText = n.msg;
-                document.getElementById('globalNotificationModal').style.display = 'flex';
-                
-                let box = document.getElementById('popupBox');
-                if(n.type === 'success') { box.style.borderColor = '#0a0'; document.getElementById('globalPopupTitle').style.color = '#0a0'; }
-                else if(n.type === 'error') { box.style.borderColor = '#f44'; document.getElementById('globalPopupTitle').style.color = '#f44'; }
-                else { box.style.borderColor = '#ffe800'; document.getElementById('globalPopupTitle').style.color = '#ffe800'; }
-                
-                // Oznacz w bazie jako przeczytane, żeby nie pojawiło się po odświeżeniu
-                db.ref(`Stores/${myStore}/Notifications/${n.keyId}`).update({ read: true });
-            }
-        });
-    }
-
-    function closeGlobalPopup() { 
-        document.getElementById('globalNotificationModal').style.display = 'none'; 
-    }
-</script>
 <script>
     // Ustaw czas bezczynności w minutach
     const minutyBezczynnosci = 5; 
-    
-    // Przeliczenie na milisekundy
     const limitCzasu = minutyBezczynnosci * 60 * 1000; 
     let timerBezczynnosci;
 
-    // Funkcja resetująca licznik
     function resetujTimer() {
         clearTimeout(timerBezczynnosci);
         timerBezczynnosci = setTimeout(wylogujZPowoduBezczynnosci, limitCzasu);
     }
 
-    // Funkcja wylogowująca
     function wylogujZPowoduBezczynnosci() {
-        // Usuwamy dane sesji
         localStorage.removeItem('currentUser');
-        // Zapisujemy powód wylogowania, żeby strona logowania mogła pokazać komunikat
         sessionStorage.setItem('powodWylogowania', 'bezczynnosc');
-        // Wyrzucamy do logowania
         window.location.href = 'login.html';
     }
 
-    // Lista akcji, które oznaczają, że użytkownik żyje i coś robi na stronie
     const akcjeUzytkownika = ['mousemove', 'keydown', 'click', 'scroll', 'touchstart'];
-
-    // Podpinamy resetowanie timera pod każdy ruch użytkownika
-    akcjeUzytkownika.forEach(akcja => {
-        document.addEventListener(akcja, resetujTimer, { passive: true });
-    });
-
-    // Uruchamiamy timer przy pierwszym załadowaniu strony
+    akcjeUzytkownika.forEach(akcja => { document.addEventListener(akcja, resetujTimer, { passive: true }); });
     resetujTimer();
 </script>
+</body>
 </html>

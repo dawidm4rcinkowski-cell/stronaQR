@@ -45,7 +45,8 @@
         .logo { color: #000; font-weight: 900; font-size: 1.2rem; text-transform: uppercase; letter-spacing: 1px; display: flex; align-items: center; gap: 10px; }
         .logo span { background: #000; color: #ffe800; padding: 0 6px; border-radius: 3px; }
         .store-badge { font-size: 0.7rem; background: rgba(0,0,0,0.1); padding: 4px 8px; border-radius: 20px; font-weight: 800; border: 1px solid #000; }
-        .menu-btn { position: absolute; left: 15px; cursor: pointer; color: #000; font-size: 1.5rem; }
+        .menu-btn { position: absolute; left: 15px; cursor: pointer; color: #000; font-size: 1.5rem; transition: 0.2s; }
+        .menu-btn:hover { transform: scale(1.1); }
         
         .sidebar { position: fixed; left: -280px; top: 0; width: 260px; height: 100%; background: #0a0a0a; border-right: 3px solid #ffe800; transition: 0.4s; z-index: 10000; padding-top: 60px; display: flex; flex-direction: column; }
         .sidebar.active { left: 0; }
@@ -57,12 +58,14 @@
         .sidebar-feedback, .sidebar-feedback:visited, .sidebar-feedback:link { display: block; margin-top: auto; background: #111; color: #ffe800 !important; padding: 15px 25px; text-decoration: none !important; font-weight: 900; font-size: 0.8rem; border-top: 1px solid #222; border-bottom: 1px solid #222; transition: 0.3s; text-transform: uppercase; letter-spacing: 0.5px; }
         .sidebar-feedback:hover { background: #ffe800 !important; color: #000 !important; padding-left: 35px; }
         
-        .user-profile { padding: 15px 20px; border-top: 2px solid #1a1a1a; display: flex; align-items: center; gap: 15px; cursor: pointer; background: #0f0f0f; }
+        .user-profile { padding: 15px 20px; border-top: 2px solid #1a1a1a; display: flex; align-items: center; gap: 15px; cursor: pointer; background: #0f0f0f; transition: 0.3s; }
+        .user-profile:hover { background: #151515; }
         .user-avatar { width: 45px; height: 45px; border-radius: 50%; background: #151515; border: 2px solid #ffe800; display: flex; align-items: center; justify-content: center; font-weight: 900; color: #ffe800; font-size: 1.2rem; flex-shrink: 0; overflow: hidden; }
         .user-info { display: flex; flex-direction: column; }
         .user-name { font-weight: 900; font-size: 0.85rem; color: #fff; }
         .user-settings { font-size: 0.65rem; color: #888; font-weight: 700; margin-top: 4px; }
-        .logout-btn { display: block; width: 100%; text-align: center; background: transparent; color: #f44; border: none; border-top: 1px solid #1a1a1a; padding: 15px; font-weight: 900; font-size: 0.8rem; cursor: pointer; text-transform: uppercase; }
+        .logout-btn { display: block; width: 100%; text-align: center; background: transparent; color: #f44; border: none; border-top: 1px solid #1a1a1a; padding: 15px; font-weight: 900; font-size: 0.8rem; cursor: pointer; text-transform: uppercase; transition: 0.3s; }
+        .logout-btn:hover { background: #f44; color: #000; }
         .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.8); display: none; z-index: 9500; }
         .overlay.active { display: block; }
         
@@ -99,11 +102,19 @@
         
         .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 11000; align-items: center; justify-content: center; padding: 20px; backdrop-filter: blur(5px); }
         .modal-content { background: #0a0a0a; border: 3px solid #ffe800; padding: 30px; width: 100%; max-width: 450px; border-radius: 15px; text-align: center; box-shadow: 0 0 30px rgba(255, 232, 0, 0.2); }
-        .btn-modal { background: #ffe800; color: #000; border: none; padding: 15px 20px; font-weight: 900; border-radius: 8px; cursor: pointer; width: 100%; margin-top: 10px; text-transform: uppercase; letter-spacing: 1px; }
+        .btn-modal { background: #ffe800; color: #000; border: none; padding: 15px 20px; font-weight: 900; border-radius: 8px; cursor: pointer; width: 100%; margin-top: 10px; text-transform: uppercase; letter-spacing: 1px; transition: 0.2s; }
+        .btn-modal:hover { transform: scale(1.02); }
         
         @keyframes blink { 0% { opacity: 1; } 50% { opacity: 0.3; } 100% { opacity: 1; } }
         .nav-alert { color: #f44; font-weight: 900; animation: blink 1s infinite; font-size: 1rem; margin-left: 5px; }
         .loading-overlay { position: absolute; inset: 0; background: rgba(0,0,0,0.8); z-index: 2000; display: flex; align-items: center; justify-content: center; color: #ffe800; font-weight: bold; font-size: 1.5rem; display: none; }
+        
+        #globalNotificationModal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 15000; align-items: center; justify-content: center; padding: 20px; backdrop-filter: blur(5px); }
+        #popupBox { background: #0a0a0a; border: 3px solid #ffe800; padding: 30px; width: 100%; max-width: 500px; border-radius: 15px; text-align: center; box-shadow: 0 0 30px rgba(0,0,0,0.5); }
+        #globalPopupTitle { margin-bottom: 15px; font-size: 1.3rem; text-transform: uppercase; font-weight: 900; }
+        #globalPopupMsg { color: #fff; font-size: 1rem; margin-bottom: 25px; line-height: 1.5; font-weight: 700; }
+        .btn-close-popup { width: 100%; background: #ffe800; color: #000; border: none; padding: 12px 20px; font-weight: 900; border-radius: 8px; cursor: pointer; text-transform: uppercase; transition: 0.2s; }
+        .btn-close-popup:hover { transform: scale(1.02); }
     </style>
 </head>
 <body>
@@ -123,6 +134,7 @@
         <a href="inwak.html" class="sidebar-link" id="navInwaKSS">Inwentury (ME/KSS) <span id="kssAlertBadge"></span></a>
         <a href="azs.html" class="sidebar-link">AZS</a>
         <a href="kwt.html" class="sidebar-link">KWT</a>
+        <a href="kierownik.html" class="sidebar-link" id="navKierownik">Centrum Dowodzenia</a>
         <a href="feedback.html" class="sidebar-feedback">💡 Zgłoś problem / Pomysł</a>
     </div>
     
@@ -157,11 +169,11 @@
     </div>
 </div>
 
-<div class="modal" id="globalNotificationModal">
-    <div class="modal-content" id="popupBox">
-        <h3 id="globalPopupTitle" style="margin-bottom: 15px; font-size: 1.3rem;">POWIADOMIENIE</h3>
-        <p id="globalPopupMsg" style="color: #fff; font-size: 1rem; margin-bottom: 25px; line-height: 1.5; font-weight: 700;"></p>
-        <button class="btn-modal" onclick="closeGlobalPopup()">ZROZUMIAŁEM</button>
+<div id="globalNotificationModal">
+    <div id="popupBox">
+        <h3 id="globalPopupTitle">POWIADOMIENIE</h3>
+        <p id="globalPopupMsg"></p>
+        <button class="btn-close-popup" onclick="closeGlobalPopup()">ZROZUMIAŁEM</button>
     </div>
 </div>
 
@@ -175,7 +187,11 @@
     const sideAvatarHtml = currentUser.avatar ? `<img src="${currentUser.avatar}" style="width:100%; height:100%; object-fit:cover; border-radius:50%;">` : currentUser.charId.charAt(0);
     document.getElementById('sideAvatar').innerHTML = sideAvatarHtml;
     
-    if(!isManagerOrKss) { document.getElementById('navInwaKSS').style.display = 'none'; }
+    // Ukrywanie uprawnień menedżerskich przed zwykłymi pracownikami
+    if(!isManagerOrKss) { 
+        if(document.getElementById('navInwaKSS')) document.getElementById('navInwaKSS').style.display = 'none'; 
+        if(document.getElementById('navKierownik')) document.getElementById('navKierownik').style.display = 'none'; 
+    }
 
     function toggleNav() { document.getElementById('sidebar').classList.toggle('active'); document.getElementById('overlay').classList.toggle('active'); }
     function logout() { localStorage.removeItem('currentUser'); window.location.href = 'login.html'; }
@@ -288,19 +304,32 @@
         });
     }
 
-    db.ref(`Stores/${myStore}/Notifications`).on('value', snap => {
-        let notifsObj = snap.val() || {}; let notifs = Object.keys(notifsObj).map(key => ({ keyId: key, ...notifsObj[key] }));
-        let myUnread = notifs.filter(n => !n.read && (n.to === currentUser.charId || (n.to === 'KSS' && isManagerOrKss)));
-        
-        if (myUnread.length > 0) {
-            let n = myUnread[0]; document.getElementById('globalPopupTitle').innerText = n.title; document.getElementById('globalPopupMsg').innerText = n.msg; document.getElementById('globalNotificationModal').style.display = 'flex';
-            let box = document.getElementById('popupBox');
-            if(n.type === 'success') { box.style.borderColor = '#0a0'; document.getElementById('globalPopupTitle').style.color = '#0a0'; }
-            else if(n.type === 'error') { box.style.borderColor = '#f44'; document.getElementById('globalPopupTitle').style.color = '#f44'; }
-            else { box.style.borderColor = '#ffe800'; document.getElementById('globalPopupTitle').style.color = '#ffe800'; }
-            db.ref(`Stores/${myStore}/Notifications/${n.keyId}`).update({ read: true });
-        }
-    });
+    // SYSTEM POWIADOMIEŃ GLOBALNYCH
+    if (typeof db !== 'undefined' && typeof currentUser !== 'undefined') {
+        const isManagerOrKssGlobal = (currentUser.dept === 'ME' || currentUser.isKss);
+
+        db.ref(`Stores/${myStore}/Notifications`).on('value', snap => {
+            let notifsObj = snap.val() || {};
+            let notifs = Object.keys(notifsObj).map(key => ({ keyId: key, ...notifsObj[key] }));
+            
+            let myUnread = notifs.filter(n => !n.read && (n.to === currentUser.charId || (n.to === 'KSS' && isManagerOrKssGlobal)));
+            
+            if (myUnread.length > 0) {
+                let n = myUnread[0]; 
+                
+                document.getElementById('globalPopupTitle').innerText = n.title;
+                document.getElementById('globalPopupMsg').innerText = n.msg;
+                document.getElementById('globalNotificationModal').style.display = 'flex';
+                
+                let box = document.getElementById('popupBox');
+                if(n.type === 'success') { box.style.borderColor = '#0a0'; document.getElementById('globalPopupTitle').style.color = '#0a0'; }
+                else if(n.type === 'error') { box.style.borderColor = '#f44'; document.getElementById('globalPopupTitle').style.color = '#f44'; }
+                else { box.style.borderColor = '#ffe800'; document.getElementById('globalPopupTitle').style.color = '#ffe800'; }
+                
+                db.ref(`Stores/${myStore}/Notifications/${n.keyId}`).update({ read: true });
+            }
+        });
+    }
 
     function updateKssBadge() {
         if (!isManagerOrKss) return;
@@ -312,92 +341,29 @@
 
     function closeGlobalPopup() { document.getElementById('globalNotificationModal').style.display = 'none'; }
     window.onload = () => { renderMonthSelector(); loadMonthDataFromFirebase(currentMonth); };
-</script>
-</body>
-<style>
-    #globalNotificationModal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 15000; align-items: center; justify-content: center; padding: 20px; backdrop-filter: blur(5px); }
-    #popupBox { background: #0a0a0a; border: 3px solid #ffe800; padding: 30px; width: 100%; max-width: 500px; border-radius: 15px; text-align: center; box-shadow: 0 0 30px rgba(0,0,0,0.5); }
-    #globalPopupTitle { margin-bottom: 15px; font-size: 1.3rem; text-transform: uppercase; font-weight: 900; }
-    #globalPopupMsg { color: #fff; font-size: 1rem; margin-bottom: 25px; line-height: 1.5; font-weight: 700; }
-    .btn-close-popup { width: 100%; background: #ffe800; color: #000; border: none; padding: 12px 20px; font-weight: 900; border-radius: 8px; cursor: pointer; text-transform: uppercase; transition: 0.2s; }
-    .btn-close-popup:hover { transform: scale(1.02); }
-</style>
 
-<div id="globalNotificationModal">
-    <div id="popupBox">
-        <h3 id="globalPopupTitle">POWIADOMIENIE</h3>
-        <p id="globalPopupMsg"></p>
-        <button class="btn-close-popup" onclick="closeGlobalPopup()">ZROZUMIAŁEM</button>
-    </div>
-</div>
-
-<script>
-    // Upewniamy się, że Firebase i dane użytkownika są załadowane
-    if (typeof db !== 'undefined' && typeof currentUser !== 'undefined') {
-        const isManagerOrKssGlobal = (currentUser.dept === 'ME' || currentUser.isKss);
-
-        db.ref(`Stores/${myStore}/Notifications`).on('value', snap => {
-            let notifsObj = snap.val() || {};
-            let notifs = Object.keys(notifsObj).map(key => ({ keyId: key, ...notifsObj[key] }));
-            
-            // Szukamy nieprzeczytanych: skierowanych do mnie LUB do KSS (jeśli jestem kierownikiem/KSS)
-            let myUnread = notifs.filter(n => !n.read && (n.to === currentUser.charId || (n.to === 'KSS' && isManagerOrKssGlobal)));
-            
-            if (myUnread.length > 0) {
-                let n = myUnread[0]; // Wyświetla po kolei, zaczynając od najstarszego nieprzeczytanego
-                
-                document.getElementById('globalPopupTitle').innerText = n.title;
-                document.getElementById('globalPopupMsg').innerText = n.msg;
-                document.getElementById('globalNotificationModal').style.display = 'flex';
-                
-                let box = document.getElementById('popupBox');
-                if(n.type === 'success') { box.style.borderColor = '#0a0'; document.getElementById('globalPopupTitle').style.color = '#0a0'; }
-                else if(n.type === 'error') { box.style.borderColor = '#f44'; document.getElementById('globalPopupTitle').style.color = '#f44'; }
-                else { box.style.borderColor = '#ffe800'; document.getElementById('globalPopupTitle').style.color = '#ffe800'; }
-                
-                // Oznacz w bazie jako przeczytane, żeby nie pojawiło się po odświeżeniu
-                db.ref(`Stores/${myStore}/Notifications/${n.keyId}`).update({ read: true });
-            }
-        });
-    }
-
-    function closeGlobalPopup() { 
-        document.getElementById('globalNotificationModal').style.display = 'none'; 
-    }
-</script>
-<script>
-    // Ustaw czas bezczynności w minutach
+    // SYSTEM AUTOWYLOGOWANIA
     const minutyBezczynnosci = 5; 
-    
-    // Przeliczenie na milisekundy
     const limitCzasu = minutyBezczynnosci * 60 * 1000; 
     let timerBezczynnosci;
 
-    // Funkcja resetująca licznik
     function resetujTimer() {
         clearTimeout(timerBezczynnosci);
         timerBezczynnosci = setTimeout(wylogujZPowoduBezczynnosci, limitCzasu);
     }
 
-    // Funkcja wylogowująca
     function wylogujZPowoduBezczynnosci() {
-        // Usuwamy dane sesji
         localStorage.removeItem('currentUser');
-        // Zapisujemy powód wylogowania, żeby strona logowania mogła pokazać komunikat
         sessionStorage.setItem('powodWylogowania', 'bezczynnosc');
-        // Wyrzucamy do logowania
         window.location.href = 'login.html';
     }
 
-    // Lista akcji, które oznaczają, że użytkownik żyje i coś robi na stronie
     const akcjeUzytkownika = ['mousemove', 'keydown', 'click', 'scroll', 'touchstart'];
-
-    // Podpinamy resetowanie timera pod każdy ruch użytkownika
     akcjeUzytkownika.forEach(akcja => {
         document.addEventListener(akcja, resetujTimer, { passive: true });
     });
 
-    // Uruchamiamy timer przy pierwszym załadowaniu strony
     resetujTimer();
 </script>
+</body>
 </html>

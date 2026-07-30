@@ -180,6 +180,14 @@
         .role-checkboxes { background: #111; border: 1px solid #333; padding: 15px; border-radius: 8px; display: flex; flex-direction: column; gap: 10px; }
         .role-label { color: #fff; font-size: 0.85rem; display: flex; align-items: center; gap: 10px; cursor: pointer; }
         .role-label input { width: 18px; height: 18px; cursor: pointer; }
+
+        /* POWIADOMIENIA GLOBALNE */
+        #globalNotificationModal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 15000; align-items: center; justify-content: center; padding: 20px; backdrop-filter: blur(5px); }
+        #popupBox { background: #0a0a0a; border: 3px solid #ffe800; padding: 30px; width: 100%; max-width: 500px; border-radius: 15px; text-align: center; box-shadow: 0 0 30px rgba(0,0,0,0.5); }
+        #globalPopupTitle { margin-bottom: 15px; font-size: 1.3rem; text-transform: uppercase; font-weight: 900; }
+        #globalPopupMsg { color: #fff; font-size: 1rem; margin-bottom: 25px; line-height: 1.5; font-weight: 700; }
+        .btn-close-popup { width: 100%; background: #ffe800; color: #000; border: none; padding: 12px 20px; font-weight: 900; border-radius: 8px; cursor: pointer; text-transform: uppercase; transition: 0.2s; }
+        .btn-close-popup:hover { transform: scale(1.02); }
     </style>
 </head>
 <body>
@@ -199,6 +207,7 @@
         <a href="inwak.html" class="sidebar-link" id="navInwaKSS">Inwentury (ME/KSS)</a>
         <a href="azs.html" class="sidebar-link">AZS</a>
         <a href="kwt.html" class="sidebar-link">KWT</a>
+        <a href="kierownik.html" class="sidebar-link" id="navKierownik">Centrum Dowodzenia</a>
         <a href="feedback.html" class="sidebar-feedback">💡 Zgłoś problem / Pomysł</a>
     </div>
     
@@ -333,15 +342,6 @@
     </div>
 </div>
 
-<style>
-    #globalNotificationModal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 15000; align-items: center; justify-content: center; padding: 20px; backdrop-filter: blur(5px); }
-    #popupBox { background: #0a0a0a; border: 3px solid #ffe800; padding: 30px; width: 100%; max-width: 500px; border-radius: 15px; text-align: center; box-shadow: 0 0 30px rgba(0,0,0,0.5); }
-    #globalPopupTitle { margin-bottom: 15px; font-size: 1.3rem; text-transform: uppercase; font-weight: 900; }
-    #globalPopupMsg { color: #fff; font-size: 1rem; margin-bottom: 25px; line-height: 1.5; font-weight: 700; }
-    .btn-close-popup { width: 100%; background: #ffe800; color: #000; border: none; padding: 12px 20px; font-weight: 900; border-radius: 8px; cursor: pointer; text-transform: uppercase; transition: 0.2s; }
-    .btn-close-popup:hover { transform: scale(1.02); }
-</style>
-
 <div id="globalNotificationModal">
     <div id="popupBox">
         <h3 id="globalPopupTitle">POWIADOMIENIE</h3>
@@ -361,11 +361,13 @@
     const sideAvatarHtml = currentUser.avatar ? `<img src="${currentUser.avatar}" style="width:100%; height:100%; object-fit:cover; border-radius:50%;">` : currentUser.charId.charAt(0);
     document.getElementById('sideAvatar').innerHTML = sideAvatarHtml;
     
+    // Zabezpieczenie dostępu do przycisków administracyjnych
     if (isManagerOrKss) {
         document.getElementById('adminControlsPanel').style.display = 'flex';
     } else {
-        document.getElementById('navInwaKSS').style.display = 'none';
-        document.getElementById('employeeControlsPanel').style.display = 'flex';
+        if(document.getElementById('navInwaKSS')) document.getElementById('navInwaKSS').style.display = 'none';
+        if(document.getElementById('navKierownik')) document.getElementById('navKierownik').style.display = 'none';
+        if(document.getElementById('employeeControlsPanel')) document.getElementById('employeeControlsPanel').style.display = 'flex';
     }
 
     const year = 2026;
@@ -585,7 +587,6 @@
     }
 
     function renderTags(container, inputEl, arrayRef) {
-        // Usuń wszystko oprócz inputu
         Array.from(container.children).forEach(c => { if(c !== inputEl) c.remove(); });
         
         arrayRef.forEach((tag, index) => {
@@ -606,7 +607,6 @@
         }
     }
 
-    // Inicjalizacja nasłuchiwaczy tagów
     initTags('shiftsTagInput', 'shiftsTagContainer', globalShiftsArray);
     initTags('shortcutsTagInput', 'shortcutsTagContainer', customShortcutsArray);
 
@@ -665,7 +665,6 @@
         metaUpdates['satStaffCount'] = parseInt(document.getElementById('satStaffCount').value) || 6;
         metaUpdates['sunStaffCount'] = parseInt(document.getElementById('sunStaffCount').value) || 6;
 
-        // Czyszczenie starych urlopów przed nałożeniem nowych
         employees.forEach(e => { for (let d = 1; d <= daysInMonth; d++) { let s = getShiftOnly(e.charId, d); if (s === "URLOP" || s === "Ż") { planUpdates[`${e.charId}_${d}`] = null; } } });
 
         employees.forEach(e => {
@@ -784,7 +783,7 @@
                     let h2 = calcRealH(p2.charId, memorySchedule);
                     
                     let daysLeft = daysInMonth - d;
-                    let futureCost = daysLeft * 8; // Bezpieczny szacunek
+                    let futureCost = daysLeft * 8; 
                     let availableCombined = (baseNorm * 2) - (h1 + h2);
                     
                     if (futureCost > availableCombined + 4) {
@@ -850,8 +849,8 @@
                             if(em.charId === emp.charId || em.dept === 'ME') return; let ev = memorySchedule[em.charId][d];
                             if(ev.includes('-')) {
                                 let p = ev.split('-'); 
-                                let isO = timeToDecimal(p[0]) <= 11.5; // Otwarcie do 11:30
-                                let isZ = timeToDecimal(p[1]) >= 18.75; // Zamkniecie po 18:45
+                                let isO = timeToDecimal(p[0]) <= 11.5; 
+                                let isZ = timeToDecimal(p[1]) >= 18.75; 
                                 if(isO) { if(em.p) otwPok++; else otwSales++; } if(isZ) { if(em.p) zamPok++; else zamSales++; }
                                 if(em.dept === 'IT') itCount++; if(em.dept === 'AGD') agdCount++;
                             }
@@ -1122,40 +1121,25 @@
         });
     }
     function closeGlobalPopup() { document.getElementById('globalNotificationModal').style.display = 'none'; }
-</script>
-<script>
-    // Ustaw czas bezczynności w minutach
+
+    // SYSTEM AUTOWYLOGOWANIA
     const minutyBezczynnosci = 5; 
-    
-    // Przeliczenie na milisekundy
     const limitCzasu = minutyBezczynnosci * 60 * 1000; 
     let timerBezczynnosci;
 
-    // Funkcja resetująca licznik
     function resetujTimer() {
         clearTimeout(timerBezczynnosci);
         timerBezczynnosci = setTimeout(wylogujZPowoduBezczynnosci, limitCzasu);
     }
 
-    // Funkcja wylogowująca
     function wylogujZPowoduBezczynnosci() {
-        // Usuwamy dane sesji
         localStorage.removeItem('currentUser');
-        // Zapisujemy powód wylogowania, żeby strona logowania mogła pokazać komunikat
         sessionStorage.setItem('powodWylogowania', 'bezczynnosc');
-        // Wyrzucamy do logowania
         window.location.href = 'login.html';
     }
 
-    // Lista akcji, które oznaczają, że użytkownik żyje i coś robi na stronie
     const akcjeUzytkownika = ['mousemove', 'keydown', 'click', 'scroll', 'touchstart'];
-
-    // Podpinamy resetowanie timera pod każdy ruch użytkownika
-    akcjeUzytkownika.forEach(akcja => {
-        document.addEventListener(akcja, resetujTimer, { passive: true });
-    });
-
-    // Uruchamiamy timer przy pierwszym załadowaniu strony
+    akcjeUzytkownika.forEach(akcja => { document.addEventListener(akcja, resetujTimer, { passive: true }); });
     resetujTimer();
 </script>
 </body>

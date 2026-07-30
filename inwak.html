@@ -73,12 +73,12 @@
         .page-title { font-size: 2rem; font-weight: 900; margin-bottom: 15px; text-transform: uppercase; text-align: center;} .page-title span { color: #ffe800; } .mgr-badge { font-size: 1rem; color: #0a0; border: 2px solid #0a0; padding: 5px 10px; border-radius: 5px; vertical-align: middle; margin-left: 10px; }
         
         .month-selector { display: flex; gap: 8px; overflow-x: auto; white-space: nowrap; scrollbar-width: none; padding-bottom: 10px; max-width: 100%; justify-content: center; }
-        .month-btn { padding: 8px 16px; border-radius: 20px; border: 1px solid #333; background: #111; color: #888; font-size: 0.75rem; font-weight: 700; cursor: pointer; transition: 0.3s; }
+        .month-btn { padding: 8px 16px; border-radius: 20px; border: 1px solid #333; background: #111; color: #888; font-size: 0.75rem; font-weight: 700; cursor: pointer; transition: 0.3s; position: relative; }
         .month-btn.active { background: #ffe800; color: #000; border-color: #ffe800; box-shadow: 0 0 10px rgba(255, 232, 0, 0.4); }
         .month-btn:hover:not(.active) { background: #222; color: #fff; }
 
         .dept-tabs { display: flex; gap: 15px; margin-bottom: 40px; flex-wrap: wrap; justify-content: center;}
-        .tab-btn { background: #151515; border: 1px solid #333; color: #fff; padding: 12px 30px; border-radius: 12px; font-weight: 900; cursor: pointer; transition: 0.3s; font-size: 0.9rem; flex: 1; max-width: 200px;}
+        .tab-btn { background: #151515; border: 1px solid #333; color: #fff; padding: 12px 30px; border-radius: 12px; font-weight: 900; cursor: pointer; transition: 0.3s; font-size: 0.9rem; flex: 1; max-width: 200px; position: relative; }
         .tab-btn.active { background: #ffe800; color: #000; border-color: #ffe800; }
         
         .inwa-section { margin-bottom: 50px; } 
@@ -112,9 +112,9 @@
 
         @keyframes blink { 0% { opacity: 1; } 50% { opacity: 0.3; } 100% { opacity: 1; } }
         .nav-alert { color: #f44; font-weight: 900; animation: blink 1s infinite; font-size: 1rem; margin-left: 5px; }
+        .btn-alert { color: #f44; font-weight: 900; animation: blink 1s infinite; margin-left: 4px; }
         .loading-overlay { position: absolute; inset: 0; background: rgba(0,0,0,0.8); z-index: 2000; display: flex; align-items: center; justify-content: center; color: #ffe800; font-weight: bold; font-size: 1.5rem; display: none;}
         
-        /* STYLE DLA MODALA POWIADOMIEŃ */
         #globalNotificationModal .modal-content { border-color: #ffe800; box-shadow: 0 0 30px rgba(0,0,0,0.5); }
         #globalPopupTitle { margin-bottom: 15px; font-size: 1.3rem; text-transform: uppercase; font-weight: 900; }
         #globalPopupMsg { color: #fff; font-size: 1rem; margin-bottom: 25px; line-height: 1.5; font-weight: 700; }
@@ -164,9 +164,9 @@
         </div>
         
         <div class="dept-tabs">
-            <button class="tab-btn active" onclick="switchDept('IT')">DZIAŁ IT</button>
-            <button class="tab-btn" onclick="switchDept('RTV')">DZIAŁ RTV</button>
-            <button class="tab-btn" onclick="switchDept('AGD')">DZIAŁ AGD</button>
+            <button class="tab-btn active" onclick="switchDept('IT')" data-dept="IT">DZIAŁ IT <span id="badge_IT"></span></button>
+            <button class="tab-btn" onclick="switchDept('RTV')" data-dept="RTV">DZIAŁ RTV <span id="badge_RTV"></span></button>
+            <button class="tab-btn" onclick="switchDept('AGD')" data-dept="AGD">DZIAŁ AGD <span id="badge_AGD"></span></button>
         </div>
         <section class="inwa-section" id="secWeekly"><h2 class="section-label">Tygodniowe</h2><div class="items-grid" id="gridWeekly"></div></section>
         <section class="inwa-section" id="secTwoWeeks"><h2 class="section-label">2-tygodniowe</h2><div class="items-grid" id="grid2Weeks"></div></section>
@@ -202,6 +202,7 @@
     let inwaDataLive = {};
     let inwaListener = null;
     let curM = currentMonth; 
+    let allStoreInwentury = {}; // Przechowuje dane ze wszystkich miesięcy do globalnych oznaczeń
 
     const defaultInventoryList = [
         { id: "it_w1", dept: "IT", period: "weekly", name: "Myszki gamingowe" }, { id: "it_w2", dept: "IT", period: "weekly", name: "Słuchawki Truewireless" }, { id: "it_w3", dept: "IT", period: "weekly", name: "Smartfony" },
@@ -211,6 +212,14 @@
         { id: "rtv_m1", dept: "RTV", period: "monthly", name: "Akcesoria do konsol" }, { id: "rtv_m2", dept: "RTV", period: "monthly", name: "Komunikatory drogowe" }, { id: "rtv_m3", dept: "RTV", period: "monthly", name: "Kamery sportowe" }, { id: "rtv_m4", dept: "RTV", period: "monthly", name: "Nawigacje" },
         { id: "agd_m1", dept: "AGD", period: "monthly", name: "Akcesoria do golarek" }, { id: "agd_m2", dept: "AGD", period: "monthly", name: "Depilatory świetlne" }, { id: "agd_m3", dept: "AGD", period: "monthly", name: "Szczoteczki" }, { id: "agd_m4", dept: "AGD", period: "monthly", name: "Trymery" }, { id: "agd_m5", dept: "AGD", period: "monthly", name: "Urządzenia do pielęgnacji twarzy i ciała" }, { id: "agd_m6", dept: "AGD", period: "monthly", name: "Akcesoria do urządzeń SODASTREAM" }, { id: "agd_m7", dept: "AGD", period: "monthly", name: "Kawa ziarnista" }, { id: "agd_m8", dept: "AGD", period: "monthly", name: "Kawa w kapsułkach" }, { id: "agd_m9", dept: "AGD", period: "monthly", name: "Syropy" }
     ];
+
+    // Globalny nasłuch na całe inwentury sklepu w celu obsługi wykrzykników na miesiącach i działach
+    db.ref(`Stores/${myStore}/Inwentury`).on('value', snap => {
+        allStoreInwentury = snap.val() || {};
+        renderMonthSelector();
+        updateDeptBadges();
+        updateKssBadge();
+    });
 
     function loadMonthDataFromFirebase(m) {
         document.getElementById('loadingData').style.display = 'flex';
@@ -240,8 +249,9 @@
                 inwaDataLive = snap.val() || {};
                 document.getElementById('loadingData').style.display = 'none';
                 let activeTabBtn = document.querySelector('.tab-btn.active');
-                let activeTab = activeTabBtn ? activeTabBtn.innerText.replace('DZIAŁ ', '') : 'IT';
+                let activeTab = activeTabBtn ? activeTabBtn.getAttribute('data-dept') : 'IT';
                 switchDept(activeTab);
+                updateDeptBadges();
                 updateKssBadge();
             });
         });
@@ -251,11 +261,25 @@
         const div = document.getElementById('monthSelector');
         div.innerHTML = "";
         months.forEach((m, i) => {
+            let monthKey = `${year}_${i}`;
+            let monthObj = allStoreInwentury[monthKey] || {};
+            let hasAwaitingInMonth = Object.values(monthObj).some(item => item.status === 'awaiting_kss');
+
             const b = document.createElement('button');
             b.className = `month-btn ${i === currentMonth ? 'active' : ''}`;
-            b.innerText = m;
+            b.innerHTML = `${m} ${hasAwaitingInMonth ? '<span class="btn-alert">[!]</span>' : ''}`;
             b.onclick = () => { currentMonth = i; curM = i; renderMonthSelector(); loadMonthDataFromFirebase(i); };
             div.appendChild(b);
+        });
+    }
+
+    function updateDeptBadges() {
+        ['IT', 'RTV', 'AGD'].forEach(dept => {
+            let badgeEl = document.getElementById(`badge_${dept}`);
+            if(badgeEl) {
+                let hasAwaitingInDept = Object.values(inwaDataLive).some(item => item.dept === dept && item.status === 'awaiting_kss');
+                badgeEl.innerHTML = hasAwaitingInDept ? `<span class="btn-alert">[!]</span>` : '';
+            }
         });
     }
 
@@ -263,11 +287,9 @@
     let finalDept = currentUser.dept; if(currentUser.isKss && currentUser.dept !== 'ME') finalDept = 'KSS';
     document.getElementById('sideName').innerText = `${currentUser.name} (${finalDept})`;
     
-    // Wczytywanie awatara z local storage dla bocznego paska
     const sideAvatarHtml = currentUser.avatar ? `<img src="${currentUser.avatar}" style="width:100%; height:100%; object-fit:cover; border-radius:50%;">` : currentUser.charId.charAt(0);
     document.getElementById('sideAvatar').innerHTML = sideAvatarHtml;
     
-    // Ukrywanie przed zwykłymi pracownikami
     if(!isManagerOrKss) { 
         if(document.getElementById('navInwaKSS')) document.getElementById('navInwaKSS').style.display = 'none'; 
         if(document.getElementById('navKierownik')) document.getElementById('navKierownik').style.display = 'none'; 
@@ -279,7 +301,10 @@
     let currentReviewId = null;
 
     function switchDept(dept) {
-        document.querySelectorAll('.tab-btn').forEach(btn => { btn.classList.remove('active'); if(btn.innerText.includes(dept)) btn.classList.add('active'); });
+        document.querySelectorAll('.tab-btn').forEach(btn => { 
+            btn.classList.remove('active'); 
+            if(btn.getAttribute('data-dept') === dept) btn.classList.add('active'); 
+        });
         let dataArray = Object.values(inwaDataLive);
         renderSection('gridWeekly', dataArray.filter(i => i.dept === dept && i.period === 'weekly'), 'secWeekly');
         renderSection('grid2Weeks', dataArray.filter(i => i.dept === dept && i.period === 'twoWeeks'), 'secTwoWeeks');
@@ -357,7 +382,6 @@
         }
     }
 
-    // SYSTEM POWIADOMIEŃ GLOBALNYCH
     if (typeof db !== 'undefined' && typeof currentUser !== 'undefined') {
         const isManagerOrKssGlobal = (currentUser.dept === 'ME' || currentUser.isKss);
 
@@ -398,7 +422,6 @@
         loadMonthDataFromFirebase(currentMonth);
     };
 
-    // SYSTEM AUTOWYLOGOWANIA
     const minutyBezczynnosci = 5; 
     const limitCzasu = minutyBezczynnosci * 60 * 1000; 
     let timerBezczynnosci;

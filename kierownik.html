@@ -476,6 +476,9 @@
         }
     }
 
+    // ==========================================
+    // LOGIKA ZARZĄDZANIA ZESPOŁEM (CZYSTY UKŁAD PIONOWY POD IMIENIEM)
+    // ==========================================
     loadTeamForReset();
 
     function loadTeamForReset() {
@@ -494,8 +497,8 @@
                     let uAvatar = u.avatar ? `<img src="${u.avatar}" style="width:100%; height:100%; object-fit:cover; border-radius:50%;">` : u.charId.charAt(0);
                     let displayDept = (u.isKss && u.dept !== 'ME') ? 'KSS' : u.dept;
                     
-                    // ZNACZNIK KAFELKÓW UMIESZCZONY OBOK DZIAŁU
-                    let tilesBadge = u.canEditTiles ? `<span style="display:inline-block; border: 1px solid #0a0; color:#0a0; background:rgba(0,170,0,0.1); padding: 2px 6px; border-radius:4px; font-size:0.55rem; font-weight:900; white-space:nowrap; margin-left:8px; vertical-align:middle;">🛠️ KAFELKI</span>` : '';
+                    // ZNACZNIK UPRAWNIEŃ (WYNIK UŁOŻONY CZYSTO POD SPODEM)
+                    let tilesBadge = u.canEditTiles ? `<div style="margin-top: 4px;"><span style="display:inline-block; border: 1px solid #0a0; color:#0a0; background:rgba(0,170,0,0.1); padding: 2px 6px; border-radius:4px; font-size:0.55rem; font-weight:900; white-space:nowrap;">🛠️ KAFELKI</span></div>` : '';
                     
                     html += `
                     <div class="team-row">
@@ -505,9 +508,10 @@
                                 <div style="font-size:0.95rem; font-weight:900; color:#fff; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
                                     ${u.name}
                                 </div>
-                                <div style="font-size:0.7rem; font-weight:bold; color:#ffe800; margin-top:3px; display:flex; align-items:center; flex-wrap:nowrap;">
-                                    Dział: ${displayDept} ${tilesBadge}
+                                <div style="font-size:0.7rem; font-weight:bold; color:#ffe800; margin-top:3px;">
+                                    Dział: ${displayDept}
                                 </div>
+                                ${tilesBadge}
                             </div>
                         </div>
                         <div class="action-buttons-group" style="flex-shrink: 0;">

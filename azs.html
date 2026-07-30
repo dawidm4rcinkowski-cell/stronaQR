@@ -1,4 +1,4 @@
- <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="pl">
 <head>
     <meta charset="UTF-8">
@@ -54,7 +54,6 @@
         .sidebar-link { display: block; color: white; padding: 15px 25px; text-decoration: none; font-weight: 700; font-size: 0.8rem; border-bottom: 1px solid #111; transition: 0.2s; }
         .sidebar-link:hover { background: #1a1a1a; color: #ffe800; padding-left: 35px; }
         
-        /* NAPRAWIONY LINK FEEDBACKU */
         .sidebar-feedback, .sidebar-feedback:visited, .sidebar-feedback:link { 
             display: block; 
             margin-top: auto; 
@@ -139,6 +138,14 @@
         .loading-overlay { position: absolute; inset: 0; background: rgba(0,0,0,0.8); z-index: 2000; display: flex; align-items: center; justify-content: center; color: #ffe800; font-weight: bold; font-size: 1.5rem; display: none; flex-direction: column;}
         .loading-overlay span { font-size: 0.8rem; color: #ccc; margin-top: 10px; font-weight: normal;}
 
+        /* STYL MODALA POWIADOMIEŃ */
+        #globalNotificationModal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 15000; align-items: center; justify-content: center; padding: 20px; backdrop-filter: blur(5px); }
+        #popupBox { background: #0a0a0a; border: 3px solid #ffe800; padding: 30px; width: 100%; max-width: 500px; border-radius: 15px; text-align: center; box-shadow: 0 0 30px rgba(0,0,0,0.5); }
+        #globalPopupTitle { margin-bottom: 15px; font-size: 1.3rem; text-transform: uppercase; font-weight: 900; }
+        #globalPopupMsg { color: #fff; font-size: 1rem; margin-bottom: 25px; line-height: 1.5; font-weight: 700; }
+        .btn-close-popup { width: 100%; background: #ffe800; color: #000; border: none; padding: 12px 20px; font-weight: 900; border-radius: 8px; cursor: pointer; text-transform: uppercase; transition: 0.2s; }
+        .btn-close-popup:hover { transform: scale(1.02); }
+
         @media print {
             @page { size: A4 landscape; margin: 3mm 8mm; } 
             body { background: white; color: black; font-family: Arial, sans-serif; overflow: visible; margin: 0; padding: 0; height: auto; }
@@ -177,6 +184,7 @@
         <a href="inwak.html" class="sidebar-link" id="navInwaKSS">Inwentury (ME/KSS)</a>
         <a href="azs.html" class="sidebar-link" style="color:#ffe800">AZS (Agenda Zadań)</a>
         <a href="kwt.html" class="sidebar-link">KWT</a>
+        <a href="kierownik.html" class="sidebar-link" id="navKierownik">Centrum Dowodzenia</a>
         <a href="feedback.html" class="sidebar-feedback">💡 Zgłoś problem / Pomysł</a>
     </div>
     <div class="user-profile" onclick="window.location.href='ustawienia.html'">
@@ -225,6 +233,15 @@
     </table>
 </div>
 
+<!-- Globalne Powiadomienia -->
+<div id="globalNotificationModal">
+    <div id="popupBox">
+        <h3 id="globalPopupTitle">POWIADOMIENIE</h3>
+        <p id="globalPopupMsg"></p>
+        <button class="btn-close-popup" onclick="closeGlobalPopup()">ZROZUMIAŁEM</button>
+    </div>
+</div>
+
 <script>
     document.getElementById('sideName').innerText = currentUser ? `${currentUser.name} (${currentUser.dept})` : 'Zaloguj się';
     
@@ -232,7 +249,12 @@
     const sideAvatarHtml = currentUser.avatar ? `<img src="${currentUser.avatar}" style="width:100%; height:100%; object-fit:cover; border-radius:50%;">` : currentUser.charId.charAt(0);
     document.getElementById('sideAvatar').innerHTML = sideAvatarHtml;
     
-    if(!isManagerOrKss) { document.getElementById('navInwaKSS').style.display = 'none'; }
+    // Zabezpieczenie zakładek - chowamy uprawnienia kierownicze dla zwykłych użytkowników
+    if(!isManagerOrKss) { 
+        if(document.getElementById('navInwaKSS')) document.getElementById('navInwaKSS').style.display = 'none'; 
+        if(document.getElementById('navKierownik')) document.getElementById('navKierownik').style.display = 'none'; 
+    }
+    
     function toggleNav() { document.getElementById('sidebar').classList.toggle('active'); document.getElementById('overlay').classList.toggle('active'); }
     function logout() { localStorage.removeItem('currentUser'); window.location.href = 'login.html'; }
 
@@ -415,40 +437,65 @@
     }
 
     window.onload = () => { loadEmployeesAndInit(); };
-</script>
-<script>
-    // Ustaw czas bezczynności w minutach
+
+    // ==========================================
+    // SYSTEM POWIADOMIEŃ GLOBALNYCH
+    // ==========================================
+    if (typeof db !== 'undefined' && typeof currentUser !== 'undefined') {
+        const isManagerOrKssGlobal = (currentUser.dept === 'ME' || currentUser.isKss);
+
+        db.ref(`Stores/${myStore}/Notifications`).on('value', snap => {
+            let notifsObj = snap.val() || {};
+            let notifs = Object.keys(notifsObj).map(key => ({ keyId: key, ...notifsObj[key] }));
+            
+            // Szukamy nieprzeczytanych: skierowanych do mnie LUB do KSS
+            let myUnread = notifs.filter(n => !n.read && (n.to === currentUser.charId || (n.to === 'KSS' && isManagerOrKssGlobal)));
+            
+            if (myUnread.length > 0) {
+                let n = myUnread[0]; 
+                
+                document.getElementById('globalPopupTitle').innerText = n.title;
+                document.getElementById('globalPopupMsg').innerText = n.msg;
+                document.getElementById('globalNotificationModal').style.display = 'flex';
+                
+                let box = document.getElementById('popupBox');
+                if(n.type === 'success') { box.style.borderColor = '#0a0'; document.getElementById('globalPopupTitle').style.color = '#0a0'; }
+                else if(n.type === 'error') { box.style.borderColor = '#f44'; document.getElementById('globalPopupTitle').style.color = '#f44'; }
+                else { box.style.borderColor = '#ffe800'; document.getElementById('globalPopupTitle').style.color = '#ffe800'; }
+                
+                // Oznacz w bazie jako przeczytane, żeby nie pojawiło się po odświeżeniu
+                db.ref(`Stores/${myStore}/Notifications/${n.keyId}`).update({ read: true });
+            }
+        });
+    }
+
+    function closeGlobalPopup() { 
+        document.getElementById('globalNotificationModal').style.display = 'none'; 
+    }
+
+    // ==========================================
+    // SYSTEM AUTOWYLOGOWANIA
+    // ==========================================
     const minutyBezczynnosci = 5; 
-    
-    // Przeliczenie na milisekundy
     const limitCzasu = minutyBezczynnosci * 60 * 1000; 
     let timerBezczynnosci;
 
-    // Funkcja resetująca licznik
     function resetujTimer() {
         clearTimeout(timerBezczynnosci);
         timerBezczynnosci = setTimeout(wylogujZPowoduBezczynnosci, limitCzasu);
     }
 
-    // Funkcja wylogowująca
     function wylogujZPowoduBezczynnosci() {
-        // Usuwamy dane sesji
         localStorage.removeItem('currentUser');
-        // Zapisujemy powód wylogowania, żeby strona logowania mogła pokazać komunikat
         sessionStorage.setItem('powodWylogowania', 'bezczynnosc');
-        // Wyrzucamy do logowania
         window.location.href = 'login.html';
     }
 
-    // Lista akcji, które oznaczają, że użytkownik żyje i coś robi na stronie
     const akcjeUzytkownika = ['mousemove', 'keydown', 'click', 'scroll', 'touchstart'];
-
-    // Podpinamy resetowanie timera pod każdy ruch użytkownika
     akcjeUzytkownika.forEach(akcja => {
         document.addEventListener(akcja, resetujTimer, { passive: true });
     });
-
-    // Uruchamiamy timer przy pierwszym załadowaniu strony
+    
     resetujTimer();
 </script>
 </body>

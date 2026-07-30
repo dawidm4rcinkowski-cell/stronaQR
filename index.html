@@ -187,7 +187,6 @@
         #announcementTitle { color: #f44; font-size: 1.4rem; font-weight: 900; margin-bottom: 15px; text-transform: uppercase; text-align: center; }
         #announcementText { color: #fff; font-size: 0.95rem; line-height: 1.6; margin-bottom: 25px; text-align: center; }
         
-        /* STYLE DLA HISTORII Z ELEMENTEM USUWANIA */
         .history-item { background:#111; padding:10px; margin-bottom:10px; border-radius:8px; border-left:3px solid #ffe800; position: relative; padding-right: 35px; }
         .history-meta { display:flex; justify-content:space-between; font-size:0.7rem; color:#888; margin-bottom:5px; }
         .history-user { color:#fff; font-weight:bold; }
@@ -195,7 +194,6 @@
         .btn-delete-history { position: absolute; top: 10px; right: 10px; background: transparent; border: none; color: #f44; cursor: pointer; font-size: 1rem; transition: 0.2s; }
         .btn-delete-history:hover { transform: scale(1.2); }
         
-        /* NAPRAWIONY STYL MODALA SYSTEMOWEGO */
         #globalNotificationModal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 15000; align-items: center; justify-content: center; padding: 20px; backdrop-filter: blur(5px); }
         #popupBox { background: #0a0a0a; border: 3px solid #ffe800; padding: 30px; width: 100%; max-width: 500px; border-radius: 15px; text-align: center; box-shadow: 0 0 30px rgba(0,0,0,0.5); }
         #globalPopupTitle { margin-bottom: 15px; font-size: 1.3rem; text-transform: uppercase; font-weight: 900; }
@@ -215,14 +213,16 @@
 <div class="sidebar" id="sidebar">
     <div class="sidebar-nav">
         <div class="sidebar-header">Nawigacja</div>
-        <a href="index.html" class="sidebar-link" style="color:#ffe800">Strona główna</a>
+        <!-- Prawidłowo podświetlona Strona Główna -->
+        <a href="index.html" class="sidebar-link" style="color:#ffe800; border-left: 4px solid #ffe800; background: #1a1a1a;">Strona główna</a>
         <a href="plan.html" class="sidebar-link">Plan pracy</a>
         <a href="inwa.html" class="sidebar-link">Inwentury</a>
         <a href="inwak.html" class="sidebar-link" id="navInwaKSS">Inwentury (ME/KSS)</a>
         <a href="azs.html" class="sidebar-link">AZS</a>
         <a href="kwt.html" class="sidebar-link">KWT</a>
         
-        <a href="kierownik.html" class="sidebar-link" id="navKierownik" style="color:#ffe800; border-left: 4px solid #ffe800; background: #1a1a1a;">Centrum Dowodzenia</a>
+        <!-- Centrum Dowodzenia bez domyślnego żółtego stylu tutaj -->
+        <a href="kierownik.html" class="sidebar-link" id="navKierownik">Centrum Dowodzenia</a>
         
         <a href="feedback.html" class="sidebar-feedback">💡 Zgłoś problem / Pomysł</a>
     </div>
@@ -241,7 +241,7 @@
 <div class="content">
     <div class="content-inner">
         
-        <!-- NOWE: TABLICA OGŁOSZEŃ (Wyświetla się, jeśli kierownik coś doda w Centrum Dowodzenia) -->
+        <!-- TABLICA OGŁOSZEŃ (PINBOARD) -->
         <div class="pinboard-container" id="dashboardPinboard">
             <div class="pinboard-pin">📌</div>
             <div class="pinboard-title" id="pinboardTitle">TYTUŁ OGŁOSZENIA</div>
@@ -368,7 +368,6 @@
     </div>
 </div>
 
-<!-- Oczyszczony panel pracownika -->
 <div class="modal" id="employeeModal">
     <div class="emp-modal-content">
         <div id="empModalAvatar" class="emp-avatar-large"></div>
@@ -392,10 +391,10 @@
     </div>
 </div>
 
-<div class="modal" id="globalNotificationModal">
-    <div class="modal-content" id="popupBox" style="border-width: 3px; max-width: 500px;">
-        <h3 id="globalPopupTitle" style="margin-bottom: 15px; font-size: 1.3rem; text-transform: uppercase; font-weight: 900;">POWIADOMIENIE</h3>
-        <p id="globalPopupMsg" style="color: #fff; font-size: 1rem; margin-bottom: 25px; line-height: 1.5; font-weight: 700;"></p>
+<div id="globalNotificationModal">
+    <div id="popupBox">
+        <h3 id="globalPopupTitle">POWIADOMIENIE</h3>
+        <p id="globalPopupMsg"></p>
         <button class="btn-close-popup" onclick="closeGlobalPopup()">ZROZUMIAŁEM</button>
     </div>
 </div>
@@ -415,7 +414,6 @@
         document.getElementById('btnReorder').style.display = 'block'; 
     }
 
-    // POBIERANIE PINBOARDU (TABLICY OGŁOSZEŃ) NA STRONIE GŁÓWNEJ
     db.ref(`Stores/${myStore}/Settings/DashboardPin`).on('value', snap => {
         const pin = snap.val();
         const pinContainer = document.getElementById('dashboardPinboard');
@@ -513,7 +511,6 @@
         return currentUser.canEditTiles === true;
     }
 
-    // LOGIKA HISTORII
     function logHistory(progName, oldVal, newVal, isUpdate) {
         db.ref(`Stores/${myStore}/Dashboard/History`).push().set({
             timestamp: Date.now(),
@@ -930,7 +927,6 @@
     function toggleNav() { document.getElementById('sidebar').classList.toggle('active'); document.getElementById('overlay').classList.toggle('active'); }
     function logout() { localStorage.removeItem('currentUser'); window.location.href = 'login.html'; }
 
-    // Upewniamy się, że Firebase i dane użytkownika są załadowane
     if (typeof db !== 'undefined' && typeof currentUser !== 'undefined') {
         const isManagerOrKssGlobal = (currentUser.dept === 'ME' || currentUser.isKss);
 
@@ -938,11 +934,10 @@
             let notifsObj = snap.val() || {};
             let notifs = Object.keys(notifsObj).map(key => ({ keyId: key, ...notifsObj[key] }));
             
-            // Szukamy nieprzeczytanych: skierowanych do mnie LUB do KSS (jeśli jestem kierownikiem/KSS)
             let myUnread = notifs.filter(n => !n.read && (n.to === currentUser.charId || (n.to === 'KSS' && isManagerOrKssGlobal)));
             
             if (myUnread.length > 0) {
-                let n = myUnread[0]; // Wyświetla po kolei, zaczynając od najstarszego nieprzeczytanego
+                let n = myUnread[0]; 
                 
                 document.getElementById('globalPopupTitle').innerText = n.title;
                 document.getElementById('globalPopupMsg').innerText = n.msg;
@@ -953,7 +948,6 @@
                 else if(n.type === 'error') { box.style.borderColor = '#f44'; document.getElementById('globalPopupTitle').style.color = '#f44'; }
                 else { box.style.borderColor = '#ffe800'; document.getElementById('globalPopupTitle').style.color = '#ffe800'; }
                 
-                // Oznacz w bazie jako przeczytane, żeby nie pojawiło się po odświeżeniu
                 db.ref(`Stores/${myStore}/Notifications/${n.keyId}`).update({ read: true });
             }
         });
@@ -963,38 +957,26 @@
         document.getElementById('globalNotificationModal').style.display = 'none'; 
     }
 
-    // Ustaw czas bezczynności w minutach
     const minutyBezczynnosci = 5; 
-    
-    // Przeliczenie na milisekundy
     const limitCzasu = minutyBezczynnosci * 60 * 1000; 
     let timerBezczynnosci;
 
-    // Funkcja resetująca licznik
     function resetujTimer() {
         clearTimeout(timerBezczynnosci);
         timerBezczynnosci = setTimeout(wylogujZPowoduBezczynnosci, limitCzasu);
     }
 
-    // Funkcja wylogowująca
     function wylogujZPowoduBezczynnosci() {
-        // Usuwamy dane sesji
         localStorage.removeItem('currentUser');
-        // Zapisujemy powód wylogowania, żeby strona logowania mogła pokazać komunikat
         sessionStorage.setItem('powodWylogowania', 'bezczynnosc');
-        // Wyrzucamy do logowania
         window.location.href = 'login.html';
     }
 
-    // Lista akcji, które oznaczają, że użytkownik żyje i coś robi na stronie
     const akcjeUzytkownika = ['mousemove', 'keydown', 'click', 'scroll', 'touchstart'];
-
-    // Podpinamy resetowanie timera pod każdy ruch użytkownika
     akcjeUzytkownika.forEach(akcja => {
         document.addEventListener(akcja, resetujTimer, { passive: true });
     });
 
-    // Uruchamiamy timer przy pierwszym załadowaniu strony
     resetujTimer();
 </script>
 </body>

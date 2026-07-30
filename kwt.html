@@ -129,6 +129,7 @@
         <a href="inwak.html" class="sidebar-link" id="navInwaKSS">Inwentury (ME/KSS) <span id="kssAlertBadge"></span></a>
         <a href="azs.html" class="sidebar-link">AZS</a>
         <a href="kwt.html" class="sidebar-link" style="color:#ffe800">KWT</a>
+        <a href="kierownik.html" class="sidebar-link" id="navKierownik">Centrum Dowodzenia</a>
         <a href="feedback.html" class="sidebar-feedback">💡 Zgłoś problem / Pomysł</a>
     </div>
     <div class="user-profile" onclick="window.location.href='ustawienia.html'">
@@ -188,12 +189,27 @@
     </div>
 </div>
 
+<!-- NOWY MODAL DO EDYCJI NAZWY TOWARU -->
+<div class="modal" id="editItemModal" style="z-index: 12000;">
+    <div class="modal-content" style="max-width: 400px; padding: 25px;">
+        <h3 style="color:#ffe800; text-align:center; margin-bottom:20px; font-size: 1.2rem;">EDYTUJ NAZWĘ</h3>
+        
+        <input type="hidden" id="editItemId">
+        <input type="text" id="editItemNameInput" class="form-input" style="margin-bottom: 20px; text-align:center;" placeholder="Wpisz nową nazwę">
+        
+        <div style="display:flex; gap:10px;">
+            <button class="btn-modal" style="flex:1; background:#333; color:#fff; margin-top:0;" onclick="closeEditItemModal()">ANULUJ</button>
+            <button class="btn-modal" style="flex:1; margin-top:0;" onclick="saveEditedKwtItem()">ZAPISZ</button>
+        </div>
+    </div>
+</div>
+
 <!-- POWIADOMIENIA -->
-<div id="globalNotificationModal">
-    <div id="popupBox">
-        <h3 id="globalPopupTitle">POWIADOMIENIE</h3>
-        <p id="globalPopupMsg"></p>
-        <button class="btn-close-popup" onclick="closeGlobalPopup()">ZROZUMIAŁEM</button>
+<div id="globalNotificationModal" style="z-index: 15000;">
+    <div id="popupBox" class="modal-content" style="border-width:3px;">
+        <h3 id="globalPopupTitle" style="margin-bottom: 15px; font-size: 1.3rem; text-transform: uppercase; font-weight: 900;">POWIADOMIENIE</h3>
+        <p id="globalPopupMsg" style="color: #fff; font-size: 1rem; margin-bottom: 25px; line-height: 1.5; font-weight: 700;"></p>
+        <button class="btn-modal" onclick="closeGlobalPopup()">ZROZUMIAŁEM</button>
     </div>
 </div>
 
@@ -208,7 +224,8 @@
     document.getElementById('sideAvatar').innerHTML = sideAvatarHtml;
     
     if(!isManagerOrKss) { 
-        document.getElementById('navInwaKSS').style.display = 'none'; 
+        if(document.getElementById('navInwaKSS')) document.getElementById('navInwaKSS').style.display = 'none'; 
+        if(document.getElementById('navKierownik')) document.getElementById('navKierownik').style.display = 'none'; 
     } else {
         document.getElementById('adminControlsArea').style.display = 'flex';
     }
@@ -216,107 +233,26 @@
     function toggleNav() { document.getElementById('sidebar').classList.toggle('active'); document.getElementById('overlay').classList.toggle('active'); }
     function logout() { localStorage.removeItem('currentUser'); window.location.href = 'login.html'; }
 
-    // Domyślna lista (Używana TYLKO jeśli baza jest pusta)
-    const defaultKwtData = [
-        { id: "kwt_it_1", name: "Drukarki atramentowe", dept: "it" }, 
-        { id: "kwt_it_2", name: "Słuchawki douszne", dept: "it" },
-        { id: "kwt_it_3", name: "Słuchawki True Wireless", dept: "it" }, 
-        { id: "kwt_it_4", name: "Głośniki mobilne", dept: "it" },
-        { id: "kwt_it_5", name: "Smartfony", dept: "it" }, 
-        { id: "kwt_it_6", name: "Smartwatche i smartbandy", dept: "it" },
-        { id: "kwt_it_7", name: "Ładowarki sieciowe", dept: "it" }, 
-        { id: "kwt_it_8", name: "Słuchawki nauszne i uniwersalne", dept: "it" },
-        { id: "kwt_it_9", name: "Urządzenia wielofunkcyjne atramentowe", dept: "it" }, 
-        { id: "kwt_it_10", name: "Notebooki uniwersalne", dept: "it" },
-        { id: "kwt_it_11", name: "Notebooki gamingowe", dept: "it" }, 
-        { id: "kwt_it_12", name: "Tablety", dept: "it" },
-        { id: "kwt_it_13", name: "Myszki standardowe", dept: "it" }, 
-        { id: "kwt_it_14", name: "Myszki gamingowe", dept: "it" },
-        { id: "kwt_it_15", name: "Klawiatury gamingowe", dept: "it" }, 
-        { id: "kwt_it_16", name: "Klawiatury standardowe", dept: "it" },
-        { id: "kwt_it_17", name: "Słuchawki gamingowe", dept: "it" }, 
-        { id: "kwt_it_18", name: "Kable GSM", dept: "it" },
-        { id: "kwt_it_19", name: "Ładowarki przenośne", dept: "it" }, 
-        { id: "kwt_it_20", name: "Ładowarki indukcyjne", dept: "it" },
-        { id: "kwt_it_21", name: "Urządzenia wielofunkcyjne laserowe", dept: "it" }, 
-        { id: "kwt_it_22", name: "Urządzenia wielofunkcyjne CISS", dept: "it" },
-        { id: "kwt_rtv_1", name: "Klocki", dept: "rtv" }, 
-        { id: "kwt_rtv_2", name: "Akcesoria do konsol", dept: "rtv" },
-        { id: "kwt_rtv_3", name: "Konsole", dept: "rtv" }, 
-        { id: "kwt_rtv_4", name: "Nawigacje", dept: "rtv" },
-        { id: "kwt_rtv_5", name: "Kamery sportowe", dept: "rtv" }, 
-        { id: "kwt_rtv_6", name: "Wideorejestratory", dept: "rtv" },
-        { id: "kwt_agd_1", name: "Ekspresy automatyczne", dept: "agd" }, 
-        { id: "kwt_agd_2", name: "Depilatory świetlne", dept: "agd" },
-        { id: "kwt_agd_3", name: "Szczoteczki", dept: "agd" }, 
-        { id: "kwt_agd_4", name: "Grille", dept: "agd" },
-        { id: "kwt_agd_5", name: "Odkurzacze pionowe", dept: "agd" }, 
-        { id: "kwt_agd_6", name: "Odkurzacze automatyczne", dept: "agd" },
-        { id: "kwt_agd_7", name: "Urządzenia SODASTREAM", dept: "agd" }, 
-        { id: "kwt_agd_8", name: "Żelazka", dept: "agd" },
-        { id: "kwt_agd_9", name: "Czajniki", dept: "agd" }, 
-        { id: "kwt_agd_10", name: "Trymery", dept: "agd" },
-        { id: "kwt_agd_11", name: "Gofrownice", dept: "agd" }, 
-        { id: "kwt_agd_12", name: "Ekspresy przelewowe", dept: "agd" },
-        { id: "kwt_agd_13", name: "Maszynki i wkłady do golenia", dept: "agd" }, 
-        { id: "kwt_agd_14", name: "Myjki do okien", dept: "agd" },
-        { id: "kwt_agd_15", name: "Odkurzacze akumulatorowe", dept: "agd" }, 
-        { id: "kwt_agd_16", name: "Pojemniki kuchenne", dept: "agd" },
-        { id: "kwt_agd_17", name: "Steamery", dept: "agd" }, 
-        { id: "kwt_agd_18", name: "Frytkownice", dept: "agd" },
-        { id: "kwt_agd_19", name: "Irygatory", dept: "agd" }, 
-        { id: "kwt_agd_20", name: "Mopy parowe i elektryczne", dept: "agd" },
-        { id: "kwt_agd_21", name: "Odkurzacze standardowe", dept: "agd" }, 
-        { id: "kwt_agd_22", name: "Prostownice", dept: "agd" },
-        { id: "kwt_agd_23", name: "Termoroboty", dept: "agd" }, 
-        { id: "kwt_agd_24", name: "Wyciskarki wolnoobrotowe", dept: "agd" },
-        { id: "kwt_agd_25", name: "Suszarki", dept: "agd" }, 
-        { id: "kwt_agd_26", name: "Suszarko-lokówki", dept: "agd" },
-        { id: "kwt_agd_27", name: "Golarki", dept: "agd" }, 
-        { id: "kwt_agd_28", name: "Air fryery", dept: "agd" },
-        { id: "kwt_agd_29", name: "Ekspresy kapsułowe", dept: "agd" }, 
-        { id: "kwt_agd_30", name: "Garnki", dept: "agd" },
-        { id: "kwt_agd_31", name: "Lokówki", dept: "agd" }, 
-        { id: "kwt_agd_32", name: "Multicookery i szybkowary", dept: "agd" },
-        { id: "kwt_agd_33", name: "Nawilżacze powietrza", dept: "agd" }, 
-        { id: "kwt_agd_34", name: "Patelnie", dept: "agd" },
-        { id: "kwt_agd_35", name: "Roboty wieloczynnościowe", dept: "agd" }, 
-        { id: "kwt_agd_36", name: "Depilatory tradycyjne", dept: "agd" },
-        { id: "kwt_agd_37", name: "Ekspresy kolbowe", dept: "agd" }, 
-        { id: "kwt_agd_38", name: "Generatory pary", dept: "agd" },
-        { id: "kwt_agd_39", name: "Myjki ciśnieniowe", dept: "agd" }, 
-        { id: "kwt_agd_40", name: "Oczyszczacze powietrza", dept: "agd" },
-        { id: "kwt_agd_41", name: "Pojemniki do przechowywania", dept: "agd" }, 
-        { id: "kwt_agd_42", name: "Sandwicze", dept: "agd" },
-        { id: "kwt_agd_43", name: "Tostery", dept: "agd" }, 
-        { id: "kwt_agd_44", name: "Urządzenia grzewcze", dept: "agd" },
-        { id: "kwt_agd_45", name: "Maszynki do golenia", dept: "agd" }
-    ];
-
     let currentKwtDept = 'it';
     let kwtLiveDb = {}; // Statusy (czy kliknięto)
     let kwtItemsDb = []; // Pełna lista produktów z bazy
 
     document.getElementById('loadingData').style.display = 'flex';
 
-    // POBIERANIE LISTY TOWARÓW Z BAZY (LUB INICJALIZACJA)
+    // POBIERANIE LISTY TOWARÓW Z BAZY
     db.ref(`Stores/${myStore}/KWT_Items`).on('value', snap => {
-        if (!snap.exists()) {
-            let initData = {};
-            defaultKwtData.forEach(item => { initData[item.id] = item; });
-            db.ref(`Stores/${myStore}/KWT_Items`).set(initData);
-        } else {
+        if (snap.exists()) {
             const data = snap.val();
             kwtItemsDb = Object.keys(data).map(key => data[key]);
-            
             kwtItemsDb.sort((a,b) => a.name.localeCompare(b.name, 'pl'));
-            
             document.getElementById('loadingData').style.display = 'none';
             renderKWT();
-            
             if(document.getElementById('manageKwtModal').style.display === 'flex') {
                 renderManageList();
             }
+        } else {
+            document.getElementById('loadingData').style.display = 'none';
+            document.getElementById('kwtList').innerHTML = '<div style="color:#666; font-size:0.9rem; grid-column:1/-1; text-align:center; margin-top:20px;">Baza KWT jest pusta. Poproś kierownika o konfigurację w Centrum Dowodzenia.</div>';
         }
     });
 
@@ -380,7 +316,7 @@
     }
 
     // ==========================================
-    // SYSTEM ZARZĄDZANIA (EDYCJI) TOWARAMI KWT (NAPRAWIONY!)
+    // ZARZĄDZANIE (EDYCJA) TOWARAMI KWT
     // ==========================================
     function openManageKwtModal() {
         document.getElementById('manageKwtModal').style.display = 'flex';
@@ -395,7 +331,6 @@
         const dept = document.getElementById('manageDeptSelect').value;
         const container = document.getElementById('manageKwtList');
         
-        // Czyścimy starą zawartość
         container.innerHTML = '';
         
         let filtered = kwtItemsDb.filter(i => i.dept === dept);
@@ -405,7 +340,6 @@
             return;
         }
 
-        // BARDZO BEZPIECZNE RENDEROWANIE - ODPORNE NA APOSTROFY I INNE ZNAKI
         filtered.forEach(item => {
             const row = document.createElement('div');
             row.className = 'manage-item-row';
@@ -420,7 +354,7 @@
             const btnEdit = document.createElement('button');
             btnEdit.className = 'btn-mini-edit';
             btnEdit.innerText = 'EDYTUJ';
-            btnEdit.onclick = function() { editKwtItem(item.id, item.name); };
+            btnEdit.onclick = function() { openEditItemModal(item.id, item.name); };
             
             const btnDel = document.createElement('button');
             btnDel.className = 'btn-mini-del';
@@ -462,18 +396,33 @@
         }
     }
 
-    function editKwtItem(id, currentName) {
-        const newName = prompt("Wpisz nową nazwę dla tego towaru:", currentName);
-        if (newName && newName.trim() !== "" && newName !== currentName) {
+    function openEditItemModal(id, currentName) {
+        document.getElementById('editItemId').value = id;
+        document.getElementById('editItemNameInput').value = currentName;
+        document.getElementById('editItemModal').style.display = 'flex';
+    }
+
+    function closeEditItemModal() {
+        document.getElementById('editItemModal').style.display = 'none';
+        document.getElementById('editItemId').value = '';
+        document.getElementById('editItemNameInput').value = '';
+    }
+
+    function saveEditedKwtItem() {
+        const id = document.getElementById('editItemId').value;
+        const newName = document.getElementById('editItemNameInput').value.trim();
+        
+        if (newName && newName !== "") {
             db.ref(`Stores/${myStore}/KWT_Items/${id}`).update({
-                name: newName.trim()
+                name: newName
+            }).then(() => {
+                closeEditItemModal();
             });
+        } else {
+            alert("Nazwa nie może być pusta!");
         }
     }
 
-    // ==========================================
-    // INNE FUNKCJE
-    // ==========================================
     function resetAllKWT() {
         if(confirm("🛑 OSTRZEŻENIE 🛑\n\nCzy na pewno chcesz bezpowrotnie usunąć i ZRESETOWAĆ wszystkie statusy KWT ze wszystkich działów?\nZrób to tylko, jeśli zaczynacie nowy tydzień kontroli!")) {
             document.getElementById('loadingData').style.display = 'flex';
@@ -492,25 +441,30 @@
         }
     }
 
-    db.ref(`Stores/${myStore}/Notifications`).on('value', snap => {
-        let notifsObj = snap.val() || {}; 
-        let notifs = Object.keys(notifsObj).map(key => ({ keyId: key, ...notifsObj[key] }));
-        let myUnread = notifs.filter(n => !n.read && (n.to === currentUser.charId || (n.to === 'KSS' && isManagerOrKss)));
-        
-        if (myUnread.length > 0) {
-            let n = myUnread[0]; 
-            document.getElementById('globalPopupTitle').innerText = n.title; 
-            document.getElementById('globalPopupMsg').innerText = n.msg; 
-            document.getElementById('globalNotificationModal').style.display = 'flex';
+    // SYSTEM POWIADOMIEŃ GLOBALNYCH
+    if (typeof db !== 'undefined' && typeof currentUser !== 'undefined') {
+        const isManagerOrKssGlobal = (currentUser.dept === 'ME' || currentUser.isKss);
+
+        db.ref(`Stores/${myStore}/Notifications`).on('value', snap => {
+            let notifsObj = snap.val() || {}; 
+            let notifs = Object.keys(notifsObj).map(key => ({ keyId: key, ...notifsObj[key] }));
+            let myUnread = notifs.filter(n => !n.read && (n.to === currentUser.charId || (n.to === 'KSS' && isManagerOrKssGlobal)));
             
-            let box = document.getElementById('popupBox');
-            if(n.type === 'success') { box.style.borderColor = '#0a0'; document.getElementById('globalPopupTitle').style.color = '#0a0'; } 
-            else if(n.type === 'error') { box.style.borderColor = '#f44'; document.getElementById('globalPopupTitle').style.color = '#f44'; } 
-            else { box.style.borderColor = '#ffe800'; document.getElementById('globalPopupTitle').style.color = '#ffe800'; }
-            
-            db.ref(`Stores/${myStore}/Notifications/${n.keyId}`).update({ read: true });
-        }
-    });
+            if (myUnread.length > 0) {
+                let n = myUnread[0]; 
+                document.getElementById('globalPopupTitle').innerText = n.title; 
+                document.getElementById('globalPopupMsg').innerText = n.msg; 
+                document.getElementById('globalNotificationModal').style.display = 'flex';
+                
+                let box = document.getElementById('popupBox');
+                if(n.type === 'success') { box.style.borderColor = '#0a0'; document.getElementById('globalPopupTitle').style.color = '#0a0'; } 
+                else if(n.type === 'error') { box.style.borderColor = '#f44'; document.getElementById('globalPopupTitle').style.color = '#f44'; } 
+                else { box.style.borderColor = '#ffe800'; document.getElementById('globalPopupTitle').style.color = '#ffe800'; }
+                
+                db.ref(`Stores/${myStore}/Notifications/${n.keyId}`).update({ read: true });
+            }
+        });
+    }
 
     if(isManagerOrKss) {
         const d = new Date();
@@ -531,7 +485,7 @@
 
     function closeGlobalPopup() { document.getElementById('globalNotificationModal').style.display = 'none'; }
 
-    // Ustaw czas bezczynności w minutach
+    // AUTOWYLOGOWANIE
     const minutyBezczynnosci = 5; 
     const limitCzasu = minutyBezczynnosci * 60 * 1000; 
     let timerBezczynnosci;

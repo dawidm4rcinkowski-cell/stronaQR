@@ -97,7 +97,6 @@
         .azs-title { text-align: center; color: #ffe800; font-weight: 900; font-size: 1.5rem; margin-top: 10px; text-transform: uppercase; letter-spacing: 2px; }
         .azs-dates { text-align: center; color: #888; font-weight: 700; font-size: 1rem; margin-bottom: 10px; margin-top: 5px;}
         
-        /* NAPRAWIONA TABELA */
         .table-container { 
             flex: 1; 
             overflow: auto; 
@@ -137,6 +136,9 @@
 
         .loading-overlay { position: absolute; inset: 0; background: rgba(0,0,0,0.8); z-index: 2000; display: flex; align-items: center; justify-content: center; color: #ffe800; font-weight: bold; font-size: 1.5rem; display: none; flex-direction: column;}
         .loading-overlay span { font-size: 0.8rem; color: #ccc; margin-top: 10px; font-weight: normal;}
+
+        @keyframes blink { 0% { opacity: 1; } 50% { opacity: 0.3; } 100% { opacity: 1; } }
+        .nav-alert { color: #f44; font-weight: 900; animation: blink 1s infinite; font-size: 1rem; margin-left: 5px; }
 
         /* STYL MODALA POWIADOMIEŃ */
         #globalNotificationModal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 15000; align-items: center; justify-content: center; padding: 20px; backdrop-filter: blur(5px); }
@@ -181,7 +183,8 @@
         <a href="index.html" class="sidebar-link">Strona główna</a>
         <a href="plan.html" class="sidebar-link">Plan pracy</a>
         <a href="inwa.html" class="sidebar-link">Inwentury</a>
-        <a href="inwak.html" class="sidebar-link" id="navInwaKSS">Inwentury (ME/KSS)</a>
+        <!-- Tutaj przywrócono obsługę wykrzyknika kssAlertBadge -->
+        <a href="inwak.html" class="sidebar-link" id="navInwaKSS">Inwentury (ME/KSS) <span id="kssAlertBadge"></span></a>
         <a href="azs.html" class="sidebar-link" style="color:#ffe800">AZS (Agenda Zadań)</a>
         <a href="kwt.html" class="sidebar-link">KWT</a>
         <a href="kierownik.html" class="sidebar-link" id="navKierownik">Centrum Dowodzenia</a>
@@ -209,7 +212,7 @@
 
 <div class="azs-title">AGENDA ZADAŃ SKLEPU (AZS)</div>
 <div class="azs-dates" id="azsDates">Wybierz tydzień i kliknij generuj...</div>
-<div id="errorMsg" class="error-msg">⚠️ BRAK DANYCH GRAFIKU W BAZIE - Wygenerowano pustą listę zadań. Wygeneruj plan pracy!</div>
+<div id="errorMsg" class="error-msg">⚠️ BRAK DDATA GRAFIKU W BAZIE - Wygenerowano pustą listę zadań. Wygeneruj plan pracy!</div>
 
 <div class="table-container">
     <div class="loading-overlay" id="loadingData">Pobieranie z chmury... <span>Synchronizacja grafiku</span></div>
@@ -245,11 +248,9 @@
 <script>
     document.getElementById('sideName').innerText = currentUser ? `${currentUser.name} (${currentUser.dept})` : 'Zaloguj się';
     
-    // Wczytywanie awatara z local storage dla bocznego paska
     const sideAvatarHtml = currentUser.avatar ? `<img src="${currentUser.avatar}" style="width:100%; height:100%; object-fit:cover; border-radius:50%;">` : currentUser.charId.charAt(0);
     document.getElementById('sideAvatar').innerHTML = sideAvatarHtml;
     
-    // Zabezpieczenie zakładek - chowamy uprawnienia kierownicze dla zwykłych użytkowników
     if(!isManagerOrKss) { 
         if(document.getElementById('navInwaKSS')) document.getElementById('navInwaKSS').style.display = 'none'; 
         if(document.getElementById('navKierownik')) document.getElementById('navKierownik').style.display = 'none'; 
@@ -439,7 +440,7 @@
     window.onload = () => { loadEmployeesAndInit(); };
 
     // ==========================================
-    // SYSTEM POWIADOMIEŃ GLOBALNYCH
+    // SYSTEM POWIADOMIEŃ GLOBALNYCH I WYKRZYKNIK KSS
     // ==========================================
     if (typeof db !== 'undefined' && typeof currentUser !== 'undefined') {
         const isManagerOrKssGlobal = (currentUser.dept === 'ME' || currentUser.isKss);
@@ -448,7 +449,6 @@
             let notifsObj = snap.val() || {};
             let notifs = Object.keys(notifsObj).map(key => ({ keyId: key, ...notifsObj[key] }));
             
-            // Szukamy nieprzeczytanych: skierowanych do mnie LUB do KSS
             let myUnread = notifs.filter(n => !n.read && (n.to === currentUser.charId || (n.to === 'KSS' && isManagerOrKssGlobal)));
             
             if (myUnread.length > 0) {
@@ -463,10 +463,29 @@
                 else if(n.type === 'error') { box.style.borderColor = '#f44'; document.getElementById('globalPopupTitle').style.color = '#f44'; }
                 else { box.style.borderColor = '#ffe800'; document.getElementById('globalPopupTitle').style.color = '#ffe800'; }
                 
-                // Oznacz w bazie jako przeczytane, żeby nie pojawiło się po odświeżeniu
                 db.ref(`Stores/${myStore}/Notifications/${n.keyId}`).update({ read: true });
             }
         });
+
+        // NASŁUCH DLA WYKRZYKNIKA W MENU (Inwentury ME/KSS)
+        if (isManagerOrKssGlobal) {
+            db.ref(`Stores/${myStore}/Inwentury`).on('value', snap => {
+                let allInwa = snap.val() || {};
+                let hasAwaiting = false;
+
+                Object.keys(allInwa).forEach(monthKey => {
+                    let monthData = allInwa[monthKey] || {};
+                    Object.values(monthData).forEach(item => {
+                        if (item.status === 'awaiting_kss') {
+                            hasAwaiting = true;
+                        }
+                    });
+                });
+
+                let badge = document.getElementById('kssAlertBadge');
+                if(badge) badge.innerHTML = hasAwaiting ? `<span class="nav-alert">[!]</span>` : '';
+            });
+        }
     }
 
     function closeGlobalPopup() { 

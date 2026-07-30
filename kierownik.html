@@ -274,7 +274,6 @@
 <div class="modal" id="addEmployeeModal">
     <div class="modal-content" style="max-width: 450px;">
         <h3 style="color:#ffe800; margin-bottom:15px; text-align:center; font-size: 1.3rem;">DODAJ PRACOWNIKA</h3>
-        
         <div class="input-group" style="text-align: left;">
             <label>Imię (widoczne w systemie)</label>
             <input type="text" class="form-input" id="newEmpName" placeholder="np. Tomasz">
@@ -292,12 +291,10 @@
                 <option value="ME">Kierownik Sklepu (ME)</option>
             </select>
         </div>
-        
         <div class="role-checkboxes">
             <label class="role-label"><input type="checkbox" id="newEmpIsKss"> Pracownik posiada uprawnienia KSS</label>
             <label class="role-label"><input type="checkbox" id="newEmpTiles"> Pozwól edytować kafelki na stronie głównej</label>
         </div>
-        
         <div id="addEmpMsg" class="msg-box"></div>
         <div style="display:flex; gap:10px; margin-top:25px;">
             <button class="btn-action" style="flex:1; background:#333; color:#fff; margin-top:0;" onclick="closeAddEmployeeModal()">ANULUJ</button>
@@ -329,12 +326,10 @@
                 <option value="ME">Kierownik Sklepu (ME)</option>
             </select>
         </div>
-        
         <div class="role-checkboxes">
             <label class="role-label"><input type="checkbox" id="editEmpIsKss"> Pracownik posiada uprawnienia KSS</label>
             <label class="role-label"><input type="checkbox" id="editEmpTiles"> Pozwól edytować kafelki na stronie głównej</label>
         </div>
-        
         <div id="editEmpMsg" class="msg-box"></div>
         <div style="display:flex; gap:10px; margin-top:25px;">
             <button class="btn-action" style="flex:1; background:#333; color:#fff; margin-top:0;" onclick="closeEditEmployeeModal()">ANULUJ</button>
@@ -358,9 +353,6 @@
     const months = ["STYCZEŃ", "LUTY", "MARZEC", "KWIECIEŃ", "MAJ", "CZERWIEC", "LIPIEC", "SIERPIEŃ", "WRZESIEŃ", "PAŹDZIERNIK", "LISTOPAD", "GRUDZIEŃ"];
     let globalUsersList = [];
 
-    // ==========================================
-    // INICJALIZACJA RAPORTÓW I PINBOARDU
-    // ==========================================
     window.onload = () => {
         let repSelect = document.getElementById('reportMonth');
         months.forEach((m, i) => {
@@ -376,9 +368,6 @@
         });
     };
 
-    // ==========================================
-    // LOGIKA TABLICY OGŁOSZEŃ (PINBOARD)
-    // ==========================================
     function savePinboard() {
         const title = document.getElementById('pinTitle').value.trim();
         const msg = document.getElementById('pinMsg').value.trim();
@@ -400,9 +389,6 @@
         }
     }
 
-    // ==========================================
-    // LOGIKA EKSPORTU DO EXCELA
-    // ==========================================
     async function generateExcelReport() {
         const mIndex = document.getElementById('reportMonth').value;
         const monthName = months[mIndex];
@@ -490,9 +476,6 @@
         }
     }
 
-    // ==========================================
-    // LOGIKA ZARZĄDZANIA ZESPOŁEM I PUSH
-    // ==========================================
     loadTeamForReset();
 
     function loadTeamForReset() {
@@ -503,7 +486,6 @@
             let usersForReset = globalUsersList.filter(u => u.charId !== 'ADMIN' && u.charId !== currentUser.charId);
             usersForReset.sort((a,b) => a.name.localeCompare(b.name, 'pl', {sensitivity: 'base'}));
 
-            // RENDER LISTY EKIPY Z NAPRAWIONYM BADGIEM KAFELKÓW
             let html = '';
             if(usersForReset.length === 0) {
                 html = '<div style="color: #666; font-size:0.8rem; font-weight:bold; padding:20px; width:100%; text-align:center;">BRAK INNYCH UŻYTKOWNIKÓW W BAZIE.</div>';
@@ -512,20 +494,23 @@
                     let uAvatar = u.avatar ? `<img src="${u.avatar}" style="width:100%; height:100%; object-fit:cover; border-radius:50%;">` : u.charId.charAt(0);
                     let displayDept = (u.isKss && u.dept !== 'ME') ? 'KSS' : u.dept;
                     
-                    let tilesBadge = u.canEditTiles ? `<span style="display:inline-block; border: 1px solid #0a0; color:#0a0; background:rgba(0,170,0,0.1); padding: 3px 6px; border-radius:5px; font-size:0.6rem; font-weight:900; white-space:nowrap; vertical-align:middle; margin-left:8px;">🛠️ KAFELKI</span>` : '';
+                    // ZNACZNIK KAFELKÓW UMIESZCZONY OBOK DZIAŁU
+                    let tilesBadge = u.canEditTiles ? `<span style="display:inline-block; border: 1px solid #0a0; color:#0a0; background:rgba(0,170,0,0.1); padding: 2px 6px; border-radius:4px; font-size:0.55rem; font-weight:900; white-space:nowrap; margin-left:8px; vertical-align:middle;">🛠️ KAFELKI</span>` : '';
                     
                     html += `
                     <div class="team-row">
-                        <div style="display:flex; align-items:center; gap:12px; min-width:0;">
+                        <div style="display:flex; align-items:center; gap:12px; min-width:0; padding-right: 10px;">
                             <div class="avatar-small">${uAvatar}</div>
                             <div style="display:flex; flex-direction:column; justify-content:center; min-width:0;">
-                                <div style="font-size:0.95rem; font-weight:900; color:#fff; display:flex; align-items:center; flex-wrap:wrap;">
-                                    ${u.name} ${tilesBadge}
+                                <div style="font-size:0.95rem; font-weight:900; color:#fff; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
+                                    ${u.name}
                                 </div>
-                                <div style="font-size:0.7rem; font-weight:bold; color:#ffe800; margin-top:3px;">Dział: ${displayDept}</div>
+                                <div style="font-size:0.7rem; font-weight:bold; color:#ffe800; margin-top:3px; display:flex; align-items:center; flex-wrap:nowrap;">
+                                    Dział: ${displayDept} ${tilesBadge}
+                                </div>
                             </div>
                         </div>
-                        <div class="action-buttons-group">
+                        <div class="action-buttons-group" style="flex-shrink: 0;">
                             <button class="btn-edit-emp" onclick="openEditEmployeeModal('${u.charId}')">EDYTUJ</button>
                             <button class="btn-reset" onclick="confirmPasswordReset('${u.charId}', '${u.name}')">RESET</button>
                             <button class="btn-delete-emp" onclick="confirmDeleteEmployee('${u.charId}', '${u.name}')">USUŃ</button>
@@ -535,7 +520,6 @@
             }
             document.getElementById('teamList').innerHTML = html;
 
-            // RENDER DROPDOWNU DO POWIADOMIEŃ PUSH Z DZIAŁAMI
             let pushSelect = document.getElementById('pushTarget');
             pushSelect.innerHTML = `
                 <option value="ALL">📢 DO WSZYSTKICH</option>
@@ -554,7 +538,6 @@
         });
     }
 
-    // --- WYSYŁANIE PUSH Z OBSŁUGĄ DZIAŁÓW ---
     function sendPushNotification() {
         const target = document.getElementById('pushTarget').value;
         const type = document.getElementById('pushType').value;

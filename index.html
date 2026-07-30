@@ -187,6 +187,13 @@
         .history-action { font-size:0.85rem; }
         .btn-delete-history { position: absolute; top: 10px; right: 10px; background: transparent; border: none; color: #f44; cursor: pointer; font-size: 1rem; transition: 0.2s; }
         .btn-delete-history:hover { transform: scale(1.2); }
+        
+        #globalNotificationModal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 15000; align-items: center; justify-content: center; padding: 20px; backdrop-filter: blur(5px); }
+        #popupBox { background: #0a0a0a; border: 3px solid #ffe800; padding: 30px; width: 100%; max-width: 500px; border-radius: 15px; text-align: center; box-shadow: 0 0 30px rgba(0,0,0,0.5); }
+        #globalPopupTitle { margin-bottom: 15px; font-size: 1.3rem; text-transform: uppercase; font-weight: 900; }
+        #globalPopupMsg { color: #fff; font-size: 1rem; margin-bottom: 25px; line-height: 1.5; font-weight: 700; }
+        .btn-close-popup { width: 100%; background: #ffe800; color: #000; border: none; padding: 12px 20px; font-weight: 900; border-radius: 8px; cursor: pointer; text-transform: uppercase; transition: 0.2s; }
+        .btn-close-popup:hover { transform: scale(1.02); }
     </style>
 </head>
 <body>
@@ -206,6 +213,9 @@
         <a href="inwak.html" class="sidebar-link" id="navInwaKSS">Inwentury (ME/KSS)</a>
         <a href="azs.html" class="sidebar-link">AZS</a>
         <a href="kwt.html" class="sidebar-link">KWT</a>
+        
+        <a href="kierownik.html" class="sidebar-link" id="navKierownik" style="color:#ffe800; border-left: 4px solid #ffe800; background: #1a1a1a;">Centrum Dowodzenia</a>
+        
         <a href="feedback.html" class="sidebar-feedback">💡 Zgłoś problem / Pomysł</a>
     </div>
     
@@ -369,6 +379,14 @@
     </div>
 </div>
 
+<div id="globalNotificationModal">
+    <div id="popupBox">
+        <h3 id="globalPopupTitle">POWIADOMIENIE</h3>
+        <p id="globalPopupMsg"></p>
+        <button class="btn-close-popup" onclick="closeGlobalPopup()">ZROZUMIAŁEM</button>
+    </div>
+</div>
+
 <script>
     document.getElementById('greetName').innerText = currentUser.name || "Nieznany";
     document.getElementById('sideName').innerText = `${currentUser.name || "Nieznany"} (${currentUser.dept || "ME"})`;
@@ -376,8 +394,13 @@
     const avatarHtml = currentUser.avatar ? `<img src="${currentUser.avatar}" style="width:100%; height:100%; object-fit:cover; border-radius:50%;">` : safeInitial;
     document.getElementById('sideAvatar').innerHTML = avatarHtml;
 
-    if(!isManagerOrKss) { document.getElementById('navInwaKSS').style.display = 'none'; } 
-    else { document.getElementById('addProgBtn').style.display = 'block'; document.getElementById('btnReorder').style.display = 'block'; }
+    if(!isManagerOrKss) { 
+        if(document.getElementById('navInwaKSS')) document.getElementById('navInwaKSS').style.display = 'none'; 
+        if(document.getElementById('navKierownik')) document.getElementById('navKierownik').style.display = 'none'; 
+    } else { 
+        document.getElementById('addProgBtn').style.display = 'block'; 
+        document.getElementById('btnReorder').style.display = 'block'; 
+    }
 
     db.ref('Admin/Settings/Announcement').once('value', snap => {
         const ann = snap.val();
@@ -915,27 +938,7 @@
 
     function toggleNav() { document.getElementById('sidebar').classList.toggle('active'); document.getElementById('overlay').classList.toggle('active'); }
     function logout() { localStorage.removeItem('currentUser'); window.location.href = 'login.html'; }
-</script>
 
-</body>
-<style>
-    #globalNotificationModal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 15000; align-items: center; justify-content: center; padding: 20px; backdrop-filter: blur(5px); }
-    #popupBox { background: #0a0a0a; border: 3px solid #ffe800; padding: 30px; width: 100%; max-width: 500px; border-radius: 15px; text-align: center; box-shadow: 0 0 30px rgba(0,0,0,0.5); }
-    #globalPopupTitle { margin-bottom: 15px; font-size: 1.3rem; text-transform: uppercase; font-weight: 900; }
-    #globalPopupMsg { color: #fff; font-size: 1rem; margin-bottom: 25px; line-height: 1.5; font-weight: 700; }
-    .btn-close-popup { width: 100%; background: #ffe800; color: #000; border: none; padding: 12px 20px; font-weight: 900; border-radius: 8px; cursor: pointer; text-transform: uppercase; transition: 0.2s; }
-    .btn-close-popup:hover { transform: scale(1.02); }
-</style>
-
-<div id="globalNotificationModal">
-    <div id="popupBox">
-        <h3 id="globalPopupTitle">POWIADOMIENIE</h3>
-        <p id="globalPopupMsg"></p>
-        <button class="btn-close-popup" onclick="closeGlobalPopup()">ZROZUMIAŁEM</button>
-    </div>
-</div>
-
-<script>
     // Upewniamy się, że Firebase i dane użytkownika są załadowane
     if (typeof db !== 'undefined' && typeof currentUser !== 'undefined') {
         const isManagerOrKssGlobal = (currentUser.dept === 'ME' || currentUser.isKss);
@@ -968,8 +971,7 @@
     function closeGlobalPopup() { 
         document.getElementById('globalNotificationModal').style.display = 'none'; 
     }
-</script>
-<script>
+
     // Ustaw czas bezczynności w minutach
     const minutyBezczynnosci = 5; 
     
@@ -1004,4 +1006,5 @@
     // Uruchamiamy timer przy pierwszym załadowaniu strony
     resetujTimer();
 </script>
+</body>
 </html>

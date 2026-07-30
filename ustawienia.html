@@ -1,3 +1,12 @@
+Zrobione! Plik **`ustawienia.html`** został porządnie odchudzony.
+
+Usunąłem z niego całą sekcję "Zarządzanie Zespołem" (karty, okienka pop-up do edycji, dodawania i usuwania pracowników oraz setki linijek kodu, które za to odpowiadały), ponieważ to wszystko żyje teraz bezpiecznie w Twoim nowym `kierownik.html`.
+
+Dodałem też do menu bocznego ukryty link do **Centrum Dowodzenia** (widoczny tylko dla KSS/ME). Dzięki temu w Ustawieniach został tylko czysty profil pracownika (awatar, data urodzin, staż pracy i zmiana hasła).
+
+Oto kompletny i "odchudzony" kod **`ustawienia.html`**:
+
+```html
 <!DOCTYPE html>
 <html lang="pl">
 <head>
@@ -71,7 +80,6 @@
         @media (max-width: 768px) { .settings-grid { grid-template-columns: 1fr; } }
         
         .card { background: #111; border: 1px solid #222; border-radius: 15px; padding: 25px; display: flex; flex-direction: column; gap: 15px; height: fit-content; }
-        .card.full-width { grid-column: 1 / -1; margin-top: 10px; border-color: #333; } 
         
         .card-title { color: #ffe800; font-weight: 900; font-size: 1.1rem; border-bottom: 1px solid #333; padding-bottom: 10px; margin-bottom: 10px; text-transform: uppercase; display: flex; justify-content: space-between; align-items: center; }
         .profile-section { display: flex; align-items: center; gap: 20px; }
@@ -94,34 +102,10 @@
         .msg-error { background: rgba(255, 68, 68, 0.2); border: 1px solid #f44; color: #f44; }
         .msg-success { background: rgba(0, 170, 0, 0.2); border: 1px solid #0a0; color: #0a0; }
 
-        /* LISTA ZESPOŁU DO RESETU I DODAWANIA */
-        .team-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; flex-wrap: wrap; gap: 10px;}
-        .btn-add-emp { background: #0a0; color: #fff; border: none; padding: 8px 15px; border-radius: 6px; font-weight: 900; font-size: 0.7rem; cursor: pointer; text-transform: uppercase; transition: 0.3s;}
-        .btn-add-emp:hover { background: #0c0; box-shadow: 0 4px 10px rgba(0,170,0,0.3); }
-
-        .team-list-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 15px; margin-top: 10px; }
-        .team-row { display: flex; justify-content: space-between; align-items: center; background: #0a0a0a; padding: 15px; border-radius: 10px; border: 1px solid #222; transition: 0.3s; }
-        .team-row:hover { border-color: #ffe800; background: #111; }
-        .avatar-small { width: 40px; height: 40px; border-radius: 50%; background: #151515; border: 2px solid #ffe800; display: flex; align-items: center; justify-content: center; font-weight: 900; color: #ffe800; font-size: 1rem; overflow: hidden; flex-shrink: 0; }
-        
-        .action-buttons-group { display: flex; gap: 8px; }
-        .btn-edit-emp { background: transparent; border: 1px solid #0a0; color: #0a0; padding: 8px 10px; border-radius: 5px; font-weight: 900; font-size: 0.65rem; cursor: pointer; transition: 0.3s; text-transform: uppercase; }
-        .btn-edit-emp:hover { background: #0a0; color: #000; }
-        .btn-reset { background: transparent; border: 1px solid #ffe800; color: #ffe800; padding: 8px 10px; border-radius: 5px; font-weight: 900; font-size: 0.65rem; cursor: pointer; transition: 0.3s; text-transform: uppercase; }
-        .btn-reset:hover { background: #ffe800; color: #000; }
-        .btn-delete-emp { background: transparent; border: 1px solid #f44; color: #f44; padding: 8px 10px; border-radius: 5px; font-weight: 900; font-size: 0.65rem; cursor: pointer; transition: 0.3s; text-transform: uppercase; }
-        .btn-delete-emp:hover { background: #f44; color: #000; }
-
         /* MODALE GŁÓWNE */
         .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 11000; align-items: center; justify-content: center; padding: 20px; backdrop-filter: blur(5px); }
         .modal-content { background: #0a0a0a; border: 2px solid #ffe800; padding: 30px; width: 100%; max-width: 450px; border-radius: 15px; text-align: center; box-shadow: 0 0 30px rgba(255, 232, 0, 0.2); }
         
-        select { background: #0a0a0a; color: #fff; outline: none; cursor: pointer; }
-        select:focus { border-color: #ffe800; }
-        .role-checkboxes { background: #111; border: 1px solid #333; padding: 15px; border-radius: 8px; display: flex; flex-direction: column; gap: 10px; }
-        .role-label { color: #fff; font-size: 0.85rem; display: flex; align-items: center; gap: 10px; cursor: pointer; }
-        .role-label input { width: 18px; height: 18px; cursor: pointer; }
-
         /* DODATKI DO MODALI POWIADOMIEŃ */
         #globalNotificationModal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 15000; align-items: center; justify-content: center; padding: 20px; backdrop-filter: blur(5px); }
         #popupBox { background: #0a0a0a; border: 3px solid #ffe800; padding: 30px; width: 100%; max-width: 500px; border-radius: 15px; text-align: center; box-shadow: 0 0 30px rgba(0,0,0,0.5); }
@@ -135,7 +119,8 @@
 
 <header>
     <div class="menu-btn" onclick="toggleNav()">☰</div>
-    <div class="logo">EXPERT <span>TOOL</span> <div class="store-badge" id="headerStore">Łączenie...</div></div>
+    <div class="logo">EXPERT <span>TOOL</span></div>
+    <div class="store-badge" id="headerStore">SXXX</div>
 </header>
 
 <div class="sidebar" id="sidebar">
@@ -147,10 +132,10 @@
         <a href="inwak.html" class="sidebar-link" id="navInwaKSS">Inwentury (ME/KSS)</a>
         <a href="azs.html" class="sidebar-link">AZS</a>
         <a href="kwt.html" class="sidebar-link">KWT</a>
-        <a href="qr.html" class="sidebar-link">Kod QR</a>
+        <a href="kierownik.html" class="sidebar-link" id="navKierownik">Centrum Dowodzenia</a>
         <a href="feedback.html" class="sidebar-feedback">💡 Zgłoś problem / Pomysł</a>
     </div>
-    <div class="user-profile">
+    <div class="user-profile" onclick="window.location.href='ustawienia.html'">
         <div class="user-avatar" id="sideAvatar">?</div>
         <div class="user-info">
             <span class="user-name" id="sideName">Wczytywanie...</span>
@@ -201,114 +186,6 @@
                 <button class="btn-action" onclick="changePassword()" id="btnSavePass">Zaktualizuj Hasło</button>
             </div>
             
-            <div class="card full-width" id="teamManagementCard" style="display:none;">
-                <div class="card-title">
-                    Zarządzanie Zespołem 
-                    <span style="font-size:0.6rem; color:#888; background:#1a1a1a; padding:4px 8px; border-radius:10px;">TYLKO KIEROWNICTWO</span>
-                </div>
-                
-                <div class="team-header">
-                    <p style="font-size:0.8rem; color:#888; margin:0;">Zarządzaj hasłami swojej ekipy, dodawaj lub usuwaj pracowników.</p>
-                    <button class="btn-add-emp" onclick="openAddEmployeeModal()">+ Dodaj Pracownika</button>
-                </div>
-                
-                <div class="team-list-grid" id="teamList">
-                    <div style="color: #666; font-size:0.8rem; font-weight:bold; width:100%; text-align:center; padding:20px;">POBIERANIE DANYCH EKIPY...</div>
-                </div>
-            </div>
-            
-        </div>
-    </div>
-</div>
-
-<div class="modal" id="resetSuccessModal">
-    <div class="modal-content" style="max-width: 400px;">
-        <h3 style="color:#0a0; margin-bottom:15px; font-size:1.3rem;">HASŁO ZRESETOWANE!</h3>
-        <p style="color:#ccc; font-size:0.9rem; margin-bottom:15px;">Przekaż pracownikowi <strong id="resetEmpName" style="color:#fff;"></strong> ten kod, aby mógł zalogować się ponownie i ustawić sobie nowe hasło:</p>
-        
-        <div style="background:#000; border:2px dashed #ffe800; padding:15px; font-size:2rem; font-weight:900; color:#ffe800; letter-spacing:4px; margin-bottom:20px; border-radius:10px;" id="resetEmpCode">
-            KOD
-        </div>
-        
-        <button class="btn-action" style="width:100%; background:#0a0; color:#fff;" onclick="closeResetModal()">ZROZUMIAŁEM</button>
-    </div>
-</div>
-
-<div class="modal" id="addEmployeeModal">
-    <div class="modal-content" style="max-width: 450px;">
-        <h3 style="color:#ffe800; margin-bottom:15px; text-align:center; font-size: 1.3rem;">DODAJ PRACOWNIKA</h3>
-        
-        <div class="input-group" style="margin-bottom: 15px; text-align: left;">
-            <label>Imię (widoczne w systemie)</label>
-            <input type="text" class="form-input" id="newEmpName" placeholder="np. Tomasz">
-        </div>
-        
-        <div class="input-group" style="margin-bottom: 15px; text-align: left;">
-            <label>Unikalny Kod Logowania (CharID)</label>
-            <input type="text" class="form-input" id="newEmpCharId" placeholder="np. TOMEK1 (bez spacji)">
-        </div>
-        
-        <div class="input-group" style="margin-bottom: 15px; text-align: left;">
-            <label>Dział</label>
-            <select class="form-input" id="newEmpDept">
-                <option value="IT">Dział IT</option>
-                <option value="RTV">Dział RTV</option>
-                <option value="AGD">Dział AGD</option>
-                <option value="POK">Punkt Obsługi Klienta (POK)</option>
-                <option value="ME">Kierownik Sklepu (ME)</option>
-            </select>
-        </div>
-        
-        <div class="role-checkboxes" style="margin-top: 15px; text-align: left;">
-            <label class="role-label"><input type="checkbox" id="newEmpIsKss"> Pracownik posiada uprawnienia KSS</label>
-        </div>
-        
-        <div id="addEmpMsg" class="msg-box" style="margin-top:15px;"></div>
-        
-        <div style="display:flex; gap:10px; margin-top:25px;">
-            <button class="btn-action" style="flex:1; background:#333; color:#fff; margin-top:0;" onclick="closeAddEmployeeModal()">ANULUJ</button>
-            <button class="btn-action" style="flex:2; margin-top:0;" onclick="saveNewEmployee()">DODAJ DO BAZY</button>
-        </div>
-    </div>
-</div>
-
-<div class="modal" id="editEmployeeModal">
-    <div class="modal-content" style="max-width: 450px;">
-        <h3 style="color:#ffe800; margin-bottom:15px; text-align:center; font-size: 1.3rem;">EDYTUJ PRACOWNIKA</h3>
-        
-        <input type="hidden" id="editEmpOldCharId">
-
-        <div class="input-group" style="margin-bottom: 15px; text-align: left;">
-            <label>Imię</label>
-            <input type="text" class="form-input" id="editEmpName">
-        </div>
-        
-        <div class="input-group" style="margin-bottom: 15px; text-align: left;">
-            <label>Kod Logowania (CharID) <span style="color:#f44; font-size:0.6rem;">(UWAGA!)</span></label>
-            <input type="text" class="form-input" id="editEmpCharId">
-            <span style="font-size:0.6rem; color:#888; margin-top:3px;">Zmiana kodu spowoduje odpięcie pracownika od jego bieżącego planu. Rób to tylko jeśli musisz!</span>
-        </div>
-        
-        <div class="input-group" style="margin-bottom: 15px; text-align: left;">
-            <label>Dział</label>
-            <select class="form-input" id="editEmpDept">
-                <option value="IT">Dział IT</option>
-                <option value="RTV">Dział RTV</option>
-                <option value="AGD">Dział AGD</option>
-                <option value="POK">Punkt Obsługi Klienta (POK)</option>
-                <option value="ME">Kierownik Sklepu (ME)</option>
-            </select>
-        </div>
-        
-        <div class="role-checkboxes" style="margin-top: 15px; text-align: left;">
-            <label class="role-label"><input type="checkbox" id="editEmpIsKss"> Pracownik posiada uprawnienia KSS</label>
-        </div>
-        
-        <div id="editEmpMsg" class="msg-box" style="margin-top:15px;"></div>
-        
-        <div style="display:flex; gap:10px; margin-top:25px;">
-            <button class="btn-action" style="flex:1; background:#333; color:#fff; margin-top:0;" onclick="closeEditEmployeeModal()">ANULUJ</button>
-            <button class="btn-action" style="flex:2; margin-top:0;" onclick="saveEditedEmployee()">ZAPISZ ZMIANY</button>
         </div>
     </div>
 </div>
@@ -346,10 +223,8 @@
     });
 
     if(!isManagerOrKss) { 
-        document.getElementById('navInwaKSS').style.display = 'none'; 
-    } else {
-        document.getElementById('teamManagementCard').style.display = 'flex';
-        loadTeamForReset();
+        if(document.getElementById('navInwaKSS')) document.getElementById('navInwaKSS').style.display = 'none'; 
+        if(document.getElementById('navKierownik')) document.getElementById('navKierownik').style.display = 'none'; 
     }
 
     function toggleNav() { document.getElementById('sidebar').classList.toggle('active'); document.getElementById('overlay').classList.toggle('active'); }
@@ -383,208 +258,6 @@
             btn.innerText = "Zapisz Dane Profilu";
         });
     }
-
-    // ==========================================
-    // ZARZĄDZANIE ZESPOŁEM (RESET, USUWANIE, DODAWANIE & EDYCJA)
-    // ==========================================
-    function loadTeamForReset() {
-        db.ref(`Stores/${myStore}/Users`).on('value', snap => {
-            const usersObj = snap.val() || {};
-            let usersForReset = Object.keys(usersObj)
-                .map(key => ({ charId: key, ...usersObj[key] }))
-                .filter(u => u.charId !== 'ADMIN' && u.charId !== currentUser.charId);
-            
-            usersForReset.sort((a,b) => a.name.localeCompare(b.name, 'pl'));
-
-            let html = '';
-            if(usersForReset.length === 0) {
-                html = '<div style="color: #666; font-size:0.8rem; font-weight:bold; padding:20px; width:100%; text-align:center;">BRAK INNYCH UŻYTKOWNIKÓW W BAZIE.</div>';
-            } else {
-                usersForReset.forEach(u => {
-                    let uAvatar = u.avatar ? `<img src="${u.avatar}" style="width:100%; height:100%; object-fit:cover; border-radius:50%;">` : u.charId.charAt(0);
-                    let displayDept = (u.isKss && u.dept !== 'ME') ? 'KSS' : u.dept;
-                    
-                    html += `
-                    <div class="team-row">
-                        <div style="display:flex; align-items:center; gap:12px;">
-                            <div class="avatar-small">${uAvatar}</div>
-                            <div>
-                                <div style="font-size:0.9rem; font-weight:900; color:#fff;">${u.name}</div>
-                                <div style="font-size:0.65rem; font-weight:bold; color:#ffe800;">Dział: ${displayDept}</div>
-                            </div>
-                        </div>
-                        <div class="action-buttons-group">
-                            <button class="btn-edit-emp" onclick="openEditEmployeeModal('${u.charId}')">EDYTUJ</button>
-                            <button class="btn-reset" onclick="confirmPasswordReset('${u.charId}', '${u.name}')">RESET</button>
-                            <button class="btn-delete-emp" onclick="confirmDeleteEmployee('${u.charId}', '${u.name}')">USUŃ</button>
-                        </div>
-                    </div>`;
-                });
-            }
-            document.getElementById('teamList').innerHTML = html;
-        });
-    }
-
-    function confirmPasswordReset(empCharId, empName) {
-        if(confirm(`UWAGA!\nCzy na pewno chcesz zresetować hasło użytkownika ${empName}?\n\nPracownik zostanie wylogowany, a jego nowym hasłem do logowania stanie się jego kod CharID.`)) {
-            db.ref(`Stores/${myStore}/Users/${empCharId}`).update({ password: empCharId }).then(() => {
-                document.getElementById('resetEmpName').innerText = empName;
-                document.getElementById('resetEmpCode').innerText = empCharId;
-                document.getElementById('resetSuccessModal').style.display = 'flex';
-            }).catch(err => alert("Błąd połączenia z bazą: " + err.message));
-        }
-    }
-    function closeResetModal() { document.getElementById('resetSuccessModal').style.display = 'none'; }
-
-    function confirmDeleteEmployee(empCharId, empName) {
-        if(confirm(`OSTRZEŻENIE!\nCzy na pewno chcesz całkowicie USUNĄĆ pracownika ${empName} (Kod: ${empCharId}) z bazy sklepu?\n\nTej operacji nie można cofnąć, pracownik straci natychmiastowy dostęp do systemu.`)) {
-            db.ref(`Stores/${myStore}/Users/${empCharId}`).remove()
-                .then(() => alert(`Pracownik ${empName} został poprawnie usunięty z bazy.`))
-                .catch(err => alert("Błąd usuwania z bazy: " + err.message));
-        }
-    }
-
-    // ==========================================
-    // DODAWANIE PRACOWNIKA
-    // ==========================================
-    function openAddEmployeeModal() {
-        document.getElementById('addEmployeeModal').style.display = 'flex';
-        document.getElementById('newEmpName').value = '';
-        document.getElementById('newEmpCharId').value = '';
-        document.getElementById('newEmpDept').value = 'IT';
-        document.getElementById('newEmpIsKss').checked = false;
-        document.getElementById('addEmpMsg').style.display = 'none';
-    }
-
-    function closeAddEmployeeModal() {
-        document.getElementById('addEmployeeModal').style.display = 'none';
-    }
-
-    async function saveNewEmployee() {
-        const name = document.getElementById('newEmpName').value.trim();
-        let charId = document.getElementById('newEmpCharId').value.trim().toUpperCase().replace(/\s+/g, '');
-        const dept = document.getElementById('newEmpDept').value;
-        const isKss = document.getElementById('newEmpIsKss').checked;
-        const msgBox = document.getElementById('addEmpMsg');
-
-        msgBox.style.display = 'block';
-        msgBox.className = 'msg-box';
-
-        if(!name || !charId) {
-            msgBox.classList.add('msg-error');
-            msgBox.innerText = "Wypełnij Imię i Kod logowania!";
-            return;
-        }
-
-        try {
-            const snap = await db.ref(`Stores/${myStore}/Users/${charId}`).once('value');
-            if (snap.exists()) {
-                msgBox.classList.add('msg-error');
-                msgBox.innerText = "Taki kod (CharID) już istnieje w bazie! Wymyśl inny.";
-                return;
-            }
-
-            await db.ref(`Stores/${myStore}/Users/${charId}`).set({
-                charId: charId,
-                name: name,
-                dept: dept,
-                isKss: isKss,
-                password: charId, 
-                avatar: ""
-            });
-
-            msgBox.classList.add('msg-success');
-            msgBox.innerText = "Pracownik dodany pomyślnie!";
-            setTimeout(() => { closeAddEmployeeModal(); }, 1500);
-
-        } catch(e) {
-            msgBox.classList.add('msg-error');
-            msgBox.innerText = "Błąd komunikacji z chmurą: " + e.message;
-        }
-    }
-
-    // ==========================================
-    // EDYCJA PRACOWNIKA
-    // ==========================================
-    async function openEditEmployeeModal(charId) {
-        try {
-            const snap = await db.ref(`Stores/${myStore}/Users/${charId}`).once('value');
-            const user = snap.val();
-            
-            if(!user) return;
-
-            document.getElementById('editEmpOldCharId').value = charId;
-            document.getElementById('editEmpCharId').value = charId;
-            document.getElementById('editEmpName').value = user.name || '';
-            document.getElementById('editEmpDept').value = user.dept || 'IT';
-            document.getElementById('editEmpIsKss').checked = user.isKss || false;
-
-            document.getElementById('editEmpMsg').style.display = 'none';
-            document.getElementById('editEmployeeModal').style.display = 'flex';
-        } catch(e) {
-            alert("Błąd pobierania danych pracownika z bazy.");
-        }
-    }
-
-    function closeEditEmployeeModal() {
-        document.getElementById('editEmployeeModal').style.display = 'none';
-    }
-
-    async function saveEditedEmployee() {
-        const oldCharId = document.getElementById('editEmpOldCharId').value;
-        const name = document.getElementById('editEmpName').value.trim();
-        let newCharId = document.getElementById('editEmpCharId').value.trim().toUpperCase().replace(/\s+/g, '');
-        const dept = document.getElementById('editEmpDept').value;
-        const isKss = document.getElementById('editEmpIsKss').checked;
-        const msgBox = document.getElementById('editEmpMsg');
-
-        msgBox.style.display = 'block'; msgBox.className = 'msg-box';
-
-        if(!name || !newCharId) {
-            msgBox.classList.add('msg-error'); msgBox.innerText = "Wypełnij Imię i Kod logowania!"; return;
-        }
-
-        try {
-            if (oldCharId !== newCharId) {
-                // Sprawdzenie czy nowe CharID nie jest przypadkiem zajęte
-                const snapCheck = await db.ref(`Stores/${myStore}/Users/${newCharId}`).once('value');
-                if (snapCheck.exists()) {
-                    msgBox.classList.add('msg-error'); msgBox.innerText = "Taki Kod (CharID) jest już przypisany innej osobie!"; return;
-                }
-
-                // Kopiowanie danych na nowy klucz (CharID)
-                const oldSnap = await db.ref(`Stores/${myStore}/Users/${oldCharId}`).once('value');
-                let userData = oldSnap.val();
-                
-                userData.charId = newCharId;
-                userData.name = name;
-                userData.dept = dept;
-                userData.isKss = isKss;
-
-                // Jednoczesne dodanie nowego i usunięcie starego
-                let updates = {};
-                updates[`Stores/${myStore}/Users/${newCharId}`] = userData;
-                updates[`Stores/${myStore}/Users/${oldCharId}`] = null;
-                
-                await db.ref().update(updates);
-            } else {
-                // Aktualizacja bez zmiany klucza
-                await db.ref(`Stores/${myStore}/Users/${oldCharId}`).update({
-                    name: name,
-                    dept: dept,
-                    isKss: isKss
-                });
-            }
-
-            msgBox.classList.add('msg-success');
-            msgBox.innerText = "Dane zaktualizowane pomyślnie!";
-            setTimeout(() => { closeEditEmployeeModal(); }, 1500);
-
-        } catch(e) {
-            msgBox.classList.add('msg-error'); msgBox.innerText = "Błąd komunikacji z chmurą: " + e.message;
-        }
-    }
-
 
     // ==========================================
     // AWATARY I HASŁO WŁASNE
@@ -715,3 +388,5 @@
 </script>
 </body>
 </html>
+
+```

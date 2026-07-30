@@ -3,9 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Media Expert - AZS</title>
+    <title>Media Expert - Panel Kierownika</title>
+    
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='48' fill='%23ffe800'/><path d='M75.6,24.4c-9.1-9.1-23.9-9.1-33,0c-7.3,7.3-8.8,17.7-4.7,26.5L12.4,76.4c-1.6,1.6-1.6,4.1,0,5.7l5.5,5.5c1.6,1.6,4.1,1.6,5.7,0l25.5-25.5c8.8,4.1,19.2,2.6,26.5-4.7C84.7,48.3,84.7,33.5,75.6,24.4z M66.8,41.2c-3.1,3.1-8.2,3.1-11.3,0s-3.1-8.2,0-11.3s8.2-3.1,11.3,0S69.9,38.1,66.8,41.2z' fill='%23000'/></svg>">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/xlsx-js-style@1.2.0/dist/xlsx.bundle.js"></script>
     
     <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-database-compat.js"></script>
@@ -14,11 +16,9 @@
         const currentUser = JSON.parse(localStorage.getItem('currentUser'));
         const myStore = localStorage.getItem('myStore');
         
-        if (!currentUser || !myStore) { 
-            window.location.href = 'login.html'; 
-        }
-        
+        if (!currentUser || !myStore) { window.location.href = 'login.html'; }
         const isManagerOrKss = (currentUser.dept === 'ME' || currentUser.isKss);
+        if (!isManagerOrKss) { window.location.href = 'index.html'; }
 
         const firebaseConfig = {
             apiKey: "AIzaSyD0N6Bjyzs34piOoujEn9mxKir8LDGdD2k",
@@ -36,16 +36,13 @@
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Montserrat', sans-serif; }
         body { background: #080808; color: white; display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
-        ::-webkit-scrollbar { width: 12px; height: 12px; }
-        ::-webkit-scrollbar-track { background: #111; border-left: 1px solid #222; border-top: 1px solid #222; }
-        ::-webkit-scrollbar-thumb { background: #ffe800; border-radius: 2px; }
-        ::-webkit-scrollbar-thumb:hover { background: #e6d100; }
+        ::-webkit-scrollbar { width: 12px; height: 12px; } ::-webkit-scrollbar-track { background: #111; } ::-webkit-scrollbar-thumb { background: #ffe800; border-radius: 2px; }
         
-        /* HEADER I MENU */
-        header { background: #ffe800; height: 50px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; z-index: 9999; border-bottom: 2px solid #000; position: relative; box-shadow: 0 2px 10px rgba(255, 232, 0, 0.2); }
-        .logo { color: #000; font-weight: 900; font-size: 1.4rem; text-transform: uppercase; letter-spacing: 1px; }
+        header { background: #ffe800; height: 50px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; z-index: 9999; border-bottom: 2px solid #000; position: relative; }
+        .logo { color: #000; font-weight: 900; font-size: 1.2rem; text-transform: uppercase; letter-spacing: 1px; display: flex; align-items: center; gap: 10px;}
         .logo span { background: #000; color: #ffe800; padding: 0 6px; border-radius: 3px; }
-        .menu-btn { position: absolute; left: 15px; cursor: pointer; color: #000; font-size: 1.5rem; transition: 0.2s; }
+        .store-badge { font-size: 0.7rem; background: rgba(0,0,0,0.1); padding: 4px 8px; border-radius: 20px; font-weight: 800; border: 1px solid #000; }
+        .menu-btn { position: absolute; left: 15px; cursor: pointer; color: #000; font-size: 1.5rem; }
         
         .sidebar { position: fixed; left: -280px; top: 0; width: 260px; height: 100%; background: #0a0a0a; border-right: 3px solid #ffe800; transition: 0.4s; z-index: 10000; padding-top: 60px; display: flex; flex-direction: column; }
         .sidebar.active { left: 0; }
@@ -54,121 +51,78 @@
         .sidebar-link { display: block; color: white; padding: 15px 25px; text-decoration: none; font-weight: 700; font-size: 0.8rem; border-bottom: 1px solid #111; transition: 0.2s; }
         .sidebar-link:hover { background: #1a1a1a; color: #ffe800; padding-left: 35px; }
         
-        .sidebar-feedback, .sidebar-feedback:visited, .sidebar-feedback:link { 
-            display: block; 
-            margin-top: auto; 
-            background: #111; 
-            color: #ffe800 !important; 
-            padding: 15px 25px; 
-            text-decoration: none !important; 
-            font-weight: 900; 
-            font-size: 0.8rem; 
-            border-top: 1px solid #222; 
-            border-bottom: 1px solid #222; 
-            transition: 0.3s; 
-            text-transform: uppercase; 
-            letter-spacing: 0.5px; 
-        }
-        .sidebar-feedback:hover { 
-            background: #ffe800 !important; 
-            color: #000 !important; 
-            padding-left: 35px; 
-        }
+        .sidebar-feedback { display: block; margin-top: auto; background: #111; color: #ffe800 !important; padding: 15px 25px; text-decoration: none !important; font-weight: 900; font-size: 0.8rem; border-top: 1px solid #222; border-bottom: 1px solid #222; transition: 0.3s; text-transform: uppercase; letter-spacing: 0.5px; }
+        .sidebar-feedback:hover { background: #ffe800 !important; color: #000 !important; padding-left: 35px; }
         
-        .user-profile { padding: 15px 20px; border-top: 2px solid #1a1a1a; display: flex; align-items: center; gap: 15px; cursor: pointer; transition: 0.3s; background: #0f0f0f; }
-        .user-profile:hover { background: #151515; }
-        .user-profile:hover .user-settings { color: #ffe800; }
-        .user-avatar { width: 45px; height: 45px; border-radius: 50%; background: #151515; border: 2px solid #ffe800; display: flex; align-items: center; justify-content: center; font-weight: 900; color: #ffe800; font-size: 1.2rem; flex-shrink: 0; box-shadow: inset 0 0 10px rgba(0,0,0,0.8); overflow: hidden; }
+        .user-profile { padding: 15px 20px; display: flex; align-items: center; gap: 15px; cursor: pointer; background: #151515; }
+        .user-avatar { width: 45px; height: 45px; border-radius: 50%; background: #151515; border: 2px solid #ffe800; display: flex; align-items: center; justify-content: center; font-weight: 900; color: #ffe800; font-size: 1.2rem; flex-shrink: 0; overflow: hidden; }
         .user-info { display: flex; flex-direction: column; }
-        .user-name { font-weight: 900; font-size: 0.85rem; color: #fff; letter-spacing: 0.5px; }
-        .user-settings { font-size: 0.65rem; color: #888; font-weight: 700; margin-top: 4px; transition: 0.2s; }
-        .logout-btn { display: block; width: 100%; text-align: center; background: transparent; color: #f44; border: none; border-top: 1px solid #1a1a1a; padding: 15px; font-weight: 900; font-size: 0.8rem; cursor: pointer; transition: 0.3s; text-transform: uppercase; letter-spacing: 1px; }
-        .logout-btn:hover { background: #f44; color: #000; }
+        .user-name { font-weight: 900; font-size: 0.85rem; color: #fff; }
+        .user-settings { font-size: 0.65rem; color: #888; font-weight: 700; margin-top: 4px; }
+        .logout-btn { display: block; width: 100%; text-align: center; background: transparent; color: #f44; border: none; border-top: 1px solid #1a1a1a; padding: 15px; font-weight: 900; font-size: 0.8rem; cursor: pointer; text-transform: uppercase; }
         .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.8); display: none; z-index: 9500; }
         .overlay.active { display: block; }
+        
+        .content { flex-grow: 1; overflow-y: auto; padding: 30px 20px; }
+        .content-inner { max-width: 1200px; margin: 0 auto; }
+        .page-title { font-size: 2rem; font-weight: 900; margin-bottom: 30px; text-transform: uppercase; text-align: center; } .page-title span { color: #ffe800; }
+        
+        .main-admin-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; align-items: start; margin-bottom: 20px; }
+        @media (max-width: 1000px) { .main-admin-grid { grid-template-columns: 1fr; } }
 
-        /* ZAWARTOŚĆ AZS */
-        .navigation-area { background: #111; border-bottom: 2px solid #ffe800; flex-shrink: 0; padding: 10px 15px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; z-index: 800; }
-        .controls-group { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
-        select { background: #000; color: #fff; border: 1px solid #ffe800; padding: 8px 12px; font-weight: 900; border-radius: 8px; outline: none; cursor: pointer; font-size: 0.8rem; }
-        .btn-gen { background: #ffe800; color: #000; border: none; padding: 8px 15px; font-weight: 900; border-radius: 8px; cursor: pointer; font-size: 0.8rem; transition: 0.3s; text-transform: uppercase; }
-        .btn-print { background: #3498db; color: #fff; border: none; padding: 8px 15px; font-weight: 900; border-radius: 8px; cursor: pointer; font-size: 0.8rem; transition: 0.3s; text-transform: uppercase; }
+        .card { background: #111; border: 1px solid #333; border-radius: 15px; padding: 25px; display: flex; flex-direction: column; gap: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.5); }
+        .card.full-width { grid-column: 1 / -1; }
+        .card-title { color: #ffe800; font-weight: 900; font-size: 1.2rem; border-bottom: 1px solid #333; padding-bottom: 10px; margin-bottom: 10px; text-transform: uppercase; display: flex; justify-content: space-between; align-items: center; }
         
-        .azs-title { text-align: center; color: #ffe800; font-weight: 900; font-size: 1.5rem; margin-top: 10px; text-transform: uppercase; letter-spacing: 2px; }
-        .azs-dates { text-align: center; color: #888; font-weight: 700; font-size: 1rem; margin-bottom: 10px; margin-top: 5px;}
+        .input-group { display: flex; flex-direction: column; gap: 5px; margin-bottom: 10px; }
+        .input-group label { font-size: 0.75rem; color: #888; font-weight: 800; text-transform: uppercase;}
+        .form-input { background: #0a0a0a; border: 1px solid #333; color: #fff; padding: 12px; border-radius: 8px; font-size: 0.9rem; font-weight: bold; outline: none; }
+        .form-input:focus { border-color: #ffe800; }
+        textarea.form-input { resize: vertical; min-height: 80px; }
+        select { cursor: pointer; }
+        select option[disabled] { color: #555; font-weight: bold; background: #000; text-align: center; }
         
-        .table-container { 
-            flex: 1; 
-            overflow: auto; 
-            background: #080808; 
-            width: 100%; 
-            padding: 0 10px 10px 10px; 
-            position: relative; 
-        }
+        .btn-action { background: #ffe800; color: #000; border: none; padding: 12px; font-weight: 900; border-radius: 8px; cursor: pointer; text-transform: uppercase; margin-top: 10px; transition:0.3s;}
+        .btn-action:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(255,232,0,0.3); }
+        .btn-action:disabled { background: #333; color: #666; cursor: not-allowed; }
         
-        table { 
-            border-collapse: separate; 
-            border-spacing: 0; 
-            width: 100%; 
-            min-width: 1500px; 
-            background: #111; 
-            border: 2px solid #333; 
-        }
-        
-        thead { position: sticky; top: 0; z-index: 1000; background: #1a1a1a; box-shadow: 0 2px 10px rgba(0,0,0,0.8); }
-        thead th { padding: 10px 5px; border-right: 1px solid #333; border-bottom: 1px solid #333; font-size: 0.65rem; color: #ffe800; text-transform: uppercase; }
-        .header-main-row th { border-bottom: 3px solid #ffe800; }
-        .th-task { width: 350px; text-align: left; padding-left: 15px !important; border-left: 1px solid #333; }
-        .th-day { width: 75px; text-align: center; }
-        .th-sign { width: 75px; text-align: center; background: #0a0a0a; color: #888; border-bottom: 3px solid #ffe800; }
-        
-        tbody tr { height: 65px; transition: background-color 0.2s; }
-        tbody tr:hover { background-color: #1a1a1a; }
-        td { border-right: 1px solid #333; border-bottom: 1px solid #333; padding: 5px 10px; font-size: 0.75rem; font-weight: 700; color: #fff; text-align: center; vertical-align: middle; }
-        td:first-child { border-left: 1px solid #333; }
-        
-        .td-task { text-align: left; padding-left: 15px; font-size: 0.65rem; color: #ccc; font-weight: 600; line-height: 1.3; }
-        .td-name { color: #ffe800; font-weight: 900; text-transform: uppercase; letter-spacing: 0.5px; }
-        .td-blocked { background-color: #000 !important; color: transparent !important; }
-        .td-sign { background: #151515; } 
-        
-        .error-msg { text-align: center; color: #f44; font-weight: bold; margin-top: 20px; font-size: 1.2rem; display: none; }
+        .msg-box { padding: 10px; border-radius: 5px; font-size: 0.8rem; font-weight: bold; text-align: center; display: none; margin-top: 10px; }
+        .msg-error { background: rgba(255, 68, 68, 0.2); border: 1px solid #f44; color: #f44; }
+        .msg-success { background: rgba(0, 170, 0, 0.2); border: 1px solid #0a0; color: #0a0; }
 
-        .loading-overlay { position: absolute; inset: 0; background: rgba(0,0,0,0.8); z-index: 2000; display: flex; align-items: center; justify-content: center; color: #ffe800; font-weight: bold; font-size: 1.5rem; display: none; flex-direction: column;}
-        .loading-overlay span { font-size: 0.8rem; color: #ccc; margin-top: 10px; font-weight: normal;}
+        .team-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; flex-wrap: wrap; gap: 10px;}
+        .btn-add-emp { background: #0a0; color: #fff; border: none; padding: 10px 20px; border-radius: 8px; font-weight: 900; font-size: 0.8rem; cursor: pointer; text-transform: uppercase; transition: 0.3s;}
+        .btn-add-emp:hover { background: #0c0; box-shadow: 0 4px 10px rgba(0,170,0,0.3); transform: translateY(-2px); }
 
-        @keyframes blink { 0% { opacity: 1; } 50% { opacity: 0.3; } 100% { opacity: 1; } }
-        .nav-alert { color: #f44; font-weight: 900; animation: blink 1s infinite; font-size: 1rem; margin-left: 5px; }
-        .btn-alert { color: #f44; font-weight: 900; animation: blink 1s infinite; margin-left: 4px; font-size: 0.85rem; }
+        .team-list-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); gap: 15px; margin-top: 10px; }
+        .team-row { display: flex; justify-content: space-between; align-items: center; background: #0a0a0a; padding: 15px; border-radius: 10px; border: 1px solid #222; transition: 0.3s; }
+        .team-row:hover { border-color: #ffe800; background: #151515; box-shadow: 0 5px 15px rgba(0,0,0,0.5); }
+        .avatar-small { width: 45px; height: 45px; border-radius: 50%; background: #151515; border: 2px solid #ffe800; display: flex; align-items: center; justify-content: center; font-weight: 900; color: #ffe800; font-size: 1.1rem; overflow: hidden; flex-shrink: 0; }
+        
+        .action-buttons-group { display: flex; gap: 8px; }
+        .btn-edit-emp { background: transparent; border: 1px solid #0a0; color: #0a0; padding: 8px 12px; border-radius: 5px; font-weight: 900; font-size: 0.65rem; cursor: pointer; transition: 0.3s; text-transform: uppercase; }
+        .btn-edit-emp:hover { background: #0a0; color: #000; }
+        .btn-reset { background: transparent; border: 1px solid #ffe800; color: #ffe800; padding: 8px 12px; border-radius: 5px; font-weight: 900; font-size: 0.65rem; cursor: pointer; transition: 0.3s; text-transform: uppercase; }
+        .btn-reset:hover { background: #ffe800; color: #000; }
+        .btn-delete-emp { background: transparent; border: 1px solid #f44; color: #f44; padding: 8px 12px; border-radius: 5px; font-weight: 900; font-size: 0.65rem; cursor: pointer; transition: 0.3s; text-transform: uppercase; }
+        .btn-delete-emp:hover { background: #f44; color: #000; }
 
-        /* STYL MODALA POWIADOMIEŃ */
+        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 11000; align-items: center; justify-content: center; padding: 20px; backdrop-filter: blur(5px); }
+        .modal-content { background: #0a0a0a; border: 2px solid #ffe800; padding: 30px; width: 100%; max-width: 450px; border-radius: 15px; text-align: center; box-shadow: 0 0 30px rgba(255, 232, 0, 0.2); }
+        
+        .role-checkboxes { background: #111; border: 1px solid #333; padding: 15px; border-radius: 8px; display: flex; flex-direction: column; gap: 10px; margin-top: 15px; text-align: left; }
+        .role-label { color: #fff; font-size: 0.85rem; display: flex; align-items: center; gap: 10px; cursor: pointer; }
+        .role-label input { width: 18px; height: 18px; cursor: pointer; accent-color: #ffe800; }
+
         #globalNotificationModal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 15000; align-items: center; justify-content: center; padding: 20px; backdrop-filter: blur(5px); }
         #popupBox { background: #0a0a0a; border: 3px solid #ffe800; padding: 30px; width: 100%; max-width: 500px; border-radius: 15px; text-align: center; box-shadow: 0 0 30px rgba(0,0,0,0.5); }
         #globalPopupTitle { margin-bottom: 15px; font-size: 1.3rem; text-transform: uppercase; font-weight: 900; }
         #globalPopupMsg { color: #fff; font-size: 1rem; margin-bottom: 25px; line-height: 1.5; font-weight: 700; }
         .btn-close-popup { width: 100%; background: #ffe800; color: #000; border: none; padding: 12px 20px; font-weight: 900; border-radius: 8px; cursor: pointer; text-transform: uppercase; transition: 0.2s; }
         .btn-close-popup:hover { transform: scale(1.02); }
-
-        @media print {
-            @page { size: A4 landscape; margin: 3mm 8mm; } 
-            body { background: white; color: black; font-family: Arial, sans-serif; overflow: visible; margin: 0; padding: 0; height: auto; }
-            header, .sidebar, .overlay, .navigation-area, .menu-btn, .error-msg, .loading-overlay { display: none !important; }
-            .table-container { overflow: visible; padding: 0; height: auto; width: 100%; display: block; }
-            .azs-title { color: black; margin-top: 0; font-size: 13px; margin-bottom: 2px; }
-            .azs-dates { color: black; font-size: 10px; font-weight: bold; margin-bottom: 5px; }
-            table { min-width: 100%; border: 2px solid black; background: white; table-layout: fixed; margin: 0; }
-            thead { position: static !important; }
-            thead th { background: #eee !important; color: black !important; border: 1px solid black !important; font-size: 6.5px !important; padding: 2px !important; }
-            .header-main-row th { border-bottom: 1px solid black !important; }
-            tbody tr { border-bottom: 1px solid black; height: auto !important; }
-            td { border: 1px solid black !important; color: black !important; padding: 1.5px 2px !important; font-size: 6.5px !important; line-height: 1 !important; }
-            .th-task { width: 33%; } 
-            .td-task { font-weight: bold; font-size: 5.5px !important; padding-left: 2px !important; word-wrap: break-word; }
-            .td-name { font-weight: 900; font-size: 6.5px !important; }
-            .td-blocked { background-color: #666 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; color: transparent !important; } 
-            .td-sign { background: white !important; }
-            tr, td, th { page-break-inside: avoid !important; }
-        }
+        
+        .push-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        @media (max-width: 768px) { .push-grid { grid-template-columns: 1fr; } }
     </style>
 </head>
 <body>
@@ -176,6 +130,7 @@
 <header>
     <div class="menu-btn" onclick="toggleNav()">☰</div>
     <div class="logo">EXPERT <span>TOOL</span></div>
+    <div class="store-badge" id="headerStore">SXXX</div>
 </header>
 
 <div class="sidebar" id="sidebar">
@@ -184,11 +139,11 @@
         <a href="index.html" class="sidebar-link">Strona główna</a>
         <a href="plan.html" class="sidebar-link">Plan pracy</a>
         <a href="inwa.html" class="sidebar-link">Inwentury</a>
-        <!-- Poprawione ID wykrzyknika dla inwentur KSS/ME -->
         <a href="inwak.html" class="sidebar-link" id="navInwaKSS">Inwentury (ME/KSS) <span id="kssAlertBadge"></span></a>
-        <a href="azs.html" class="sidebar-link" style="color:#ffe800">AZS (Agenda Zadań)</a>
+        <a href="azs.html" class="sidebar-link">AZS</a>
         <a href="kwt.html" class="sidebar-link">KWT</a>
-        <a href="kierownik.html" class="sidebar-link" id="navKierownik">Centrum Dowodzenia</a>
+        <!-- Podświetlone tylko w Centrum Dowodzenia -->
+        <a href="kierownik.html" class="sidebar-link" style="color:#ffe800; border-left: 4px solid #ffe800; background: #1a1a1a;">Centrum Dowodzenia</a>
         <a href="feedback.html" class="sidebar-feedback">💡 Zgłoś problem / Pomysł</a>
     </div>
     <div class="user-profile" onclick="window.location.href='ustawienia.html'">
@@ -202,321 +157,584 @@
 </div>
 <div class="overlay" id="overlay" onclick="toggleNav()"></div>
 
-<div class="navigation-area">
-    <div class="controls-group">
-        <select id="monthSelect" onchange="updateWeeks()"></select>
-        <select id="weekSelect"></select>
-        <button class="btn-gen" onclick="generateAZS()">🔄 GENERUJ AZS Z PLANU</button>
+<div class="content">
+    <div class="content-inner">
+        <h1 class="page-title">CENTRUM <span>DOWODZENIA</span></h1>
+        
+        <div class="main-admin-grid">
+            
+            <!-- SYSTEM POWIADOMIEŃ (PUSH) -->
+            <div class="card" style="border-color: #3498db; box-shadow: 0 5px 20px rgba(52, 152, 219, 0.15);">
+                <div class="card-title" style="color: #3498db; border-bottom-color: #3498db;">
+                    📢 SYSTEM POWIADOMIEŃ (PUSH)
+                </div>
+                <p style="font-size: 0.8rem; color: #888; margin-top:-5px; margin-bottom:10px;">Wysyłaj komunikaty do całego sklepu, wybranych działów lub pojedynczych osób.</p>
+                
+                <div class="push-grid">
+                    <div>
+                        <div class="input-group">
+                            <label>DO KOGO WYSŁAĆ?</label>
+                            <select id="pushTarget" class="form-input">
+                                <option value="ALL">📢 DO WSZYSTKICH</option>
+                                <option value="KSS">👑 TYLKO KIEROWNICTWO (KSS/ME)</option>
+                                <option disabled>───────────────</option>
+                                <option value="DEPT_IT">💻 CAŁY DZIAŁ IT</option>
+                                <option value="DEPT_AGD">🧺 CAŁY DZIAŁ AGD</option>
+                                <option value="DEPT_RTV">📺 CAŁY DZIAŁ RTV</option>
+                                <option value="DEPT_RS">📱 CAŁY DZIAŁ RS</option>
+                                <option value="DEPT_POK">🛒 CAŁY DZIAŁ POK</option>
+                            </select>
+                        </div>
+                        <div class="input-group">
+                            <label>PRIORYTET WIADOMOŚCI</label>
+                            <select id="pushType" class="form-input">
+                                <option value="warning">🟡 ZWYKŁA (Żółta)</option>
+                                <option value="success">🟢 POZYTYWNA (Zielona)</option>
+                                <option value="error">🔴 PILNE / BŁĄD (Czerwona)</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="input-group">
+                            <label>TYTUŁ</label>
+                            <input type="text" id="pushTitle" class="form-input" placeholder="np. UWAGA! Zmiana w grafiku">
+                        </div>
+                        <div class="input-group">
+                            <label>TREŚĆ KOMUNIKATU</label>
+                            <textarea id="pushMsg" class="form-input" placeholder="Wpisz treść komunikatu..."></textarea>
+                        </div>
+                    </div>
+                </div>
+                <div id="pushStatus" class="msg-box"></div>
+                <button class="btn-action" style="background: #3498db; color: #fff; width: 100%;" onclick="sendPushNotification()">🚀 WYŚLIJ POWIADOMIENIE TERAZ</button>
+            </div>
+
+            <!-- TABLICA OGŁOSZEŃ (PINBOARD) -->
+            <div class="card" style="border-color: #ffe800; box-shadow: 0 5px 20px rgba(255, 232, 0, 0.15);">
+                <div class="card-title" style="color: #ffe800; border-bottom-color: #ffe800;">
+                    📌 TABLICA OGŁOSZEŃ (PINBOARD)
+                </div>
+                <p style="font-size: 0.8rem; color: #888; margin-top:-5px; margin-bottom:10px;">Wiadomość "przyklejona" na stałe na samej górze strony głównej dla całej załogi.</p>
+                <div class="input-group">
+                    <label>TYTUŁ (np. CEL TYGODNIA)</label>
+                    <input type="text" id="pinTitle" class="form-input" placeholder="Wpisz tytuł...">
+                </div>
+                <div class="input-group">
+                    <label>TREŚĆ KOMUNIKATU</label>
+                    <textarea id="pinMsg" class="form-input" placeholder="Wpisz treść..."></textarea>
+                </div>
+                <div style="display:flex; gap:10px; margin-top:10px;">
+                    <button class="btn-action" style="flex:1; background: #f44; color: #fff;" onclick="clearPinboard()">🗑️ USUŃ OGŁOSZENIE</button>
+                    <button class="btn-action" style="flex:2;" onclick="savePinboard()">📌 PRZYKLEJ NA STRONIE</button>
+                </div>
+            </div>
+            
+            <!-- RAPORTY EXCEL -->
+            <div class="card full-width" style="border-color: #1d6f42;">
+                <div class="card-title" style="color: #1d6f42; border-bottom-color: #1d6f42;">
+                    📊 GENERATOR RAPORTÓW (EXCEL)
+                </div>
+                <p style="font-size: 0.8rem; color: #888; margin-top:-5px; margin-bottom:10px;">Pobierz zbiorczy raport ze wszystkich działań na sklepie do jednego pliku Excel.</p>
+                <div style="display:flex; gap:10px; align-items: center; flex-wrap: wrap;">
+                    <select id="reportMonth" class="form-input" style="flex:1; margin:0; min-width:200px;">
+                        <!-- Miesiące wygenerują się z JS -->
+                    </select>
+                    <button class="btn-action" style="flex:2; margin:0; background: #1d6f42; color: #fff; min-width: 250px;" onclick="generateExcelReport()">📥 POBIERZ RAPORT Z TEGO MIESIĄCA</button>
+                </div>
+            </div>
+
+            <!-- ZARZĄDZANIE ZESPOŁEM (UKŁAD PIONOWY POD IMIENIEM) -->
+            <div class="card full-width">
+                <div class="card-title">Zarządzanie Zespołem</div>
+                <div class="team-header">
+                    <p style="font-size:0.8rem; color:#888; margin:0;">Zarządzaj załogą, resetuj hasła i nadawaj uprawnienia.</p>
+                    <button class="btn-add-emp" onclick="openAddEmployeeModal()">+ Nowy Pracownik</button>
+                </div>
+                <div class="team-list-grid" id="teamList">
+                    <div style="color: #666; font-size:0.8rem; font-weight:bold; width:100%; text-align:center; padding:20px;">POBIERANIE DANYCH EKIPY...</div>
+                </div>
+            </div>
+
+        </div>
     </div>
-    <button class="btn-print" onclick="window.print()">🖨️ DRUKUJ AZS</button>
 </div>
 
-<div class="azs-title">AGENDA ZADAŃ SKLEPU (AZS)</div>
-<div class="azs-dates" id="azsDates">Wybierz tydzień i kliknij generuj...</div>
-<div id="errorMsg" class="error-msg">⚠️ BRAK DANYCH GRAFIKU W BAZIE - Wygenerowano pustą listę zadań. Wygeneruj plan pracy!</div>
+<!-- ========================================== -->
+<!-- MODALE DO ZARZĄDZANIA ZESPOŁEM             -->
+<!-- ========================================== -->
 
-<div class="table-container">
-    <div class="loading-overlay" id="loadingData">Pobieranie z chmury... <span>Synchronizacja grafiku</span></div>
-    
-    <table id="azsTable">
-        <thead>
-            <tr>
-                <th rowspan="2" class="th-task">NAZWISKA OSÓB ODPOWIEDZIALNYCH ZA WYKONANIE ZADANIA:</th>
-                <th colspan="7" style="border-right: 2px solid #ffe800; font-size:0.8rem;">PRZYPISANE OSOBY</th>
-                <th colspan="7" style="font-size:0.8rem;">TU PODPISUJĄ SIĘ OSOBY PO WYKONANIU ZADANIA:</th>
-            </tr>
-            <tr class="header-main-row">
-                <th class="th-day">PON</th><th class="th-day">WTO</th><th class="th-day">ŚRO</th>
-                <th class="th-day">CZW</th><th class="th-day">PIĄ</th><th class="th-day">SOB</th>
-                <th class="th-day" style="border-right: 2px solid #ffe800;">NIE</th>
-                <th class="th-sign">PON</th><th class="th-sign">WTO</th><th class="th-sign">ŚRO</th>
-                <th class="th-sign">CZW</th><th class="th-sign">PIĄ</th><th class="th-sign">SOB</th><th class="th-sign">NIE</th>
-            </tr>
-        </thead>
-        <tbody id="azsBody"></tbody>
-    </table>
+<div class="modal" id="resetSuccessModal">
+    <div class="modal-content" style="max-width: 400px;">
+        <h3 style="color:#0a0; margin-bottom:15px; font-size:1.3rem;">HASŁO ZRESETOWANE!</h3>
+        <p style="color:#ccc; font-size:0.9rem; margin-bottom:15px;">Przekaż pracownikowi <strong id="resetEmpName" style="color:#fff;"></strong> ten kod, aby mógł zalogować się ponownie i ustawić sobie nowe hasło:</p>
+        <div style="background:#000; border:2px dashed #ffe800; padding:15px; font-size:2rem; font-weight:900; color:#ffe800; letter-spacing:4px; margin-bottom:20px; border-radius:10px;" id="resetEmpCode">KOD</div>
+        <button class="btn-action" style="width:100%; background:#0a0; color:#fff;" onclick="closeResetModal()">ZROZUMIAŁEM</button>
+    </div>
 </div>
 
-<!-- Globalne Powiadomienia -->
-<div id="globalNotificationModal">
-    <div id="popupBox">
-        <h3 id="globalPopupTitle">POWIADOMIENIE</h3>
-        <p id="globalPopupMsg"></p>
-        <button class="btn-close-popup" onclick="closeGlobalPopup()">ZROZUMIAŁEM</button>
+<div class="modal" id="addEmployeeModal">
+    <div class="modal-content" style="max-width: 450px;">
+        <h3 style="color:#ffe800; margin-bottom:15px; text-align:center; font-size: 1.3rem;">DODAJ PRACOWNIKA</h3>
+        <div class="input-group" style="text-align: left;">
+            <label>Imię (widoczne w systemie)</label>
+            <input type="text" class="form-input" id="newEmpName" placeholder="np. Tomasz">
+        </div>
+        <div class="input-group" style="text-align: left;">
+            <label>Unikalny Kod Logowania (CharID)</label>
+            <input type="text" class="form-input" id="newEmpCharId" placeholder="np. TOMEK1 (bez spacji)">
+        </div>
+        <div class="input-group" style="text-align: left;">
+            <label>Dział</label>
+            <select class="form-input" id="newEmpDept">
+                <option value="IT">Dział IT</option><option value="RTV">Dział RTV</option>
+                <option value="AGD">Dział AGD</option><option value="RS">Dział RS</option>
+                <option value="POK">Punkt Obsługi Klienta (POK)</option>
+                <option value="ME">Kierownik Sklepu (ME)</option>
+            </select>
+        </div>
+        <div class="role-checkboxes">
+            <label class="role-label"><input type="checkbox" id="newEmpIsKss"> Pracownik posiada uprawnienia KSS</label>
+            <label class="role-label"><input type="checkbox" id="newEmpTiles"> Pozwól edytować kafelki na stronie głównej</label>
+        </div>
+        <div id="addEmpMsg" class="msg-box"></div>
+        <div style="display:flex; gap:10px; margin-top:25px;">
+            <button class="btn-action" style="flex:1; background:#333; color:#fff; margin-top:0;" onclick="closeAddEmployeeModal()">ANULUJ</button>
+            <button class="btn-action" style="flex:2; margin-top:0;" onclick="saveNewEmployee()">DODAJ DO BAZY</button>
+        </div>
+    </div>
+</div>
+
+<div class="modal" id="editEmployeeModal">
+    <div class="modal-content" style="max-width: 450px;">
+        <h3 style="color:#ffe800; margin-bottom:15px; text-align:center; font-size: 1.3rem;">EDYTUJ PRACOWNIKA</h3>
+        <input type="hidden" id="editEmpOldCharId">
+
+        <div class="input-group" style="text-align: left;">
+            <label>Imię</label>
+            <input type="text" class="form-input" id="editEmpName">
+        </div>
+        <div class="input-group" style="text-align: left;">
+            <label>Kod Logowania (CharID) <span style="color:#f44; font-size:0.6rem;">(UWAGA!)</span></label>
+            <input type="text" class="form-input" id="editEmpCharId">
+            <span style="font-size:0.6rem; color:#888; margin-top:3px;">Zmiana kodu odepnie pracownika od planu pracy! Rób to tylko, jeśli musisz.</span>
+        </div>
+        <div class="input-group" style="text-align: left;">
+            <label>Dział</label>
+            <select class="form-input" id="editEmpDept">
+                <option value="IT">Dział IT</option><option value="RTV">Dział RTV</option>
+                <option value="AGD">Dział AGD</option><option value="RS">Dział RS</option>
+                <option value="POK">Punkt Obsługi Klienta (POK)</option>
+                <option value="ME">Kierownik Sklepu (ME)</option>
+            </select>
+        </div>
+        <div class="role-checkboxes">
+            <label class="role-label"><input type="checkbox" id="editEmpIsKss"> Pracownik posiada uprawnienia KSS</label>
+            <label class="role-label"><input type="checkbox" id="editEmpTiles"> Pozwól edytować kafelki na stronie głównej</label>
+        </div>
+        <div id="editEmpMsg" class="msg-box"></div>
+        <div style="display:flex; gap:10px; margin-top:25px;">
+            <button class="btn-action" style="flex:1; background:#333; color:#fff; margin-top:0;" onclick="closeEditEmployeeModal()">ANULUJ</button>
+            <button class="btn-action" style="flex:2; margin-top:0;" onclick="saveEditedEmployee()">ZAPISZ ZMIANY</button>
+        </div>
     </div>
 </div>
 
 <script>
-    document.getElementById('sideName').innerText = currentUser ? `${currentUser.name} (${currentUser.dept})` : 'Zaloguj się';
-    
-    const sideAvatarHtml = currentUser.avatar ? `<img src="${currentUser.avatar}" style="width:100%; height:100%; object-fit:cover; border-radius:50%;">` : currentUser.charId.charAt(0);
-    document.getElementById('sideAvatar').innerHTML = sideAvatarHtml;
-    
-    if(!isManagerOrKss) { 
-        if(document.getElementById('navInwaKSS')) document.getElementById('navInwaKSS').style.display = 'none'; 
-        if(document.getElementById('navKierownik')) document.getElementById('navKierownik').style.display = 'none'; 
-    }
-    
+    // INICJALIZACJA UI
+    document.getElementById('headerStore').innerText = myStore;
+    let finalDept = currentUser.dept; if(currentUser.isKss && currentUser.dept !== 'ME') finalDept = 'KSS';
+    document.getElementById('sideName').innerText = `${currentUser.name} (${finalDept})`;
+
+    const avatarHtml = currentUser.avatar ? `<img src="${currentUser.avatar}" style="width:100%; height:100%; object-fit:cover; border-radius:50%;">` : currentUser.charId.charAt(0);
+    document.getElementById('sideAvatar').innerHTML = avatarHtml;
+
     function toggleNav() { document.getElementById('sidebar').classList.toggle('active'); document.getElementById('overlay').classList.toggle('active'); }
     function logout() { localStorage.removeItem('currentUser'); window.location.href = 'login.html'; }
 
-    let employees = [];
-    let localPlanData = {};
-    const year = 2026;
     const months = ["STYCZEŃ", "LUTY", "MARZEC", "KWIECIEŃ", "MAJ", "CZERWIEC", "LIPIEC", "SIERPIEŃ", "WRZESIEŃ", "PAŹDZIERNIK", "LISTOPAD", "GRUDZIEŃ"];
-    let currentWeeks = [];
+    let globalUsersList = [];
 
-    const azsTasksData = [
-        { name: "Reagowanie na SMS i KOMUNIKAT W MARKECIE informujący o złożeniu zamówienia OZG i SZS + wysłanie potwierdzenia max. do 15 minut", days: [1,2,3,4,5,6] },
-        { name: "Zatwierdzanie OZG i SZS z NOCY do 15 minut od włączenia Marketu w sklepie", days: [1,2,3,4,5,6] },
-        { name: "Osoba odpowiedzialna za odbieranie TELEFONÓW SKLEPOWYCH w ciągu dnia + za utrzymywanie ich maksymalnej głośności i naładowania baterii", days: [1,2,3,4,5,6] },
-        { name: "Wydruk CENÓWEK + Wydruk RAPORTU WYWIESZEK KORZYŚCI i sprawdzenie wszystkich WYWIESZEK KORZYŚCI do wywieszenia oraz tych do usunięcia", days: [1,2,3,4,5,6] },
-        { name: "Porządek i bezpieczeństwo SOCJAL, MAGAZYN, pozostałe pomieszczenia + OTOCZENIE SKLEPU i NAMIOTU, w tym kontrola FLAG i LOGO ŚWIETLNEGO", days: [1,2,3,4,5,6] },
-        { name: "Kontrola: Brak zalegających DOKUMENTÓW na widoku + PORZĄDEK POK, SERWIS, STANOWISKA KOMPUTEROWE + ODKURZANIE SALI SPRZEDAŻY", days: [1,2,3,4,5,6] },
-        { name: "Wystawienie POTYKACZY + uzupełnianie obowiązujących materiałów DRUKOWANYCH", days: [1,2,3,4,5,6] },
-        { name: "Uzupełnienie LODÓWKI Z NAPOJAMI (LAYOUT) + EKSPOZYCJI NA POK + KOSZYKA Z DROBNYM SLW NA POK (towar + zamówienia)", days: [1,2,3,4,5,6] },
-        { name: "Wykonanie FORMATEK zgodnie z datami podanymi na TOL", days: [1,2,3,4,5,6] },
-        { name: "Kontrola dokumentów MM przyjęcia zatwierdzonych w nocy + informacja o tym fakcie do KE/KSS", days: [1,2,3,4,5,6] },
-        { name: "Weryfikacja ilości i wartości zamówień OZG i MESK i PWS do dbioru w danym dniu + informacja do KE/KSS maksymalnie godzinę po otwarciu sklepu", days: [1,2,3,4,5,6] },
-        { name: "Przekazanie informacji Pracownikom POK na temat OZG i MESK O WARTOŚCI POWYŻEJ 500 ZŁ w celu zapewnienia dosprzedaży", days: [1,2,3,4,5,6] },
-        { name: "Kontrola: Włączony radiowęzeł oraz MUZYKA na wszystkich nośnikach + Przestrzeganie zakazu odtwarzania treści chron. prawem autorskim", days: [1,2,3,4,5,6] },
-        { name: "Kontrola: Włączone wszystkie TOWARY objęte obowiązkiem włączenia + Włączone i zapętlone wszystkie obowiązkowe prezentacje", days: [1,2,3,4,5,6] },
-        { name: "Kontrola: Na wszystkich SZCZYTACH, WYSPACH, KOSZACH i EKSPOZYTORACH Prawidłowe MODELE, CENY, WYWIESZKI i WYSTAWIENIE 100% SZTUK towarów", days: [1,2,3,4,5,6] },
-        { name: "Kontrola: Uzupełnione DZIURY towarowe we wszystkich DZIAŁACH + informacja o tym fakcie do KE/KSS", days: [1,2,3,4,5,6] },
-        { name: "Kontrola POPRAWNOŚCI CEN wg HARMONOGRAMU + w grupach, w których wystąpiła NIEZGODNA CENA SYSTEMOWA", days: [1,2,3,4,5,6] },
-        { name: "Przyjęcie TOWARU + wydruk z Marketu RAPORTU NOWYCH TOWARÓW, żeby wiedzieć co należy wystawić na półkę", days: [1,2,3,4,5,6] },
-        { name: "Kontrola Wystawienia Towaru (KWT) - rozłożenie kontroli na wszyskie dni tygodnia (razem wszystkie grupy muszą być skontrolowane w sklepie RAZ W TYGODNIU)", days: [1,2,3,4,5,6] },
-        { name: "Kontrola listy OBECNOŚCI + Kontrola zeszytu WYJŚĆ + Kontrola grafików PRZERW/POSIŁKÓW", days: [1,2,3,4,5,6] },
-        { name: "Praca z REKLAMACJAMI, w tym również WYSYŁKI, WYDANIA oraz BIEŻĄCY KONTAKT TELEFONICZNY Z KLIENTEM", days: [1,2,3,4,5,6] },
-        { name: "INWENTARYZACJA cząstkowa kolejnych działów oraz kolejnych GRUP WYSOKIEGO RYZYKA (polecenie wykonania pracownikowi SALI + egzekwowanie)", days: [1,2,3,4,5,6] },
-        { name: "Kontrola wyrywkowa kazdego rodzaju ZABEZPIECZEŃ", days: [1,2,3,4,5] }, 
-        { name: "Wskazanie osób do BADANIA KONKURENCJI zgodnie z aktualnymi wytycznymi", days: [1,2,3,4,5] },
-        { name: "Kontrola MESK i PWS (sprawność procesu + składowanie wg zasad + nieodebrane >1 dnia: czy wykonane telefony do klientów z komentarzem w PDS)", days: [1,2,3,4,5] },
-        { name: "Kontrola wywołanych ZWROTÓW NIEODEBRANYCH MESK i PWS (RAPORT 507) + wystawienie na salę sprzedaży towarów pozostawionych na stanie sklepu", days: [1,2,3,4,5] },
-        { name: "Opróżnianie szafek i strefy MESK z zalegających towarów NIEODEBRANYCH (MESK, PWS, OZG)", days: [1] }, 
-        { name: "Kontrola czy nie ma zapisanych HASEŁ przy stanowiskach, SZCZEGÓLNIE RATALNE I SERWISOWE", days: [1] },
-        { name: "Kontrola PUSTE MAGAZYNY + podział na 10 stref (Puste, Pełne, Wartościówka, Internet, Zwroty, Wywózki, Reklamacje, Wyposażenie, Odpady, Dostawa)", days: [2] }, 
-        { name: "Kontrola towarów NPW (Wystawienie 100% + Oznaczenie + Cena + Strategia sprzedaży)", days: [3] }, 
-        { name: "Sprawdzenie CAŁEJ ekspozycji czy nie ma niezgłoszonych towarów NPW lub PSP i niezwłoczne zgłoszenie ich do KE/KSS", days: [3] },
-        { name: "Kontrola towarów SLW (Wystawienie 100% + Oznaczenie + Cena + Strategia sprzedaży)", days: [3] },
-        { name: "Kontrola towarów z kończącą się datą (wprowadzenie na NPW kat. T) + towarów już przeterminowanych (ZWROT)", days: [3] },
-        { name: "Kontrola CZYSTOŚCI towaru i regałów", days: [3] },
-        { name: "Kontrola TOP (ZA POMOCĄ KOLEKTORA)", days: [4] }, 
-        { name: "Kontrola oznaczeń AKCJI PROMOCYJNYCH w całym sklepie", days: [4] },
-        { name: "Kontrola NTOL LISTA VM - REKLAMACJE (zrealizuj w dniach od poniedziałku do czwartku)", days: [4] },
-        { name: "Kontrola NTOL LISTA VM - DZIAŁ AGD DROBNE (zrealizuj w dniach od poniedziałku do czwartku)", days: [4] },
-        { name: "Kontrola NTOL LISTA VM - DZIAŁ AGD DUŻE (zrealizuj w dniach od poniedziałku do czwartku)", days: [4] },
-        { name: "Kontrola NTOL LISTA VM - DZIAŁ IT (zrealizuj w dniach od poniedziałku do czwartku)", days: [4] },
-        { name: "Kontrola NTOL LISTA VM - DZIAŁ RTV i ROZRYWKA (zrealizuj w dniach od poniedziałku do czwartku)", days: [4] },
-        { name: "Kontrola NTOL LISTA VM - DZIAŁ RS (zrealizuj w dniach od poniedziałku do czwartku)", days: [4] },
-        { name: "Kontrola NTOL LISTA VM - POK (zrealizuj w dniach od poniedziałku do czwartku)", days: [4] },
-        { name: "Kontrola NTOL LISTA VM - OGÓLNE (zrealizuj w dniach od poniedziałku do czwartku)", days: [4] }
-    ];
-
-    function loadEmployeesAndInit() {
-        document.getElementById('loadingData').style.display = 'flex';
-        db.ref(`Stores/${myStore}/Users`).once('value', snap => {
-            const usersObj = snap.val() || {};
-            let rawUsers = Object.keys(usersObj).map(key => ({ charId: key, ...usersObj[key] })).filter(u => u.charId !== 'ADMIN');
-            
-            employees = rawUsers.map(u => ({
-                n: u.name, 
-                charId: u.charId, 
-                p: u.dept === 'POK', 
-                dept: u.dept 
-            }));
-            
-            initSelectors();
+    window.onload = () => {
+        let repSelect = document.getElementById('reportMonth');
+        months.forEach((m, i) => {
+            let opt = document.createElement('option'); opt.value = i; opt.innerText = `${m} 2026`;
+            if (i === new Date().getMonth()) opt.selected = true;
+            repSelect.appendChild(opt);
         });
-    }
 
-    function initSelectors() {
-        const mSel = document.getElementById('monthSelect');
-        months.forEach((m, i) => { let opt = document.createElement('option'); opt.value = i; opt.innerText = `${m} ${year}`; mSel.appendChild(opt); });
-        mSel.value = new Date().getMonth(); 
-        updateWeeks();
-    }
+        db.ref(`Stores/${myStore}/Settings/DashboardPin`).on('value', snap => {
+            const data = snap.val() || {};
+            document.getElementById('pinTitle').value = data.title || '';
+            document.getElementById('pinMsg').value = data.message || '';
+        });
+    };
 
-    function updateWeeks() {
-        const mIndex = parseInt(document.getElementById('monthSelect').value);
-        let firstDayOfMonth = new Date(year, mIndex, 1);
-        let diff = firstDayOfMonth.getDay() === 0 ? -6 : 1 - firstDayOfMonth.getDay();
-        let currentDate = new Date(year, mIndex, 1 + diff); 
-        currentWeeks = [];
+    function savePinboard() {
+        const title = document.getElementById('pinTitle').value.trim();
+        const msg = document.getElementById('pinMsg').value.trim();
+        if(!title || !msg) { alert("Wypełnij tytuł i treść ogłoszenia."); return; }
         
-        while (true) {
-            let week = [];
-            for (let i = 0; i < 7; i++) { week.push(new Date(currentDate)); currentDate.setDate(currentDate.getDate() + 1); }
-            currentWeeks.push(week);
-            if (currentDate.getMonth() !== mIndex && currentDate.getFullYear() >= year) break;
+        db.ref(`Stores/${myStore}/Settings/DashboardPin`).set({
+            active: true, title: title, message: msg, timestamp: Date.now(), author: currentUser.name
+        }).then(() => alert("✅ Ogłoszenie pomyślnie przyklejone do tablicy na stronie głównej!"));
+    }
+
+    function clearPinboard() {
+        if(confirm("Czy na pewno chcesz zdjąć ogłoszenie z tablicy głównej?")) {
+            db.ref(`Stores/${myStore}/Settings/DashboardPin/active`).set(false)
+              .then(() => {
+                  document.getElementById('pinTitle').value = '';
+                  document.getElementById('pinMsg').value = '';
+                  alert("Ogłoszenie usunięte.");
+              });
         }
+    }
 
-        const wSel = document.getElementById('weekSelect'); wSel.innerHTML = "";
-        currentWeeks.forEach((week, i) => {
-            let opt = document.createElement('option'); opt.value = i;
-            let startStr = `${String(week[0].getDate()).padStart(2, '0')}.${String(week[0].getMonth()+1).padStart(2, '0')}`;
-            let endStr = `${String(week[6].getDate()).padStart(2, '0')}.${String(week[6].getMonth()+1).padStart(2, '0')}`;
-            opt.innerText = `Tydzień ${i + 1} (${startStr} - ${endStr})`; wSel.appendChild(opt);
-        });
+    async function generateExcelReport() {
+        const mIndex = document.getElementById('reportMonth').value;
+        const monthName = months[mIndex];
+        const statusBox = document.getElementById('pushStatus');
         
-        document.getElementById('loadingData').style.display = 'none';
-    }
+        statusBox.style.display = 'block';
+        statusBox.className = 'msg-box';
+        statusBox.style.color = '#fff';
+        statusBox.innerText = 'Pobieranie danych z bazy i generowanie pliku Excel...';
 
-    function getShiftFromDb(charId, d, m) {
-        return (localPlanData[`${charId}_${d}`] || "").split('|')[0] || "";
-    }
+        try {
+            const kwtItemsSnap = await db.ref(`Stores/${myStore}/KWT_Items`).once('value');
+            const kwtStatusSnap = await db.ref(`Stores/${myStore}/KWT`).once('value');
+            const kwtItems = kwtItemsSnap.val() || {};
+            const kwtStatus = kwtStatusSnap.val() || {};
 
-    function generateAZS() {
-        const mIndex = parseInt(document.getElementById('monthSelect').value);
-        document.getElementById('loadingData').style.display = 'flex';
+            let kwtData = [["DZIAŁ", "TOWAR", "STATUS", "KTO ZESKANOWAŁ", "DATA/CZAS"]];
+            Object.keys(kwtItems).forEach(key => {
+                let item = kwtItems[key];
+                let stat = kwtStatus[key] || {};
+                kwtData.push([
+                    (item.dept || '').toUpperCase(),
+                    item.name || '',
+                    stat.status === 'done' ? "ZROBIONE" : "BRAK ZGŁOSZENIA",
+                    stat.user || '-',
+                    stat.time || '-'
+                ]);
+            });
 
-        db.ref(`Stores/${myStore}/Plan/${year}_${mIndex}`).once('value', snap => {
-            localPlanData = snap.val() || {};
-            
-            const wIndex = parseInt(document.getElementById('weekSelect').value);
-            const weekDays = currentWeeks[wIndex];
-            
-            let startStr = `${String(weekDays[0].getDate()).padStart(2, '0')}.${String(weekDays[0].getMonth()+1).padStart(2, '0')}`;
-            let endStr = `${String(weekDays[6].getDate()).padStart(2, '0')}.${String(weekDays[6].getMonth()+1).padStart(2, '0')}`;
-            document.getElementById('azsDates').innerText = `WPISZ DATY: OD ${startStr} DO ${endStr}`;
-            
-            const tbody = document.getElementById('azsBody'); tbody.innerHTML = "";
-            let hasAnyRealData = false; 
-            let dailyAssignments = {}; 
+            const inwaSnap = await db.ref(`Stores/${myStore}/Inwentury/2026_${mIndex}`).once('value');
+            const inwa = inwaSnap.val() || {};
+            let inwaData = [["OKRES", "NAZWA TOWARU/GRUPY", "OBECNY STATUS", "ZGŁOSZONE PRZEZ"]];
+            Object.keys(inwa).forEach(key => {
+                let item = inwa[key];
+                let periodText = item.period === 'weekly' ? 'TYGODNIOWA' : (item.period === 'twoWeeks' ? '2-TYGODNIOWA' : 'MIESIĘCZNA');
+                let statusText = item.status === 'done' ? "ZAAKCEPTOWANE" : (item.status === 'awaiting_kss' ? "OCZEKUJE NA KIER." : (item.status === 'rejected' ? "ODRZUCONE" : "DO ZROBIENIA"));
+                inwaData.push([
+                    periodText,
+                    item.name ? item.name.replace(/<[^>]*>?/gm, '') : '',
+                    statusText,
+                    item.submittedBy || '-'
+                ]);
+            });
 
-            weekDays.forEach(dayObj => {
-                let currentDayOfWeek = dayObj.getDay(); 
-                let dateIso = dayObj.toISOString();
-                let dayNum = dayObj.getDate();
-                let monthNum = dayObj.getMonth();
-
-                let workingToday = [];
-                if (monthNum === mIndex) {
-                    employees.forEach(e => {
-                        let shift = getShiftFromDb(e.charId, dayNum, mIndex);
-                        if (shift !== "" && shift !== "WOLNE" && shift !== "URLOP" && shift !== "Ż" && shift !== "SZK" && e.dept !== 'ME') {
-                            workingToday.push(e);
-                        }
-                    });
+            const histSnap = await db.ref(`Stores/${myStore}/Dashboard/History`).limitToLast(500).once('value');
+            const hist = histSnap.val() || {};
+            let histData = [["DATA SYSTEMOWA", "PRACOWNIK", "CEL / WSKAŹNIK", "STARY WYNIK", "NOWY WYNIK"]];
+            let histArr = Object.values(hist).sort((a,b) => b.timestamp - a.timestamp);
+            histArr.forEach(h => {
+                let d = new Date(h.timestamp);
+                if (d.getMonth() == mIndex) {
+                    histData.push([
+                        d.toLocaleDateString() + ' ' + d.toLocaleTimeString(),
+                        h.userName || '-',
+                        h.progName || '-',
+                        h.oldCurrent || '0',
+                        h.newCurrent || '0'
+                    ]);
                 }
-                
-                if(workingToday.length > 0) hasAnyRealData = true;
-                if(workingToday.length === 0) workingToday = employees.filter(e => e.dept !== 'ME');
-
-                let dayWorkload = {}; workingToday.forEach(e => dayWorkload[e.n] = 0);
-                dailyAssignments[dateIso] = {};
-
-                azsTasksData.forEach(task => {
-                    if (task.days.includes(currentDayOfWeek)) {
-                        if (workingToday.length > 0) {
-                            let minLoad = Math.min(...workingToday.map(e => dayWorkload[e.n]));
-                            let candidates = workingToday.filter(e => dayWorkload[e.n] === minLoad);
-                            let assigned = candidates[Math.floor(Math.random() * candidates.length)];
-                            dayWorkload[assigned.n]++; dailyAssignments[dateIso][task.name] = assigned.n;
-                        } else { dailyAssignments[dateIso][task.name] = "BRAK"; }
-                    } else { dailyAssignments[dateIso][task.name] = "BLOCKED"; }
-                });
             });
 
-            document.getElementById('errorMsg').style.display = hasAnyRealData ? 'none' : 'block';
+            let wb = XLSX.utils.book_new();
+            
+            let wsKwt = XLSX.utils.aoa_to_sheet(kwtData);
+            wsKwt['!cols'] = [{wch: 10}, {wch: 40}, {wch: 15}, {wch: 20}, {wch: 25}];
+            XLSX.utils.book_append_sheet(wb, wsKwt, "Raport KWT");
 
-            azsTasksData.forEach(task => {
-                let tr = document.createElement('tr'); let html = `<td class="td-task">${task.name}</td>`;
-                let activeDaysHtml = ""; let signaturesHtml = "";
-                
-                weekDays.forEach(dayObj => {
-                    let assignment = dailyAssignments[dayObj.toISOString()][task.name];
-                    if (assignment === "BLOCKED") { activeDaysHtml += `<td class="td-blocked"></td>`; signaturesHtml += `<td class="td-blocked"></td>`; } 
-                    else if (assignment === "BRAK") { activeDaysHtml += `<td style="color:#f44; font-size:0.6rem;">BRAK</td>`; signaturesHtml += `<td class="td-sign"></td>`; } 
-                    else { activeDaysHtml += `<td class="td-name">${assignment}</td>`; signaturesHtml += `<td class="td-sign"></td>`; }
+            let wsInwa = XLSX.utils.aoa_to_sheet(inwaData);
+            wsInwa['!cols'] = [{wch: 15}, {wch: 50}, {wch: 20}, {wch: 20}];
+            XLSX.utils.book_append_sheet(wb, wsInwa, "Raport Inwentury");
+
+            let wsHist = XLSX.utils.aoa_to_sheet(histData);
+            wsHist['!cols'] = [{wch: 25}, {wch: 20}, {wch: 35}, {wch: 15}, {wch: 15}];
+            XLSX.utils.book_append_sheet(wb, wsHist, "Historia Kafelków");
+
+            XLSX.writeFile(wb, `Raport_Sklepu_${monthName}.xlsx`);
+
+            statusBox.className = 'msg-box msg-success';
+            statusBox.innerText = 'Raport został poprawnie wygenerowany i pobrany!';
+            setTimeout(() => { statusBox.style.display = 'none'; }, 4000);
+
+        } catch (e) {
+            statusBox.className = 'msg-box msg-error';
+            statusBox.innerText = 'Błąd podczas generowania: ' + e.message;
+        }
+    }
+
+    // ==========================================
+    // LOGIKA ZARZĄDZANIA ZESPOŁEM (UKŁAD PIONOWY POD IMIENIEM)
+    // ==========================================
+    loadTeamForReset();
+
+    function loadTeamForReset() {
+        db.ref(`Stores/${myStore}/Users`).on('value', snap => {
+            const usersObj = snap.val() || {};
+            globalUsersList = Object.keys(usersObj).map(key => ({ charId: key, ...usersObj[key] }));
+            
+            let usersForReset = globalUsersList.filter(u => u.charId !== 'ADMIN' && u.charId !== currentUser.charId);
+            usersForReset.sort((a,b) => a.name.localeCompare(b.name, 'pl', {sensitivity: 'base'}));
+
+            let html = '';
+            if(usersForReset.length === 0) {
+                html = '<div style="color: #666; font-size:0.8rem; font-weight:bold; width:100%; text-align:center;">BRAK INNYCH UŻYTKOWNIKÓW W BAZIE.</div>';
+            } else {
+                usersForReset.forEach(u => {
+                    let uAvatar = u.avatar ? `<img src="${u.avatar}" style="width:100%; height:100%; object-fit:cover; border-radius:50%;">` : u.charId.charAt(0);
+                    let displayDept = (u.isKss && u.dept !== 'ME') ? 'KSS' : u.dept;
+                    
+                    let tilesBadge = u.canEditTiles ? `<div style="margin-top: 4px;"><span style="display:inline-block; border: 1px solid #0a0; color:#0a0; background:rgba(0,170,0,0.1); padding: 2px 6px; border-radius:4px; font-size:0.55rem; font-weight:900; white-space:nowrap;">🛠️ KAFELKI</span></div>` : '';
+                    
+                    html += `
+                    <div class="team-row">
+                        <div style="display:flex; align-items:center; gap:12px; min-width:0; padding-right: 10px;">
+                            <div class="avatar-small">${uAvatar}</div>
+                            <div style="display:flex; flex-direction:column; justify-content:center; min-width:0;">
+                                <div style="font-size:0.95rem; font-weight:900; color:#fff; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
+                                    ${u.name}
+                                </div>
+                                <div style="font-size:0.7rem; font-weight:bold; color:#ffe800; margin-top:3px;">
+                                    Dział: ${displayDept}
+                                </div>
+                                ${tilesBadge}
+                            </div>
+                        </div>
+                        <div class="action-buttons-group" style="flex-shrink: 0;">
+                            <button class="btn-edit-emp" onclick="openEditEmployeeModal('${u.charId}')">EDYTUJ</button>
+                            <button class="btn-reset" onclick="confirmPasswordReset('${u.charId}', '${u.name}')">RESET</button>
+                            <button class="btn-delete-emp" onclick="confirmDeleteEmployee('${u.charId}', '${u.name}')">USUŃ</button>
+                        </div>
+                    </div>`;
                 });
-                
-                html += activeDaysHtml + signaturesHtml; tr.innerHTML = html; tbody.appendChild(tr);
-            });
+            }
+            document.getElementById('teamList').innerHTML = html;
 
-            document.getElementById('loadingData').style.display = 'none';
+            let pushSelect = document.getElementById('pushTarget');
+            pushSelect.innerHTML = `
+                <option value="ALL">📢 DO WSZYSTKICH</option>
+                <option value="KSS">👑 TYLKO KIEROWNICTWO (KSS/ME)</option>
+                <option disabled>───────────────</option>
+                <option value="DEPT_IT">💻 CAŁY DZIAŁ IT</option>
+                <option value="DEPT_AGD">🧺 CAŁY DZIAŁ AGD</option>
+                <option value="DEPT_RTV">📺 CAŁY DZIAŁ RTV</option>
+                <option value="DEPT_RS">📱 CAŁY DZIAŁ RS</option>
+                <option value="DEPT_POK">🛒 CAŁY DZIAŁ POK</option>
+                <option disabled>───────────────</option>
+            `;
+            usersForReset.forEach(u => { 
+                pushSelect.innerHTML += `<option value="${u.charId}">👤 Pracownik: ${u.name} (${u.dept})</option>`; 
+            });
         });
     }
 
-    window.onload = () => { loadEmployeesAndInit(); };
+    function sendPushNotification() {
+        const target = document.getElementById('pushTarget').value;
+        const type = document.getElementById('pushType').value;
+        const title = document.getElementById('pushTitle').value.trim();
+        const msg = document.getElementById('pushMsg').value.trim();
+        const statusBox = document.getElementById('pushStatus');
 
-    // ==========================================
-    // SYSTEM POWIADOMIEŃ GLOBALNYCH I WYKRZYKNIK KSS
-    // ==========================================
-    if (typeof db !== 'undefined' && typeof currentUser !== 'undefined') {
-        const isManagerOrKssGlobal = (currentUser.dept === 'ME' || currentUser.isKss);
+        if(!title || !msg) {
+            statusBox.style.display = 'block';
+            statusBox.className = 'msg-box msg-error';
+            statusBox.innerText = 'Tytuł i treść nie mogą być puste!';
+            return;
+        }
 
-        db.ref(`Stores/${myStore}/Notifications`).on('value', snap => {
-            let notifsObj = snap.val() || {};
-            let notifs = Object.keys(notifsObj).map(key => ({ keyId: key, ...notifsObj[key] }));
-            
-            let myUnread = notifs.filter(n => !n.read && (n.to === currentUser.charId || (n.to === 'KSS' && isManagerOrKssGlobal)));
-            
-            if (myUnread.length > 0) {
-                let n = myUnread[0]; 
-                
-                document.getElementById('globalPopupTitle').innerText = n.title;
-                document.getElementById('globalPopupMsg').innerText = n.msg;
-                document.getElementById('globalNotificationModal').style.display = 'flex';
-                
-                let box = document.getElementById('popupBox');
-                if(n.type === 'success') { box.style.borderColor = '#0a0'; document.getElementById('globalPopupTitle').style.color = '#0a0'; }
-                else if(n.type === 'error') { box.style.borderColor = '#f44'; document.getElementById('globalPopupTitle').style.color = '#f44'; }
-                else { box.style.borderColor = '#ffe800'; document.getElementById('globalPopupTitle').style.color = '#ffe800'; }
-                
-                db.ref(`Stores/${myStore}/Notifications/${n.keyId}`).update({ read: true });
-            }
-        });
+        statusBox.style.display = 'block';
+        statusBox.className = 'msg-box';
+        statusBox.style.color = '#fff';
+        statusBox.innerText = 'Wysyłanie powiadomienia...';
 
-        // NASŁUCH DLA WYKRZYKNIKA W MENU (Inwentury ME/KSS)
-        if (isManagerOrKssGlobal) {
-            db.ref(`Stores/${myStore}/Inwentury`).on('value', snap => {
-                let allInwa = snap.val() || {};
-                let hasAwaiting = false;
-
-                Object.keys(allInwa).forEach(monthKey => {
-                    let monthData = allInwa[monthKey] || {};
-                    Object.values(monthData).forEach(item => {
-                        if (item.status === 'awaiting_kss') {
-                            hasAwaiting = true;
-                        }
-                    });
+        if(target === 'ALL') {
+            let promises = globalUsersList.map(u => {
+                return db.ref(`Stores/${myStore}/Notifications`).push({
+                    to: u.charId, title: title, msg: msg, type: type, read: false, timestamp: Date.now()
                 });
+            });
 
-                let badge = document.getElementById('kssAlertBadge');
-                if(badge) badge.innerHTML = hasAwaiting ? `<span class="nav-alert">[!]</span>` : '';
+            Promise.all(promises).then(() => {
+                statusBox.className = 'msg-box msg-success';
+                statusBox.innerText = 'Wysłano powiadomienie do całego sklepu!';
+                clearPushForm();
+            }).catch(e => {
+                statusBox.className = 'msg-box msg-error';
+                statusBox.innerText = 'Błąd wysyłania: ' + e.message;
+            });
+            
+        } else if (target.startsWith('DEPT_')) {
+            let deptName = target.split('_')[1];
+            let targetUsers = globalUsersList.filter(u => u.dept === deptName);
+            
+            if(targetUsers.length === 0) {
+                statusBox.className = 'msg-box msg-error';
+                statusBox.innerText = `Brak pracowników w dziale ${deptName}!`;
+                return;
+            }
+            
+            let promises = targetUsers.map(u => {
+                return db.ref(`Stores/${myStore}/Notifications`).push({
+                    to: u.charId, title: title, msg: msg, type: type, read: false, timestamp: Date.now()
+                });
+            });
+
+            Promise.all(promises).then(() => {
+                statusBox.className = 'msg-box msg-success';
+                statusBox.innerText = `Wysłano powiadomienie do działu ${deptName}!`;
+                clearPushForm();
+            }).catch(e => {
+                statusBox.className = 'msg-box msg-error';
+                statusBox.innerText = 'Błąd wysyłania: ' + e.message;
+            });
+
+        } else {
+            db.ref(`Stores/${myStore}/Notifications`).push({
+                to: target, title: title, msg: msg, type: type, read: false, timestamp: Date.now()
+            }).then(() => {
+                statusBox.className = 'msg-box msg-success';
+                statusBox.innerText = 'Wysłano powiadomienie!';
+                clearPushForm();
+            }).catch(e => {
+                statusBox.className = 'msg-box msg-error';
+                statusBox.innerText = 'Błąd wysyłania: ' + e.message;
             });
         }
     }
 
-    function closeGlobalPopup() { 
-        document.getElementById('globalNotificationModal').style.display = 'none'; 
+    function clearPushForm() {
+        document.getElementById('pushTitle').value = '';
+        document.getElementById('pushMsg').value = '';
+        setTimeout(() => { document.getElementById('pushStatus').style.display = 'none'; }, 4000);
     }
 
-    // ==========================================
-    // SYSTEM AUTOWYLOGOWANIA
-    // ==========================================
-    const minutyBezczynnosci = 5; 
-    const limitCzasu = minutyBezczynnosci * 60 * 1000; 
-    let timerBezczynnosci;
+    function confirmPasswordReset(empCharId, empName) {
+        if(confirm(`UWAGA!\nCzy na pewno chcesz zresetować hasło użytkownika ${empName}?\n\nPracownik zostanie wylogowany, a jego nowym hasłem do logowania stanie się jego kod CharID.`)) {
+            db.ref(`Stores/${myStore}/Users/${empCharId}`).update({ password: empCharId }).then(() => {
+                document.getElementById('resetEmpName').innerText = empName;
+                document.getElementById('resetEmpCode').innerText = empCharId;
+                document.getElementById('resetSuccessModal').style.display = 'flex';
+            }).catch(err => alert("Błąd połączenia z bazą: " + err.message));
+        }
+    }
+    function closeResetModal() { document.getElementById('resetSuccessModal').style.display = 'none'; }
 
-    function resetujTimer() {
-        clearTimeout(timerBezczynnosci);
-        timerBezczynnosci = setTimeout(wylogujZPowoduBezczynnosci, limitCzasu);
+    function confirmDeleteEmployee(empCharId, empName) {
+        if(confirm(`OSTRZEŻENIE!\nCzy na pewno chcesz całkowicie USUNĄĆ pracownika ${empName} (Kod: ${empCharId}) z bazy sklepu?\n\nTej operacji nie można cofnąć.`)) {
+            db.ref(`Stores/${myStore}/Users/${empCharId}`).remove()
+                .then(() => alert(`Pracownik ${empName} został poprawnie usunięty z bazy.`));
+        }
     }
 
-    function wylogujZPowoduBezczynnosci() {
-        localStorage.removeItem('currentUser');
-        sessionStorage.setItem('powodWylogowania', 'bezczynnosc');
-        window.location.href = 'login.html';
+    function openAddEmployeeModal() {
+        document.getElementById('addEmployeeModal').style.display = 'flex';
+        document.getElementById('newEmpName').value = '';
+        document.getElementById('newEmpCharId').value = '';
+        document.getElementById('newEmpDept').value = 'IT';
+        document.getElementById('newEmpIsKss').checked = false;
+        document.getElementById('newEmpTiles').checked = false;
+        document.getElementById('addEmpMsg').style.display = 'none';
     }
 
-    const akcjeUzytkownika = ['mousemove', 'keydown', 'click', 'scroll', 'touchstart'];
-    akcjeUzytkownika.forEach(akcja => {
-        document.addEventListener(akcja, resetujTimer, { passive: true });
-    });
-    
-    resetujTimer();
+    function closeAddEmployeeModal() { document.getElementById('addEmployeeModal').style.display = 'none'; }
+
+    async function saveNewEmployee() {
+        const name = document.getElementById('newEmpName').value.trim();
+        let charId = document.getElementById('newEmpCharId').value.trim().toUpperCase().replace(/\s+/g, '');
+        const dept = document.getElementById('newEmpDept').value;
+        const isKss = document.getElementById('newEmpIsKss').checked;
+        const canEditTiles = document.getElementById('newEmpTiles').checked;
+        const msgBox = document.getElementById('addEmpMsg');
+
+        msgBox.style.display = 'block'; msgBox.className = 'msg-box';
+
+        if(!name || !charId) { msgBox.classList.add('msg-error'); msgBox.innerText = "Wypełnij Imię i Kod logowania!"; return; }
+
+        try {
+            const snap = await db.ref(`Stores/${myStore}/Users/${charId}`).once('value');
+            if (snap.exists()) { msgBox.classList.add('msg-error'); msgBox.innerText = "Taki kod (CharID) już istnieje w bazie! Wymyśl inny."; return; }
+
+            await db.ref(`Stores/${myStore}/Users/${charId}`).set({
+                charId: charId, name: name, dept: dept, isKss: isKss, canEditTiles: canEditTiles, password: charId, avatar: ""
+            });
+
+            msgBox.classList.add('msg-success'); msgBox.innerText = "Pracownik dodany pomyślnie!";
+            setTimeout(() => { closeAddEmployeeModal(); }, 1500);
+        } catch(e) {
+            msgBox.classList.add('msg-error'); msgBox.innerText = "Błąd komunikacji: " + e.message;
+        }
+    }
+
+    async function openEditEmployeeModal(charId) {
+        try {
+            const snap = await db.ref(`Stores/${myStore}/Users/${charId}`).once('value');
+            const user = snap.val();
+            if(!user) return;
+
+            document.getElementById('editEmpOldCharId').value = charId;
+            document.getElementById('editEmpCharId').value = charId;
+            document.getElementById('editEmpName').value = user.name || '';
+            document.getElementById('editEmpDept').value = user.dept || 'IT';
+            document.getElementById('editEmpIsKss').checked = user.isKss || false;
+            document.getElementById('editEmpTiles').checked = user.canEditTiles || false;
+
+            document.getElementById('editEmpMsg').style.display = 'none';
+            document.getElementById('editEmployeeModal').style.display = 'flex';
+        } catch(e) { alert("Błąd pobierania danych z bazy."); }
+    }
+
+    function closeEditEmployeeModal() { document.getElementById('editEmployeeModal').style.display = 'none'; }
+
+    async function saveEditedEmployee() {
+        const oldCharId = document.getElementById('editEmpOldCharId').value;
+        const name = document.getElementById('editEmpName').value.trim();
+        let newCharId = document.getElementById('editEmpCharId').value.trim().toUpperCase().replace(/\s+/g, '');
+        const dept = document.getElementById('editEmpDept').value;
+        const isKss = document.getElementById('editEmpIsKss').checked;
+        const canEditTiles = document.getElementById('editEmpTiles').checked;
+        const msgBox = document.getElementById('editEmpMsg');
+
+        msgBox.style.display = 'block'; msgBox.className = 'msg-box';
+
+        if(!name || !newCharId) { msgBox.classList.add('msg-error'); msgBox.innerText = "Wypełnij Imię i Kod logowania!"; return; }
+
+        try {
+            if (oldCharId !== newCharId) {
+                const snapCheck = await db.ref(`Stores/${myStore}/Users/${newCharId}`).once('value');
+                if (snapCheck.exists()) { msgBox.classList.add('msg-error'); msgBox.innerText = "Taki Kod jest już przypisany innej osobie!"; return; }
+
+                const oldSnap = await db.ref(`Stores/${myStore}/Users/${oldCharId}`).once('value');
+                let userData = oldSnap.val();
+                
+                userData.charId = newCharId; userData.name = name; userData.dept = dept; userData.isKss = isKss; userData.canEditTiles = canEditTiles;
+
+                let updates = {};
+                updates[`Stores/${myStore}/Users/${newCharId}`] = userData;
+                updates[`Stores/${myStore}/Users/${oldCharId}`] = null;
+                await db.ref().update(updates);
+            } else {
+                await db.ref(`Stores/${myStore}/Users/${oldCharId}`).update({ name: name, dept: dept, isKss: isKss, canEditTiles: canEditTiles });
+            }
+
+            msgBox.classList.add('msg-success'); msgBox.innerText = "Dane zaktualizowane pomyślnie!";
+            setTimeout(() => { closeEditEmployeeModal(); }, 1500);
+
+        } catch(e) { msgBox.classList.add('msg-error'); msgBox.innerText = "Błąd z chmurą: " + e.message; }
+    }
 </script>
 </body>
 </html>

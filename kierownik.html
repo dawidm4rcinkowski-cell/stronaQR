@@ -498,15 +498,19 @@
                 usersForReset.forEach(u => {
                     let uAvatar = u.avatar ? `<img src="${u.avatar}" style="width:100%; height:100%; object-fit:cover; border-radius:50%;">` : u.charId.charAt(0);
                     let displayDept = (u.isKss && u.dept !== 'ME') ? 'KSS' : u.dept;
-                    let tilesBadge = u.canEditTiles ? `<span style="background:#0a0; color:#fff; padding: 2px 5px; border-radius:3px; font-size:0.55rem; margin-left:5px;">EDYTUJE KAFELKI</span>` : '';
+                    
+                    // NOWY, NIEŁAMIĄCY SIĘ I ESTETYCZNY ZNACZNIK
+                    let tilesBadge = u.canEditTiles ? `<span style="display:inline-block; border: 1px solid #0a0; color:#0a0; background:rgba(0,170,0,0.1); padding: 3px 6px; border-radius:5px; font-size:0.6rem; font-weight:900; white-space:nowrap; vertical-align:middle; margin-left:8px;">🛠️ KAFELKI</span>` : '';
                     
                     html += `
                     <div class="team-row">
-                        <div style="display:flex; align-items:center; gap:12px;">
+                        <div style="display:flex; align-items:center; gap:12px; min-width:0;">
                             <div class="avatar-small">${uAvatar}</div>
-                            <div>
-                                <div style="font-size:0.95rem; font-weight:900; color:#fff;">${u.name}</div>
-                                <div style="font-size:0.7rem; font-weight:bold; color:#ffe800;">Dział: ${displayDept} ${tilesBadge}</div>
+                            <div style="display:flex; flex-direction:column; justify-content:center; min-width:0;">
+                                <div style="font-size:0.95rem; font-weight:900; color:#fff; display:flex; align-items:center; flex-wrap:wrap;">
+                                    ${u.name} ${tilesBadge}
+                                </div>
+                                <div style="font-size:0.7rem; font-weight:bold; color:#ffe800; margin-top:3px;">Dział: ${displayDept}</div>
                             </div>
                         </div>
                         <div class="action-buttons-group">
@@ -517,6 +521,26 @@
                     </div>`;
                 });
             }
+            document.getElementById('teamList').innerHTML = html;
+
+            // RENDER DROPDOWNU DO POWIADOMIEŃ PUSH Z DZIAŁAMI
+            let pushSelect = document.getElementById('pushTarget');
+            pushSelect.innerHTML = `
+                <option value="ALL">📢 DO WSZYSTKICH</option>
+                <option value="KSS">👑 TYLKO KIEROWNICTWO (KSS/ME)</option>
+                <option disabled>───────────────</option>
+                <option value="DEPT_IT">💻 CAŁY DZIAŁ IT</option>
+                <option value="DEPT_AGD">🧺 CAŁY DZIAŁ AGD</option>
+                <option value="DEPT_RTV">📺 CAŁY DZIAŁ RTV</option>
+                <option value="DEPT_RS">📱 CAŁY DZIAŁ RS</option>
+                <option value="DEPT_POK">🛒 CAŁY DZIAŁ POK</option>
+                <option disabled>───────────────</option>
+            `;
+            usersForReset.forEach(u => { 
+                pushSelect.innerHTML += `<option value="${u.charId}">👤 Pracownik: ${u.name} (${u.dept})</option>`; 
+            });
+        });
+    }
             document.getElementById('teamList').innerHTML = html;
 
             // RENDER DROPDOWNU DO POWIADOMIEŃ PUSH Z DZIAŁAMI

@@ -3,18 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Media Expert - Panel Kierownika</title>
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&display=swap" rel="stylesheet">
+    <title>Media Expert - Inwentury</title>
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='48' fill='%23ffe800'/><path d='M75.6,24.4c-9.1-9.1-23.9-9.1-33,0c-7.3,7.3-8.8,17.7-4.7,26.5L12.4,76.4c-1.6,1.6-1.6,4.1,0,5.7l5.5,5.5c1.6,1.6,4.1,1.6,5.7,0l25.5-25.5c8.8,4.1,19.2,2.6,26.5-4.7C84.7,48.3,84.7,33.5,75.6,24.4z M66.8,41.2c-3.1,3.1-8.2,3.1-11.3,0s-3.1-8.2,0-11.3s8.2-3.1,11.3,0S69.9,38.1,66.8,41.2z' fill='%23000'/></svg>">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&display=swap" rel="stylesheet">
+    
     <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-database-compat.js"></script>
     
     <script>
         const currentUser = JSON.parse(localStorage.getItem('currentUser'));
         const myStore = localStorage.getItem('myStore');
-        if (!currentUser || !myStore) { window.location.href = 'login.html'; }
+        
+        if (!currentUser || !myStore) { 
+            window.location.href = 'login.html'; 
+        }
+        
         const isManagerOrKss = (currentUser.dept === 'ME' || currentUser.isKss);
-        if(!isManagerOrKss) { window.location.href = 'index.html'; } // Twarda blokada
 
         // INICJALIZACJA FIREBASE
         const firebaseConfig = {
@@ -29,13 +33,16 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
     </script>
+    
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Montserrat', sans-serif; }
         body { background: #080808; color: white; display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
-        ::-webkit-scrollbar { width: 12px; height: 12px; } ::-webkit-scrollbar-track { background: #111; } ::-webkit-scrollbar-thumb { background: #ffe800; border-radius: 2px; }
+        ::-webkit-scrollbar { width: 12px; height: 12px; } 
+        ::-webkit-scrollbar-track { background: #111; } 
+        ::-webkit-scrollbar-thumb { background: #ffe800; border-radius: 2px; }
         
         header { background: #ffe800; height: 50px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; z-index: 9999; border-bottom: 2px solid #000; position: relative; }
-        .logo { color: #000; font-weight: 900; font-size: 1.2rem; text-transform: uppercase; letter-spacing: 1px; display: flex; align-items: center; gap: 10px;}
+        .logo { color: #000; font-weight: 900; font-size: 1.2rem; text-transform: uppercase; letter-spacing: 1px; display: flex; align-items: center; gap: 10px; }
         .logo span { background: #000; color: #ffe800; padding: 0 6px; border-radius: 3px; }
         .store-badge { font-size: 0.7rem; background: rgba(0,0,0,0.1); padding: 4px 8px; border-radius: 20px; font-weight: 800; border: 1px solid #000; }
         .menu-btn { position: absolute; left: 15px; cursor: pointer; color: #000; font-size: 1.5rem; }
@@ -46,7 +53,7 @@
         .sidebar-header { color: #ffe800; font-weight: 900; font-size: 1rem; padding: 0 25px 15px 25px; letter-spacing: 2px; text-transform: uppercase; }
         .sidebar-link { display: block; color: white; padding: 15px 25px; text-decoration: none; font-weight: 700; font-size: 0.8rem; border-bottom: 1px solid #111; transition: 0.2s; }
         .sidebar-link:hover { background: #1a1a1a; color: #ffe800; padding-left: 35px; }
-        
+
         .sidebar-feedback, .sidebar-feedback:visited, .sidebar-feedback:link { display: block; margin-top: auto; background: #111; color: #ffe800 !important; padding: 15px 25px; text-decoration: none !important; font-weight: 900; font-size: 0.8rem; border-top: 1px solid #222; border-bottom: 1px solid #222; transition: 0.3s; text-transform: uppercase; letter-spacing: 0.5px; }
         .sidebar-feedback:hover { background: #ffe800 !important; color: #000 !important; padding-left: 35px; }
         
@@ -100,18 +107,27 @@
         .mgr-buttons { display: flex; gap: 10px; }
         .btn-accept { flex: 1; background: transparent; color: #0a0; border: 2px solid #0a0; padding: 15px 10px; font-weight: 900; border-radius: 8px; cursor: pointer; transition:0.3s; } .btn-accept:hover { background: #0a0; color:#000; }
         .btn-reject { flex: 1; background: transparent; color: #f44; border: 2px solid #f44; padding: 15px 10px; font-weight: 900; border-radius: 8px; cursor: pointer; transition:0.3s; } .btn-reject:hover { background: #f44; color:#000; }
-        .btn-cancel { width: 100%; background: #151515; color: #888; border: 1px solid #333; padding: 12px 20px; font-weight: 900; border-radius: 8px; cursor: pointer; margin-top: 15px; }
+        .btn-cancel { width: 100%; background: #151515; color: #888; border: 1px solid #333; padding: 12px 20px; font-weight: 900; border-radius: 8px; cursor: pointer; margin-top: 15px; transition: 0.2s; }
+        .btn-cancel:hover { background: #222; color: #fff; }
 
         @keyframes blink { 0% { opacity: 1; } 50% { opacity: 0.3; } 100% { opacity: 1; } }
         .nav-alert { color: #f44; font-weight: 900; animation: blink 1s infinite; font-size: 1rem; margin-left: 5px; }
         .loading-overlay { position: absolute; inset: 0; background: rgba(0,0,0,0.8); z-index: 2000; display: flex; align-items: center; justify-content: center; color: #ffe800; font-weight: bold; font-size: 1.5rem; display: none;}
+        
+        /* STYLE DLA MODALA POWIADOMIEŃ */
+        #globalNotificationModal .modal-content { border-color: #ffe800; box-shadow: 0 0 30px rgba(0,0,0,0.5); }
+        #globalPopupTitle { margin-bottom: 15px; font-size: 1.3rem; text-transform: uppercase; font-weight: 900; }
+        #globalPopupMsg { color: #fff; font-size: 1rem; margin-bottom: 25px; line-height: 1.5; font-weight: 700; }
+        .btn-close-popup { width: 100%; background: #ffe800; color: #000; border: none; padding: 12px 20px; font-weight: 900; border-radius: 8px; cursor: pointer; text-transform: uppercase; transition: 0.2s; }
+        .btn-close-popup:hover { transform: scale(1.02); }
     </style>
 </head>
 <body>
 
 <header>
     <div class="menu-btn" onclick="toggleNav()">☰</div>
-    <div class="logo">EXPERT <span>TOOL</span> <div class="store-badge" id="headerStore">SXXX</div></div>
+    <div class="logo">EXPERT <span>TOOL</span></div>
+    <div class="store-badge" id="headerStore">SXXX</div>
 </header>
 
 <div class="sidebar" id="sidebar">
@@ -123,6 +139,9 @@
         <a href="inwak.html" class="sidebar-link" style="color:#ffe800" id="navInwaKSS">Inwentury (ME/KSS) <span id="kssAlertBadge"></span></a>
         <a href="azs.html" class="sidebar-link">AZS</a>
         <a href="kwt.html" class="sidebar-link">KWT</a>
+        
+        <a href="kierownik.html" class="sidebar-link" id="navKierownik">Centrum Dowodzenia</a>
+        
         <a href="feedback.html" class="sidebar-feedback">💡 Zgłoś problem / Pomysł</a>
     </div>
     <div class="user-profile" onclick="window.location.href='ustawienia.html'">
@@ -169,10 +188,10 @@
 </div>
 
 <div class="modal" id="globalNotificationModal">
-    <div class="modal-content" id="popupBox" style="border-width: 3px;">
-        <h3 id="globalPopupTitle" style="margin-bottom: 15px; font-size: 1.3rem;">POWIADOMIENIE</h3>
-        <p id="globalPopupMsg" style="color: #fff; font-size: 1rem; margin-bottom: 25px; line-height: 1.5; font-weight: 700;"></p>
-        <button class="btn-cancel" onclick="closeGlobalPopup()" style="background:#ffe800; color:#000; border:none;">ZROZUMIAŁEM</button>
+    <div class="modal-content" id="popupBox">
+        <h3 id="globalPopupTitle">POWIADOMIENIE</h3>
+        <p id="globalPopupMsg"></p>
+        <button class="btn-close-popup" onclick="closeGlobalPopup()">ZROZUMIAŁEM</button>
     </div>
 </div>
 
@@ -247,6 +266,12 @@
     // Wczytywanie awatara z local storage dla bocznego paska
     const sideAvatarHtml = currentUser.avatar ? `<img src="${currentUser.avatar}" style="width:100%; height:100%; object-fit:cover; border-radius:50%;">` : currentUser.charId.charAt(0);
     document.getElementById('sideAvatar').innerHTML = sideAvatarHtml;
+    
+    // Ukrywanie przed zwykłymi pracownikami
+    if(!isManagerOrKss) { 
+        if(document.getElementById('navInwaKSS')) document.getElementById('navInwaKSS').style.display = 'none'; 
+        if(document.getElementById('navKierownik')) document.getElementById('navKierownik').style.display = 'none'; 
+    }
     
     function toggleNav() { document.getElementById('sidebar').classList.toggle('active'); document.getElementById('overlay').classList.toggle('active'); }
     function logout() { localStorage.removeItem('currentUser'); window.location.href = 'login.html'; }
@@ -332,26 +357,31 @@
         }
     }
 
-    db.ref(`Stores/${myStore}/Notifications`).on('value', snap => {
-        let notifsObj = snap.val() || {};
-        let notifs = Object.keys(notifsObj).map(key => ({ keyId: key, ...notifsObj[key] }));
-        
-        let myUnread = notifs.filter(n => !n.read && (n.to === currentUser.charId || (n.to === 'KSS' && isManagerOrKss)));
-        
-        if (myUnread.length > 0) {
-            let n = myUnread[0];
-            document.getElementById('globalPopupTitle').innerText = n.title;
-            document.getElementById('globalPopupMsg').innerText = n.msg;
-            document.getElementById('globalNotificationModal').style.display = 'flex';
-            let box = document.getElementById('popupBox');
+    // SYSTEM POWIADOMIEŃ GLOBALNYCH
+    if (typeof db !== 'undefined' && typeof currentUser !== 'undefined') {
+        const isManagerOrKssGlobal = (currentUser.dept === 'ME' || currentUser.isKss);
+
+        db.ref(`Stores/${myStore}/Notifications`).on('value', snap => {
+            let notifsObj = snap.val() || {};
+            let notifs = Object.keys(notifsObj).map(key => ({ keyId: key, ...notifsObj[key] }));
             
-            if(n.type === 'success') { box.style.borderColor = '#0a0'; document.getElementById('globalPopupTitle').style.color = '#0a0'; }
-            else if(n.type === 'error') { box.style.borderColor = '#f44'; document.getElementById('globalPopupTitle').style.color = '#f44'; }
-            else { box.style.borderColor = '#ffe800'; document.getElementById('globalPopupTitle').style.color = '#ffe800'; }
+            let myUnread = notifs.filter(n => !n.read && (n.to === currentUser.charId || (n.to === 'KSS' && isManagerOrKssGlobal)));
             
-            db.ref(`Stores/${myStore}/Notifications/${n.keyId}`).update({ read: true });
-        }
-    });
+            if (myUnread.length > 0) {
+                let n = myUnread[0];
+                document.getElementById('globalPopupTitle').innerText = n.title;
+                document.getElementById('globalPopupMsg').innerText = n.msg;
+                document.getElementById('globalNotificationModal').style.display = 'flex';
+                let box = document.getElementById('popupBox');
+                
+                if(n.type === 'success') { box.style.borderColor = '#0a0'; document.getElementById('globalPopupTitle').style.color = '#0a0'; }
+                else if(n.type === 'error') { box.style.borderColor = '#f44'; document.getElementById('globalPopupTitle').style.color = '#f44'; }
+                else { box.style.borderColor = '#ffe800'; document.getElementById('globalPopupTitle').style.color = '#ffe800'; }
+                
+                db.ref(`Stores/${myStore}/Notifications/${n.keyId}`).update({ read: true });
+            }
+        });
+    }
 
     function updateKssBadge() {
         if (!isManagerOrKss) return;
@@ -367,40 +397,28 @@
         renderMonthSelector(); 
         loadMonthDataFromFirebase(currentMonth);
     };
-</script>
-<script>
-    // Ustaw czas bezczynności w minutach
+
+    // SYSTEM AUTOWYLOGOWANIA
     const minutyBezczynnosci = 5; 
-    
-    // Przeliczenie na milisekundy
     const limitCzasu = minutyBezczynnosci * 60 * 1000; 
     let timerBezczynnosci;
 
-    // Funkcja resetująca licznik
     function resetujTimer() {
         clearTimeout(timerBezczynnosci);
         timerBezczynnosci = setTimeout(wylogujZPowoduBezczynnosci, limitCzasu);
     }
 
-    // Funkcja wylogowująca
     function wylogujZPowoduBezczynnosci() {
-        // Usuwamy dane sesji
         localStorage.removeItem('currentUser');
-        // Zapisujemy powód wylogowania, żeby strona logowania mogła pokazać komunikat
         sessionStorage.setItem('powodWylogowania', 'bezczynnosc');
-        // Wyrzucamy do logowania
         window.location.href = 'login.html';
     }
 
-    // Lista akcji, które oznaczają, że użytkownik żyje i coś robi na stronie
     const akcjeUzytkownika = ['mousemove', 'keydown', 'click', 'scroll', 'touchstart'];
-
-    // Podpinamy resetowanie timera pod każdy ruch użytkownika
     akcjeUzytkownika.forEach(akcja => {
         document.addEventListener(akcja, resetujTimer, { passive: true });
     });
 
-    // Uruchamiamy timer przy pierwszym załadowaniu strony
     resetujTimer();
 </script>
 </body>

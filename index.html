@@ -53,7 +53,7 @@
         .sidebar-link { display: block; color: white; padding: 15px 25px; text-decoration: none; font-weight: 700; font-size: 0.8rem; border-bottom: 1px solid #111; transition: 0.2s; }
         .sidebar-link:hover { background: #1a1a1a; color: #ffe800; padding-left: 35px; }
         
-        .sidebar-feedback, .sidebar-feedback:visited, .sidebar-feedback:link { display: block; margin-top: auto; background: #111; color: #ffe800 !important; padding: 15px 25px; text-decoration: none !important; font-weight: 900; font-size: 0.8rem; border-top: 1px solid #222; border-bottom: 1px solid #222; transition: 0.3s; text-transform: uppercase; letter-spacing: 0.5px; }
+        .sidebar-feedback { display: block; margin-top: auto; background: #111; color: #ffe800 !important; padding: 15px 25px; text-decoration: none !important; font-weight: 900; font-size: 0.8rem; border-top: 1px solid #222; border-bottom: 1px solid #222; transition: 0.3s; text-transform: uppercase; letter-spacing: 0.5px; }
         .sidebar-feedback:hover { background: #ffe800 !important; color: #000 !important; padding-left: 35px; }
 
         .user-profile { padding: 15px 20px; border-top: 2px solid #1a1a1a; display: flex; align-items: center; gap: 15px; cursor: pointer; transition: 0.3s; background: #0f0f0f; }
@@ -71,6 +71,13 @@
         .content { flex-grow: 1; overflow-y: auto; padding: 20px 30px; padding-bottom: 40px; }
         .content-inner { max-width: 1200px; margin: 0 auto; }
         
+        /* TABLICA OGŁOSZEŃ (PINBOARD) */
+        .pinboard-container { background: linear-gradient(135deg, #1f1c00, #111); border: 2px dashed #ffe800; border-radius: 12px; padding: 20px; margin-bottom: 25px; display: none; position: relative; box-shadow: 0 5px 25px rgba(255, 232, 0, 0.15); margin-top: 20px;}
+        .pinboard-pin { position: absolute; top: -15px; left: 50%; transform: translateX(-50%); font-size: 2rem; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5)); }
+        .pinboard-title { color: #ffe800; font-weight: 900; font-size: 1.3rem; text-transform: uppercase; margin-bottom: 10px; text-align: center; }
+        .pinboard-msg { color: #fff; font-size: 1rem; line-height: 1.6; text-align: center; white-space: pre-wrap; font-weight: bold; }
+        .pinboard-meta { font-size: 0.65rem; color: #888; text-align: right; margin-top: 15px; font-weight: 900; }
+
         .greeting { text-align: center; margin-bottom: 25px; margin-top: 10px; }
         .greeting h1 { color: #fff; font-size: 2rem; font-weight: 900; letter-spacing: 1px; }
         .greeting span { color: #ffe800; }
@@ -188,6 +195,7 @@
         .btn-delete-history { position: absolute; top: 10px; right: 10px; background: transparent; border: none; color: #f44; cursor: pointer; font-size: 1rem; transition: 0.2s; }
         .btn-delete-history:hover { transform: scale(1.2); }
         
+        /* NAPRAWIONY STYL MODALA SYSTEMOWEGO */
         #globalNotificationModal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 15000; align-items: center; justify-content: center; padding: 20px; backdrop-filter: blur(5px); }
         #popupBox { background: #0a0a0a; border: 3px solid #ffe800; padding: 30px; width: 100%; max-width: 500px; border-radius: 15px; text-align: center; box-shadow: 0 0 30px rgba(0,0,0,0.5); }
         #globalPopupTitle { margin-bottom: 15px; font-size: 1.3rem; text-transform: uppercase; font-weight: 900; }
@@ -232,6 +240,15 @@
 
 <div class="content">
     <div class="content-inner">
+        
+        <!-- NOWE: TABLICA OGŁOSZEŃ (Wyświetla się, jeśli kierownik coś doda w Centrum Dowodzenia) -->
+        <div class="pinboard-container" id="dashboardPinboard">
+            <div class="pinboard-pin">📌</div>
+            <div class="pinboard-title" id="pinboardTitle">TYTUŁ OGŁOSZENIA</div>
+            <div class="pinboard-msg" id="pinboardMsg">Treść ogłoszenia wczytywana z chmury...</div>
+            <div class="pinboard-meta" id="pinboardMeta">Dodane przez...</div>
+        </div>
+
         <div class="greeting">
             <h1>Cześć, <span id="greetName">Ekipa</span>!</h1>
         </div>
@@ -351,6 +368,7 @@
     </div>
 </div>
 
+<!-- Oczyszczony panel pracownika -->
 <div class="modal" id="employeeModal">
     <div class="emp-modal-content">
         <div id="empModalAvatar" class="emp-avatar-large"></div>
@@ -360,11 +378,6 @@
             <div class="emp-stat-box"><div style="font-size: 0.65rem; color: #888; font-weight: 900;">URODZINY</div><div id="empModalBirth" style="color: #fff; font-weight: bold; font-size: 1rem; margin-top: 5px;">-</div></div>
             <div class="emp-stat-box"><div style="font-size: 0.65rem; color: #888; font-weight: 900;">W FIRMIE OD</div><div id="empModalWork" style="color: #fff; font-weight: bold; font-size: 1rem; margin-top: 5px;">-</div></div>
         </div>
-        
-        <div id="empModalPerms" style="margin-bottom: 15px; display: none;">
-            <button id="btnToggleTilePerm" class="btn-modal-close" style="font-size: 0.75rem; border: 1px solid #333; background: #111;">Nadaj dostęp do kafelków</button>
-        </div>
-        
         <button class="btn-modal-close" onclick="closeEmployeeModal()">ZAMKNIJ KARTĘ</button>
     </div>
 </div>
@@ -379,10 +392,10 @@
     </div>
 </div>
 
-<div id="globalNotificationModal">
-    <div id="popupBox">
-        <h3 id="globalPopupTitle">POWIADOMIENIE</h3>
-        <p id="globalPopupMsg"></p>
+<div class="modal" id="globalNotificationModal">
+    <div class="modal-content" id="popupBox" style="border-width: 3px; max-width: 500px;">
+        <h3 id="globalPopupTitle" style="margin-bottom: 15px; font-size: 1.3rem; text-transform: uppercase; font-weight: 900;">POWIADOMIENIE</h3>
+        <p id="globalPopupMsg" style="color: #fff; font-size: 1rem; margin-bottom: 25px; line-height: 1.5; font-weight: 700;"></p>
         <button class="btn-close-popup" onclick="closeGlobalPopup()">ZROZUMIAŁEM</button>
     </div>
 </div>
@@ -401,6 +414,23 @@
         document.getElementById('addProgBtn').style.display = 'block'; 
         document.getElementById('btnReorder').style.display = 'block'; 
     }
+
+    // POBIERANIE PINBOARDU (TABLICY OGŁOSZEŃ) NA STRONIE GŁÓWNEJ
+    db.ref(`Stores/${myStore}/Settings/DashboardPin`).on('value', snap => {
+        const pin = snap.val();
+        const pinContainer = document.getElementById('dashboardPinboard');
+        if(pinContainer) {
+            if(pin && pin.active) {
+                document.getElementById('pinboardTitle').innerText = pin.title;
+                document.getElementById('pinboardMsg').innerText = pin.message;
+                const d = new Date(pin.timestamp);
+                document.getElementById('pinboardMeta').innerText = `Dodane: ${d.toLocaleDateString()} przez ${pin.author}`;
+                pinContainer.style.display = 'block';
+            } else {
+                pinContainer.style.display = 'none';
+            }
+        }
+    });
 
     db.ref('Admin/Settings/Announcement').once('value', snap => {
         const ann = snap.val();
@@ -501,7 +531,6 @@
         const hc = document.getElementById('historyContainer');
         hc.innerHTML = '<div style="color:#888;text-align:center;">Wczytywanie historii...</div>';
 
-        // Pobiera 50 najnowszych wpisów z bazy
         db.ref(`Stores/${myStore}/Dashboard/History`).limitToLast(50).once('value', snap => {
             const historyObj = snap.val();
             if(!historyObj) {
@@ -509,7 +538,6 @@
                 return;
             }
             
-            // Konwersja na tablicę z dodaniem ID klucza z bazy i sortowanie po czasie
             const historyArr = Object.entries(historyObj).map(([key, val]) => ({ key, ...val })).sort((a,b) => b.timestamp - a.timestamp); 
             hc.innerHTML = '';
             
@@ -524,7 +552,6 @@
                     actionText = `Wynik: ${h.oldCurrent} ➔ <span style="color:#ffe800">${h.newCurrent}</span>`;
                 }
 
-                // Generowanie przycisku usuwania TYLKO dla kierownika/KSS
                 let deleteBtnHtml = isManagerOrKss ? `<button class="btn-delete-history" onclick="deleteHistoryItem('${h.key}')">✖</button>` : '';
 
                 hc.innerHTML += `
@@ -544,7 +571,7 @@
     function deleteHistoryItem(historyKey) {
         if(confirm("Czy na pewno usunąć ten pojedynczy wpis z historii?")) {
             db.ref(`Stores/${myStore}/Dashboard/History/${historyKey}`).remove().then(() => {
-                openHistoryModal(); // Odświeża listę po usunięciu
+                openHistoryModal();
             });
         }
     }
@@ -684,12 +711,8 @@
         const finalOrder = existingProg ? existingProg.order : newOrder;
 
         db.ref(`Stores/${myStore}/Dashboard/Progi/${id}`).set({ type: 'counter', name: name, current: current, target: target, order: finalOrder }).then(() => { 
-            
             let oldCurrent = existingProg ? existingProg.current : 0;
-            if(oldCurrent !== current || !existingProg) {
-                logHistory(name, oldCurrent, current, !!existingProg);
-            }
-
+            if(oldCurrent !== current || !existingProg) { logHistory(name, oldCurrent, current, !!existingProg); }
             closeCounterModal(); 
         });
     }
@@ -764,12 +787,8 @@
         const finalOrder = existingProg ? existingProg.order : newOrder;
 
         db.ref(`Stores/${myStore}/Dashboard/Progi/${id}`).set({ type: 'chart', name: name, current: current, thresholds: thresholdsArr, layout: layout, order: finalOrder }).then(() => { 
-            
             let oldCurrent = existingProg ? existingProg.current : 0;
-            if(oldCurrent !== current || !existingProg) {
-                logHistory(name, oldCurrent, current, !!existingProg);
-            }
-
+            if(oldCurrent !== current || !existingProg) { logHistory(name, oldCurrent, current, !!existingProg); }
             closeProgModal(); 
         });
     }
@@ -851,35 +870,7 @@
         
         document.getElementById('empModalBirth').innerText = bDay;
         document.getElementById('empModalWork').innerText = wYearStr;
-        
-        const permContainer = document.getElementById('empModalPerms');
-        const permBtn = document.getElementById('btnToggleTilePerm');
-        
-        if(isManagerOrKss && emp.charId !== currentUser.charId) {
-            permContainer.style.display = 'block';
-            
-            if(emp.canEditTiles) {
-                permBtn.innerText = "Zabierz dostęp do kafelków";
-                permBtn.style.color = "#f44";
-                permBtn.style.borderColor = "#f44";
-                permBtn.onclick = () => setTilePermission(emp.charId, false);
-            } else {
-                permBtn.innerText = "Nadaj dostęp do kafelków";
-                permBtn.style.color = "#0a0";
-                permBtn.style.borderColor = "#0a0";
-                permBtn.onclick = () => setTilePermission(emp.charId, true);
-            }
-        } else {
-            permContainer.style.display = 'none';
-        }
-
         document.getElementById('employeeModal').style.display = 'flex';
-    }
-    
-    function setTilePermission(charId, canEdit) {
-        db.ref(`Stores/${myStore}/Users/${charId}/canEditTiles`).set(canEdit).then(() => {
-            openEmployeeModal(charId); 
-        });
     }
 
     function closeEmployeeModal() { document.getElementById('employeeModal').style.display = 'none'; }

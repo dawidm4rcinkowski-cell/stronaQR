@@ -162,19 +162,26 @@
         
         <div class="main-admin-grid">
             
-            <!-- SYSTEM POWIADOMIEŃ PUSH -->
+            <!-- SYSTEM POWIADOMIEŃ (PUSH) -->
             <div class="card" style="border-color: #3498db; box-shadow: 0 5px 20px rgba(52, 152, 219, 0.15);">
                 <div class="card-title" style="color: #3498db; border-bottom-color: #3498db;">
                     📢 SYSTEM POWIADOMIEŃ (PUSH)
                 </div>
-                <p style="font-size: 0.8rem; color: #888; margin-top:-5px; margin-bottom:10px;">Wysyłaj komunikaty, które natychmiast wyskoczą na ekranach pracowników.</p>
+                <p style="font-size: 0.8rem; color: #888; margin-top:-5px; margin-bottom:10px;">Wysyłaj komunikaty do całego sklepu, wybranych działów lub pojedynczych osób.</p>
                 
                 <div class="push-grid">
                     <div>
                         <div class="input-group">
                             <label>DO KOGO WYSŁAĆ?</label>
                             <select id="pushTarget" class="form-input">
-                                <!-- Generowane przez JS, z podziałem na działy -->
+                                <option value="ALL">📢 DO WSZYSTKICH</option>
+                                <option value="KSS">👑 TYLKO KIEROWNICTWO (KSS/ME)</option>
+                                <option disabled>───────────────</option>
+                                <option value="DEPT_IT">💻 CAŁY DZIAŁ IT</option>
+                                <option value="DEPT_AGD">🧺 CAŁY DZIAŁ AGD</option>
+                                <option value="DEPT_RTV">📺 CAŁY DZIAŁ RTV</option>
+                                <option value="DEPT_RS">📱 CAŁY DZIAŁ RS</option>
+                                <option value="DEPT_POK">🛒 CAŁY DZIAŁ POK</option>
                             </select>
                         </div>
                         <div class="input-group">
@@ -267,6 +274,7 @@
 <div class="modal" id="addEmployeeModal">
     <div class="modal-content" style="max-width: 450px;">
         <h3 style="color:#ffe800; margin-bottom:15px; text-align:center; font-size: 1.3rem;">DODAJ PRACOWNIKA</h3>
+        
         <div class="input-group" style="text-align: left;">
             <label>Imię (widoczne w systemie)</label>
             <input type="text" class="form-input" id="newEmpName" placeholder="np. Tomasz">
@@ -284,10 +292,12 @@
                 <option value="ME">Kierownik Sklepu (ME)</option>
             </select>
         </div>
+        
         <div class="role-checkboxes">
             <label class="role-label"><input type="checkbox" id="newEmpIsKss"> Pracownik posiada uprawnienia KSS</label>
             <label class="role-label"><input type="checkbox" id="newEmpTiles"> Pozwól edytować kafelki na stronie głównej</label>
         </div>
+        
         <div id="addEmpMsg" class="msg-box"></div>
         <div style="display:flex; gap:10px; margin-top:25px;">
             <button class="btn-action" style="flex:1; background:#333; color:#fff; margin-top:0;" onclick="closeAddEmployeeModal()">ANULUJ</button>
@@ -300,6 +310,7 @@
     <div class="modal-content" style="max-width: 450px;">
         <h3 style="color:#ffe800; margin-bottom:15px; text-align:center; font-size: 1.3rem;">EDYTUJ PRACOWNIKA</h3>
         <input type="hidden" id="editEmpOldCharId">
+
         <div class="input-group" style="text-align: left;">
             <label>Imię</label>
             <input type="text" class="form-input" id="editEmpName">
@@ -307,7 +318,7 @@
         <div class="input-group" style="text-align: left;">
             <label>Kod Logowania (CharID) <span style="color:#f44; font-size:0.6rem;">(UWAGA!)</span></label>
             <input type="text" class="form-input" id="editEmpCharId">
-            <span style="font-size:0.6rem; color:#888; margin-top:3px;">Zmiana kodu odepnie pracownika od planu pracy!</span>
+            <span style="font-size:0.6rem; color:#888; margin-top:3px;">Zmiana kodu odepnie pracownika od planu pracy! Rób to tylko, jeśli musisz.</span>
         </div>
         <div class="input-group" style="text-align: left;">
             <label>Dział</label>
@@ -318,10 +329,12 @@
                 <option value="ME">Kierownik Sklepu (ME)</option>
             </select>
         </div>
+        
         <div class="role-checkboxes">
             <label class="role-label"><input type="checkbox" id="editEmpIsKss"> Pracownik posiada uprawnienia KSS</label>
             <label class="role-label"><input type="checkbox" id="editEmpTiles"> Pozwól edytować kafelki na stronie głównej</label>
         </div>
+        
         <div id="editEmpMsg" class="msg-box"></div>
         <div style="display:flex; gap:10px; margin-top:25px;">
             <button class="btn-action" style="flex:1; background:#333; color:#fff; margin-top:0;" onclick="closeEditEmployeeModal()">ANULUJ</button>
@@ -490,7 +503,7 @@
             let usersForReset = globalUsersList.filter(u => u.charId !== 'ADMIN' && u.charId !== currentUser.charId);
             usersForReset.sort((a,b) => a.name.localeCompare(b.name, 'pl', {sensitivity: 'base'}));
 
-            // RENDER LISTY EKIPY
+            // RENDER LISTY EKIPY Z NAPRAWIONYM BADGIEM KAFELKÓW
             let html = '';
             if(usersForReset.length === 0) {
                 html = '<div style="color: #666; font-size:0.8rem; font-weight:bold; padding:20px; width:100%; text-align:center;">BRAK INNYCH UŻYTKOWNIKÓW W BAZIE.</div>';
@@ -499,7 +512,6 @@
                     let uAvatar = u.avatar ? `<img src="${u.avatar}" style="width:100%; height:100%; object-fit:cover; border-radius:50%;">` : u.charId.charAt(0);
                     let displayDept = (u.isKss && u.dept !== 'ME') ? 'KSS' : u.dept;
                     
-                    // NOWY, NIEŁAMIĄCY SIĘ I ESTETYCZNY ZNACZNIK
                     let tilesBadge = u.canEditTiles ? `<span style="display:inline-block; border: 1px solid #0a0; color:#0a0; background:rgba(0,170,0,0.1); padding: 3px 6px; border-radius:5px; font-size:0.6rem; font-weight:900; white-space:nowrap; vertical-align:middle; margin-left:8px;">🛠️ KAFELKI</span>` : '';
                     
                     html += `
@@ -541,28 +553,8 @@
             });
         });
     }
-            document.getElementById('teamList').innerHTML = html;
 
-            // RENDER DROPDOWNU DO POWIADOMIEŃ PUSH Z DZIAŁAMI
-            let pushSelect = document.getElementById('pushTarget');
-            pushSelect.innerHTML = `
-                <option value="ALL">📢 DO WSZYSTKICH</option>
-                <option value="KSS">👑 TYLKO KIEROWNICTWO (KSS/ME)</option>
-                <option disabled>───────────────</option>
-                <option value="DEPT_IT">💻 CAŁY DZIAŁ IT</option>
-                <option value="DEPT_AGD">🧺 CAŁY DZIAŁ AGD</option>
-                <option value="DEPT_RTV">📺 CAŁY DZIAŁ RTV</option>
-                <option value="DEPT_RS">📱 CAŁY DZIAŁ RS</option>
-                <option value="DEPT_POK">🛒 CAŁY DZIAŁ POK</option>
-                <option disabled>───────────────</option>
-            `;
-            usersForReset.forEach(u => { 
-                pushSelect.innerHTML += `<option value="${u.charId}">👤 Pracownik: ${u.name} (${u.dept})</option>`; 
-            });
-        });
-    }
-
-    // --- WYSYŁANIE PUSH ---
+    // --- WYSYŁANIE PUSH Z OBSŁUGĄ DZIAŁÓW ---
     function sendPushNotification() {
         const target = document.getElementById('pushTarget').value;
         const type = document.getElementById('pushType').value;
@@ -599,7 +591,6 @@
             });
             
         } else if (target.startsWith('DEPT_')) {
-            // WYSYŁANIE DO KONKRETNEGO DZIAŁU
             let deptName = target.split('_')[1];
             let targetUsers = globalUsersList.filter(u => u.dept === deptName);
             
@@ -625,7 +616,6 @@
             });
 
         } else {
-            // POJEDYNCZY PRACOWNIK LUB KSS
             db.ref(`Stores/${myStore}/Notifications`).push({
                 to: target, title: title, msg: msg, type: type, read: false, timestamp: Date.now()
             }).then(() => {
@@ -654,7 +644,6 @@
             }).catch(err => alert("Błąd połączenia z bazą: " + err.message));
         }
     }
-    
     function closeResetModal() { document.getElementById('resetSuccessModal').style.display = 'none'; }
 
     function confirmDeleteEmployee(empCharId, empName) {

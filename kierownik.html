@@ -121,6 +121,9 @@
         .btn-close-popup { width: 100%; background: #ffe800; color: #000; border: none; padding: 12px 20px; font-weight: 900; border-radius: 8px; cursor: pointer; text-transform: uppercase; transition: 0.2s; }
         .btn-close-popup:hover { transform: scale(1.02); }
         
+        @keyframes blink { 0% { opacity: 1; } 50% { opacity: 0.3; } 100% { opacity: 1; } }
+        .nav-alert { color: #f44; font-weight: 900; animation: blink 1s infinite; font-size: 1rem; margin-left: 5px; }
+
         .push-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
         @media (max-width: 768px) { .push-grid { grid-template-columns: 1fr; } }
     </style>
@@ -139,10 +142,10 @@
         <a href="index.html" class="sidebar-link">Strona główna</a>
         <a href="plan.html" class="sidebar-link">Plan pracy</a>
         <a href="inwa.html" class="sidebar-link">Inwentury</a>
+        <!-- Dodany wykrzyknik kssAlertBadge tutaj -->
         <a href="inwak.html" class="sidebar-link" id="navInwaKSS">Inwentury (ME/KSS) <span id="kssAlertBadge"></span></a>
         <a href="azs.html" class="sidebar-link">AZS</a>
         <a href="kwt.html" class="sidebar-link">KWT</a>
-        <!-- Podświetlone tylko w Centrum Dowodzenia -->
         <a href="kierownik.html" class="sidebar-link" style="color:#ffe800; border-left: 4px solid #ffe800; background: #1a1a1a;">Centrum Dowodzenia</a>
         <a href="feedback.html" class="sidebar-feedback">💡 Zgłoś problem / Pomysł</a>
     </div>
@@ -243,7 +246,7 @@
                 </div>
             </div>
 
-            <!-- ZARZĄDZANIE ZESPOŁEM (UKŁAD PIONOWY POD IMIENIEM) -->
+            <!-- ZARZĄDZANIE ZESPOŁEM -->
             <div class="card full-width">
                 <div class="card-title">Zarządzanie Zespołem</div>
                 <div class="team-header">
@@ -477,9 +480,6 @@
         }
     }
 
-    // ==========================================
-    // LOGIKA ZARZĄDZANIA ZESPOŁEM (UKŁAD PIONOWY POD IMIENIEM)
-    // ==========================================
     loadTeamForReset();
 
     function loadTeamForReset() {
@@ -492,7 +492,7 @@
 
             let html = '';
             if(usersForReset.length === 0) {
-                html = '<div style="color: #666; font-size:0.8rem; font-weight:bold; width:100%; text-align:center;">BRAK INNYCH UŻYTKOWNIKÓW W BAZIE.</div>';
+                html = '<div style="color: #666; font-size:0.8rem; font-weight:bold; padding:20px; width:100%; text-align:center;">BRAK INNYCH UŻYTKOWNIKÓW W BAZIE.</div>';
             } else {
                 usersForReset.forEach(u => {
                     let uAvatar = u.avatar ? `<img src="${u.avatar}" style="width:100%; height:100%; object-fit:cover; border-radius:50%;">` : u.charId.charAt(0);
@@ -734,6 +734,30 @@
             setTimeout(() => { closeEditEmployeeModal(); }, 1500);
 
         } catch(e) { msgBox.classList.add('msg-error'); msgBox.innerText = "Błąd z chmurą: " + e.message; }
+    }
+
+    // NASŁUCH DLA WYKRZYKNIKA W MENU (Inwentury ME/KSS)
+    if (typeof db !== 'undefined' && typeof currentUser !== 'undefined') {
+        const isManagerOrKssGlobal = (currentUser.dept === 'ME' || currentUser.isKss);
+
+        if (isManagerOrKssGlobal) {
+            db.ref(`Stores/${myStore}/Inwentury`).on('value', snap => {
+                let allInwa = snap.val() || {};
+                let hasAwaiting = false;
+
+                Object.keys(allInwa).forEach(monthKey => {
+                    let monthData = allInwa[monthKey] || {};
+                    Object.values(monthData).forEach(item => {
+                        if (item.status === 'awaiting_kss') {
+                            hasAwaiting = true;
+                        }
+                    });
+                });
+
+                let badge = document.getElementById('kssAlertBadge');
+                if(badge) badge.innerHTML = hasAwaiting ? `<span class="nav-alert">[!]</span>` : '';
+            });
+        }
     }
 </script>
 </body>

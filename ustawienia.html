@@ -147,6 +147,7 @@
         <a href="inwak.html" class="sidebar-link" id="navInwaKSS">Inwentury (ME/KSS)</a>
         <a href="azs.html" class="sidebar-link">AZS</a>
         <a href="kwt.html" class="sidebar-link">KWT</a>
+        <a href="qr.html" class="sidebar-link">Kod QR</a>
         <a href="feedback.html" class="sidebar-feedback">💡 Zgłoś problem / Pomysł</a>
     </div>
     <div class="user-profile">
@@ -239,7 +240,7 @@
         
         <div class="input-group" style="margin-bottom: 15px; text-align: left;">
             <label>Imię (widoczne w systemie)</label>
-            <input type="text" class="form-input" id="newEmpName" placeholder="np. TOMASZ">
+            <input type="text" class="form-input" id="newEmpName" placeholder="np. Tomasz">
         </div>
         
         <div class="input-group" style="margin-bottom: 15px; text-align: left;">
@@ -460,7 +461,7 @@
     }
 
     async function saveNewEmployee() {
-        const name = document.getElementById('newEmpName').value.trim().toUpperCase();
+        const name = document.getElementById('newEmpName').value.trim();
         let charId = document.getElementById('newEmpCharId').value.trim().toUpperCase().replace(/\s+/g, '');
         const dept = document.getElementById('newEmpDept').value;
         const isKss = document.getElementById('newEmpIsKss').checked;
@@ -531,7 +532,7 @@
 
     async function saveEditedEmployee() {
         const oldCharId = document.getElementById('editEmpOldCharId').value;
-        const name = document.getElementById('editEmpName').value.trim().toUpperCase();
+        const name = document.getElementById('editEmpName').value.trim();
         let newCharId = document.getElementById('editEmpCharId').value.trim().toUpperCase().replace(/\s+/g, '');
         const dept = document.getElementById('editEmpDept').value;
         const isKss = document.getElementById('editEmpIsKss').checked;
@@ -689,40 +690,27 @@
     function closeGlobalPopup() { 
         document.getElementById('globalNotificationModal').style.display = 'none'; 
     }
-</script>
-<script>
-    // Ustaw czas bezczynności w minutach
+
+    // ==========================================
+    // SYSTEM AUTOWYLOGOWANIA
+    // ==========================================
     const minutyBezczynnosci = 5; 
-    
-    // Przeliczenie na milisekundy
     const limitCzasu = minutyBezczynnosci * 60 * 1000; 
     let timerBezczynnosci;
 
-    // Funkcja resetująca licznik
     function resetujTimer() {
         clearTimeout(timerBezczynnosci);
         timerBezczynnosci = setTimeout(wylogujZPowoduBezczynnosci, limitCzasu);
     }
 
-    // Funkcja wylogowująca
     function wylogujZPowoduBezczynnosci() {
-        // Usuwamy dane sesji
         localStorage.removeItem('currentUser');
-        // Zapisujemy powód wylogowania, żeby strona logowania mogła pokazać komunikat
         sessionStorage.setItem('powodWylogowania', 'bezczynnosc');
-        // Wyrzucamy do logowania
         window.location.href = 'login.html';
     }
 
-    // Lista akcji, które oznaczają, że użytkownik żyje i coś robi na stronie
     const akcjeUzytkownika = ['mousemove', 'keydown', 'click', 'scroll', 'touchstart'];
-
-    // Podpinamy resetowanie timera pod każdy ruch użytkownika
-    akcjeUzytkownika.forEach(akcja => {
-        document.addEventListener(akcja, resetujTimer, { passive: true });
-    });
-
-    // Uruchamiamy timer przy pierwszym załadowaniu strony
+    akcjeUzytkownika.forEach(akcja => { document.addEventListener(akcja, resetujTimer, { passive: true }); });
     resetujTimer();
 </script>
 </body>

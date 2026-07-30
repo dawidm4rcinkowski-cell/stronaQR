@@ -71,7 +71,6 @@
         .content { flex-grow: 1; overflow-y: auto; padding: 20px 30px; padding-bottom: 40px; }
         .content-inner { max-width: 1200px; margin: 0 auto; }
         
-        /* TABLICA OGŁOSZEŃ (PINBOARD) */
         .pinboard-container { background: linear-gradient(135deg, #1f1c00, #111); border: 2px dashed #ffe800; border-radius: 12px; padding: 20px; margin-bottom: 25px; display: none; position: relative; box-shadow: 0 5px 25px rgba(255, 232, 0, 0.15); margin-top: 20px;}
         .pinboard-pin { position: absolute; top: -15px; left: 50%; transform: translateX(-50%); font-size: 2rem; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5)); }
         .pinboard-title { color: #ffe800; font-weight: 900; font-size: 1.3rem; text-transform: uppercase; margin-bottom: 10px; text-align: center; }
@@ -100,7 +99,6 @@
 
         .section-title { font-size: 0.9rem; color: #666; font-weight: 900; margin-bottom: 20px; letter-spacing: 2px; border-bottom: 2px solid #222; padding-bottom: 8px; text-transform: uppercase; display: flex; justify-content: space-between; align-items: center; }
         
-        /* GRYWALIZACJA */
         .btn-add-prog { background: #ffe800; color: #000; border: none; padding: 6px 12px; font-weight: 900; border-radius: 8px; cursor: pointer; text-transform: uppercase; font-size: 0.65rem; transition: 0.3s; }
         .btn-add-prog:hover { transform: scale(1.05); box-shadow: 0 0 10px rgba(255, 232, 0, 0.3); }
         .btn-reorder-prog { background: transparent; color: #888; border: 1px solid #555; padding: 6px 12px; font-weight: 900; border-radius: 8px; cursor: pointer; text-transform: uppercase; font-size: 0.65rem; transition: 0.3s; }
@@ -153,7 +151,6 @@
         .team-name { font-weight: 900; font-size: 1rem; color: #fff; letter-spacing: 0.5px; }
         .team-dept { font-size: 0.75rem; color: #ffe800; font-weight: 900; margin-top: 4px; }
         
-        /* MODALE */
         .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 11000; align-items: center; justify-content: center; padding: 20px; backdrop-filter: blur(5px); }
         .emp-modal-content { background: #0a0a0a; border: 2px solid #ffe800; padding: 40px 20px; width: 100%; max-width: 350px; border-radius: 15px; text-align: center; box-shadow: 0 0 30px rgba(255, 232, 0, 0.15); }
         .emp-avatar-large { width: 90px; height: 90px; border-radius: 50%; background: #151515; border: 3px solid #ffe800; display: flex; align-items: center; justify-content: center; font-weight: 900; color: #ffe800; font-size: 2.5rem; overflow: hidden; margin: 0 auto 20px; box-shadow: 0 0 15px rgba(255,232,0,0.3); }
@@ -194,6 +191,9 @@
         .btn-delete-history { position: absolute; top: 10px; right: 10px; background: transparent; border: none; color: #f44; cursor: pointer; font-size: 1rem; transition: 0.2s; }
         .btn-delete-history:hover { transform: scale(1.2); }
         
+        @keyframes blink { 0% { opacity: 1; } 50% { opacity: 0.3; } 100% { opacity: 1; } }
+        .nav-alert { color: #f44; font-weight: 900; animation: blink 1s infinite; font-size: 1rem; margin-left: 5px; }
+
         #globalNotificationModal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 15000; align-items: center; justify-content: center; padding: 20px; backdrop-filter: blur(5px); }
         #popupBox { background: #0a0a0a; border: 3px solid #ffe800; padding: 30px; width: 100%; max-width: 500px; border-radius: 15px; text-align: center; box-shadow: 0 0 30px rgba(0,0,0,0.5); }
         #globalPopupTitle { margin-bottom: 15px; font-size: 1.3rem; text-transform: uppercase; font-weight: 900; }
@@ -213,17 +213,14 @@
 <div class="sidebar" id="sidebar">
     <div class="sidebar-nav">
         <div class="sidebar-header">Nawigacja</div>
-        <!-- Prawidłowo podświetlona Strona Główna -->
         <a href="index.html" class="sidebar-link" style="color:#ffe800; border-left: 4px solid #ffe800; background: #1a1a1a;">Strona główna</a>
         <a href="plan.html" class="sidebar-link">Plan pracy</a>
         <a href="inwa.html" class="sidebar-link">Inwentury</a>
-        <a href="inwak.html" class="sidebar-link" id="navInwaKSS">Inwentury (ME/KSS)</a>
+        <!-- Wykrzyknik dodany tutaj -->
+        <a href="inwak.html" class="sidebar-link" id="navInwaKSS">Inwentury (ME/KSS) <span id="kssAlertBadge"></span></a>
         <a href="azs.html" class="sidebar-link">AZS</a>
         <a href="kwt.html" class="sidebar-link">KWT</a>
-        
-        <!-- Centrum Dowodzenia bez domyślnego żółtego stylu tutaj -->
         <a href="kierownik.html" class="sidebar-link" id="navKierownik">Centrum Dowodzenia</a>
-        
         <a href="feedback.html" class="sidebar-feedback">💡 Zgłoś problem / Pomysł</a>
     </div>
     
@@ -241,7 +238,6 @@
 <div class="content">
     <div class="content-inner">
         
-        <!-- TABLICA OGŁOSZEŃ (PINBOARD) -->
         <div class="pinboard-container" id="dashboardPinboard">
             <div class="pinboard-pin">📌</div>
             <div class="pinboard-title" id="pinboardTitle">TYTUŁ OGŁOSZENIA</div>
@@ -951,6 +947,26 @@
                 db.ref(`Stores/${myStore}/Notifications/${n.keyId}`).update({ read: true });
             }
         });
+
+        // NASŁUCH DLA WYKRZYKNIKA W MENU (Inwentury ME/KSS)
+        if (isManagerOrKssGlobal) {
+            db.ref(`Stores/${myStore}/Inwentury`).on('value', snap => {
+                let allInwa = snap.val() || {};
+                let hasAwaiting = false;
+
+                Object.keys(allInwa).forEach(monthKey => {
+                    let monthData = allInwa[monthKey] || {};
+                    Object.values(monthData).forEach(item => {
+                        if (item.status === 'awaiting_kss') {
+                            hasAwaiting = true;
+                        }
+                    });
+                });
+
+                let badge = document.getElementById('kssAlertBadge');
+                if(badge) badge.innerHTML = hasAwaiting ? `<span class="nav-alert">[!]</span>` : '';
+            });
+        }
     }
 
     function closeGlobalPopup() { 

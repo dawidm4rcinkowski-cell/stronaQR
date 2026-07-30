@@ -204,7 +204,7 @@
         <a href="index.html" class="sidebar-link">Strona główna</a>
         <a href="plan.html" class="sidebar-link" style="color:#ffe800">Plan pracy</a>
         <a href="inwa.html" class="sidebar-link">Inwentury</a>
-        <!-- Wykrzyknik dodany tutaj -->
+        <!-- Wykrzyknik kssAlertBadge na swoim miejscu -->
         <a href="inwak.html" class="sidebar-link" id="navInwaKSS">Inwentury (ME/KSS) <span id="kssAlertBadge"></span></a>
         <a href="azs.html" class="sidebar-link">AZS</a>
         <a href="kwt.html" class="sidebar-link">KWT</a>
@@ -655,6 +655,29 @@
         closeSettingsModal(); 
     }
 
+    // =======================================================
+    // ORYGINALNY, SPRAWNY GENERATOR GRAFIKU
+    // =======================================================
+    function getStreak(charId, day, scheduleObj) {
+        let s = 0;
+        for (let d = day-1; d >= 1; d--) { let st = scheduleObj[charId][d]; if(st && (st.includes('-') || st==="URLOP" || st==="SZK" || st.toLowerCase()==="szk.")) s++; else break; }
+        for (let d = day+1; d <= 31; d++) { let st = scheduleObj[charId][d]; if(st && (st.includes('-') || st==="URLOP" || st==="SZK" || st.toLowerCase()==="szk.")) s++; else break; }
+        return s;
+    }
+
+    function canWork(charId, day, scheduleObj) {
+        if (scheduleObj[charId][day] !== "") return false;
+        let streakBefore = 0; for (let d = day - 1; d >= 1; d--) { if (scheduleObj[charId][d] !== "") streakBefore++; else break; }
+        let streakAfter = 0; for (let d = day + 1; d <= 31; d++) { if (scheduleObj[charId][d] && scheduleObj[charId][d] !== "") streakAfter++; else break; }
+        if (streakBefore + 1 + streakAfter > 5) return false; 
+        return true;
+    }
+
+    function shuffle(array) {
+        for (let i = array.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [array[i], array[j]] = [array[j], array[i]]; }
+        return array;
+    }
+
     function startGeneration() {
         if(localPlanMeta.locked === true) return;
         document.getElementById('loadingData').innerHTML = "Budowanie szkieletu i balansowanie godzin... <span>To może chwilę potrwać</span>";
@@ -703,7 +726,13 @@
                 let totalNeeded = isSaturday ? localPlanMeta.satStaffCount : localPlanMeta.sunStaffCount;
 
                 let available = employees.filter(e => memorySchedule[e.charId][d] === "" && e.dept !== 'ME'); 
-                available.sort(() => Math.random() - 0.5);
+                shuffle(available);
+                available.sort((a,b) => {
+                    let aWork = 0, bWork = 0;
+                    sats.forEach(s => { if(memorySchedule[a.charId][s] && memorySchedule[a.charId][s].includes('-')) aWork++; });
+                    sats.forEach(s => { if(memorySchedule[b.charId][s] && memorySchedule[b.charId][s].includes('-')) bWork++; });
+                    return aWork - bWork; 
+                });
 
                 let toWork = []; let poks = available.filter(e => e.p); let sales = available.filter(e => !e.p); 
                 
@@ -718,17 +747,31 @@
             for(let d=1; d<=daysInMonth; d++) {
                 if(new Date(year, curM, d).getDay() === 6 || new Date(year, curM, d).getDay() === 0 || !isWorkDay(d)) continue;
                 
-                let availPoks = employees.filter(e => e.p && memorySchedule[e.charId][d] === "");
+                let availPoks = employees.filter(e => e.p && canWork(e.charId, d, memorySchedule));
+                
                 if(availPoks.length >= 2) { 
-                    availPoks.sort(() => Math.random() - 0.5);
-                    memorySchedule[availPoks[0].charId][d] = openShiftStr; 
-                    memorySchedule[availPoks[1].charId][d] = closeShiftStr; 
+                    shuffle(availPoks);
+                    let p1 = availPoks[0]; let p2 = availPoks[1];
+                    let h1 = calcRealH(p1.charId, memorySchedule); 
+                    let h2 = calcRealH(p2.charId, memorySchedule);
+                    
+                    let daysLeft = daysInMonth - d;
+                    let futureCost = daysLeft * 8; 
+                    let availableCombined = (baseNorm * 2) - (h1 + h2);
+                    
+                    if (futureCost > availableCombined + 4) {
+                        memorySchedule[p1.charId][d] = fullShiftStr;
+                    } else {
+                        memorySchedule[p1.charId][d] = openShiftStr; 
+                        memorySchedule[p2.charId][d] = closeShiftStr; 
+                    }
                 } else if(availPoks.length === 1) { 
                     memorySchedule[availPoks[0].charId][d] = fullShiftStr; 
                 }
 
-                let availSales = employees.filter(e => !e.p && e.dept !== 'ME' && memorySchedule[e.charId][d] === "");
-                availSales.sort(() => Math.random() - 0.5);
+                let availSales = employees.filter(e => !e.p && e.dept !== 'ME' && canWork(e.charId, d, memorySchedule));
+                shuffle(availSales); 
+                availSales.sort((a,b) => calcRealH(a.charId, memorySchedule) - calcRealH(b.charId, memorySchedule));
                 
                 let otwNeeded = 3; let zamNeeded = 3;
                 let assignSale = (emp, isOtw) => {
@@ -742,6 +785,147 @@
                 for(let i=0; i<availSales.length && (otwNeeded>0 || zamNeeded>0); i++) {
                     if(otwNeeded > 0) { assignSale(availSales[i], true); i--; } else if (zamNeeded > 0) { assignSale(availSales[i], false); i--; }
                 }
+            }
+
+            let allBalanced = false; let iterations = 0;
+            
+            const tryAddShift = (emp) => {
+                let possibleDays = [];
+                for(let d=1; d<=daysInMonth; d++) {
+                    let isWknd = new Date(year, curM, d).getDay() === 0 || new Date(year, curM, d).getDay() === 6;
+                    if(isWorkDay(d) && !isWknd && memorySchedule[emp.charId][d] === "" && getStreak(emp.charId, d, memorySchedule) < 5) {
+                        let c = 0; employees.forEach(em => { if(em.dept !== 'ME' && memorySchedule[em.charId][d].includes('-')) c++; }); possibleDays.push({ d, staff: c });
+                    }
+                }
+                if(possibleDays.length > 0) { shuffle(possibleDays); possibleDays.sort((a,b) => a.staff - b.staff); memorySchedule[emp.charId][possibleDays[0].d] = (Math.random()>0.5 ? openShiftStr : closeShiftStr); return true; }
+                return false;
+            };
+
+            const tryExtendShift = (emp) => {
+                let possibleDays = [];
+                for(let d=1; d<=daysInMonth; d++) {
+                    let isWknd = new Date(year, curM, d).getDay() === 0 || new Date(year, curM, d).getDay() === 6; let v = memorySchedule[emp.charId][d];
+                    if(!isWknd && (v === openShiftStr || v === closeShiftStr) && getStreak(emp.charId, d, memorySchedule) < 5) possibleDays.push(d);
+                }
+                if(possibleDays.length > 0) { shuffle(possibleDays); memorySchedule[emp.charId][possibleDays[0]] = fullShiftStr; return true; }
+                return false;
+            };
+
+            const tryRemoveShift = (emp, strict) => {
+                let possibleDays = [];
+                for(let d=1; d<=daysInMonth; d++) {
+                    let v = memorySchedule[emp.charId][d]; let isWknd = new Date(year, curM, d).getDay() === 0 || new Date(year, curM, d).getDay() === 6;
+                    if(!isWknd && (v === openShiftStr || v === closeShiftStr || v === fullShiftStr)) {
+                        let otwSales = 0, zamSales = 0, otwPok = 0, zamPok = 0, itCount = 0, agdCount = 0;
+                        employees.forEach(em => {
+                            if(em.charId === emp.charId || em.dept === 'ME') return; let ev = memorySchedule[em.charId][d];
+                            if(ev.includes('-')) {
+                                let p = ev.split('-'); 
+                                let isO = timeToDecimal(p[0]) <= 11.5; 
+                                let isZ = timeToDecimal(p[1]) >= 18.75; 
+                                if(isO) { if(em.p) otwPok++; else otwSales++; } if(isZ) { if(em.p) zamPok++; else zamSales++; }
+                                if(em.dept === 'IT') itCount++; if(em.dept === 'AGD') agdCount++;
+                            }
+                        });
+                        let pV = v.split('-');
+                        let isOtw = timeToDecimal(pV[0]) <= 11.5; let isZam = timeToDecimal(pV[1]) >= 18.75; let isSafe = true;
+                        if(strict) {
+                            if(isOtw && (otwSales < 3 || otwPok < 1)) isSafe = false;
+                            if(isZam && (zamSales < 3 || zamPok < 1)) isSafe = false;
+                            if(itCount < 1 || agdCount < 1) isSafe = false;
+                        } else {
+                            if(isOtw && (otwSales + otwPok <= 1)) isSafe = false;
+                            if(isZam && (zamSales + zamPok <= 1)) isSafe = false;
+                            if(emp.p && (otwPok + zamPok === 0)) isSafe = false;
+                        }
+                        if(isSafe) possibleDays.push({ d, staff: otwSales + zamSales });
+                    }
+                }
+                if(possibleDays.length > 0) { shuffle(possibleDays); possibleDays.sort((a,b) => b.staff - a.staff); memorySchedule[emp.charId][possibleDays[0].d] = ""; return true; }
+                return false;
+            };
+
+            const tryShortenShift = (emp, strict) => {
+                let possibleDays = [];
+                for(let d=1; d<=daysInMonth; d++) {
+                    let isWknd = new Date(year, curM, d).getDay() === 0 || new Date(year, curM, d).getDay() === 6; let v = memorySchedule[emp.charId][d];
+                    if(!isWknd && v === fullShiftStr) {
+                        let isSafe = true;
+                        if(strict && emp.p) {
+                            let oP = 0, zP = 0;
+                            employees.forEach(em => { if(em.charId !== emp.charId && em.p) { let ev = memorySchedule[em.charId][d]; if(ev.includes('-')) { let p = ev.split('-'); if(timeToDecimal(p[0])<=11.5) oP++; if(timeToDecimal(p[1])>=18.75) zP++; } } });
+                            if(oP === 0 || zP === 0) isSafe = false;
+                        }
+                        if(isSafe) possibleDays.push(d);
+                    }
+                }
+                if(possibleDays.length > 0) {
+                    shuffle(possibleDays); let targetD = possibleDays[0]; let newShift = Math.random() > 0.5 ? openShiftStr : closeShiftStr;
+                    if(emp.p) {
+                        let oP=0, zP=0;
+                        employees.forEach(em => { if(em.charId !== emp.charId && em.p) { let ev = memorySchedule[em.charId][targetD]; if(ev.includes('-')) { let p = ev.split('-'); if(timeToDecimal(p[0])<=11.5) oP++; if(timeToDecimal(p[1])>=18.75) zP++; } } });
+                        if(oP === 0 && zP > 0) newShift = openShiftStr; else if(zP === 0 && oP > 0) newShift = closeShiftStr;
+                    }
+                    memorySchedule[emp.charId][targetD] = newShift; return true;
+                }
+                return false;
+            };
+
+            while(!allBalanced && iterations < 5000) {
+                allBalanced = true; 
+                let strictMode = iterations < 1500; 
+                let brutalMode = iterations > 3500; 
+
+                let status = employees.map(e => {
+                    let target = baseNorm; 
+                    let current = calcRealH(e.charId, memorySchedule);
+                    return { e, target, current, diff: target - current };
+                });
+
+                shuffle(status); status.sort((a,b) => Math.abs(b.diff) - Math.abs(a.diff));
+
+                for(let st of status) {
+                    if(st.diff === 0 || st.e.dept === 'ME') continue; 
+                    allBalanced = false; let actionTaken = false; let emp = st.e;
+                    
+                    if(st.diff > 0) { 
+                        if(st.diff >= 8) actionTaken = tryAddShift(emp);
+                        if(!actionTaken && st.diff >= 2) actionTaken = tryExtendShift(emp);
+                        if(!actionTaken && !strictMode) {
+                             for(let d=1; d<=daysInMonth; d++) {
+                                let isWknd = new Date(year, curM, d).getDay() === 0 || new Date(year, curM, d).getDay() === 6;
+                                if(isWorkDay(d) && !isWknd && memorySchedule[emp.charId][d] === "" && (getStreak(emp.charId, d, memorySchedule) < 5 || brutalMode)) { 
+                                    memorySchedule[emp.charId][d] = openShiftStr; 
+                                    actionTaken = true; break; 
+                                }
+                             }
+                        }
+                    } else if (st.diff < 0) { 
+                        if(st.diff <= -8) actionTaken = tryRemoveShift(emp, strictMode);
+                        if(!actionTaken && st.diff <= -2) actionTaken = tryShortenShift(emp, strictMode);
+                        if(!actionTaken && (!strictMode || brutalMode)) {
+                             for(let d=1; d<=daysInMonth; d++) {
+                                let isWknd = new Date(year, curM, d).getDay() === 0 || new Date(year, curM, d).getDay() === 6; 
+                                let s = memorySchedule[emp.charId][d];
+                                
+                                if(!isWknd && (s === openShiftStr || s === closeShiftStr || s === fullShiftStr)) {
+                                    let isLastPok = false;
+                                    if(emp.p) { 
+                                        let otherPok = 0; 
+                                        employees.forEach(em => { if(em.charId !== emp.charId && em.p && memorySchedule[em.charId][d].includes('-')) otherPok++; }); 
+                                        if(otherPok === 0) isLastPok = true; 
+                                    }
+                                    if(!isLastPok || brutalMode) { 
+                                        memorySchedule[emp.charId][d] = ""; 
+                                        actionTaken = true; break; 
+                                    }
+                                }
+                             }
+                        }
+                    }
+                    if(actionTaken) break; 
+                }
+                iterations++;
             }
 
             let finalUpdates = {};

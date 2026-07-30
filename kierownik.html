@@ -64,10 +64,9 @@
         .overlay.active { display: block; }
         
         .content { flex-grow: 1; overflow-y: auto; padding: 30px 20px; }
-        .content-inner { max-width: 1400px; margin: 0 auto; }
+        .content-inner { max-width: 1200px; margin: 0 auto; }
         .page-title { font-size: 2rem; font-weight: 900; margin-bottom: 30px; text-transform: uppercase; text-align: center; } .page-title span { color: #ffe800; }
         
-        /* KOMPONENTY KART */
         .main-admin-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; align-items: start; margin-bottom: 20px; }
         @media (max-width: 1000px) { .main-admin-grid { grid-template-columns: 1fr; } }
 
@@ -81,6 +80,7 @@
         .form-input:focus { border-color: #ffe800; }
         textarea.form-input { resize: vertical; min-height: 80px; }
         select { cursor: pointer; }
+        select option[disabled] { color: #555; font-weight: bold; background: #000; text-align: center; }
         
         .btn-action { background: #ffe800; color: #000; border: none; padding: 12px; font-weight: 900; border-radius: 8px; cursor: pointer; text-transform: uppercase; margin-top: 10px; transition:0.3s;}
         .btn-action:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(255,232,0,0.3); }
@@ -90,7 +90,6 @@
         .msg-error { background: rgba(255, 68, 68, 0.2); border: 1px solid #f44; color: #f44; }
         .msg-success { background: rgba(0, 170, 0, 0.2); border: 1px solid #0a0; color: #0a0; }
 
-        /* LISTA ZESPOŁU */
         .team-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; flex-wrap: wrap; gap: 10px;}
         .btn-add-emp { background: #0a0; color: #fff; border: none; padding: 10px 20px; border-radius: 8px; font-weight: 900; font-size: 0.8rem; cursor: pointer; text-transform: uppercase; transition: 0.3s;}
         .btn-add-emp:hover { background: #0c0; box-shadow: 0 4px 10px rgba(0,170,0,0.3); transform: translateY(-2px); }
@@ -108,7 +107,6 @@
         .btn-delete-emp { background: transparent; border: 1px solid #f44; color: #f44; padding: 8px 12px; border-radius: 5px; font-weight: 900; font-size: 0.65rem; cursor: pointer; transition: 0.3s; text-transform: uppercase; }
         .btn-delete-emp:hover { background: #f44; color: #000; }
 
-        /* MODALE */
         .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 11000; align-items: center; justify-content: center; padding: 20px; backdrop-filter: blur(5px); }
         .modal-content { background: #0a0a0a; border: 2px solid #ffe800; padding: 30px; width: 100%; max-width: 450px; border-radius: 15px; text-align: center; box-shadow: 0 0 30px rgba(255, 232, 0, 0.2); }
         
@@ -164,7 +162,7 @@
         
         <div class="main-admin-grid">
             
-            <!-- SYSTEM POWIADOMIEŃ (PUSH) -->
+            <!-- SYSTEM POWIADOMIEŃ PUSH -->
             <div class="card" style="border-color: #3498db; box-shadow: 0 5px 20px rgba(52, 152, 219, 0.15);">
                 <div class="card-title" style="color: #3498db; border-bottom-color: #3498db;">
                     📢 SYSTEM POWIADOMIEŃ (PUSH)
@@ -176,8 +174,7 @@
                         <div class="input-group">
                             <label>DO KOGO WYSŁAĆ?</label>
                             <select id="pushTarget" class="form-input">
-                                <option value="ALL">📢 DO WSZYSTKICH</option>
-                                <option value="KSS">👑 TYLKO KIEROWNICTWO (KSS/ME)</option>
+                                <!-- Generowane przez JS, z podziałem na działy -->
                             </select>
                         </div>
                         <div class="input-group">
@@ -270,7 +267,6 @@
 <div class="modal" id="addEmployeeModal">
     <div class="modal-content" style="max-width: 450px;">
         <h3 style="color:#ffe800; margin-bottom:15px; text-align:center; font-size: 1.3rem;">DODAJ PRACOWNIKA</h3>
-        
         <div class="input-group" style="text-align: left;">
             <label>Imię (widoczne w systemie)</label>
             <input type="text" class="form-input" id="newEmpName" placeholder="np. Tomasz">
@@ -283,16 +279,15 @@
             <label>Dział</label>
             <select class="form-input" id="newEmpDept">
                 <option value="IT">Dział IT</option><option value="RTV">Dział RTV</option>
-                <option value="AGD">Dział AGD</option><option value="POK">Punkt Obsługi Klienta (POK)</option>
+                <option value="AGD">Dział AGD</option><option value="RS">Dział RS</option>
+                <option value="POK">Punkt Obsługi Klienta (POK)</option>
                 <option value="ME">Kierownik Sklepu (ME)</option>
             </select>
         </div>
-        
         <div class="role-checkboxes">
             <label class="role-label"><input type="checkbox" id="newEmpIsKss"> Pracownik posiada uprawnienia KSS</label>
             <label class="role-label"><input type="checkbox" id="newEmpTiles"> Pozwól edytować kafelki na stronie głównej</label>
         </div>
-        
         <div id="addEmpMsg" class="msg-box"></div>
         <div style="display:flex; gap:10px; margin-top:25px;">
             <button class="btn-action" style="flex:1; background:#333; color:#fff; margin-top:0;" onclick="closeAddEmployeeModal()">ANULUJ</button>
@@ -305,7 +300,6 @@
     <div class="modal-content" style="max-width: 450px;">
         <h3 style="color:#ffe800; margin-bottom:15px; text-align:center; font-size: 1.3rem;">EDYTUJ PRACOWNIKA</h3>
         <input type="hidden" id="editEmpOldCharId">
-
         <div class="input-group" style="text-align: left;">
             <label>Imię</label>
             <input type="text" class="form-input" id="editEmpName">
@@ -313,22 +307,21 @@
         <div class="input-group" style="text-align: left;">
             <label>Kod Logowania (CharID) <span style="color:#f44; font-size:0.6rem;">(UWAGA!)</span></label>
             <input type="text" class="form-input" id="editEmpCharId">
-            <span style="font-size:0.6rem; color:#888; margin-top:3px;">Zmiana kodu odepnie pracownika od planu pracy! Rób to tylko, jeśli musisz.</span>
+            <span style="font-size:0.6rem; color:#888; margin-top:3px;">Zmiana kodu odepnie pracownika od planu pracy!</span>
         </div>
         <div class="input-group" style="text-align: left;">
             <label>Dział</label>
             <select class="form-input" id="editEmpDept">
                 <option value="IT">Dział IT</option><option value="RTV">Dział RTV</option>
-                <option value="AGD">Dział AGD</option><option value="POK">Punkt Obsługi Klienta (POK)</option>
+                <option value="AGD">Dział AGD</option><option value="RS">Dział RS</option>
+                <option value="POK">Punkt Obsługi Klienta (POK)</option>
                 <option value="ME">Kierownik Sklepu (ME)</option>
             </select>
         </div>
-        
         <div class="role-checkboxes">
             <label class="role-label"><input type="checkbox" id="editEmpIsKss"> Pracownik posiada uprawnienia KSS</label>
             <label class="role-label"><input type="checkbox" id="editEmpTiles"> Pozwól edytować kafelki na stronie głównej</label>
         </div>
-        
         <div id="editEmpMsg" class="msg-box"></div>
         <div style="display:flex; gap:10px; margin-top:25px;">
             <button class="btn-action" style="flex:1; background:#333; color:#fff; margin-top:0;" onclick="closeEditEmployeeModal()">ANULUJ</button>
@@ -363,7 +356,6 @@
             repSelect.appendChild(opt);
         });
 
-        // Ładowanie Pinboardu z bazy
         db.ref(`Stores/${myStore}/Settings/DashboardPin`).on('value', snap => {
             const data = snap.val() || {};
             document.getElementById('pinTitle').value = data.title || '';
@@ -409,7 +401,6 @@
         statusBox.innerText = 'Pobieranie danych z bazy i generowanie pliku Excel...';
 
         try {
-            // 1. KWT Data
             const kwtItemsSnap = await db.ref(`Stores/${myStore}/KWT_Items`).once('value');
             const kwtStatusSnap = await db.ref(`Stores/${myStore}/KWT`).once('value');
             const kwtItems = kwtItemsSnap.val() || {};
@@ -428,7 +419,6 @@
                 ]);
             });
 
-            // 2. Inwentury Data
             const inwaSnap = await db.ref(`Stores/${myStore}/Inwentury/2026_${mIndex}`).once('value');
             const inwa = inwaSnap.val() || {};
             let inwaData = [["OKRES", "NAZWA TOWARU/GRUPY", "OBECNY STATUS", "ZGŁOSZONE PRZEZ"]];
@@ -438,20 +428,18 @@
                 let statusText = item.status === 'done' ? "ZAAKCEPTOWANE" : (item.status === 'awaiting_kss' ? "OCZEKUJE NA KIER." : (item.status === 'rejected' ? "ODRZUCONE" : "DO ZROBIENIA"));
                 inwaData.push([
                     periodText,
-                    item.name ? item.name.replace(/<[^>]*>?/gm, '') : '', // Usuwamy ewentualny HTML
+                    item.name ? item.name.replace(/<[^>]*>?/gm, '') : '',
                     statusText,
                     item.submittedBy || '-'
                 ]);
             });
 
-            // 3. Historia Kafelków Data
             const histSnap = await db.ref(`Stores/${myStore}/Dashboard/History`).limitToLast(500).once('value');
             const hist = histSnap.val() || {};
             let histData = [["DATA SYSTEMOWA", "PRACOWNIK", "CEL / WSKAŹNIK", "STARY WYNIK", "NOWY WYNIK"]];
             let histArr = Object.values(hist).sort((a,b) => b.timestamp - a.timestamp);
             histArr.forEach(h => {
                 let d = new Date(h.timestamp);
-                // Filtrujemy tylko wpisy z wybranego miesiąca do raportu
                 if (d.getMonth() == mIndex) {
                     histData.push([
                         d.toLocaleDateString() + ' ' + d.toLocaleTimeString(),
@@ -463,7 +451,6 @@
                 }
             });
 
-            // Budowanie pliku XLSX
             let wb = XLSX.utils.book_new();
             
             let wsKwt = XLSX.utils.aoa_to_sheet(kwtData);
@@ -532,10 +519,22 @@
             }
             document.getElementById('teamList').innerHTML = html;
 
-            // RENDER DROPDOWNU DO POWIADOMIEŃ PUSH
+            // RENDER DROPDOWNU DO POWIADOMIEŃ PUSH Z DZIAŁAMI
             let pushSelect = document.getElementById('pushTarget');
-            pushSelect.innerHTML = `<option value="ALL">📢 DO WSZYSTKICH</option><option value="KSS">👑 TYLKO KIEROWNICTWO (KSS/ME)</option>`;
-            usersForReset.forEach(u => { pushSelect.innerHTML += `<option value="${u.charId}">👤 Pracownik: ${u.name} (${u.dept})</option>`; });
+            pushSelect.innerHTML = `
+                <option value="ALL">📢 DO WSZYSTKICH</option>
+                <option value="KSS">👑 TYLKO KIEROWNICTWO (KSS/ME)</option>
+                <option disabled>───────────────</option>
+                <option value="DEPT_IT">💻 CAŁY DZIAŁ IT</option>
+                <option value="DEPT_AGD">🧺 CAŁY DZIAŁ AGD</option>
+                <option value="DEPT_RTV">📺 CAŁY DZIAŁ RTV</option>
+                <option value="DEPT_RS">📱 CAŁY DZIAŁ RS</option>
+                <option value="DEPT_POK">🛒 CAŁY DZIAŁ POK</option>
+                <option disabled>───────────────</option>
+            `;
+            usersForReset.forEach(u => { 
+                pushSelect.innerHTML += `<option value="${u.charId}">👤 Pracownik: ${u.name} (${u.dept})</option>`; 
+            });
         });
     }
 
@@ -574,7 +573,35 @@
                 statusBox.className = 'msg-box msg-error';
                 statusBox.innerText = 'Błąd wysyłania: ' + e.message;
             });
+            
+        } else if (target.startsWith('DEPT_')) {
+            // WYSYŁANIE DO KONKRETNEGO DZIAŁU
+            let deptName = target.split('_')[1];
+            let targetUsers = globalUsersList.filter(u => u.dept === deptName);
+            
+            if(targetUsers.length === 0) {
+                statusBox.className = 'msg-box msg-error';
+                statusBox.innerText = `Brak pracowników w dziale ${deptName}!`;
+                return;
+            }
+            
+            let promises = targetUsers.map(u => {
+                return db.ref(`Stores/${myStore}/Notifications`).push({
+                    to: u.charId, title: title, msg: msg, type: type, read: false, timestamp: Date.now()
+                });
+            });
+
+            Promise.all(promises).then(() => {
+                statusBox.className = 'msg-box msg-success';
+                statusBox.innerText = `Wysłano powiadomienie do działu ${deptName}!`;
+                clearPushForm();
+            }).catch(e => {
+                statusBox.className = 'msg-box msg-error';
+                statusBox.innerText = 'Błąd wysyłania: ' + e.message;
+            });
+
         } else {
+            // POJEDYNCZY PRACOWNIK LUB KSS
             db.ref(`Stores/${myStore}/Notifications`).push({
                 to: target, title: title, msg: msg, type: type, read: false, timestamp: Date.now()
             }).then(() => {
@@ -593,7 +620,6 @@
         document.getElementById('pushMsg').value = '';
         setTimeout(() => { document.getElementById('pushStatus').style.display = 'none'; }, 4000);
     }
-    // ------------------------
 
     function confirmPasswordReset(empCharId, empName) {
         if(confirm(`UWAGA!\nCzy na pewno chcesz zresetować hasło użytkownika ${empName}?\n\nPracownik zostanie wylogowany, a jego nowym hasłem do logowania stanie się jego kod CharID.`)) {
@@ -604,6 +630,7 @@
             }).catch(err => alert("Błąd połączenia z bazą: " + err.message));
         }
     }
+    
     function closeResetModal() { document.getElementById('resetSuccessModal').style.display = 'none'; }
 
     function confirmDeleteEmployee(empCharId, empName) {

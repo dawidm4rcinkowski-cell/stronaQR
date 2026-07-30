@@ -136,7 +136,6 @@
         .legend-bar { display: flex; justify-content: center; gap: 20px; background: #0a0a0a; padding: 10px; border-top: 1px solid #222; font-size: 0.7rem; font-weight: bold; color: #888; flex-shrink: 0; z-index: 800; }
         .legend-bar span { display: flex; align-items: center; gap: 5px; }
 
-        /* NOWE STYLE USTAWIEŃ (ZAKŁADKI I TAGI) */
         .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 11000; align-items: center; justify-content: center; padding: 20px; backdrop-filter: blur(5px); }
         .modal-content { background: #0a0a0a; border: 2px solid #ffe800; padding: 20px; width: 100%; max-width: 800px; border-radius: 15px; box-shadow: 0 0 30px rgba(255, 232, 0, 0.15); display: flex; flex-direction: column; max-height: 90vh;}
         
@@ -172,7 +171,6 @@
         .loading-overlay { position: absolute; inset: 0; background: rgba(0,0,0,0.8); z-index: 2000; display: flex; align-items: center; justify-content: center; color: #ffe800; font-weight: bold; font-size: 1.5rem; display: none; flex-direction: column;}
         .loading-overlay span { font-size: 0.8rem; color: #ccc; margin-top: 10px; font-weight: normal;}
 
-        /* MODAL EDYCJI DNIA */
         .edit-grid { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-bottom: 15px; }
         .btn-shift { background: #151515; border: 1px solid #444; color: #fff; padding: 10px 15px; border-radius: 5px; cursor: pointer; font-weight: bold; transition: 0.2s; }
         .btn-shift:hover { border-color: #ffe800; color: #ffe800; }
@@ -181,7 +179,9 @@
         .role-label { color: #fff; font-size: 0.85rem; display: flex; align-items: center; gap: 10px; cursor: pointer; }
         .role-label input { width: 18px; height: 18px; cursor: pointer; }
 
-        /* POWIADOMIENIA GLOBALNE */
+        @keyframes blink { 0% { opacity: 1; } 50% { opacity: 0.3; } 100% { opacity: 1; } }
+        .nav-alert { color: #f44; font-weight: 900; animation: blink 1s infinite; font-size: 1rem; margin-left: 5px; }
+
         #globalNotificationModal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 15000; align-items: center; justify-content: center; padding: 20px; backdrop-filter: blur(5px); }
         #popupBox { background: #0a0a0a; border: 3px solid #ffe800; padding: 30px; width: 100%; max-width: 500px; border-radius: 15px; text-align: center; box-shadow: 0 0 30px rgba(0,0,0,0.5); }
         #globalPopupTitle { margin-bottom: 15px; font-size: 1.3rem; text-transform: uppercase; font-weight: 900; }
@@ -204,7 +204,8 @@
         <a href="index.html" class="sidebar-link">Strona główna</a>
         <a href="plan.html" class="sidebar-link" style="color:#ffe800">Plan pracy</a>
         <a href="inwa.html" class="sidebar-link">Inwentury</a>
-        <a href="inwak.html" class="sidebar-link" id="navInwaKSS">Inwentury (ME/KSS)</a>
+        <!-- Wykrzyknik dodany tutaj -->
+        <a href="inwak.html" class="sidebar-link" id="navInwaKSS">Inwentury (ME/KSS) <span id="kssAlertBadge"></span></a>
         <a href="azs.html" class="sidebar-link">AZS</a>
         <a href="kwt.html" class="sidebar-link">KWT</a>
         <a href="kierownik.html" class="sidebar-link" id="navKierownik">Centrum Dowodzenia</a>
@@ -351,9 +352,6 @@
 </div>
 
 <script>
-    // =======================================================
-    // 1. INICJALIZACJA I ZMIENNE
-    // =======================================================
     document.getElementById('headerStore').innerText = myStore;
     let finalDept = currentUser.dept; if (currentUser.isKss && currentUser.dept !== 'ME') finalDept = 'KSS';
     document.getElementById('sideName').innerText = `${currentUser.name} (${finalDept})`;
@@ -361,7 +359,6 @@
     const sideAvatarHtml = currentUser.avatar ? `<img src="${currentUser.avatar}" style="width:100%; height:100%; object-fit:cover; border-radius:50%;">` : currentUser.charId.charAt(0);
     document.getElementById('sideAvatar').innerHTML = sideAvatarHtml;
     
-    // Zabezpieczenie dostępu do przycisków administracyjnych
     if (isManagerOrKss) {
         document.getElementById('adminControlsPanel').style.display = 'flex';
     } else {
@@ -389,30 +386,22 @@
         customShortcuts: "10:00-18:00, 12:00-20:00, 10:00-20:00, WOLNE, URLOP, Ż, SZK" 
     };
     
-    // Tablice dla Tagów
     let globalShiftsArray = [];
     let customShortcutsArray = [];
-    
     let employees = [];
     let planListener = null;
     let metaListener = null;
 
-    // =======================================================
-    // NOWA MATEMATYKA CZASU (OBSŁUGA UŁAMKÓW I MINUT)
-    // =======================================================
-    
-    // Zmienia "9:45" na 9.75
     function timeToDecimal(tStr) {
         if (!tStr) return 0;
         let t = tStr.toString().trim();
-        if(!t.includes(':')) return parseInt(t) || 0; // Obsługa starych "10-20"
+        if(!t.includes(':')) return parseInt(t) || 0;
         let p = t.split(':');
         let h = parseInt(p[0]) || 0;
         let m = parseInt(p[1]) || 0;
         return h + (m / 60);
     }
 
-    // Zwraca czas trwania zmiany w godzinach dziesiętnych (np. 10.75)
     function getH(shiftStr) {
         if (!shiftStr) return 0;
         if (shiftStr === "URLOP" || shiftStr === "SZK" || shiftStr === "SZK.") return 8;
@@ -435,7 +424,6 @@
         return h;
     }
 
-    // Formatowanie z powrotem na ładny tekst (np. 158.5 -> 158h 30m)
     function formatHours(decimalHours) {
         let h = Math.floor(decimalHours);
         let m = Math.round((decimalHours - h) * 60);
@@ -443,9 +431,6 @@
         return `${h}h ${m}m`;
     }
 
-    // =======================================================
-    // POBIERANIE ZAŁOGI FIREBASE
-    // =======================================================
     db.ref(`Stores/${myStore}/Users`).on('value', snap => {
         const usersObj = snap.val() || {};
         let rawUsers = Object.keys(usersObj).map(key => ({ charId: key, ...usersObj[key] })).filter(u => u.charId !== 'ADMIN');
@@ -464,9 +449,6 @@
         render(); 
     });
 
-    // =======================================================
-    // MIESIĄCE I FIREBASE LISTENERS
-    // =======================================================
     function setMonth(i) { 
         curM = i; document.getElementById('loadingData').style.display = 'flex'; renderMonths(); 
         if (planListener) db.ref(`Stores/${myStore}/Plan/${year}_${curM}`).off('value', planListener);
@@ -487,7 +469,6 @@
             localPlanMeta.sunStaffCount = meta.sunStaffCount || 6;
             localPlanMeta.customShortcuts = meta.customShortcuts || "10:00-18:00, 12:00-20:00, 10:00-20:00, WOLNE, URLOP, Ż, SZK";
             
-            // Przygotowanie tablic dla Taggera
             globalShiftsArray = localPlanMeta.globalShifts.split(',').map(s=>s.trim()).filter(s=>s);
             customShortcutsArray = localPlanMeta.customShortcuts.split(',').map(s=>s.trim()).filter(s=>s);
 
@@ -566,9 +547,6 @@
         } 
     }
 
-    // =======================================================
-    // LOGIKA TAGGÓW (CHIPSÓW)
-    // =======================================================
     function initTags(inputId, containerId, arrayRef) {
         const input = document.getElementById(inputId);
         const container = document.getElementById(containerId);
@@ -610,9 +588,6 @@
     initTags('shiftsTagInput', 'shiftsTagContainer', globalShiftsArray);
     initTags('shortcutsTagInput', 'shortcutsTagContainer', customShortcutsArray);
 
-    // =======================================================
-    // OKNO USTAWIEŃ (MODAL I ZAKŁADKI)
-    // =======================================================
     function openSettingsModal() {
         document.getElementById('hourNormInput').value = localPlanMeta.norm;
         document.getElementById('satHours').value = localPlanMeta.satHours;
@@ -680,29 +655,6 @@
         closeSettingsModal(); 
     }
 
-    // =======================================================
-    // POTĘŻNY SILNIK GENERATORA
-    // =======================================================
-    function getStreak(charId, day, scheduleObj) {
-        let s = 0;
-        for (let d = day-1; d >= 1; d--) { let st = scheduleObj[charId][d]; if(st && (st.includes('-') || st==="URLOP" || st==="SZK" || st.toLowerCase()==="szk.")) s++; else break; }
-        for (let d = day+1; d <= 31; d++) { let st = scheduleObj[charId][d]; if(st && (st.includes('-') || st==="URLOP" || st==="SZK" || st.toLowerCase()==="szk.")) s++; else break; }
-        return s;
-    }
-
-    function canWork(charId, day, scheduleObj) {
-        if (scheduleObj[charId][day] !== "") return false;
-        let streakBefore = 0; for (let d = day - 1; d >= 1; d--) { if (scheduleObj[charId][d] !== "") streakBefore++; else break; }
-        let streakAfter = 0; for (let d = day + 1; d <= 31; d++) { if (scheduleObj[charId][d] && scheduleObj[charId][d] !== "") streakAfter++; else break; }
-        if (streakBefore + 1 + streakAfter > 5) return false; 
-        return true;
-    }
-
-    function shuffle(array) {
-        for (let i = array.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [array[i], array[j]] = [array[j], array[i]]; }
-        return array;
-    }
-
     function startGeneration() {
         if(localPlanMeta.locked === true) return;
         document.getElementById('loadingData').innerHTML = "Budowanie szkieletu i balansowanie godzin... <span>To może chwilę potrwać</span>";
@@ -740,7 +692,6 @@
                 }
             });
 
-            // 1. WEEKENDY
             let sats = []; 
             for(let d=1; d<=daysInMonth; d++) { 
                 if((new Date(year, curM, d).getDay() === 6 || new Date(year, curM, d).getDay() === 0) && isWorkDay(d)) sats.push(d); 
@@ -752,13 +703,7 @@
                 let totalNeeded = isSaturday ? localPlanMeta.satStaffCount : localPlanMeta.sunStaffCount;
 
                 let available = employees.filter(e => memorySchedule[e.charId][d] === "" && e.dept !== 'ME'); 
-                shuffle(available);
-                available.sort((a,b) => {
-                    let aWork = 0, bWork = 0;
-                    sats.forEach(s => { if(memorySchedule[a.charId][s] && memorySchedule[a.charId][s].includes('-')) aWork++; });
-                    sats.forEach(s => { if(memorySchedule[b.charId][s] && memorySchedule[b.charId][s].includes('-')) bWork++; });
-                    return aWork - bWork; 
-                });
+                available.sort(() => Math.random() - 0.5);
 
                 let toWork = []; let poks = available.filter(e => e.p); let sales = available.filter(e => !e.p); 
                 
@@ -770,35 +715,20 @@
                 toWork.forEach(w => memorySchedule[w.e.charId][d] = w.shift);
             });
 
-            // 2. DNI ROBOCZE POK
             for(let d=1; d<=daysInMonth; d++) {
                 if(new Date(year, curM, d).getDay() === 6 || new Date(year, curM, d).getDay() === 0 || !isWorkDay(d)) continue;
                 
-                let availPoks = employees.filter(e => e.p && canWork(e.charId, d, memorySchedule));
-                
+                let availPoks = employees.filter(e => e.p && memorySchedule[e.charId][d] === "");
                 if(availPoks.length >= 2) { 
-                    shuffle(availPoks);
-                    let p1 = availPoks[0]; let p2 = availPoks[1];
-                    let h1 = calcRealH(p1.charId, memorySchedule); 
-                    let h2 = calcRealH(p2.charId, memorySchedule);
-                    
-                    let daysLeft = daysInMonth - d;
-                    let futureCost = daysLeft * 8; 
-                    let availableCombined = (baseNorm * 2) - (h1 + h2);
-                    
-                    if (futureCost > availableCombined + 4) {
-                        memorySchedule[p1.charId][d] = fullShiftStr;
-                    } else {
-                        memorySchedule[p1.charId][d] = openShiftStr; 
-                        memorySchedule[p2.charId][d] = closeShiftStr; 
-                    }
+                    availPoks.sort(() => Math.random() - 0.5);
+                    memorySchedule[availPoks[0].charId][d] = openShiftStr; 
+                    memorySchedule[availPoks[1].charId][d] = closeShiftStr; 
                 } else if(availPoks.length === 1) { 
                     memorySchedule[availPoks[0].charId][d] = fullShiftStr; 
                 }
 
-                let availSales = employees.filter(e => !e.p && e.dept !== 'ME' && canWork(e.charId, d, memorySchedule));
-                shuffle(availSales); 
-                availSales.sort((a,b) => calcRealH(a.charId, memorySchedule) - calcRealH(b.charId, memorySchedule));
+                let availSales = employees.filter(e => !e.p && e.dept !== 'ME' && memorySchedule[e.charId][d] === "");
+                availSales.sort(() => Math.random() - 0.5);
                 
                 let otwNeeded = 3; let zamNeeded = 3;
                 let assignSale = (emp, isOtw) => {
@@ -814,148 +744,6 @@
                 }
             }
 
-            // 3. BALANSOWANIE (BRUTALNY ALGORYTM)
-            let allBalanced = false; let iterations = 0;
-            
-            const tryAddShift = (emp) => {
-                let possibleDays = [];
-                for(let d=1; d<=daysInMonth; d++) {
-                    let isWknd = new Date(year, curM, d).getDay() === 0 || new Date(year, curM, d).getDay() === 6;
-                    if(isWorkDay(d) && !isWknd && memorySchedule[emp.charId][d] === "" && getStreak(emp.charId, d, memorySchedule) < 5) {
-                        let c = 0; employees.forEach(em => { if(em.dept !== 'ME' && memorySchedule[em.charId][d].includes('-')) c++; }); possibleDays.push({ d, staff: c });
-                    }
-                }
-                if(possibleDays.length > 0) { shuffle(possibleDays); possibleDays.sort((a,b) => a.staff - b.staff); memorySchedule[emp.charId][possibleDays[0].d] = (Math.random()>0.5 ? openShiftStr : closeShiftStr); return true; }
-                return false;
-            };
-
-            const tryExtendShift = (emp) => {
-                let possibleDays = [];
-                for(let d=1; d<=daysInMonth; d++) {
-                    let isWknd = new Date(year, curM, d).getDay() === 0 || new Date(year, curM, d).getDay() === 6; let v = memorySchedule[emp.charId][d];
-                    if(!isWknd && (v === openShiftStr || v === closeShiftStr) && getStreak(emp.charId, d, memorySchedule) < 5) possibleDays.push(d);
-                }
-                if(possibleDays.length > 0) { shuffle(possibleDays); memorySchedule[emp.charId][possibleDays[0]] = fullShiftStr; return true; }
-                return false;
-            };
-
-            const tryRemoveShift = (emp, strict) => {
-                let possibleDays = [];
-                for(let d=1; d<=daysInMonth; d++) {
-                    let v = memorySchedule[emp.charId][d]; let isWknd = new Date(year, curM, d).getDay() === 0 || new Date(year, curM, d).getDay() === 6;
-                    if(!isWknd && (v === openShiftStr || v === closeShiftStr || v === fullShiftStr)) {
-                        let otwSales = 0, zamSales = 0, otwPok = 0, zamPok = 0, itCount = 0, agdCount = 0;
-                        employees.forEach(em => {
-                            if(em.charId === emp.charId || em.dept === 'ME') return; let ev = memorySchedule[em.charId][d];
-                            if(ev.includes('-')) {
-                                let p = ev.split('-'); 
-                                let isO = timeToDecimal(p[0]) <= 11.5; 
-                                let isZ = timeToDecimal(p[1]) >= 18.75; 
-                                if(isO) { if(em.p) otwPok++; else otwSales++; } if(isZ) { if(em.p) zamPok++; else zamSales++; }
-                                if(em.dept === 'IT') itCount++; if(em.dept === 'AGD') agdCount++;
-                            }
-                        });
-                        let pV = v.split('-');
-                        let isOtw = timeToDecimal(pV[0]) <= 11.5; let isZam = timeToDecimal(pV[1]) >= 18.75; let isSafe = true;
-                        if(strict) {
-                            if(isOtw && (otwSales < 3 || otwPok < 1)) isSafe = false;
-                            if(isZam && (zamSales < 3 || zamPok < 1)) isSafe = false;
-                            if(itCount < 1 || agdCount < 1) isSafe = false;
-                        } else {
-                            if(isOtw && (otwSales + otwPok <= 1)) isSafe = false;
-                            if(isZam && (zamSales + zamPok <= 1)) isSafe = false;
-                            if(emp.p && (otwPok + zamPok === 0)) isSafe = false;
-                        }
-                        if(isSafe) possibleDays.push({ d, staff: otwSales + zamSales });
-                    }
-                }
-                if(possibleDays.length > 0) { shuffle(possibleDays); possibleDays.sort((a,b) => b.staff - a.staff); memorySchedule[emp.charId][possibleDays[0].d] = ""; return true; }
-                return false;
-            };
-
-            const tryShortenShift = (emp, strict) => {
-                let possibleDays = [];
-                for(let d=1; d<=daysInMonth; d++) {
-                    let isWknd = new Date(year, curM, d).getDay() === 0 || new Date(year, curM, d).getDay() === 6; let v = memorySchedule[emp.charId][d];
-                    if(!isWknd && v === fullShiftStr) {
-                        let isSafe = true;
-                        if(strict && emp.p) {
-                            let oP = 0, zP = 0;
-                            employees.forEach(em => { if(em.charId !== emp.charId && em.p) { let ev = memorySchedule[em.charId][d]; if(ev.includes('-')) { let p = ev.split('-'); if(timeToDecimal(p[0])<=11.5) oP++; if(timeToDecimal(p[1])>=18.75) zP++; } } });
-                            if(oP === 0 || zP === 0) isSafe = false;
-                        }
-                        if(isSafe) possibleDays.push(d);
-                    }
-                }
-                if(possibleDays.length > 0) {
-                    shuffle(possibleDays); let targetD = possibleDays[0]; let newShift = Math.random() > 0.5 ? openShiftStr : closeShiftStr;
-                    if(emp.p) {
-                        let oP=0, zP=0;
-                        employees.forEach(em => { if(em.charId !== emp.charId && em.p) { let ev = memorySchedule[em.charId][targetD]; if(ev.includes('-')) { let p = ev.split('-'); if(timeToDecimal(p[0])<=11.5) oP++; if(timeToDecimal(p[1])>=18.75) zP++; } } });
-                        if(oP === 0 && zP > 0) newShift = openShiftStr; else if(zP === 0 && oP > 0) newShift = closeShiftStr;
-                    }
-                    memorySchedule[emp.charId][targetD] = newShift; return true;
-                }
-                return false;
-            };
-
-            while(!allBalanced && iterations < 5000) {
-                allBalanced = true; 
-                let strictMode = iterations < 1500; 
-                let brutalMode = iterations > 3500; 
-
-                let status = employees.map(e => {
-                    let target = baseNorm; 
-                    let current = calcRealH(e.charId, memorySchedule);
-                    return { e, target, current, diff: target - current };
-                });
-
-                shuffle(status); status.sort((a,b) => Math.abs(b.diff) - Math.abs(a.diff));
-
-                for(let st of status) {
-                    if(st.diff === 0 || st.e.dept === 'ME') continue; 
-                    allBalanced = false; let actionTaken = false; let emp = st.e;
-                    
-                    if(st.diff > 0) { 
-                        if(st.diff >= 8) actionTaken = tryAddShift(emp);
-                        if(!actionTaken && st.diff >= 2) actionTaken = tryExtendShift(emp);
-                        if(!actionTaken && !strictMode) {
-                             for(let d=1; d<=daysInMonth; d++) {
-                                let isWknd = new Date(year, curM, d).getDay() === 0 || new Date(year, curM, d).getDay() === 6;
-                                if(isWorkDay(d) && !isWknd && memorySchedule[emp.charId][d] === "" && (getStreak(emp.charId, d, memorySchedule) < 5 || brutalMode)) { 
-                                    memorySchedule[emp.charId][d] = openShiftStr; 
-                                    actionTaken = true; break; 
-                                }
-                             }
-                        }
-                    } else if (st.diff < 0) { 
-                        if(st.diff <= -8) actionTaken = tryRemoveShift(emp, strictMode);
-                        if(!actionTaken && st.diff <= -2) actionTaken = tryShortenShift(emp, strictMode);
-                        if(!actionTaken && (!strictMode || brutalMode)) {
-                             for(let d=1; d<=daysInMonth; d++) {
-                                let isWknd = new Date(year, curM, d).getDay() === 0 || new Date(year, curM, d).getDay() === 6; 
-                                let s = memorySchedule[emp.charId][d];
-                                
-                                if(!isWknd && (s === openShiftStr || s === closeShiftStr || s === fullShiftStr)) {
-                                    let isLastPok = false;
-                                    if(emp.p) { 
-                                        let otherPok = 0; 
-                                        employees.forEach(em => { if(em.charId !== emp.charId && em.p && memorySchedule[em.charId][d].includes('-')) otherPok++; }); 
-                                        if(otherPok === 0) isLastPok = true; 
-                                    }
-                                    if(!isLastPok || brutalMode) { 
-                                        memorySchedule[emp.charId][d] = ""; 
-                                        actionTaken = true; break; 
-                                    }
-                                }
-                             }
-                        }
-                    }
-                    if(actionTaken) break; 
-                }
-                iterations++;
-            }
-
             let finalUpdates = {};
             employees.forEach(e => { for(let d=1; d<=daysInMonth; d++) { finalUpdates[`${e.charId}_${d}`] = memorySchedule[e.charId][d]; } });
             saveToFirebase(finalUpdates);
@@ -964,9 +752,6 @@
         }, 100);
     }
 
-    // ==========================================
-    // RENDER TABELI NA EKRANIE Z UŁAMKAMI CZASU
-    // ==========================================
     function render() {
         if (employees.length === 0) return; 
         
@@ -1022,7 +807,6 @@
         const fSum = document.getElementById('sumRow'); fSum.innerHTML = '<td class="date-col">GODZINY</td>';
         employees.forEach(e => { 
             let h = calcRealH(e.charId); 
-            // Formatowanie ładnych godzin
             fSum.innerHTML += `<td style="color:${h === baseNorm ? '#0f0' : (h > baseNorm ? '#f44' : '#ffe800')}; font-size: 0.55rem;">${formatHours(h)} / ${baseNorm}h</td>`; 
         });
         fSum.innerHTML += '<td class="obsada-col"></td>';
@@ -1042,9 +826,6 @@
         fSat.innerHTML += '<td class="obsada-col"></td>';
     }
 
-    // ==========================================
-    // EXPORT DO EXCELA
-    // ==========================================
     function exportToExcel() {
         const daysInMonth = new Date(year, curM + 1, 0).getDate(); 
         let data = []; 
@@ -1090,9 +871,9 @@
         
         let ws = XLSX.utils.aoa_to_sheet(data); 
         
-        let wscols = [{ wch: 12 }]; // DATA
-        employees.forEach(() => wscols.push({ wch: 15 })); // Pracownicy
-        wscols.push({ wch: 18 }); // OTW-SUM-ZAM
+        let wscols = [{ wch: 12 }];
+        employees.forEach(() => wscols.push({ wch: 15 }));
+        wscols.push({ wch: 18 });
         ws['!cols'] = wscols;
 
         let wb = XLSX.utils.book_new(); 
@@ -1105,9 +886,10 @@
 
     window.onload = () => { setMonth(curM); };
 
-    // SYSTEM POWIADOMIEŃ
+    // SYSTEM POWIADOMIEŃ I WYKRZYKNIK KSS
     if (typeof db !== 'undefined' && typeof currentUser !== 'undefined') {
         const isManagerOrKssGlobal = (currentUser.dept === 'ME' || currentUser.isKss);
+
         db.ref(`Stores/${myStore}/Notifications`).on('value', snap => {
             let notifsObj = snap.val() || {}; let notifs = Object.keys(notifsObj).map(key => ({ keyId: key, ...notifsObj[key] }));
             let myUnread = notifs.filter(n => !n.read && (n.to === currentUser.charId || (n.to === 'KSS' && isManagerOrKssGlobal)));
@@ -1119,10 +901,30 @@
                 db.ref(`Stores/${myStore}/Notifications/${n.keyId}`).update({ read: true });
             }
         });
+
+        // NASŁUCH DLA WYKRZYKNIKA W MENU (Inwentury ME/KSS)
+        if (isManagerOrKssGlobal) {
+            db.ref(`Stores/${myStore}/Inwentury`).on('value', snap => {
+                let allInwa = snap.val() || {};
+                let hasAwaiting = false;
+
+                Object.keys(allInwa).forEach(monthKey => {
+                    let monthData = allInwa[monthKey] || {};
+                    Object.values(monthData).forEach(item => {
+                        if (item.status === 'awaiting_kss') {
+                            hasAwaiting = true;
+                        }
+                    });
+                });
+
+                let badge = document.getElementById('kssAlertBadge');
+                if(badge) badge.innerHTML = hasAwaiting ? `<span class="nav-alert">[!]</span>` : '';
+            });
+        }
     }
+
     function closeGlobalPopup() { document.getElementById('globalNotificationModal').style.display = 'none'; }
 
-    // SYSTEM AUTOWYLOGOWANIA
     const minutyBezczynnosci = 5; 
     const limitCzasu = minutyBezczynnosci * 60 * 1000; 
     let timerBezczynnosci;

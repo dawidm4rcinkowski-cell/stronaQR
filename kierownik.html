@@ -127,24 +127,27 @@
         .push-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
         @media (max-width: 768px) { .push-grid { grid-template-columns: 1fr; } }
 
-        /* LISTA OBECNOŚCI - PRAWIDŁOWY PIONOWY UKŁAD TEKSTU */
+        /* LISTA OBECNOŚCI - BEZPIECZNY PIONOWY UKŁAD TEKSTU */
         .att-preview-box { background: white; color: black; padding: 20px; border-radius: 10px; margin-top: 15px; overflow-x: auto; max-height: 500px; }
         .att-table { width: 100%; border-collapse: collapse; font-family: Arial, sans-serif; font-size: 11px; }
         .att-table th, .att-table td { border: 1px solid #000; padding: 3px; text-align: center; }
         .att-table th { background: #e0e0e0; font-weight: bold; }
         
-        /* Poprawiony obrót tekstu, aby czytało się poprawnie w górę */
+        /* Rozwiązanie idealne dla Safari i iPadów - bez błędów w renderowaniu */
         .att-table .emp-group-th {
             height: 140px;
             vertical-align: middle;
             text-align: center;
-            padding: 5px 2px;
+            padding: 0;
+        }
+        .att-table .emp-group-th div {
+            transform: rotate(-90deg);
+            white-space: nowrap;
+            display: inline-block;
             font-size: 10px;
             font-weight: bold;
             letter-spacing: 0.5px;
-            white-space: nowrap;
-            writing-mode: vertical-rl;
-            transform: rotate(180deg);
+            text-transform: uppercase;
         }
         
         @media print {
@@ -308,7 +311,9 @@
                 </div>
                 <p style="font-size: 0.8rem; color: #888; margin-top:-5px; margin-bottom:10px;">Pobierz zbiorczy raport ze wszystkich działań na sklepie do jednego pliku Excel.</p>
                 <div style="display:flex; gap:10px; align-items: center; flex-wrap: wrap;">
-                    <select id="reportMonth" class="form-input" style="flex:1; margin:0; min-width:200px;"></select>
+                    <select id="reportMonth" class="form-input" style="flex:1; margin:0; min-width:200px;">
+                        <!-- Miesiące wygenerują się z JS -->
+                    </select>
                     <button class="btn-action" style="flex:2; margin:0; background: #1d6f42; color: #fff; min-width: 250px;" onclick="generateExcelReport()">📥 POBIERZ RAPORT Z TEGO MIESIĄCA</button>
                 </div>
             </div>
@@ -329,7 +334,10 @@
     </div>
 </div>
 
-<!-- MODALE -->
+<!-- ========================================== -->
+<!-- MODALE DO ZARZĄDZANIA ZESPOŁEM             -->
+<!-- ========================================== -->
+
 <div class="modal" id="resetSuccessModal">
     <div class="modal-content" style="max-width: 400px;">
         <h3 style="color:#0a0; margin-bottom:15px; font-size:1.3rem;">HASŁO ZRESETOWANE!</h3>
@@ -445,6 +453,9 @@
         loadAttendanceEmployees();
     };
 
+    // ==========================================
+    // LOGIKA LISTY OBECNOŚCI
+    // ==========================================
     function loadAttendanceEmployees() {
         db.ref(`Stores/${myStore}/Settings/AttendanceEmployees`).on('value', snap => {
             attendanceEmployees = snap.val() || ["ŁUKASZ KLISZKO", "MAGDALENA LISEK", "DAWID MARCINKOWSKI", "ADRIAN MATUSZEWSKI"];
@@ -498,7 +509,8 @@
         let headerRow2Html = `<tr>`;
 
         attendanceEmployees.forEach(emp => {
-            headerRow1Html += `<th colspan="2" class="emp-group-th">${emp}</th>`;
+            // Dodany element div, który bezpiecznie obraca tekst bez niszczenia tabeli
+            headerRow1Html += `<th colspan="2" class="emp-group-th"><div>${emp}</div></th>`;
             headerRow2Html += `<th style="width: 45px; font-size: 9px;">godz.</th><th style="width: 45px; font-size: 9px;">parafka</th>`;
         });
         headerRow2Html += `</tr>`;

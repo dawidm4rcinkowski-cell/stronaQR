@@ -126,6 +126,20 @@
 
         .push-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
         @media (max-width: 768px) { .push-grid { grid-template-columns: 1fr; } }
+
+        /* LISTA OBECNOŚCI - STYL WYDRUKU */
+        .att-preview-box { background: white; color: black; padding: 20px; border-radius: 10px; margin-top: 15px; overflow-x: auto; max-height: 500px; }
+        .att-table { width: 100%; border-collapse: collapse; font-family: Arial, sans-serif; font-size: 11px; }
+        .att-table th, .att-table td { border: 1px solid #000; padding: 4px; text-align: center; }
+        .att-table th { background: #e0e0e0; font-weight: bold; }
+        .att-table .name-th { writing-mode: vertical-rl; transform: rotate(180deg); height: 120px; padding: 5px; font-size: 10px; text-align: left; vertical-align: middle; }
+        
+        @media print {
+            body * { visibility: hidden; }
+            #printableAttendance, #printableAttendance * { visibility: visible; }
+            #printableAttendance { position: absolute; left: 0; top: 0; width: 100%; background: white !important; color: black !important; padding: 10px; }
+            @page { size: A4 landscape; margin: 10mm; }
+        }
     </style>
 </head>
 <body>
@@ -142,7 +156,7 @@
         <a href="index.html" class="sidebar-link">Strona główna</a>
         <a href="plan.html" class="sidebar-link">Plan pracy</a>
         <a href="inwa.html" class="sidebar-link">Inwentury</a>
-        <!-- Dodany wykrzyknik kssAlertBadge tutaj -->
+        <!-- Wykrzyknik kssAlertBadge tutaj -->
         <a href="inwak.html" class="sidebar-link" id="navInwaKSS">Inwentury (ME/KSS) <span id="kssAlertBadge"></span></a>
         <a href="azs.html" class="sidebar-link">AZS</a>
         <a href="kwt.html" class="sidebar-link">KWT</a>
@@ -166,6 +180,49 @@
         
         <div class="main-admin-grid">
             
+            <!-- LISTA OBECNOŚCI (NOWOŚĆ) -->
+            <div class="card full-width" style="border-color: #27ae60; box-shadow: 0 5px 20px rgba(39, 174, 96, 0.15);">
+                <div class="card-title" style="color: #27ae60; border-bottom-color: #27ae60;">
+                    📋 GENERATOR LISTY OBECNOŚCI
+                </div>
+                <p style="font-size: 0.8rem; color: #888; margin-top:-5px; margin-bottom:10px;">Wybierz miesiąc, zarządzaj pracownikami na liście i wygeneruj gotowy dokument do wydruku.</p>
+                
+                <div style="display: flex; gap: 15px; flex-wrap: wrap; align-items: flex-end; margin-bottom: 15px;">
+                    <div class="input-group" style="flex: 1; min-width: 200px; margin: 0;">
+                        <label>WYBIERZ MIESIĄC</label>
+                        <select id="attMonthSelect" class="form-input" onchange="generateAttendancePreview()"></select>
+                    </div>
+                    <div class="input-group" style="flex: 2; min-width: 250px; margin: 0;">
+                        <label>DODAJ PRACOWNIKA DO LISTY</label>
+                        <div style="display: flex; gap: 5px;">
+                            <input type="text" id="attNewEmpName" class="form-input" placeholder="Imię i nazwisko pracownika" style="flex: 1;">
+                            <button class="btn-action" style="background: #27ae60; color: #fff; margin: 0; padding: 0 15px;" onclick="addAttendanceEmployee()">+ DODAJ</button>
+                        </div>
+                    </div>
+                    <button class="btn-action" style="background: #3498db; color: #fff; margin: 0; height: 45px;" onclick="printAttendance()">🖨️ DRUKUJ LISTĘ</button>
+                </div>
+
+                <div style="margin-bottom: 10px;">
+                    <label style="font-size: 0.75rem; color: #888; font-weight: 800; text-transform: uppercase;">Aktywni pracownicy na liście obecności (kliknij X aby usunąć):</label>
+                    <div id="attEmployeeTags" style="display: flex; flex-wrap: wrap; gap: 8px; margin-top: 5px;"></div>
+                </div>
+
+                <!-- PODGLĄD LISTY OBECNOŚCI DO WYDRUKU -->
+                <div class="att-preview-box" id="printableAttendance">
+                    <div style="font-size: 9px; margin-bottom: 5px; color: #444;">Zgodnie z Regulaminem Pracy - obecność w pracy należy osobiście potwierdzić parafką w danym dniu kalendarzowym</div>
+                    <div style="text-align: center; font-weight: bold; font-size: 14px; margin-bottom: 10px; text-transform: uppercase;" id="attTitlePreview">LISTA OBECNOŚCI – lipiec 2026 r.</div>
+                    <table class="att-table" id="attTablePreview">
+                        <thead>
+                            <tr>
+                                <th style="width: 35px;" rowspan="2">data</th>
+                                <th style="width: 75px;" rowspan="2">dzień tygodnia</th>
+                            </tr>
+                        </thead>
+                        <tbody id="attBodyPreview"></tbody>
+                    </table>
+                </div>
+            </div>
+
             <!-- SYSTEM POWIADOMIEŃ (PUSH) -->
             <div class="card" style="border-color: #3498db; box-shadow: 0 5px 20px rgba(52, 152, 219, 0.15);">
                 <div class="card-title" style="color: #3498db; border-bottom-color: #3498db;">
@@ -356,13 +413,20 @@
 
     const months = ["STYCZEŃ", "LUTY", "MARZEC", "KWIECIEŃ", "MAJ", "CZERWIEC", "LIPIEC", "SIERPIEŃ", "WRZESIEŃ", "PAŹDZIERNIK", "LISTOPAD", "GRUDZIEŃ"];
     let globalUsersList = [];
+    let attendanceEmployees = [];
 
     window.onload = () => {
         let repSelect = document.getElementById('reportMonth');
+        let attMonthSelect = document.getElementById('attMonthSelect');
+        
         months.forEach((m, i) => {
             let opt = document.createElement('option'); opt.value = i; opt.innerText = `${m} 2026`;
             if (i === new Date().getMonth()) opt.selected = true;
             repSelect.appendChild(opt);
+
+            let opt2 = document.createElement('option'); opt2.value = i; opt2.innerText = `${m} 2026`;
+            if (i === new Date().getMonth()) opt2.selected = true;
+            attMonthSelect.appendChild(opt2);
         });
 
         db.ref(`Stores/${myStore}/Settings/DashboardPin`).on('value', snap => {
@@ -370,7 +434,105 @@
             document.getElementById('pinTitle').value = data.title || '';
             document.getElementById('pinMsg').value = data.message || '';
         });
+
+        loadAttendanceEmployees();
     };
+
+    // ==========================================
+    // LOGIKA LISTY OBECNOŚCI
+    // ==========================================
+    function loadAttendanceEmployees() {
+        db.ref(`Stores/${myStore}/Settings/AttendanceEmployees`).on('value', snap => {
+            attendanceEmployees = snap.val() || ["ŁUKASZ KLISZKO", "MAGDALENA LISEK", "DAWID MARCINKOWSKI", "ADRIAN MATUSZEWSKI"];
+            renderAttendanceTags();
+            generateAttendancePreview();
+        });
+    }
+
+    function renderAttendanceTags() {
+        const container = document.getElementById('attEmployeeTags');
+        container.innerHTML = '';
+        attendanceEmployees.forEach((empName, index) => {
+            const tag = document.createElement('div');
+            tag.style.cssText = "background: #1a1a1a; border: 1px solid #27ae60; color: #fff; padding: 5px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: bold; display: flex; align-items: center; gap: 8px;";
+            tag.innerHTML = `<span>${empName}</span> <span style="color: #f44; cursor: pointer; font-weight: 900;" onclick="removeAttendanceEmployee(${index})">×</span>`;
+            container.appendChild(tag);
+        });
+    }
+
+    function addAttendanceEmployee() {
+        const input = document.getElementById('attNewEmpName');
+        const name = input.value.trim().toUpperCase();
+        if(!name) return;
+        if(attendanceEmployees.includes(name)) { alert("Ten pracownik jest już na liście!"); return; }
+        
+        attendanceEmployees.push(name);
+        db.ref(`Stores/${myStore}/Settings/AttendanceEmployees`).set(attendanceEmployees).then(() => {
+            input.value = '';
+            renderAttendanceTags();
+            generateAttendancePreview();
+        });
+    }
+
+    function removeAttendanceEmployee(index) {
+        attendanceEmployees.splice(index, 1);
+        db.ref(`Stores/${myStore}/Settings/AttendanceEmployees`).set(attendanceEmployees).then(() => {
+            renderAttendanceTags();
+            generateAttendancePreview();
+        });
+    }
+
+    function generateAttendancePreview() {
+        const mIndex = parseInt(document.getElementById('attMonthSelect').value);
+        const monthName = months[mIndex].toLowerCase();
+        document.getElementById('attTitlePreview').innerText = `LISTA OBECNOŚCI – ${monthName} 2026 r.`;
+
+        const table = document.getElementById('attTablePreview');
+        const theadTr = table.querySelector('thead tr');
+        
+        let headerHtml = `<th style="width: 35px;" rowspan="2">data</th><th style="width: 75px;" rowspan="2">dzień tygodnia</th>`;
+        attendanceEmployees.forEach(emp => {
+            headerHtml += `<th class="name-th">${emp}</th>`;
+        });
+        theadTr.innerHTML = headerHtml;
+
+        const daysPL = ["niedziela", "poniedziałek", "wtorek", "środa", "czwartek", "piątek", "sobota"];
+        const daysInMonth = new Date(2026, mIndex + 1, 0).getDate();
+
+        const tbody = document.getElementById('attBodyPreview');
+        tbody.innerHTML = '';
+
+        for(let d = 1; d <= daysInMonth; d++) {
+            let dateObj = new Date(2026, mIndex, d);
+            let dayOfWeekStr = daysPL[dateObj.getDay()];
+            
+            let row = `<tr><td>${d}</td><td>${dayOfWeekStr}</td>`;
+            attendanceEmployees.forEach(() => {
+                row += `<td></td>`;
+            });
+            row += `</tr>`;
+            tbody.innerHTML += row;
+        }
+
+        const summaryLabels = [
+            "Razem", "Norma", "Nadgodziny", "50%", "100%", 
+            "U.wypocz.", "U.opiek.", "Umierz.", "U.wychow.", 
+            "Ubezpiecz.", "Choroba", "Inne"
+        ];
+
+        summaryLabels.forEach(label => {
+            let sumRow = `<tr style="font-weight: bold; background: #f9f9f9;"><td colspan="2" style="text-align: right; padding-right: 5px; font-size: 10px;">${label}</td>`;
+            attendanceEmployees.forEach(() => {
+                sumRow += `<td></td>`;
+            });
+            sumRow += `</tr>`;
+            tbody.innerHTML += sumRow;
+        });
+    }
+
+    function printAttendance() {
+        window.print();
+    }
 
     function savePinboard() {
         const title = document.getElementById('pinTitle').value.trim();
@@ -492,7 +654,7 @@
 
             let html = '';
             if(usersForReset.length === 0) {
-                html = '<div style="color: #666; font-size:0.8rem; font-weight:bold; padding:20px; width:100%; text-align:center;">BRAK INNYCH UŻYTKOWNIKÓW W BAZIE.</div>';
+                html = '<div style="color: #666; font-size:0.8rem; font-weight:bold; width:100%; text-align:center; padding:20px;">BRAK INNYCH UŻYTKOWNIKÓW W BAZIE.</div>';
             } else {
                 usersForReset.forEach(u => {
                     let uAvatar = u.avatar ? `<img src="${u.avatar}" style="width:100%; height:100%; object-fit:cover; border-radius:50%;">` : u.charId.charAt(0);

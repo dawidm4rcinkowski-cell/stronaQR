@@ -127,9 +127,19 @@
         .push-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
         @media (max-width: 768px) { .push-grid { grid-template-columns: 1fr; } }
 
-        /* LISTA OBECNOŚCI - BEZPIECZNY PIONOWY UKŁAD TEKSTU */
-        .att-preview-box { background: white; color: black; padding: 20px; border-radius: 10px; margin-top: 15px; overflow-x: auto; max-height: 500px; }
-        .att-table { width: 100%; border-collapse: collapse; font-family: Arial, sans-serif; font-size: 11px; }
+        /* LISTA OBECNOŚCI - BEZPIECZNY PIONOWY UKŁAD TEKSTU I STRONICOWANIE */
+        #printableAttendance { margin-top: 15px; overflow-y: auto; max-height: 600px; padding: 10px 0; }
+        
+        .print-page {
+            background: white; 
+            color: black; 
+            padding: 20px; 
+            border-radius: 10px; 
+            margin-bottom: 20px; 
+            box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+        }
+        
+        .att-table { width: 100%; border-collapse: collapse; font-family: Arial, sans-serif; font-size: 11px; table-layout: fixed; }
         .att-table th, .att-table td { border: 1px solid #000; padding: 3px; text-align: center; }
         .att-table th { background: #e0e0e0; font-weight: bold; }
         
@@ -139,6 +149,7 @@
             vertical-align: middle;
             text-align: center;
             padding: 0;
+            overflow: hidden;
         }
         .att-table .emp-group-th div {
             transform: rotate(-90deg);
@@ -153,7 +164,18 @@
         @media print {
             body * { visibility: hidden; }
             #printableAttendance, #printableAttendance * { visibility: visible; }
-            #printableAttendance { position: absolute; left: 0; top: 0; width: 100%; background: white !important; color: black !important; padding: 5px; }
+            #printableAttendance { position: absolute; left: 0; top: 0; width: 100%; height: auto; overflow: visible; padding: 0; margin: 0; }
+            
+            .print-page {
+                box-shadow: none;
+                margin: 0;
+                padding: 10px;
+                border-radius: 0;
+                page-break-after: always;
+            }
+            .print-page:last-child {
+                page-break-after: auto;
+            }
             @page { size: A4 landscape; margin: 8mm; }
         }
     </style>
@@ -195,12 +217,12 @@
         
         <div class="main-admin-grid">
             
-            <!-- LISTA OBECNOŚCI -->
+            <!-- LISTA OBECNOŚCI ZE STRONICOWANIEM (MAX 4 OSOBY NA KARTKĘ) -->
             <div class="card full-width" style="border-color: #27ae60; box-shadow: 0 5px 20px rgba(39, 174, 96, 0.15);">
                 <div class="card-title" style="color: #27ae60; border-bottom-color: #27ae60;">
                     📋 GENERATOR LISTY OBECNOŚCI
                 </div>
-                <p style="font-size: 0.8rem; color: #888; margin-top:-5px; margin-bottom:10px;">Wybierz miesiąc, zarządzaj pracownikami i wygeneruj dokument do wydruku.</p>
+                <p style="font-size: 0.8rem; color: #888; margin-top:-5px; margin-bottom:10px;">Wybierz miesiąc, zarządzaj pracownikami i wygeneruj dokument do wydruku (automatyczny podział na strony - max 4 osoby na kartkę).</p>
                 
                 <div style="display: flex; gap: 15px; flex-wrap: wrap; align-items: flex-end; margin-bottom: 15px;">
                     <div class="input-group" style="flex: 1; min-width: 200px; margin: 0;">
@@ -223,18 +245,8 @@
                 </div>
 
                 <!-- PODGLĄD LISTY OBECNOŚCI DO WYDRUKU -->
-                <div class="att-preview-box" id="printableAttendance">
-                    <div style="font-size: 9px; margin-bottom: 3px; color: #444;">Zgodnie z Regulaminem Pracy - obecność w pracy należy osobiście potwierdzić parafką w danym dniu kalendarzowym</div>
-                    <div style="text-align: center; font-weight: bold; font-size: 13px; margin-bottom: 8px; text-transform: uppercase;" id="attTitlePreview">LISTA OBECNOŚCI – lipiec 2026 r.</div>
-                    <table class="att-table" id="attTablePreview">
-                        <thead>
-                            <tr id="attHeaderRow1">
-                                <th style="width: 30px;" rowspan="2">data</th>
-                                <th style="width: 75px;" rowspan="2">dzień tygodnia</th>
-                            </tr>
-                        </thead>
-                        <tbody id="attBodyPreview"></tbody>
-                    </table>
+                <div id="printableAttendance">
+                    <!-- Strony będą generowane dynamicznie przez JS -->
                 </div>
             </div>
 
@@ -454,7 +466,7 @@
     };
 
     // ==========================================
-    // LOGIKA LISTY OBECNOŚCI
+    // LOGIKA LISTY OBECNOŚCI PIONOWY TEKST + PAGINACJA (MAX 4 NA STRONĘ)
     // ==========================================
     function loadAttendanceEmployees() {
         db.ref(`Stores/${myStore}/Settings/AttendanceEmployees`).on('value', snap => {
@@ -498,66 +510,81 @@
     }
 
     function generateAttendancePreview() {
+        const container = document.getElementById('printableAttendance');
+        container.innerHTML = ''; // czyszczenie poprzednich stron
+
         const mIndex = parseInt(document.getElementById('attMonthSelect').value);
         const monthName = months[mIndex].toLowerCase();
-        document.getElementById('attTitlePreview').innerText = `LISTA OBECNOŚCI – ${monthName} 2026 r.`;
-
-        const table = document.getElementById('attTablePreview');
-        const theadTr1 = document.getElementById('attHeaderRow1');
-        
-        let headerRow1Html = `<th style="width: 30px;" rowspan="2">data</th><th style="width: 75px;" rowspan="2">dzień tygodnia</th>`;
-        let headerRow2Html = `<tr>`;
-
-        attendanceEmployees.forEach(emp => {
-            // Dodany element div, który bezpiecznie obraca tekst bez niszczenia tabeli
-            headerRow1Html += `<th colspan="2" class="emp-group-th"><div>${emp}</div></th>`;
-            headerRow2Html += `<th style="width: 45px; font-size: 9px;">godz.</th><th style="width: 45px; font-size: 9px;">parafka</th>`;
-        });
-        headerRow2Html += `</tr>`;
-
-        theadTr1.innerHTML = headerRow1Html;
-        
-        let thead = table.querySelector('thead');
-        let theadTr2 = document.getElementById('attHeaderRow2');
-        if(!theadTr2) {
-            theadTr2 = document.createElement('tr');
-            theadTr2.id = 'attHeaderRow2';
-            thead.appendChild(theadTr2);
-        }
-        theadTr2.innerHTML = headerRow2Html;
-
         const daysPL = ["niedziela", "poniedziałek", "wtorek", "środa", "czwartek", "piątek", "sobota"];
         const daysInMonth = new Date(2026, mIndex + 1, 0).getDate();
 
-        const tbody = document.getElementById('attBodyPreview');
-        tbody.innerHTML = '';
+        // Paginacja: 4 osoby na jedną tabelę (kartkę)
+        const chunkSize = 4;
+        const totalPages = Math.ceil(attendanceEmployees.length / chunkSize) || 1;
 
-        for(let d = 1; d <= daysInMonth; d++) {
-            let dateObj = new Date(2026, mIndex, d);
-            let dayOfWeekStr = daysPL[dateObj.getDay()];
+        for (let p = 0; p < totalPages; p++) {
+            // Wyciągamy paczkę maksymalnie 4 pracowników na aktualną stronę
+            let chunk = attendanceEmployees.slice(p * chunkSize, (p + 1) * chunkSize);
+
+            let pageHtml = `<div class="print-page">`;
             
-            let row = `<tr><td>${d}</td><td>${dayOfWeekStr}</td>`;
-            attendanceEmployees.forEach(() => {
-                row += `<td></td><td></td>`;
+            // Nagłówki z informacją o numerze strony (jeśli jest ich więcej)
+            let pageIndicator = totalPages > 1 ? ` <span style="float:right; font-weight:bold;">Strona ${p+1} / ${totalPages}</span>` : '';
+            pageHtml += `<div style="font-size: 9px; margin-bottom: 3px; color: #444;">Zgodnie z Regulaminem Pracy - obecność w pracy należy osobiście potwierdzić parafką w danym dniu kalendarzowym.${pageIndicator}</div>`;
+            pageHtml += `<div style="text-align: center; font-weight: bold; font-size: 13px; margin-bottom: 8px; text-transform: uppercase;">LISTA OBECNOŚCI – ${monthName} 2026 r.</div>`;
+            
+            pageHtml += `<table class="att-table">`;
+            pageHtml += `<thead><tr>`;
+            pageHtml += `<th style="width: 30px;" rowspan="2">data</th><th style="width: 75px;" rowspan="2">dzień tygodnia</th>`;
+            
+            // Kolumny dla pracowników w danej paczce
+            chunk.forEach(emp => {
+                pageHtml += `<th colspan="2" class="emp-group-th"><div>${emp}</div></th>`;
             });
-            row += `</tr>`;
-            tbody.innerHTML += row;
+            
+            // Jeśli na ostatniej stronie brakuje pracowników do równej czwórki, dodajemy puste kolumny dla idealnych proporcji A4
+            let emptyCols = chunkSize - chunk.length;
+            for(let i=0; i < emptyCols; i++) {
+                pageHtml += `<th colspan="2" class="emp-group-th"><div></div></th>`;
+            }
+
+            pageHtml += `</tr><tr>`;
+            
+            // Drugi poziom nagłówka: godz. i parafka
+            for(let i=0; i < chunkSize; i++) {
+                pageHtml += `<th style="width: 45px; font-size: 9px;">godz.</th><th style="width: 45px; font-size: 9px;">parafka</th>`;
+            }
+            pageHtml += `</tr></thead><tbody>`;
+
+            // Generowanie dni miesiąca
+            for(let d = 1; d <= daysInMonth; d++) {
+                let dateObj = new Date(2026, mIndex, d);
+                let dayOfWeekStr = daysPL[dateObj.getDay()];
+                
+                pageHtml += `<tr><td>${d}</td><td>${dayOfWeekStr}</td>`;
+                for(let i=0; i < chunkSize; i++) {
+                    pageHtml += `<td></td><td></td>`;
+                }
+                pageHtml += `</tr>`;
+            }
+
+            // Generowanie stopki (podsumowania)
+            const summaryLabels = [
+                "Razem", "Norma", "Nadgodziny", "50%", "100%", 
+                "U.wypocz.", "U.opiek.", "Umierz.", "U.wychow.", 
+                "Ubezpiecz.", "Choroba", "Inne"
+            ];
+            summaryLabels.forEach(label => {
+                pageHtml += `<tr style="font-weight: bold; background: #f9f9f9;"><td colspan="2" style="text-align: right; padding-right: 5px; font-size: 10px;">${label}</td>`;
+                for(let i=0; i < chunkSize; i++) {
+                    pageHtml += `<td></td><td></td>`;
+                }
+                pageHtml += `</tr>`;
+            });
+
+            pageHtml += `</tbody></table></div>`;
+            container.innerHTML += pageHtml;
         }
-
-        const summaryLabels = [
-            "Razem", "Norma", "Nadgodziny", "50%", "100%", 
-            "U.wypocz.", "U.opiek.", "Umierz.", "U.wychow.", 
-            "Ubezpiecz.", "Choroba", "Inne"
-        ];
-
-        summaryLabels.forEach(label => {
-            let sumRow = `<tr style="font-weight: bold; background: #f9f9f9;"><td colspan="2" style="text-align: right; padding-right: 5px; font-size: 10px;">${label}</td>`;
-            attendanceEmployees.forEach(() => {
-                sumRow += `<td></td><td></td>`;
-            });
-            sumRow += `</tr>`;
-            tbody.innerHTML += sumRow;
-        });
     }
 
     function printAttendance() {

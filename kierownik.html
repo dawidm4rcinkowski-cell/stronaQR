@@ -127,24 +127,23 @@
         .push-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
         @media (max-width: 768px) { .push-grid { grid-template-columns: 1fr; } }
 
-        /* LISTA OBECNOŚCI - STYL WYDRUKU I PIONOWE IMIONA */
+        /* LISTA OBECNOŚCI - PRAWIDŁOWY PIONOWY UKŁAD TEKSTU */
         .att-preview-box { background: white; color: black; padding: 20px; border-radius: 10px; margin-top: 15px; overflow-x: auto; max-height: 500px; }
         .att-table { width: 100%; border-collapse: collapse; font-family: Arial, sans-serif; font-size: 11px; }
         .att-table th, .att-table td { border: 1px solid #000; padding: 3px; text-align: center; }
         .att-table th { background: #e0e0e0; font-weight: bold; }
         
-        /* Styl dla pionowego nagłówka imienia i nazwiska */
+        /* Poprawiony obrót tekstu, aby czytało się poprawnie w górę */
         .att-table .emp-group-th {
             height: 140px;
-            vertical-align: bottom;
+            vertical-align: middle;
             text-align: center;
             padding: 5px 2px;
             font-size: 10px;
             font-weight: bold;
             letter-spacing: 0.5px;
             white-space: nowrap;
-            /* Ustawienie tekstu pionowo od dołu do góry */
-            writing-mode: vertical-lr;
+            writing-mode: vertical-rl;
             transform: rotate(180deg);
         }
         
@@ -193,12 +192,12 @@
         
         <div class="main-admin-grid">
             
-            <!-- LISTA OBECNOŚCI (Z PIONOWYMI NAZWISKAMI) -->
+            <!-- LISTA OBECNOŚCI -->
             <div class="card full-width" style="border-color: #27ae60; box-shadow: 0 5px 20px rgba(39, 174, 96, 0.15);">
                 <div class="card-title" style="color: #27ae60; border-bottom-color: #27ae60;">
                     📋 GENERATOR LISTY OBECNOŚCI
                 </div>
-                <p style="font-size: 0.8rem; color: #888; margin-top:-5px; margin-bottom:10px;">Wybierz miesiąc, zarządzaj pracownikami i wygeneruj dokument z pionowymi imionami i nazwiskami.</p>
+                <p style="font-size: 0.8rem; color: #888; margin-top:-5px; margin-bottom:10px;">Wybierz miesiąc, zarządzaj pracownikami i wygeneruj dokument do wydruku.</p>
                 
                 <div style="display: flex; gap: 15px; flex-wrap: wrap; align-items: flex-end; margin-bottom: 15px;">
                     <div class="input-group" style="flex: 1; min-width: 200px; margin: 0;">
@@ -309,9 +308,7 @@
                 </div>
                 <p style="font-size: 0.8rem; color: #888; margin-top:-5px; margin-bottom:10px;">Pobierz zbiorczy raport ze wszystkich działań na sklepie do jednego pliku Excel.</p>
                 <div style="display:flex; gap:10px; align-items: center; flex-wrap: wrap;">
-                    <select id="reportMonth" class="form-input" style="flex:1; margin:0; min-width:200px;">
-                        <!-- Miesiące wygenerują się z JS -->
-                    </select>
+                    <select id="reportMonth" class="form-input" style="flex:1; margin:0; min-width:200px;"></select>
                     <button class="btn-action" style="flex:2; margin:0; background: #1d6f42; color: #fff; min-width: 250px;" onclick="generateExcelReport()">📥 POBIERZ RAPORT Z TEGO MIESIĄCA</button>
                 </div>
             </div>
@@ -332,10 +329,7 @@
     </div>
 </div>
 
-<!-- ========================================== -->
-<!-- MODALE DO ZARZĄDZANIA ZESPOŁEM             -->
-<!-- ========================================== -->
-
+<!-- MODALE -->
 <div class="modal" id="resetSuccessModal">
     <div class="modal-content" style="max-width: 400px;">
         <h3 style="color:#0a0; margin-bottom:15px; font-size:1.3rem;">HASŁO ZRESETOWANE!</h3>
@@ -451,9 +445,6 @@
         loadAttendanceEmployees();
     };
 
-    // ==========================================
-    // LOGIKA LISTY OBECNOŚCI (PIONOWE IMIONA)
-    // ==========================================
     function loadAttendanceEmployees() {
         db.ref(`Stores/${myStore}/Settings/AttendanceEmployees`).on('value', snap => {
             attendanceEmployees = snap.val() || ["ŁUKASZ KLISZKO", "MAGDALENA LISEK", "DAWID MARCINKOWSKI", "ADRIAN MATUSZEWSKI"];
@@ -507,7 +498,6 @@
         let headerRow2Html = `<tr>`;
 
         attendanceEmployees.forEach(emp => {
-            // Klasa 'emp-group-th' wymusza pionowy układ imienia i nazwiska
             headerRow1Html += `<th colspan="2" class="emp-group-th">${emp}</th>`;
             headerRow2Html += `<th style="width: 45px; font-size: 9px;">godz.</th><th style="width: 45px; font-size: 9px;">parafka</th>`;
         });

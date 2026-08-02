@@ -127,12 +127,26 @@
         .push-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
         @media (max-width: 768px) { .push-grid { grid-template-columns: 1fr; } }
 
-        /* LISTA OBECNOŚCI - STYL WYDRUKU */
+        /* LISTA OBECNOŚCI - STYL WYDRUKU I PIONOWE IMIONA */
         .att-preview-box { background: white; color: black; padding: 20px; border-radius: 10px; margin-top: 15px; overflow-x: auto; max-height: 500px; }
         .att-table { width: 100%; border-collapse: collapse; font-family: Arial, sans-serif; font-size: 11px; }
         .att-table th, .att-table td { border: 1px solid #000; padding: 3px; text-align: center; }
         .att-table th { background: #e0e0e0; font-weight: bold; }
-        .att-table .name-th { writing-mode: vertical-rl; transform: rotate(180deg); height: 130px; padding: 4px; font-size: 10px; text-align: left; vertical-align: middle; }
+        
+        /* Styl dla pionowego nagłówka imienia i nazwiska */
+        .att-table .emp-group-th {
+            height: 140px;
+            vertical-align: bottom;
+            text-align: center;
+            padding: 5px 2px;
+            font-size: 10px;
+            font-weight: bold;
+            letter-spacing: 0.5px;
+            white-space: nowrap;
+            /* Ustawienie tekstu pionowo od dołu do góry */
+            writing-mode: vertical-lr;
+            transform: rotate(180deg);
+        }
         
         @media print {
             body * { visibility: hidden; }
@@ -156,7 +170,6 @@
         <a href="index.html" class="sidebar-link">Strona główna</a>
         <a href="plan.html" class="sidebar-link">Plan pracy</a>
         <a href="inwa.html" class="sidebar-link">Inwentury</a>
-        <!-- Wykrzyknik kssAlertBadge tutaj -->
         <a href="inwak.html" class="sidebar-link" id="navInwaKSS">Inwentury (ME/KSS) <span id="kssAlertBadge"></span></a>
         <a href="azs.html" class="sidebar-link">AZS</a>
         <a href="kwt.html" class="sidebar-link">KWT</a>
@@ -180,12 +193,12 @@
         
         <div class="main-admin-grid">
             
-            <!-- LISTA OBECNOŚCI (Z POPRAWIONYMI PODWÓJNYMI KOLUMNAMI) -->
+            <!-- LISTA OBECNOŚCI (Z PIONOWYMI NAZWISKAMI) -->
             <div class="card full-width" style="border-color: #27ae60; box-shadow: 0 5px 20px rgba(39, 174, 96, 0.15);">
                 <div class="card-title" style="color: #27ae60; border-bottom-color: #27ae60;">
                     📋 GENERATOR LISTY OBECNOŚCI
                 </div>
-                <p style="font-size: 0.8rem; color: #888; margin-top:-5px; margin-bottom:10px;">Wybierz miesiąc, zarządzaj pracownikami i wygeneruj dokument do wydruku z podwójnymi kolumnami (godziny + parafka).</p>
+                <p style="font-size: 0.8rem; color: #888; margin-top:-5px; margin-bottom:10px;">Wybierz miesiąc, zarządzaj pracownikami i wygeneruj dokument z pionowymi imionami i nazwiskami.</p>
                 
                 <div style="display: flex; gap: 15px; flex-wrap: wrap; align-items: flex-end; margin-bottom: 15px;">
                     <div class="input-group" style="flex: 1; min-width: 200px; margin: 0;">
@@ -439,7 +452,7 @@
     };
 
     // ==========================================
-    // LOGIKA LISTY OBECNOŚCI (PODWÓJNE KOLUMNY)
+    // LOGIKA LISTY OBECNOŚCI (PIONOWE IMIONA)
     // ==========================================
     function loadAttendanceEmployees() {
         db.ref(`Stores/${myStore}/Settings/AttendanceEmployees`).on('value', snap => {
@@ -490,11 +503,11 @@
         const table = document.getElementById('attTablePreview');
         const theadTr1 = document.getElementById('attHeaderRow1');
         
-        // Zbudowanie dwupoziomowego nagłówka dokładnie jak na oryginalnym druku
         let headerRow1Html = `<th style="width: 30px;" rowspan="2">data</th><th style="width: 75px;" rowspan="2">dzień tygodnia</th>`;
         let headerRow2Html = `<tr>`;
 
         attendanceEmployees.forEach(emp => {
+            // Klasa 'emp-group-th' wymusza pionowy układ imienia i nazwiska
             headerRow1Html += `<th colspan="2" class="emp-group-th">${emp}</th>`;
             headerRow2Html += `<th style="width: 45px; font-size: 9px;">godz.</th><th style="width: 45px; font-size: 9px;">parafka</th>`;
         });
@@ -502,7 +515,6 @@
 
         theadTr1.innerHTML = headerRow1Html;
         
-        // Sprawdź czy drugi wiersz nagłówka już istnieje, jak nie to stwórz
         let thead = table.querySelector('thead');
         let theadTr2 = document.getElementById('attHeaderRow2');
         if(!theadTr2) {
@@ -524,13 +536,12 @@
             
             let row = `<tr><td>${d}</td><td>${dayOfWeekStr}</td>`;
             attendanceEmployees.forEach(() => {
-                row += `<td></td><td></td>`; // Dwie kolumny na pracownika (godziny + parafka)
+                row += `<td></td><td></td>`;
             });
             row += `</tr>`;
             tbody.innerHTML += row;
         }
 
-        // Wiersze podsumowania u dołu tabeli
         const summaryLabels = [
             "Razem", "Norma", "Nadgodziny", "50%", "100%", 
             "U.wypocz.", "U.opiek.", "Umierz.", "U.wychow.", 

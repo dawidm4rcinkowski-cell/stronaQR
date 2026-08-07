@@ -91,8 +91,12 @@
         .card-done .approve-btn { border-color: #0a0; color: #0a0; }
         .card-done .approve-btn:hover { background: #0a0; color: #000; }
         
-        .loading-overlay { position: absolute; inset: 0; background: rgba(0,0,0,0.8); z-index: 2000; display: flex; align-items: center; justify-content: center; color: #ffe800; font-weight: bold; font-size: 1.5rem; display: none; flex-direction: column; text-align: center; }
-        .loading-overlay span { font-size: 0.9rem; font-weight: normal; color: #aaa; margin-top: 10px; }
+        .loading-overlay { position: absolute; inset: 0; background: rgba(0,0,0,0.8); z-index: 2000; display: flex; align-items: center; justify-content: center; color: #ffe800; font-weight: bold; font-size: 1.5rem; display: none; flex-direction: column; text-align: center; gap: 15px; }
+        .loading-overlay span { font-size: 0.9rem; font-weight: normal; color: #aaa; }
+
+        /* SPINNER (spojny z reszta aplikacji) */
+        .spinner { width: 32px; height: 32px; border-radius: 50%; border: 4px solid rgba(255,232,0,0.2); border-top-color: #ffe800; animation: spin 0.7s linear infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
         
         /* MODALE WSPÓLNE */
         .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 11000; align-items: center; justify-content: center; padding: 20px; backdrop-filter: blur(5px); }
@@ -110,6 +114,21 @@
 
         @keyframes blink { 0% { opacity: 1; } 50% { opacity: 0.3; } 100% { opacity: 1; } }
         .nav-alert { color: #f44; font-weight: 900; animation: blink 1s infinite; font-size: 1rem; margin-left: 5px; }
+
+        /* WLASNY MODAL POTWIERDZENIA (zamiast confirm()) */
+        #customConfirmModal .modal-content { border-color: #f44; max-width: 420px; }
+        #confirmModalTitle { color: #f44; font-weight: 900; text-transform: uppercase; margin-bottom: 12px; font-size: 1.2rem; }
+        #confirmModalText { color: #ccc; font-size: 0.85rem; line-height: 1.5; margin-bottom: 20px; white-space: pre-line; }
+        .confirm-buttons { display: flex; gap: 10px; }
+        .btn-confirm-yes { flex: 1; background: #f44; color: #000; border: none; padding: 12px; font-weight: 900; border-radius: 8px; cursor: pointer; text-transform: uppercase; transition: 0.2s; }
+        .btn-confirm-yes:hover { transform: scale(1.02); }
+        .btn-confirm-no { flex: 1; background: #151515; color: #888; border: 1px solid #333; padding: 12px; font-weight: 900; border-radius: 8px; cursor: pointer; text-transform: uppercase; transition: 0.2s; }
+        .btn-confirm-no:hover { background: #222; color: #fff; }
+
+        /* IDLE WARNING - spojne z reszta aplikacji */
+        #idleWarningModal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.92); z-index: 20000; align-items: center; justify-content: center; padding: 20px; backdrop-filter: blur(5px); }
+        #idleWarningModal .modal-content { max-width: 380px; border-color: #f44; box-shadow: 0 0 30px rgba(255,68,68,0.25); }
+        #idleCountdown { color: #f44; font-size: 2.5rem; font-weight: 900; margin: 15px 0; }
     </style>
 </head>
 <body>
@@ -144,7 +163,7 @@
 <div class="overlay" id="overlay" onclick="toggleNav()"></div>
 
 <div class="content">
-    <div class="loading-overlay" id="loadingData">Synchronizacja... <span>Pobieranie bazy towarów</span></div>
+    <div class="loading-overlay" id="loadingData"><div class="spinner"></div><span>Synchronizacja... Pobieranie bazy towarów</span></div>
     <div class="content-inner">
         <h1 class="page-title">KONTROLA WYSTAWIONYCH <span>TOWARÓW (KWT)</span></h1>
         
@@ -213,8 +232,35 @@
     </div>
 </div>
 
+<!-- WLASNY MODAL POTWIERDZENIA (zamiast confirm()) -->
+<div class="modal" id="customConfirmModal" style="z-index: 16000;">
+    <div class="modal-content">
+        <h3 id="confirmModalTitle">Potwierdź akcję</h3>
+        <p id="confirmModalText"></p>
+        <div class="confirm-buttons">
+            <button class="btn-confirm-no" onclick="resolveConfirm(false)">ANULUJ</button>
+            <button class="btn-confirm-yes" onclick="resolveConfirm(true)">POTWIERDŹ</button>
+        </div>
+    </div>
+</div>
+
+<div id="idleWarningModal">
+    <div class="modal-content">
+        <h2 style="color:#f44; font-weight:900; text-transform:uppercase;">Nadal tam jesteś?</h2>
+        <p style="color:#ccc; font-size:0.85rem; margin-top:10px;">Z powodu braku aktywności zostaniesz wylogowany za:</p>
+        <div id="idleCountdown">30</div>
+        <button class="btn-modal" onclick="pozostanZalogowany()">ZOSTAŃ ZALOGOWANY</button>
+    </div>
+</div>
+
 <script>
+    // NAPRAWA: pelna nazwa sklepu (numer + miasto) zamiast samego kodu, spojnie z reszta aplikacji
     document.getElementById('headerStore').innerText = myStore;
+    db.ref(`Stores/${myStore}/Setup`).once('value').then(snap => {
+        const setup = snap.val();
+        if (setup) document.getElementById('headerStore').innerText = `${setup.sNumber} ${setup.city}`;
+    });
+
     let finalDept = currentUser.dept;
     if(currentUser.isKss && currentUser.dept !== 'ME') finalDept = 'KSS';
     
@@ -301,11 +347,14 @@
         });
     }
 
+    // NAPRAWA: zamiast natywnego confirm() przegladarki, uzywamy wlasnego stylowanego modala
     function toggleKWT(id) {
         const saved = kwtLiveDb[id] || { status: 'none', time: '' };
         
         if (saved.status === 'done') { 
-            if (confirm("Na pewno chcesz wycofać potwiedzenie KWT?")) { db.ref(`Stores/${myStore}/KWT/${id}`).remove(); } 
+            customConfirm("Na pewno chcesz wycofać potwierdzenie KWT?", () => {
+                db.ref(`Stores/${myStore}/KWT/${id}`).remove();
+            });
             return; 
         }
         
@@ -389,11 +438,12 @@
         });
     }
 
+    // NAPRAWA: zamiast natywnego confirm() przegladarki, uzywamy wlasnego stylowanego modala
     function deleteKwtItem(id) {
-        if(confirm("Czy na pewno chcesz na zawsze USUNĄĆ ten towar z listy KWT?")) {
+        customConfirm("Czy na pewno chcesz na zawsze USUNĄĆ ten towar z listy KWT?", () => {
             db.ref(`Stores/${myStore}/KWT_Items/${id}`).remove();
             db.ref(`Stores/${myStore}/KWT/${id}`).remove();
-        }
+        });
     }
 
     function openEditItemModal(id, currentName) {
@@ -423,8 +473,11 @@
         }
     }
 
+    // NAPRAWA: zamiast natywnego confirm() przegladarki, uzywamy wlasnego stylowanego modala -
+    // to najbardziej krytyczna operacja na tej stronie (kasuje wszystkie statusy), wiec
+    // szczegolnie warto, zeby ostrzezenie wygladalo spojnie z reszta aplikacji.
     function resetAllKWT() {
-        if(confirm("🛑 OSTRZEŻENIE 🛑\n\nCzy na pewno chcesz bezpowrotnie usunąć i ZRESETOWAĆ wszystkie statusy KWT ze wszystkich działów?\nZrób to tylko, jeśli zaczynacie nowy tydzień kontroli!")) {
+        customConfirm("🛑 OSTRZEŻENIE 🛑\n\nCzy na pewno chcesz bezpowrotnie usunąć i ZRESETOWAĆ wszystkie statusy KWT ze wszystkich działów?\nZrób to tylko, jeśli zaczynacie nowy tydzień kontroli!", () => {
             document.getElementById('loadingData').style.display = 'flex';
             
             db.ref(`Stores/${myStore}/KWT`).remove().then(() => {
@@ -438,7 +491,22 @@
                 document.getElementById('loadingData').style.display = 'none';
                 alert("Błąd podczas resetowania: " + err.message);
             });
-        }
+        });
+    }
+
+    // ==========================================
+    // WLASNY MODAL POTWIERDZENIA (zamiast confirm())
+    // ==========================================
+    let _confirmCallback = null;
+    function customConfirm(message, onConfirm) {
+        document.getElementById('confirmModalText').innerText = message;
+        _confirmCallback = onConfirm;
+        document.getElementById('customConfirmModal').style.display = 'flex';
+    }
+    function resolveConfirm(result) {
+        document.getElementById('customConfirmModal').style.display = 'none';
+        if (result && _confirmCallback) _confirmCallback();
+        _confirmCallback = null;
     }
 
     // SYSTEM POWIADOMIEŃ GLOBALNYCH
@@ -466,18 +534,24 @@
         });
     }
 
+    // NAPRAWA: wykrzyknik KSS przeszukiwal tylko biezacy miesiac (Inwentury/{rok}_{miesiac}),
+    // przez co zgloszenie z poprzedniego miesiaca (np. z 31. dnia) nie bylo tu sygnalizowane,
+    // mimo ze na dashboardzie, w planie pracy i na obu stronach inwentur wykrzyknik przeszukuje
+    // WSZYSTKIE miesiace. Ujednolicone z reszta aplikacji + rok liczony dynamicznie.
     if(isManagerOrKss) {
-        const d = new Date();
-        const yearNow = 2026;
-        const monthNow = d.getMonth();
-        
-        db.ref(`Stores/${myStore}/Inwentury/${yearNow}_${monthNow}`).on('value', snap => {
+        db.ref(`Stores/${myStore}/Inwentury`).on('value', snap => {
+            let allInwa = snap.val() || {};
             let hasAwaiting = false;
-            snap.forEach(item => {
-                if(item.val().status === 'awaiting_kss') {
-                    hasAwaiting = true;
-                }
+
+            Object.keys(allInwa).forEach(monthKey => {
+                let monthData = allInwa[monthKey] || {};
+                Object.values(monthData).forEach(item => {
+                    if (item.status === 'awaiting_kss') {
+                        hasAwaiting = true;
+                    }
+                });
             });
+
             let badge = document.getElementById('kssAlertBadge'); 
             if(badge) badge.innerHTML = hasAwaiting ? `<span class="nav-alert">[!]</span>` : '';
         });
@@ -485,14 +559,45 @@
 
     function closeGlobalPopup() { document.getElementById('globalNotificationModal').style.display = 'none'; }
 
-    // AUTOWYLOGOWANIE
-    const minutyBezczynnosci = 5; 
-    const limitCzasu = minutyBezczynnosci * 60 * 1000; 
+    // ==========================================
+    // AUTOWYLOGOWANIE (Z OSTRZEŻENIEM PRZED WYLOGOWANIEM)
+    // NAPRAWA: dodane 30-sekundowe ostrzezenie zamiast natychmiastowego wylogowania -
+    // spojne z zachowaniem na pozostalych stronach aplikacji.
+    // ==========================================
+    const minutyBezczynnosci = 5;
+    const sekundOstrzezenia = 30;
+    const limitCzasu = (minutyBezczynnosci * 60 - sekundOstrzezenia) * 1000;
     let timerBezczynnosci;
+    let countdownInterval;
+    let ostrzezenieAktywne = false;
 
     function resetujTimer() {
+        if (ostrzezenieAktywne) return;
         clearTimeout(timerBezczynnosci);
-        timerBezczynnosci = setTimeout(wylogujZPowoduBezczynnosci, limitCzasu);
+        timerBezczynnosci = setTimeout(pokazOstrzezenie, limitCzasu);
+    }
+
+    function pokazOstrzezenie() {
+        ostrzezenieAktywne = true;
+        let secondsLeft = sekundOstrzezenia;
+        document.getElementById('idleCountdown').innerText = secondsLeft;
+        document.getElementById('idleWarningModal').style.display = 'flex';
+
+        countdownInterval = setInterval(() => {
+            secondsLeft--;
+            document.getElementById('idleCountdown').innerText = secondsLeft;
+            if (secondsLeft <= 0) {
+                clearInterval(countdownInterval);
+                wylogujZPowoduBezczynnosci();
+            }
+        }, 1000);
+    }
+
+    function pozostanZalogowany() {
+        ostrzezenieAktywne = false;
+        clearInterval(countdownInterval);
+        document.getElementById('idleWarningModal').style.display = 'none';
+        resetujTimer();
     }
 
     function wylogujZPowoduBezczynnosci() {

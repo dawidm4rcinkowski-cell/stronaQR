@@ -20,6 +20,14 @@
         
         const isManagerOrKss = (currentUser.dept === 'ME' || currentUser.isKss);
 
+        // NAPRAWA (bezpieczenstwo): to jest panel ME/KSS do akceptowania/odrzucania/cofania
+        // cudzych inwentur. Wczesniej link byl tylko ukryty w menu dla zwyklych pracownikow,
+        // ale sama strona nie sprawdzala uprawnien - znajac adres, kazdy mogl tu wejsc i
+        // podejmowac decyzje za kierownika. Teraz brak uprawnien = natychmiastowe przekierowanie.
+        if (currentUser && myStore && !isManagerOrKss) {
+            window.location.href = 'index.html';
+        }
+
         // INICJALIZACJA FIREBASE
         const firebaseConfig = {
             apiKey: "AIzaSyD0N6Bjyzs34piOoujEn9mxKir8LDGdD2k",
@@ -113,13 +121,34 @@
         @keyframes blink { 0% { opacity: 1; } 50% { opacity: 0.3; } 100% { opacity: 1; } }
         .nav-alert { color: #f44; font-weight: 900; animation: blink 1s infinite; font-size: 1rem; margin-left: 5px; }
         .btn-alert { color: #f44; font-weight: 900; animation: blink 1s infinite; margin-left: 4px; }
-        .loading-overlay { position: absolute; inset: 0; background: rgba(0,0,0,0.8); z-index: 2000; display: flex; align-items: center; justify-content: center; color: #ffe800; font-weight: bold; font-size: 1.5rem; display: none;}
+        .loading-overlay { position: absolute; inset: 0; background: rgba(0,0,0,0.8); z-index: 2000; display: flex; align-items: center; justify-content: center; color: #ffe800; font-weight: bold; font-size: 1.5rem; display: none; flex-direction: column; gap: 15px; }
+
+        /* SPINNER (spojny z reszta aplikacji) */
+        .spinner { width: 32px; height: 32px; border-radius: 50%; border: 4px solid rgba(255,232,0,0.2); border-top-color: #ffe800; animation: spin 0.7s linear infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
         
         #globalNotificationModal .modal-content { border-color: #ffe800; box-shadow: 0 0 30px rgba(0,0,0,0.5); }
         #globalPopupTitle { margin-bottom: 15px; font-size: 1.3rem; text-transform: uppercase; font-weight: 900; }
         #globalPopupMsg { color: #fff; font-size: 1rem; margin-bottom: 25px; line-height: 1.5; font-weight: 700; }
         .btn-close-popup { width: 100%; background: #ffe800; color: #000; border: none; padding: 12px 20px; font-weight: 900; border-radius: 8px; cursor: pointer; text-transform: uppercase; transition: 0.2s; }
         .btn-close-popup:hover { transform: scale(1.02); }
+
+        /* WLASNY MODAL POTWIERDZENIA (zamiast confirm()) */
+        #customConfirmModal .modal-content { border-color: #f44; max-width: 420px; }
+        #confirmModalTitle { color: #f44; font-weight: 900; text-transform: uppercase; margin-bottom: 12px; font-size: 1.2rem; }
+        #confirmModalText { color: #ccc; font-size: 0.85rem; line-height: 1.5; margin-bottom: 20px; }
+        .confirm-buttons { display: flex; gap: 10px; }
+        .btn-confirm-yes { flex: 1; background: #f44; color: #000; border: none; padding: 12px; font-weight: 900; border-radius: 8px; cursor: pointer; text-transform: uppercase; transition: 0.2s; }
+        .btn-confirm-yes:hover { transform: scale(1.02); }
+        .btn-confirm-no { flex: 1; background: #151515; color: #888; border: 1px solid #333; padding: 12px; font-weight: 900; border-radius: 8px; cursor: pointer; text-transform: uppercase; transition: 0.2s; }
+        .btn-confirm-no:hover { background: #222; color: #fff; }
+
+        /* IDLE WARNING - spojne z reszta aplikacji */
+        #idleWarningModal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.92); z-index: 20000; align-items: center; justify-content: center; padding: 20px; backdrop-filter: blur(5px); }
+        #idleWarningModal .modal-content { max-width: 380px; border-color: #f44; box-shadow: 0 0 30px rgba(255,68,68,0.25); }
+        #idleCountdown { color: #f44; font-size: 2.5rem; font-weight: 900; margin: 15px 0; }
+        .btn-stay-logged { width: 100%; background: #ffe800; color: #000; border: none; padding: 14px; font-weight: 900; border-radius: 8px; cursor: pointer; text-transform: uppercase; transition: 0.2s; }
+        .btn-stay-logged:hover { transform: scale(1.02); }
     </style>
 </head>
 <body>
@@ -156,7 +185,7 @@
 <div class="overlay" id="overlay" onclick="toggleNav()"></div>
 
 <div class="content">
-    <div class="loading-overlay" id="loadingData">Synchronizacja z chmurą...</div>
+    <div class="loading-overlay" id="loadingData"><div class="spinner"></div><span>Synchronizacja z chmurą...</span></div>
     <div class="content-inner">
         <div class="page-header">
             <h1 class="page-title">WERYFIKACJA <span>INWENTUR</span> <span class="mgr-badge">PANEL ME/KSS</span></h1>
@@ -195,8 +224,29 @@
     </div>
 </div>
 
+<div class="modal" id="customConfirmModal">
+    <div class="modal-content">
+        <h3 id="confirmModalTitle">Potwierdź akcję</h3>
+        <p id="confirmModalText"></p>
+        <div class="confirm-buttons">
+            <button class="btn-confirm-no" onclick="resolveConfirm(false)">ANULUJ</button>
+            <button class="btn-confirm-yes" onclick="resolveConfirm(true)">POTWIERDŹ</button>
+        </div>
+    </div>
+</div>
+
+<div id="idleWarningModal">
+    <div class="modal-content">
+        <h2 style="color:#f44; font-weight:900; text-transform:uppercase;">Nadal tam jesteś?</h2>
+        <p style="color:#ccc; font-size:0.85rem; margin-top:10px;">Z powodu braku aktywności zostaniesz wylogowany za:</p>
+        <div id="idleCountdown">30</div>
+        <button class="btn-stay-logged" onclick="pozostanZalogowany()">ZOSTAŃ ZALOGOWANY</button>
+    </div>
+</div>
+
 <script>
-    const year = 2026;
+    // NAPRAWA: rok liczony dynamicznie zamiast na sztywno "2026"
+    const year = new Date().getFullYear();
     const months = ["STYCZEŃ", "LUTY", "MARZEC", "KWIECIEŃ", "MAJ", "CZERWIEC", "LIPIEC", "SIERPIEŃ", "WRZESIEŃ", "PAŹDZIERNIK", "LISTOPAD", "GRUDZIEŃ"];
     let currentMonth = new Date().getMonth();
     let inwaDataLive = {};
@@ -221,9 +271,13 @@
         updateKssBadge();
     });
 
+    // NAPRAWA: odpiecie starego nasluchiwacza musi uzyc numeru miesiaca SPRZED zmiany.
+    // Wczesniej `curM` bylo nadpisywane w onclick przed wywolaniem tej funkcji, wiec .off()
+    // probowal odpiac sie od sciezki nowego (jeszcze nigdy nie obserwowanego) miesiaca zamiast
+    // starego - stary listener nigdy nie znikal (wyciek przy kazdej zmianie miesiaca).
     function loadMonthDataFromFirebase(m) {
         document.getElementById('loadingData').style.display = 'flex';
-        if (inwaListener) { db.ref(`Stores/${myStore}/Inwentury/${year}_${curM}`).off('value', inwaListener); }
+        if (inwaListener) { db.ref(`Stores/${myStore}/Inwentury/${year}_${curM}`).off('value', inwaListener); inwaListener = null; }
         
         curM = m;
         currentMonth = m;
@@ -268,9 +322,16 @@
             const b = document.createElement('button');
             b.className = `month-btn ${i === currentMonth ? 'active' : ''}`;
             b.innerHTML = `${m} ${hasAwaitingInMonth ? '<span class="btn-alert">[!]</span>' : ''}`;
-            b.onclick = () => { currentMonth = i; curM = i; renderMonthSelector(); loadMonthDataFromFirebase(i); };
+            b.onclick = () => { renderMonthSelectorActive(i); loadMonthDataFromFirebase(i); };
             div.appendChild(b);
         });
+    }
+
+    // NAPRAWA: podswietlenie aktywnego przycisku miesiaca bez przedwczesnego nadpisywania
+    // globalnego `curM`/`currentMonth` (o to dba dopiero loadMonthDataFromFirebase, PO
+    // odpieciu starego listenera).
+    function renderMonthSelectorActive(i) {
+        document.querySelectorAll('.month-btn').forEach((btn, idx) => btn.classList.toggle('active', idx === i));
     }
 
     function updateDeptBadges() {
@@ -283,7 +344,13 @@
         });
     }
 
+    // NAPRAWA: pelna nazwa sklepu (numer + miasto) zamiast samego kodu, spojnie z reszta aplikacji
     document.getElementById('headerStore').innerText = myStore;
+    db.ref(`Stores/${myStore}/Setup`).once('value').then(snap => {
+        const setup = snap.val();
+        if (setup) document.getElementById('headerStore').innerText = `${setup.sNumber} ${setup.city}`;
+    });
+
     let finalDept = currentUser.dept; if(currentUser.isKss && currentUser.dept !== 'ME') finalDept = 'KSS';
     document.getElementById('sideName').innerText = `${currentUser.name} (${finalDept})`;
     
@@ -364,8 +431,9 @@
         closeReviewModal();
     }
 
+    // NAPRAWA: zamiast natywnego confirm() przegladarki, uzywamy wlasnego stylowanego modala
     function undoDecision(id) {
-        if(confirm("Czy na pewno chcesz wycofać decyzję dla tej inwentury? Spowoduje to wyzerowanie jej statusu (wróci do pracownika).")) {
+        customConfirm("Czy na pewno chcesz wycofać decyzję dla tej inwentury? Spowoduje to wyzerowanie jej statusu (wróci do pracownika).", () => {
             let item = inwaDataLive[id];
             let oldSubmitter = item.submitterId;
             let cleanName = item.name.replace(/<[^>]*>?/gm, '');
@@ -379,7 +447,22 @@
             if (oldSubmitter) {
                 db.ref(`Stores/${myStore}/Notifications`).push({ to: oldSubmitter, title: '🔄 INWENTURA WYCOFANA', msg: `Kierownik/KSS wycofał decyzję dla inwentury: ${cleanName} (${months[currentMonth]}). Status powrócił na DO ZROBIENIA.`, type: 'warning', read: false, timestamp: Date.now() });
             }
-        }
+        });
+    }
+
+    // ==========================================
+    // WLASNY MODAL POTWIERDZENIA (zamiast confirm())
+    // ==========================================
+    let _confirmCallback = null;
+    function customConfirm(message, onConfirm) {
+        document.getElementById('confirmModalText').innerText = message;
+        _confirmCallback = onConfirm;
+        document.getElementById('customConfirmModal').style.display = 'flex';
+    }
+    function resolveConfirm(result) {
+        document.getElementById('customConfirmModal').style.display = 'none';
+        if (result && _confirmCallback) _confirmCallback();
+        _confirmCallback = null;
     }
 
     if (typeof db !== 'undefined' && typeof currentUser !== 'undefined') {
@@ -422,13 +505,45 @@
         loadMonthDataFromFirebase(currentMonth);
     };
 
-    const minutyBezczynnosci = 5; 
-    const limitCzasu = minutyBezczynnosci * 60 * 1000; 
+    // ==========================================
+    // SYSTEM AUTOWYLOGOWANIA (Z OSTRZEŻENIEM PRZED WYLOGOWANIEM)
+    // NAPRAWA: dodane 30-sekundowe ostrzezenie zamiast natychmiastowego wylogowania -
+    // spojne z zachowaniem na dashboardzie, w planie pracy i inwenturach pracownika.
+    // ==========================================
+    const minutyBezczynnosci = 5;
+    const sekundOstrzezenia = 30;
+    const limitCzasu = (minutyBezczynnosci * 60 - sekundOstrzezenia) * 1000;
     let timerBezczynnosci;
+    let countdownInterval;
+    let ostrzezenieAktywne = false;
 
     function resetujTimer() {
+        if (ostrzezenieAktywne) return;
         clearTimeout(timerBezczynnosci);
-        timerBezczynnosci = setTimeout(wylogujZPowoduBezczynnosci, limitCzasu);
+        timerBezczynnosci = setTimeout(pokazOstrzezenie, limitCzasu);
+    }
+
+    function pokazOstrzezenie() {
+        ostrzezenieAktywne = true;
+        let secondsLeft = sekundOstrzezenia;
+        document.getElementById('idleCountdown').innerText = secondsLeft;
+        document.getElementById('idleWarningModal').style.display = 'flex';
+
+        countdownInterval = setInterval(() => {
+            secondsLeft--;
+            document.getElementById('idleCountdown').innerText = secondsLeft;
+            if (secondsLeft <= 0) {
+                clearInterval(countdownInterval);
+                wylogujZPowoduBezczynnosci();
+            }
+        }, 1000);
+    }
+
+    function pozostanZalogowany() {
+        ostrzezenieAktywne = false;
+        clearInterval(countdownInterval);
+        document.getElementById('idleWarningModal').style.display = 'none';
+        resetujTimer();
     }
 
     function wylogujZPowoduBezczynnosci() {

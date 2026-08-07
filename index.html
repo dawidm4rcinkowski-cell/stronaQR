@@ -91,7 +91,7 @@
         .time-box .label { font-size: 0.55rem; color: #888; font-weight: 900; letter-spacing: 2px; margin-bottom: 5px; }
         .time-box .digits { font-size: 3rem; font-weight: 900; color: #ffe800; height: 50px; display: flex; justify-content: center; align-items: center; }
         .flip-anim { animation: fullFlip 0.5s ease-in-out; }
-        @keyframes fullFlip { 0% { transform: rotateX(0deg); background: #151515; } 50% { transform: rotateX(-90deg); background: #222; } 100% { transform: rotateX(0deg); background: #151515; } }
+        @keyframes fullFlip { 0% { transform: rotateX(0deg); background: #151515; box-shadow: 0 10px 30px rgba(0,0,0,0.6); } 50% { transform: rotateX(-90deg); background: #222; box-shadow: 0 25px 35px rgba(0,0,0,0.85); } 100% { transform: rotateX(0deg); background: #151515; box-shadow: 0 10px 30px rgba(0,0,0,0.6); } }
 
         .daily-info-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 15px; margin-bottom: 40px; }
         .info-card { background: #0a0a0a; border: 1px solid #222; border-radius: 15px; padding: 20px; display: flex; align-items: center; gap: 15px; transition: 0.3s; box-shadow: inset 0 0 20px rgba(0,0,0,0.5); }
@@ -112,6 +112,11 @@
         .counters-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 20px; }
         .counter-card { background: #0a0a0a; border: 1px solid #222; border-radius: 15px; padding: 20px; text-align: center; position: relative; box-shadow: inset 0 0 20px rgba(0,0,0,0.5); transition: 0.3s; display: flex; flex-direction: column; justify-content: space-between;}
         .counter-card:hover { border-color: #ffe800; background: #111; }
+        .counter-card.goal-hit { border-color: #ffe800; animation: successPulseTile 1.4s ease-in-out infinite; }
+        @keyframes successPulseTile {
+            0%, 100% { box-shadow: inset 0 0 20px rgba(0,0,0,0.5), 0 0 12px rgba(255,232,0,0.25); }
+            50% { box-shadow: inset 0 0 20px rgba(0,0,0,0.5), 0 0 28px rgba(255,232,0,0.6); }
+        }
         .counter-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; min-height: 25px; }
         .counter-title { font-size: 0.8rem; color: #888; font-weight: 900; text-transform: uppercase; flex-grow: 1; text-align: center; }
         .counter-value { font-size: 2.5rem; font-weight: 900; color: #ffe800; margin-bottom: 5px; }
@@ -120,6 +125,7 @@
         .progi-grid { display: flex; flex-wrap: wrap; gap: 15px; margin-bottom: 40px; }
         .prog-card { background: #0a0a0a; border: 1px solid #222; border-radius: 15px; padding: 20px; transition: 0.3s; box-shadow: inset 0 0 20px rgba(0,0,0,0.5); position: relative; }
         .prog-card:hover { border-color: #333; background: #111; }
+        .prog-card.goal-hit { border-color: #ffe800; animation: successPulseTile 1.4s ease-in-out infinite; }
         
         .prog-w-100 { flex: 0 0 100%; max-width: 100%; }
         .prog-w-50 { flex: 0 0 calc(50% - 7.5px); max-width: calc(50% - 7.5px); }
@@ -205,6 +211,26 @@
         #globalPopupMsg { color: #fff; font-size: 1rem; margin-bottom: 25px; line-height: 1.5; font-weight: 700; }
         .btn-close-popup { width: 100%; background: #ffe800; color: #000; border: none; padding: 12px 20px; font-weight: 900; border-radius: 8px; cursor: pointer; text-transform: uppercase; transition: 0.2s; }
         .btn-close-popup:hover { transform: scale(1.02); }
+
+        /* SKELETON LOADING */
+        .skeleton { position: relative; overflow: hidden; background: #131313; border-radius: 8px; color: transparent !important; }
+        .skeleton::after {
+            content: ""; position: absolute; top: 0; left: -150%; height: 100%; width: 150%;
+            background: linear-gradient(90deg, transparent, rgba(255,232,0,0.08), transparent);
+            animation: skeletonShine 1.4s infinite;
+        }
+        @keyframes skeletonShine { 100% { left: 150%; } }
+        .skeleton-card { background: #0a0a0a; border: 1px solid #1a1a1a; border-radius: 12px; padding: 18px; display: flex; align-items: center; gap: 15px; }
+        .skeleton-circle { width: 50px; height: 50px; border-radius: 50%; background: #131313; flex-shrink: 0; position: relative; overflow: hidden; }
+        .skeleton-circle::after { content: ""; position: absolute; top: 0; left: -150%; height: 100%; width: 150%; background: linear-gradient(90deg, transparent, rgba(255,232,0,0.08), transparent); animation: skeletonShine 1.4s infinite; }
+        .skeleton-lines { flex-grow: 1; display: flex; flex-direction: column; gap: 8px; }
+        .skeleton-line { height: 12px; border-radius: 4px; }
+        .skeleton-line.short { width: 50%; }
+
+        /* IDLE WARNING */
+        #idleWarningModal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.92); z-index: 20000; align-items: center; justify-content: center; padding: 20px; backdrop-filter: blur(5px); }
+        #idleWarningModal .prog-modal-content { border-color: #f44; text-align: center; box-shadow: 0 0 30px rgba(255,68,68,0.25); }
+        #idleCountdown { color: #f44; font-size: 2.5rem; font-weight: 900; margin: 15px 0; }
     </style>
 </head>
 <body>
@@ -212,7 +238,7 @@
 <header>
     <div class="menu-btn" onclick="toggleNav()">☰</div>
     <div class="logo">EXPERT <span>TOOL</span></div>
-    <div class="store-badge" id="headerStore">Łączenie z bazą...</div>
+    <div class="store-badge skeleton" id="headerStore">Łączenie z bazą...</div>
 </header>
 
 <div class="sidebar" id="sidebar">
@@ -265,19 +291,19 @@
         <div class="daily-info-grid">
             <div class="info-card">
                 <div class="info-icon">⏱️</div>
-                <div class="info-text-group"><span class="info-label">Twój dzisiejszy grafik</span><span class="info-value" id="myShiftVal">Łączenie...</span></div>
+                <div class="info-text-group"><span class="info-label">Twój dzisiejszy grafik</span><span class="info-value skeleton" id="myShiftVal">Łączenie...</span></div>
             </div>
             <div class="info-card">
                 <div class="info-icon">📦</div>
-                <div class="info-text-group"><span class="info-label">Dostawę przyjmuje</span><span class="info-value person" id="deliveryVal">Łączenie...</span></div>
+                <div class="info-text-group"><span class="info-label">Dostawę przyjmuje</span><span class="info-value person skeleton" id="deliveryVal">Łączenie...</span></div>
             </div>
             <div class="info-card">
                 <div class="info-icon">☕</div>
-                <div class="info-text-group"><span class="info-label">Socjalem zajmuje się</span><span class="info-value person" id="socialVal">Łączenie...</span></div>
+                <div class="info-text-group"><span class="info-label">Socjalem zajmuje się</span><span class="info-value person skeleton" id="socialVal">Łączenie...</span></div>
             </div>
             <div class="info-card">
                 <div class="info-icon">🔑</div>
-                <div class="info-text-group"><span class="info-label">Klucze pobiera</span><span class="info-value person" id="keysVal">Łączenie...</span></div>
+                <div class="info-text-group"><span class="info-label">Klucze pobiera</span><span class="info-value person skeleton" id="keysVal">Łączenie...</span></div>
             </div>
         </div>
 
@@ -292,7 +318,7 @@
         
         <div class="counters-grid" id="countersContainer"></div>
         <div class="progi-grid" id="progiContainer">
-            <div style="color: #666; font-size:0.8rem; font-weight:bold; width:100%; text-align:center;">Brak ustawionych celów.</div>
+            <div class="skeleton-card" style="width:100%;"><div class="skeleton-circle"></div><div class="skeleton-lines"><div class="skeleton skeleton-line"></div><div class="skeleton skeleton-line short"></div></div></div>
         </div>
 
         <div class="section-title">SZYBKIE SKRÓTY</div>
@@ -305,7 +331,9 @@
 
         <div class="section-title">OBECNA EKIPA <span id="teamStoreLabel"></span></div>
         <div class="team-grid" id="teamContainer">
-            <div style="color: #666; font-size:0.8rem; font-weight:bold; width:100%; text-align:center; margin-top:20px;">POBIERANIE DANYCH Z CHMURY...</div>
+            <div class="skeleton-card"><div class="skeleton-circle"></div><div class="skeleton-lines"><div class="skeleton skeleton-line"></div><div class="skeleton skeleton-line short"></div></div></div>
+            <div class="skeleton-card"><div class="skeleton-circle"></div><div class="skeleton-lines"><div class="skeleton skeleton-line"></div><div class="skeleton skeleton-line short"></div></div></div>
+            <div class="skeleton-card"><div class="skeleton-circle"></div><div class="skeleton-lines"><div class="skeleton skeleton-line"></div><div class="skeleton skeleton-line short"></div></div></div>
         </div>
 
     </div>
@@ -399,6 +427,15 @@
     </div>
 </div>
 
+<div id="idleWarningModal">
+    <div class="prog-modal-content" style="max-width: 380px;">
+        <h2 style="color:#f44; font-weight:900; text-transform:uppercase;">Nadal tam jesteś?</h2>
+        <p style="color:#ccc; font-size:0.85rem; margin-top:10px;">Z powodu braku aktywności zostaniesz wylogowany za:</p>
+        <div id="idleCountdown">30</div>
+        <button class="btn-modal-close" onclick="pozostanZalogowany()">ZOSTAŃ ZALOGOWANY</button>
+    </div>
+</div>
+
 <script>
     document.getElementById('greetName').innerText = currentUser.name || "Nieznany";
     document.getElementById('sideName').innerText = `${currentUser.name || "Nieznany"} (${currentUser.dept || "ME"})`;
@@ -453,9 +490,13 @@
 
     db.ref(`Stores/${myStore}/Setup`).once('value', snap => {
         const setup = snap.val();
+        const headerEl = document.getElementById('headerStore');
+        headerEl.classList.remove('skeleton');
         if(setup) {
-            document.getElementById('headerStore').innerText = `${setup.sNumber} ${setup.city}`;
+            headerEl.innerText = `${setup.sNumber} ${setup.city}`;
             document.getElementById('teamStoreLabel').innerText = setup.sNumber;
+        } else {
+            headerEl.innerText = "Nieznany sklep";
         }
     });
 
@@ -464,6 +505,8 @@
     let isReordering = false;
     let sortableCharts = null;
     let sortableCounters = null;
+    let planListenerRef = null; // referencja do aktywnego nasłuchiwacza Planu (naprawa wycieku listenerow)
+    let previousProgiValues = {}; // do animacji count-up i wykrywania nowo osiagnietych progow
 
     db.ref(`Stores/${myStore}/Dashboard/Progi`).on('value', snap => {
         const progiObj = snap.val() || {};
@@ -575,6 +618,21 @@
 
     function closeHistoryModal() { document.getElementById('historyModal').style.display = 'none'; }
 
+    // Animacja "count-up" liczb - płynne przejście od starej do nowej wartości
+    function animateCountUp(el, from, to, duration = 800) {
+        const start = performance.now();
+        const isInt = Number.isInteger(from) && Number.isInteger(to);
+        function step(now) {
+            const progress = Math.min((now - start) / duration, 1);
+            const eased = 1 - Math.pow(1 - progress, 3); // ease-out cubic
+            const current = from + (to - from) * eased;
+            el.textContent = isInt ? Math.round(current) : current.toFixed(1);
+            if (progress < 1) requestAnimationFrame(step);
+            else el.textContent = to;
+        }
+        requestAnimationFrame(step);
+    }
+
     function renderProgi() {
         const chartsContainer = document.getElementById('progiContainer');
         const countersContainer = document.getElementById('countersContainer');
@@ -595,10 +653,18 @@
             let handleDisplay = isReordering ? 'block' : 'none';
             let editBtnHtml = hasTileAccess ? `<button class="btn-edit-prog" onclick="openCounterModal('${prog.id}')">EDYTUJ</button>` : '';
             const card = document.createElement('div');
-            card.className = 'counter-card';
+            const goalHit = prog.target > 0 && prog.current >= prog.target;
+            card.className = 'counter-card' + (goalHit ? ' goal-hit' : '');
             card.setAttribute('data-id', prog.id);
-            card.innerHTML = `<div class="counter-header"><div class="drag-handle" style="display: ${handleDisplay}; margin-right:10px;">☰</div><div class="counter-title">${prog.name}</div>${editBtnHtml}</div><div class="counter-value">${prog.current} <span class="counter-target-text">/ ${prog.target}</span></div>`;
+            card.innerHTML = `<div class="counter-header"><div class="drag-handle" style="display: ${handleDisplay}; margin-right:10px;">☰</div><div class="counter-title">${prog.name}</div>${editBtnHtml}</div><div class="counter-value"><span class="count-up-val" data-final="${prog.current}">${prog.current}</span> <span class="counter-target-text">/ ${prog.target}</span></div>`;
             countersContainer.appendChild(card);
+
+            const valEl = card.querySelector('.count-up-val');
+            const prevVal = previousProgiValues[prog.id];
+            if (prevVal !== undefined && prevVal !== prog.current) {
+                animateCountUp(valEl, prevVal, prog.current);
+            }
+            previousProgiValues[prog.id] = prog.current;
         });
 
         if (chartsData.length === 0 && countersData.length > 0) { chartsContainer.innerHTML = ''; }
@@ -626,11 +692,13 @@
             });
 
             let differenceText = "";
+            let allThresholdsHit = false;
             if(nextThresholdVal) {
                 let diff = nextThresholdVal - prog.current;
                 differenceText = `Brakuje <span style="color:#ffe800;">${diff}</span> do: ${nextThresholdName}`;
             } else if (prog.current >= maxThreshold && maxThreshold > 0) {
                 differenceText = `<span style="color:#0a0;">Wszystkie progi osiągnięte! 🚀</span>`;
+                allThresholdsHit = true;
             } else {
                 differenceText = `<span style="color:#888;">Brak ustalonych progów.</span>`;
             }
@@ -640,10 +708,21 @@
             let handleDisplay = isReordering ? 'block' : 'none';
 
             const card = document.createElement('div');
-            card.className = `prog-card ${layoutClass}`;
+            card.className = `prog-card ${layoutClass}` + (allThresholdsHit ? ' goal-hit' : '');
             card.setAttribute('data-id', prog.id); 
-            card.innerHTML = `<div class="prog-header"><div class="prog-title-group"><div class="drag-handle" style="display: ${handleDisplay};">☰</div><div class="prog-title">${prog.name}</div></div>${editBtnHtml}</div><div style="margin-top: 25px; margin-bottom: 10px;"><div class="prog-bar-bg">${markersHtml}<div class="prog-bar-fill" style="width: ${percentFill}%;"></div></div></div><div class="prog-footer"><div>WYNIK: <span style="color:#fff; font-size:1rem;">${prog.current}</span></div><div>${differenceText}</div></div>`;
+            card.innerHTML = `<div class="prog-header"><div class="prog-title-group"><div class="drag-handle" style="display: ${handleDisplay};">☰</div><div class="prog-title">${prog.name}</div></div>${editBtnHtml}</div><div style="margin-top: 25px; margin-bottom: 10px;"><div class="prog-bar-bg">${markersHtml}<div class="prog-bar-fill" style="width: 0%;" data-final-width="${percentFill}"></div></div></div><div class="prog-footer"><div>WYNIK: <span style="color:#fff; font-size:1rem;" class="count-up-val" data-final="${prog.current}">${prog.current}</span></div><div>${differenceText}</div></div>`;
             chartsContainer.appendChild(card);
+
+            // animacja wypelnienia paska (zawsze przy renderze, dla efektu "narastania")
+            const fillEl = card.querySelector('.prog-bar-fill');
+            requestAnimationFrame(() => { fillEl.style.width = percentFill + '%'; });
+
+            const valEl = card.querySelector('.count-up-val');
+            const prevVal = previousProgiValues[prog.id];
+            if (prevVal !== undefined && prevVal !== prog.current) {
+                animateCountUp(valEl, prevVal, prog.current);
+            }
+            previousProgiValues[prog.id] = prog.current;
         });
     }
 
@@ -836,7 +915,16 @@
         }
 
         if(localProgi.length > 0) renderProgi();
-        fetchPlanData();
+
+        // NAPRAWA: fetchPlanData() ustawiał wlasny .on() listener na Planie za kazdym razem,
+        // gdy zmienil sie ktokolwiek w Users - co powodowalo narastajacy wyciek nasluchiwaczy.
+        // Teraz wywolujemy go tylko raz (listener na Plan sam odswieza dane, gdy zmieni sie grafik).
+        if (!planListenerRef) {
+            fetchPlanData();
+        } else {
+            // Users sie zmienilo (np. nowy pracownik) - trzeba przeliczyc karty na podstawie aktualnych danych Planu bez podpinania nowego listenera
+            refreshPlanDisplay();
+        }
     });
 
     function openEmployeeModal(charId) {
@@ -872,35 +960,51 @@
 
     function closeEmployeeModal() { document.getElementById('employeeModal').style.display = 'none'; }
 
+    let latestPlanData = {}; // ostatnio pobrane dane Planu - do ponownego przeliczenia bez nowego listenera
+
     function fetchPlanData() {
         const dateObj = new Date();
-        const year = 2026; 
+        const year = dateObj.getFullYear(); // NAPRAWA: bylo na sztywno 2026, teraz zawsze aktualny rok
         const month = dateObj.getMonth();
-        const day = dateObj.getDate();
 
-        db.ref(`Stores/${myStore}/Plan/${year}_${month}`).on('value', snap => {
-            const planData = snap.val() || {};
-            let myShift = "BRAK / WOLNE";
-            let personKeys = [], personDelivery = [], personSocial = [];
-            
-            globalUsersList.forEach(u => {
-                if(u.charId === 'ADMIN') return;
-                
-                let cellData = planData[`${u.charId}_${day}`] || "";
-                let shift = cellData.split('|')[0] || "";
-                let roles = cellData.split('|')[1] ? cellData.split('|')[1].split(',') : [];
-
-                if(u.charId === currentUser.charId) { myShift = shift || "BRAK / WOLNE"; }
-                if(roles.includes('K')) personKeys.push(u.name);
-                if(roles.includes('D')) personDelivery.push(u.name);
-                if(roles.includes('S')) personSocial.push(u.name);
-            });
-
-            document.getElementById('myShiftVal').innerText = myShift;
-            document.getElementById('keysVal').innerText = personKeys.length > 0 ? personKeys.join(', ') : "BRAK";
-            document.getElementById('deliveryVal').innerText = personDelivery.length > 0 ? personDelivery.join(', ') : "BRAK";
-            document.getElementById('socialVal').innerText = personSocial.length > 0 ? personSocial.join(', ') : "BRAK";
+        planListenerRef = db.ref(`Stores/${myStore}/Plan/${year}_${month}`);
+        planListenerRef.on('value', snap => {
+            latestPlanData = snap.val() || {};
+            refreshPlanDisplay();
         });
+    }
+
+    function refreshPlanDisplay() {
+        const dateObj = new Date();
+        const day = dateObj.getDate();
+        const planData = latestPlanData;
+
+        let myShift = "BRAK / WOLNE";
+        let personKeys = [], personDelivery = [], personSocial = [];
+
+        globalUsersList.forEach(u => {
+            if(u.charId === 'ADMIN') return;
+
+            let cellData = planData[`${u.charId}_${day}`] || "";
+            let shift = cellData.split('|')[0] || "";
+            let roles = cellData.split('|')[1] ? cellData.split('|')[1].split(',') : [];
+
+            if(u.charId === currentUser.charId) { myShift = shift || "BRAK / WOLNE"; }
+            if(roles.includes('K')) personKeys.push(u.name);
+            if(roles.includes('D')) personDelivery.push(u.name);
+            if(roles.includes('S')) personSocial.push(u.name);
+        });
+
+        const myShiftEl = document.getElementById('myShiftVal');
+        const keysEl = document.getElementById('keysVal');
+        const deliveryEl = document.getElementById('deliveryVal');
+        const socialEl = document.getElementById('socialVal');
+        [myShiftEl, keysEl, deliveryEl, socialEl].forEach(el => el.classList.remove('skeleton'));
+
+        myShiftEl.innerText = myShift;
+        keysEl.innerText = personKeys.length > 0 ? personKeys.join(', ') : "BRAK";
+        deliveryEl.innerText = personDelivery.length > 0 ? personDelivery.join(', ') : "BRAK";
+        socialEl.innerText = personSocial.length > 0 ? personSocial.join(', ') : "BRAK";
     }
 
     function updateClock() {
@@ -977,13 +1081,44 @@
         document.getElementById('globalNotificationModal').style.display = 'none'; 
     }
 
-    const minutyBezczynnosci = 5; 
-    const limitCzasu = minutyBezczynnosci * 60 * 1000; 
+    // ==========================================
+    // TIMER BEZCZYNNOŚCI (Z OSTRZEŻENIEM PRZED WYLOGOWANIEM)
+    // ==========================================
+    const minutyBezczynnosci = 5;
+    const sekundOstrzezenia = 30; // ile sekund przed wylogowaniem pokazac ostrzezenie
+    const limitCzasu = (minutyBezczynnosci * 60 - sekundOstrzezenia) * 1000;
     let timerBezczynnosci;
+    let timerOstrzezenia;
+    let countdownInterval;
+    let ostrzezenieAktywne = false;
 
     function resetujTimer() {
+        if (ostrzezenieAktywne) return; // nie resetuj w trakcie pokazanego ostrzezenia - user musi kliknac przycisk
         clearTimeout(timerBezczynnosci);
-        timerBezczynnosci = setTimeout(wylogujZPowoduBezczynnosci, limitCzasu);
+        timerBezczynnosci = setTimeout(pokazOstrzezenie, limitCzasu);
+    }
+
+    function pokazOstrzezenie() {
+        ostrzezenieAktywne = true;
+        let secondsLeft = sekundOstrzezenia;
+        document.getElementById('idleCountdown').innerText = secondsLeft;
+        document.getElementById('idleWarningModal').style.display = 'flex';
+
+        countdownInterval = setInterval(() => {
+            secondsLeft--;
+            document.getElementById('idleCountdown').innerText = secondsLeft;
+            if (secondsLeft <= 0) {
+                clearInterval(countdownInterval);
+                wylogujZPowoduBezczynnosci();
+            }
+        }, 1000);
+    }
+
+    function pozostanZalogowany() {
+        ostrzezenieAktywne = false;
+        clearInterval(countdownInterval);
+        document.getElementById('idleWarningModal').style.display = 'none';
+        resetujTimer();
     }
 
     function wylogujZPowoduBezczynnosci() {

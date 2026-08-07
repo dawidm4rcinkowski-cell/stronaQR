@@ -89,6 +89,15 @@
         .items-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 15px; }
         .item-card { background: #111; border: 1px solid #222; border-radius: 15px; padding: 20px; display: flex; flex-direction: column; justify-content: space-between; transition: 0.3s; }
         .item-card h3 { font-size: 1.1rem; font-weight: 900; text-transform: uppercase; margin-bottom: 15px; min-height: 2.5rem; line-height: 1.3; }
+
+        /* NAPRAWA: klasy card-done / card-rejected byly nadawane w JS, ale nigdzie nie mialy stylu -
+           zaakceptowane i odrzucone inwentury wygladaly identycznie jak zwykle karty. */
+        .item-card.card-done { border-color: #0a0; box-shadow: 0 0 15px rgba(0, 170, 0, 0.12); }
+        .item-card.card-rejected { border-color: #f44; box-shadow: 0 0 15px rgba(255, 68, 68, 0.15); animation: rejectedGlow 1.6s ease-in-out infinite; }
+        @keyframes rejectedGlow {
+            0%, 100% { box-shadow: 0 0 15px rgba(255, 68, 68, 0.15); }
+            50% { box-shadow: 0 0 25px rgba(255, 68, 68, 0.4); }
+        }
         
         .status-row { display: flex; align-items: center; gap: 10px; margin-bottom: 20px; font-size: 0.75rem; font-weight: 800; color: #888; }
         .dot { width: 10px; height: 10px; background: #ff4444; border-radius: 50%; box-shadow: 0 0 8px rgba(255, 68, 68, 0.6); }
@@ -107,7 +116,11 @@
         
         @keyframes blink { 0% { opacity: 1; } 50% { opacity: 0.3; } 100% { opacity: 1; } }
         .nav-alert { color: #f44; font-weight: 900; animation: blink 1s infinite; font-size: 1rem; margin-left: 5px; }
-        .loading-overlay { position: absolute; inset: 0; background: rgba(0,0,0,0.8); z-index: 2000; display: flex; align-items: center; justify-content: center; color: #ffe800; font-weight: bold; font-size: 1.5rem; display: none; }
+        .loading-overlay { position: absolute; inset: 0; background: rgba(0,0,0,0.8); z-index: 2000; display: flex; align-items: center; justify-content: center; color: #ffe800; font-weight: bold; font-size: 1.5rem; display: none; flex-direction: column; gap: 15px; }
+
+        /* SPINNER (spojny z reszta aplikacji) */
+        .spinner { width: 32px; height: 32px; border-radius: 50%; border: 4px solid rgba(255,232,0,0.2); border-top-color: #ffe800; animation: spin 0.7s linear infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
         
         #globalNotificationModal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 15000; align-items: center; justify-content: center; padding: 20px; backdrop-filter: blur(5px); }
         #popupBox { background: #0a0a0a; border: 3px solid #ffe800; padding: 30px; width: 100%; max-width: 500px; border-radius: 15px; text-align: center; box-shadow: 0 0 30px rgba(0,0,0,0.5); }
@@ -115,6 +128,11 @@
         #globalPopupMsg { color: #fff; font-size: 1rem; margin-bottom: 25px; line-height: 1.5; font-weight: 700; }
         .btn-close-popup { width: 100%; background: #ffe800; color: #000; border: none; padding: 12px 20px; font-weight: 900; border-radius: 8px; cursor: pointer; text-transform: uppercase; transition: 0.2s; }
         .btn-close-popup:hover { transform: scale(1.02); }
+
+        /* IDLE WARNING - spojne z dashboardem i planem pracy */
+        #idleWarningModal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.92); z-index: 20000; align-items: center; justify-content: center; padding: 20px; backdrop-filter: blur(5px); }
+        #idleWarningModal .modal-content { max-width: 380px; border-color: #f44; box-shadow: 0 0 30px rgba(255,68,68,0.25); }
+        #idleCountdown { color: #f44; font-size: 2.5rem; font-weight: 900; margin: 15px 0; }
     </style>
 </head>
 <body>
@@ -150,7 +168,7 @@
 <div class="overlay" id="overlay" onclick="toggleNav()"></div>
 
 <div class="content">
-    <div class="loading-overlay" id="loadingData">Synchronizacja z chmurą...</div>
+    <div class="loading-overlay" id="loadingData"><div class="spinner"></div><span>Synchronizacja z chmurą...</span></div>
     <div class="content-inner">
         <div class="page-header">
             <h1 class="page-title">LISTA <span>INWENTUR</span></h1>
@@ -177,8 +195,16 @@
     </div>
 </div>
 
+<div id="idleWarningModal">
+    <div class="modal-content">
+        <h2 style="color:#f44; font-weight:900; text-transform:uppercase;">Nadal tam jesteś?</h2>
+        <p style="color:#ccc; font-size:0.85rem; margin-top:10px;">Z powodu braku aktywności zostaniesz wylogowany za:</p>
+        <div id="idleCountdown">30</div>
+        <button class="btn-modal" onclick="pozostanZalogowany()">ZOSTAŃ ZALOGOWANY</button>
+    </div>
+</div>
+
 <script>
-    document.getElementById('headerStore').innerText = myStore;
     let finalDept = currentUser.dept; 
     if(currentUser.isKss && currentUser.dept !== 'ME') finalDept = 'KSS';
     document.getElementById('sideName').innerText = `${currentUser.name} (${finalDept})`;
@@ -193,10 +219,18 @@
         if(document.getElementById('navKierownik')) document.getElementById('navKierownik').style.display = 'none'; 
     }
 
+    // NAPRAWA: pelna nazwa sklepu (numer + miasto) zamiast samego kodu, spojnie z reszta aplikacji
+    document.getElementById('headerStore').innerText = myStore;
+    db.ref(`Stores/${myStore}/Setup`).once('value').then(snap => {
+        const setup = snap.val();
+        if (setup) document.getElementById('headerStore').innerText = `${setup.sNumber} ${setup.city}`;
+    });
+
     function toggleNav() { document.getElementById('sidebar').classList.toggle('active'); document.getElementById('overlay').classList.toggle('active'); }
     function logout() { localStorage.removeItem('currentUser'); window.location.href = 'login.html'; }
 
-    const year = 2026;
+    // NAPRAWA: rok liczony dynamicznie zamiast na sztywno "2026"
+    const year = new Date().getFullYear();
     const months = ["STYCZEŃ", "LUTY", "MARZEC", "KWIECIEŃ", "MAJ", "CZERWIEC", "LIPIEC", "SIERPIEŃ", "WRZESIEŃ", "PAŹDZIERNIK", "LISTOPAD", "GRUDZIEŃ"];
     let currentMonth = new Date().getMonth();
     let inwaDataLive = {}; 
@@ -211,9 +245,13 @@
         { id: "agd_m1", dept: "AGD", period: "monthly", name: "Akcesoria do golarek" }, { id: "agd_m2", dept: "AGD", period: "monthly", name: "Depilatory świetlne" }, { id: "agd_m3", dept: "AGD", period: "monthly", name: "Szczoteczki" }, { id: "agd_m4", dept: "AGD", period: "monthly", name: "Trymery" }, { id: "agd_m5", dept: "AGD", period: "monthly", name: "Urządzenia do pielęgnacji twarzy i ciała" }, { id: "agd_m6", dept: "AGD", period: "monthly", name: "Akcesoria do urządzeń SODASTREAM" }, { id: "agd_m7", dept: "AGD", period: "monthly", name: "Kawa ziarnista" }, { id: "agd_m8", dept: "AGD", period: "monthly", name: "Kawa w kapsułkach" }, { id: "agd_m9", dept: "AGD", period: "monthly", name: "Syropy" }
     ];
 
+    // NAPRAWA: odpiecie starego nasluchiwacza musi uzyc numeru miesiaca SPRZED zmiany.
+    // Wczesniej `currentMonth` bylo nadpisywane w onclick przed wywolaniem tej funkcji,
+    // wiec .off() probowal odpiac sie od sciezki nowego (jeszcze nigdy nie obserwowanego)
+    // miesiaca zamiast starego - stary listener nigdy nie znikal (wyciek przy kazdej zmianie miesiaca).
     function loadMonthDataFromFirebase(m) {
         document.getElementById('loadingData').style.display = 'flex';
-        if (inwaListener) { db.ref(`Stores/${myStore}/Inwentury/${year}_${currentMonth}`).off('value', inwaListener); }
+        if (inwaListener) { db.ref(`Stores/${myStore}/Inwentury/${year}_${currentMonth}`).off('value', inwaListener); inwaListener = null; }
         
         currentMonth = m;
         const dbRef = db.ref(`Stores/${myStore}/Inwentury/${year}_${currentMonth}`);
@@ -252,9 +290,16 @@
             const b = document.createElement('button');
             b.className = `month-btn ${i === currentMonth ? 'active' : ''}`;
             b.innerText = m;
-            b.onclick = () => { currentMonth = i; renderMonthSelector(); loadMonthDataFromFirebase(i); };
+            b.onclick = () => { renderMonthSelectorActive(i); loadMonthDataFromFirebase(i); };
             div.appendChild(b);
         });
+    }
+
+    // NAPRAWA: podswietlenie aktywnego przycisku miesiaca bez przedwczesnego nadpisywania
+    // globalnego `currentMonth` (to loadMonthDataFromFirebase odpowiada za jego zmiane,
+    // dopiero PO odpieciu starego listenera).
+    function renderMonthSelectorActive(i) {
+        document.querySelectorAll('.month-btn').forEach((btn, idx) => btn.classList.toggle('active', idx === i));
     }
 
     function switchDept(dept) {
@@ -342,14 +387,45 @@
     function closeGlobalPopup() { document.getElementById('globalNotificationModal').style.display = 'none'; }
     window.onload = () => { renderMonthSelector(); loadMonthDataFromFirebase(currentMonth); };
 
-    // SYSTEM AUTOWYLOGOWANIA
-    const minutyBezczynnosci = 5; 
-    const limitCzasu = minutyBezczynnosci * 60 * 1000; 
+    // ==========================================
+    // SYSTEM AUTOWYLOGOWANIA (Z OSTRZEŻENIEM PRZED WYLOGOWANIEM)
+    // NAPRAWA: dodane 30-sekundowe ostrzezenie zamiast natychmiastowego wylogowania -
+    // spojne z zachowaniem na dashboardzie i w planie pracy.
+    // ==========================================
+    const minutyBezczynnosci = 5;
+    const sekundOstrzezenia = 30;
+    const limitCzasu = (minutyBezczynnosci * 60 - sekundOstrzezenia) * 1000;
     let timerBezczynnosci;
+    let countdownInterval;
+    let ostrzezenieAktywne = false;
 
     function resetujTimer() {
+        if (ostrzezenieAktywne) return;
         clearTimeout(timerBezczynnosci);
-        timerBezczynnosci = setTimeout(wylogujZPowoduBezczynnosci, limitCzasu);
+        timerBezczynnosci = setTimeout(pokazOstrzezenie, limitCzasu);
+    }
+
+    function pokazOstrzezenie() {
+        ostrzezenieAktywne = true;
+        let secondsLeft = sekundOstrzezenia;
+        document.getElementById('idleCountdown').innerText = secondsLeft;
+        document.getElementById('idleWarningModal').style.display = 'flex';
+
+        countdownInterval = setInterval(() => {
+            secondsLeft--;
+            document.getElementById('idleCountdown').innerText = secondsLeft;
+            if (secondsLeft <= 0) {
+                clearInterval(countdownInterval);
+                wylogujZPowoduBezczynnosci();
+            }
+        }, 1000);
+    }
+
+    function pozostanZalogowany() {
+        ostrzezenieAktywne = false;
+        clearInterval(countdownInterval);
+        document.getElementById('idleWarningModal').style.display = 'none';
+        resetujTimer();
     }
 
     function wylogujZPowoduBezczynnosci() {

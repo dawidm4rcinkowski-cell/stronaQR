@@ -103,6 +103,9 @@
         td { border-bottom: 1px solid #222; border-right: 1px solid #222; height: 48px; text-align: center; vertical-align: middle; transition: background-color 0.2s; cursor: pointer; }
         td:last-child { border-right: none; } 
         td:hover { background-color: rgba(255, 255, 255, 0.08); }
+
+        @keyframes cellPulse { 0% { background-color: rgba(255,232,0,0.55); } 100% { background-color: transparent; } }
+        .cell-flash { animation: cellPulse 0.5s ease; }
         
         .cell-shift { font-weight: 900; font-size: 0.8rem; color: #fff; }
         .cell-icons { font-size: 0.7rem; letter-spacing: 2px; margin-top: 3px; }
@@ -139,8 +142,8 @@
         .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 11000; align-items: center; justify-content: center; padding: 20px; backdrop-filter: blur(5px); }
         .modal-content { background: #0a0a0a; border: 2px solid #ffe800; padding: 20px; width: 100%; max-width: 800px; border-radius: 15px; box-shadow: 0 0 30px rgba(255, 232, 0, 0.15); display: flex; flex-direction: column; max-height: 90vh;}
         
-        .settings-tabs { display: flex; border-bottom: 2px solid #333; margin-bottom: 20px; }
-        .s-tab-btn { flex: 1; background: transparent; color: #888; border: none; padding: 12px; font-weight: 900; font-size: 0.8rem; cursor: pointer; transition: 0.3s; border-bottom: 3px solid transparent; text-transform: uppercase; }
+        .settings-tabs { display: flex; border-bottom: 2px solid #333; margin-bottom: 20px; flex-wrap: wrap; }
+        .s-tab-btn { flex: 1; min-width: 120px; background: transparent; color: #888; border: none; padding: 12px; font-weight: 900; font-size: 0.75rem; cursor: pointer; transition: 0.3s; border-bottom: 3px solid transparent; text-transform: uppercase; }
         .s-tab-btn:hover { color: #fff; background: #111; }
         .s-tab-btn.active { color: #ffe800; border-bottom-color: #ffe800; background: #111; }
         .s-tab-content { display: none; overflow-y: auto; padding-right: 5px; flex-grow: 1; }
@@ -170,6 +173,8 @@
         
         .loading-overlay { position: absolute; inset: 0; background: rgba(0,0,0,0.8); z-index: 2000; display: flex; align-items: center; justify-content: center; color: #ffe800; font-weight: bold; font-size: 1.5rem; display: none; flex-direction: column;}
         .loading-overlay span { font-size: 0.8rem; color: #ccc; margin-top: 10px; font-weight: normal;}
+        #genProgressBarWrap { display: none; width: 260px; background: #1a1a1a; border-radius: 10px; margin-top: 18px; overflow: hidden; border: 1px solid #444; }
+        #genProgressBarFill { height: 10px; width: 0%; background: linear-gradient(90deg, #b3a200, #ffe800); transition: width 0.15s linear; box-shadow: 0 0 10px rgba(255,232,0,0.5); }
 
         .edit-grid { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-bottom: 15px; }
         .btn-shift { background: #151515; border: 1px solid #444; color: #fff; padding: 10px 15px; border-radius: 5px; cursor: pointer; font-weight: bold; transition: 0.2s; }
@@ -188,6 +193,21 @@
         #globalPopupMsg { color: #fff; font-size: 1rem; margin-bottom: 25px; line-height: 1.5; font-weight: 700; }
         .btn-close-popup { width: 100%; background: #ffe800; color: #000; border: none; padding: 12px 20px; font-weight: 900; border-radius: 8px; cursor: pointer; text-transform: uppercase; transition: 0.2s; }
         .btn-close-popup:hover { transform: scale(1.02); }
+
+        /* CUSTOM CONFIRM MODAL (zastepuje natywny confirm()) */
+        #customConfirmModal .modal-content { max-width: 400px; text-align: center; border-color: #f44; box-shadow: 0 0 30px rgba(255,68,68,0.2); }
+        #confirmModalTitle { color: #f44; font-weight: 900; text-transform: uppercase; margin-bottom: 12px; }
+        #confirmModalText { color: #ccc; font-size: 0.85rem; line-height: 1.5; margin-bottom: 20px; }
+
+        /* TOAST (potwierdzenie sukcesu) */
+        #successToast { display: none; position: fixed; top: 65px; left: 50%; transform: translateX(-50%); background: #ffe800; color: #000; padding: 12px 28px; border-radius: 30px; font-weight: 900; font-size: 0.85rem; z-index: 20000; box-shadow: 0 5px 25px rgba(255,232,0,0.5); letter-spacing: 0.5px; }
+        @keyframes toastPulse { 0% { opacity: 0; transform: translate(-50%, -12px); } 100% { opacity: 1; transform: translate(-50%, 0); } }
+        .toast-anim { animation: toastPulse 0.35s ease; }
+
+        /* IDLE WARNING */
+        #idleWarningModal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.92); z-index: 20000; align-items: center; justify-content: center; padding: 20px; backdrop-filter: blur(5px); }
+        #idleWarningModal .modal-content { max-width: 380px; border-color: #f44; text-align: center; box-shadow: 0 0 30px rgba(255,68,68,0.25); }
+        #idleCountdown { color: #f44; font-size: 2.5rem; font-weight: 900; margin: 15px 0; }
     </style>
 </head>
 <body>
@@ -240,7 +260,11 @@
 </div>
 
 <div class="table-container">
-    <div class="loading-overlay" id="loadingData">Synchronizacja... <span>Pobieranie najnowszych danych</span></div>
+    <div class="loading-overlay" id="loadingData">
+        <div id="loadingMainText">Synchronizacja...</div>
+        <span id="loadingSubText">Pobieranie najnowszych danych</span>
+        <div id="genProgressBarWrap"><div id="genProgressBarFill"></div></div>
+    </div>
     <table id="planTable">
         <thead><tr id="workerRow"></tr></thead>
         <tbody id="daysBody"></tbody>
@@ -262,6 +286,7 @@
         <div class="settings-tabs">
             <button class="s-tab-btn active" id="btnTabMain" onclick="switchSettingsTab('main')">⚙️ GŁÓWNE</button>
             <button class="s-tab-btn" id="btnTabWeekend" onclick="switchSettingsTab('weekend')">📅 WEEKENDY</button>
+            <button class="s-tab-btn" id="btnTabHolidays" onclick="switchSettingsTab('holidays')">🎌 ŚWIĘTA</button>
             <button class="s-tab-btn" id="btnTabVacation" onclick="switchSettingsTab('vacation')">🏖️ URLOPY / WOLNE</button>
         </div>
 
@@ -309,6 +334,20 @@
             </div>
         </div>
 
+        <div id="tab-holidays" class="s-tab-content">
+            <p style="font-size: 0.75rem; color: #ccc; margin-bottom: 15px; text-align: center;">
+                Format daty: <strong style="color:#ffe800;">MIESIĄC-DZIEŃ</strong> (np. 12-25 dla 25 grudnia). Ustaw raz na początku roku — część świąt jest ruchoma (np. Wielkanoc) i niedziele handlowe zmieniają się co roku, więc warto to zaktualizować w styczniu.
+            </p>
+            <label style="font-size:0.75rem; color:#888; font-weight:bold;">ŚWIĘTA (dni ustawowo wolne od pracy):</label>
+            <div class="tag-container" id="holidaysTagContainer" style="margin-bottom:20px;">
+                <input type="text" class="tag-input" id="holidaysTagInput" placeholder="np. 12-25">
+            </div>
+            <label style="font-size:0.75rem; color:#888; font-weight:bold;">NIEDZIELE HANDLOWE (sklep otwarty mimo niedzieli):</label>
+            <div class="tag-container" id="tradingSundaysTagContainer">
+                <input type="text" class="tag-input" id="tradingSundaysTagInput" placeholder="np. 12-20">
+            </div>
+        </div>
+
         <div id="tab-vacation" class="s-tab-content">
             <p style="font-size: 0.8rem; color: #ccc; margin-bottom: 15px; text-align: center;">Wpisz daty urlopów lub wypisz po przecinku pojedyncze dni, w które pracownik potrzebuje mieć wolne.</p>
             <div class="worker-grid" id="workerGrid"></div>
@@ -351,6 +390,28 @@
     </div>
 </div>
 
+<div class="modal" id="customConfirmModal">
+    <div class="modal-content">
+        <h3 id="confirmModalTitle">Potwierdź akcję</h3>
+        <p id="confirmModalText"></p>
+        <div style="display:flex; gap:10px;">
+            <button class="btn-settings" style="flex:1;" onclick="resolveConfirm(false)">ANULUJ</button>
+            <button class="btn-gen" style="flex:1; background:#a00; color:#fff;" onclick="resolveConfirm(true)">POTWIERDŹ</button>
+        </div>
+    </div>
+</div>
+
+<div id="idleWarningModal">
+    <div class="modal-content">
+        <h2 style="color:#f44; font-weight:900; text-transform:uppercase;">Nadal tam jesteś?</h2>
+        <p style="color:#ccc; font-size:0.85rem; margin-top:10px;">Z powodu braku aktywności zostaniesz wylogowany za:</p>
+        <div id="idleCountdown">30</div>
+        <button class="btn-gen" style="width:100%; height:45px;" onclick="pozostanZalogowany()">ZOSTAŃ ZALOGOWANY</button>
+    </div>
+</div>
+
+<div id="successToast"></div>
+
 <script>
     document.getElementById('headerStore').innerText = myStore;
     let finalDept = currentUser.dept; if (currentUser.isKss && currentUser.dept !== 'ME') finalDept = 'KSS';
@@ -367,12 +428,40 @@
         if(document.getElementById('employeeControlsPanel')) document.getElementById('employeeControlsPanel').style.display = 'flex';
     }
 
-    const year = 2026;
+    // NAPRAWA: pelna nazwa sklepu (numer + miasto) zamiast samego kodu, tak jak na dashboardzie
+    db.ref(`Stores/${myStore}/Setup`).once('value').then(snap => {
+        const setup = snap.val();
+        if (setup) document.getElementById('headerStore').innerText = `${setup.sNumber} ${setup.city}`;
+    });
+
+    // NAPRAWA: rok liczony dynamicznie zamiast na sztywno "2026"
+    const year = new Date().getFullYear();
     const months = ["STYCZEŃ", "LUTY", "MARZEC", "KWIECIEŃ", "MAJ", "CZERWIEC", "LIPIEC", "SIERPIEŃ", "WRZESIEŃ", "PAŹDZIERNIK", "LISTOPAD", "GRUDZIEŃ"];
     let curM = new Date().getMonth(); 
     
-    const holidays2026 = ["1-1", "1-6", "4-5", "4-6", "5-1", "5-3", "5-24", "6-4", "8-15", "11-1", "11-11", "12-25", "12-26"];
-    const tradingSundays2026 = ["1-25", "3-29", "4-26", "6-28", "8-30", "12-13", "12-20"]; 
+    // NAPRAWA: święta i niedziele handlowe nie są już zaszyte na sztywno w kodzie.
+    // Wczytywane są ze Stores/{sklep}/YearSettings/{rok} i edytowalne w USTAWIENIA -> ŚWIĘTA.
+    // Dla roku 2026 (gdy nikt jeszcze nic nie zapisał) używane są oryginalne wartości jako fallback.
+    let holidaysArray = [];
+    let tradingSundaysArray = [];
+    const DEFAULT_HOLIDAYS_2026 = ["1-1", "1-6", "4-5", "4-6", "5-1", "5-3", "5-24", "6-4", "8-15", "11-1", "11-11", "12-25", "12-26"];
+    const DEFAULT_TRADING_SUNDAYS_2026 = ["1-25", "3-29", "4-26", "6-28", "8-30", "12-13", "12-20"];
+
+    function setArrayContents(arr, newItems) { arr.length = 0; newItems.forEach(i => arr.push(i)); }
+
+    function loadYearSettings(callback) {
+        db.ref(`Stores/${myStore}/YearSettings/${year}`).once('value').then(snap => {
+            const data = snap.val();
+            if (data) {
+                setArrayContents(holidaysArray, (data.holidays || "").split(',').map(s=>s.trim()).filter(s=>s));
+                setArrayContents(tradingSundaysArray, (data.tradingSundays || "").split(',').map(s=>s.trim()).filter(s=>s));
+            } else if (year === 2026) {
+                setArrayContents(holidaysArray, DEFAULT_HOLIDAYS_2026);
+                setArrayContents(tradingSundaysArray, DEFAULT_TRADING_SUNDAYS_2026);
+            }
+            if (callback) callback();
+        });
+    }
 
     let localPlanData = {};
     let localPlanMeta = { 
@@ -386,6 +475,8 @@
         customShortcuts: "10:00-18:00, 12:00-20:00, 10:00-20:00, WOLNE, URLOP, Ż, SZK" 
     };
     
+    // Te tablice sa MUTOWANE w miejscu (push/splice/length=0), nigdy nie przypisywane na nowo (=),
+    // zeby closure w initTags() zawsze wskazywal na aktualne dane (naprawa ukrytego buga z podmiana referencji).
     let globalShiftsArray = [];
     let customShortcutsArray = [];
     let employees = [];
@@ -415,9 +506,10 @@
         return 0;
     }
 
-    function calcRealH(charId, scheduleObj = null) {
+    // NAPRAWA: dodany opcjonalny maxDay (domyslnie 31 dla bezpieczenstwa), zamiast petli zawsze do 31
+    function calcRealH(charId, scheduleObj = null, maxDay = 31) {
         let h = 0;
-        for(let d=1; d<=31; d++) {
+        for(let d=1; d<=maxDay; d++) {
             let s = scheduleObj ? scheduleObj[charId][d] : getShiftOnly(charId, d);
             h += getH(s);
         } 
@@ -469,8 +561,8 @@
             localPlanMeta.sunStaffCount = meta.sunStaffCount || 6;
             localPlanMeta.customShortcuts = meta.customShortcuts || "10:00-18:00, 12:00-20:00, 10:00-20:00, WOLNE, URLOP, Ż, SZK";
             
-            globalShiftsArray = localPlanMeta.globalShifts.split(',').map(s=>s.trim()).filter(s=>s);
-            customShortcutsArray = localPlanMeta.customShortcuts.split(',').map(s=>s.trim()).filter(s=>s);
+            setArrayContents(globalShiftsArray, localPlanMeta.globalShifts.split(',').map(s=>s.trim()).filter(s=>s));
+            setArrayContents(customShortcutsArray, localPlanMeta.customShortcuts.split(',').map(s=>s.trim()).filter(s=>s));
 
             employees.forEach(e => {
                 localPlanMeta[`set_z_${e.charId}`] = meta[`set_z_${e.charId}`] || "";
@@ -488,15 +580,18 @@
         }); 
     }
 
-    function isWorkDay(d) { let ds = `${curM+1}-${d}`; if (holidays2026.includes(ds)) return false; if (new Date(year, curM, d).getDay() === 0 && !tradingSundays2026.includes(ds)) return false; return true; }
+    function isWorkDay(d) { let ds = `${curM+1}-${d}`; if (holidaysArray.includes(ds)) return false; if (new Date(year, curM, d).getDay() === 0 && !tradingSundaysArray.includes(ds)) return false; return true; }
     function getShiftOnly(charId, d) { return (localPlanData[`${charId}_${d}`] || "").split('|')[0] || ""; }
     function getRolesOnly(charId, d) { let v = localPlanData[`${charId}_${d}`] || ""; return v.split('|')[1] ? v.split('|')[1].split(',') : []; }
     function saveToFirebase(updates) { db.ref(`Stores/${myStore}/Plan/${year}_${curM}`).update(updates); }
 
     let currentEditCharId = null; let currentEditName = null; let currentEditDay = null;
 
-    function openEditModal(empName, charId, day) {
+    // NAPRAWA/USPRAWNIENIE: dodany parametr cellEl - kliknieta komorka dostaje krotki zolty "flash"
+    // zeby dac uzytkownikowi wizualne potwierdzenie ze klikniecie zostalo zarejestrowane
+    function openEditModal(empName, charId, day, cellEl) {
         if (!isManagerOrKss || localPlanMeta.locked === true) return;
+        if (cellEl) { cellEl.classList.remove('cell-flash'); void cellEl.offsetWidth; cellEl.classList.add('cell-flash'); }
         currentEditName = empName; currentEditCharId = charId; currentEditDay = day;
         let shift = getShiftOnly(charId, day); let roles = getRolesOnly(charId, day);
         document.getElementById('cellModalTitle').innerText = `${empName} - DZIEŃ ${day}`;
@@ -530,11 +625,12 @@
         closeCellModal();
     }
 
-    function toggleApprove() { let locked = localPlanMeta.locked === true; db.ref(`Stores/${myStore}/PlanMeta/${year}_${curM}`).update({ locked: !locked }); }
+    function toggleApprove() { let locked = localPlanMeta.locked === true; db.ref(`Stores/${myStore}/PlanMeta/${year}_${curM}`).update({ locked: !locked }); showToast(locked ? "Grafik odblokowany" : "Grafik zatwierdzony"); }
     
+    // NAPRAWA: zamiast natywnego confirm() przegladarki, uzywamy wlasnego stylowanego modala
     function clearMonth() { 
         if (localPlanMeta.locked === true) return; 
-        if (confirm("Wyczyścić z chmury cały wygenerowany grafik? (Urlopy, szkolenia i życzenia zostaną nienaruszone!)")) { 
+        customConfirm("Wyczyścić z chmury cały wygenerowany grafik? (Urlopy, szkolenia i życzenia zostaną nienaruszone!)", () => {
             const daysInMonth = new Date(year, curM + 1, 0).getDate(); let updates = {};
             employees.forEach(e => { 
                 if (e.dept === 'ME') return; 
@@ -544,7 +640,36 @@
                 } 
             }); 
             saveToFirebase(updates);
-        } 
+            showToast("Grafik wyczyszczony!");
+        });
+    }
+
+    // ==========================================
+    // WLASNY MODAL POTWIERDZENIA (zamiast confirm())
+    // ==========================================
+    let _confirmCallback = null;
+    function customConfirm(message, onConfirm) {
+        document.getElementById('confirmModalText').innerText = message;
+        _confirmCallback = onConfirm;
+        document.getElementById('customConfirmModal').style.display = 'flex';
+    }
+    function resolveConfirm(result) {
+        document.getElementById('customConfirmModal').style.display = 'none';
+        if (result && _confirmCallback) _confirmCallback();
+        _confirmCallback = null;
+    }
+
+    // ==========================================
+    // TOAST POTWIERDZENIA SUKCESU
+    // ==========================================
+    let toastTimeout;
+    function showToast(msg) {
+        const t = document.getElementById('successToast');
+        t.innerText = "✓ " + msg;
+        t.style.display = 'block';
+        t.classList.remove('toast-anim'); void t.offsetWidth; t.classList.add('toast-anim');
+        clearTimeout(toastTimeout);
+        toastTimeout = setTimeout(() => { t.style.display = 'none'; }, 2500);
     }
 
     function initTags(inputId, containerId, arrayRef) {
@@ -579,14 +704,22 @@
         if(containerId === 'shiftsTagContainer') {
             globalShiftsArray.splice(index, 1);
             renderTags(document.getElementById(containerId), document.getElementById('shiftsTagInput'), globalShiftsArray);
-        } else {
+        } else if (containerId === 'shortcutsTagContainer') {
             customShortcutsArray.splice(index, 1);
             renderTags(document.getElementById(containerId), document.getElementById('shortcutsTagInput'), customShortcutsArray);
+        } else if (containerId === 'holidaysTagContainer') {
+            holidaysArray.splice(index, 1);
+            renderTags(document.getElementById(containerId), document.getElementById('holidaysTagInput'), holidaysArray);
+        } else if (containerId === 'tradingSundaysTagContainer') {
+            tradingSundaysArray.splice(index, 1);
+            renderTags(document.getElementById(containerId), document.getElementById('tradingSundaysTagInput'), tradingSundaysArray);
         }
     }
 
     initTags('shiftsTagInput', 'shiftsTagContainer', globalShiftsArray);
     initTags('shortcutsTagInput', 'shortcutsTagContainer', customShortcutsArray);
+    initTags('holidaysTagInput', 'holidaysTagContainer', holidaysArray);
+    initTags('tradingSundaysTagInput', 'tradingSundaysTagContainer', tradingSundaysArray);
 
     function openSettingsModal() {
         document.getElementById('hourNormInput').value = localPlanMeta.norm;
@@ -597,6 +730,8 @@
         
         renderTags(document.getElementById('shiftsTagContainer'), document.getElementById('shiftsTagInput'), globalShiftsArray);
         renderTags(document.getElementById('shortcutsTagContainer'), document.getElementById('shortcutsTagInput'), customShortcutsArray);
+        renderTags(document.getElementById('holidaysTagContainer'), document.getElementById('holidaysTagInput'), holidaysArray);
+        renderTags(document.getElementById('tradingSundaysTagContainer'), document.getElementById('tradingSundaysTagInput'), tradingSundaysArray);
         
         const grid = document.getElementById('workerGrid'); grid.innerHTML = "";
         employees.forEach(e => {
@@ -652,23 +787,28 @@
         
         db.ref(`Stores/${myStore}/PlanMeta/${year}_${curM}`).update(metaUpdates); 
         db.ref(`Stores/${myStore}/Plan/${year}_${curM}`).update(planUpdates); 
+        // NAPRAWA: swieta i niedziele handlowe zapisywane osobno, na poziomie calego roku (nie miesiaca)
+        db.ref(`Stores/${myStore}/YearSettings/${year}`).update({ holidays: holidaysArray.join(','), tradingSundays: tradingSundaysArray.join(',') });
         closeSettingsModal(); 
+        showToast("Ustawienia zapisane!");
     }
 
     // =======================================================
     // ORYGINALNY, SPRAWNY GENERATOR GRAFIKU
     // =======================================================
-    function getStreak(charId, day, scheduleObj) {
+    // NAPRAWA: dodany opcjonalny maxDay zamiast petli zawsze do 31
+    function getStreak(charId, day, scheduleObj, maxDay = 31) {
         let s = 0;
         for (let d = day-1; d >= 1; d--) { let st = scheduleObj[charId][d]; if(st && (st.includes('-') || st==="URLOP" || st==="SZK" || st.toLowerCase()==="szk.")) s++; else break; }
-        for (let d = day+1; d <= 31; d++) { let st = scheduleObj[charId][d]; if(st && (st.includes('-') || st==="URLOP" || st==="SZK" || st.toLowerCase()==="szk.")) s++; else break; }
+        for (let d = day+1; d <= maxDay; d++) { let st = scheduleObj[charId][d]; if(st && (st.includes('-') || st==="URLOP" || st==="SZK" || st.toLowerCase()==="szk.")) s++; else break; }
         return s;
     }
 
-    function canWork(charId, day, scheduleObj) {
+    // NAPRAWA: dodany opcjonalny maxDay zamiast petli zawsze do 31
+    function canWork(charId, day, scheduleObj, maxDay = 31) {
         if (scheduleObj[charId][day] !== "") return false;
         let streakBefore = 0; for (let d = day - 1; d >= 1; d--) { if (scheduleObj[charId][d] !== "") streakBefore++; else break; }
-        let streakAfter = 0; for (let d = day + 1; d <= 31; d++) { if (scheduleObj[charId][d] && scheduleObj[charId][d] !== "") streakAfter++; else break; }
+        let streakAfter = 0; for (let d = day + 1; d <= maxDay; d++) { if (scheduleObj[charId][d] && scheduleObj[charId][d] !== "") streakAfter++; else break; }
         if (streakBefore + 1 + streakAfter > 5) return false; 
         return true;
     }
@@ -678,9 +818,21 @@
         return array;
     }
 
+    function updateGenProgress(pct, label) {
+        const wrap = document.getElementById('genProgressBarWrap');
+        const fill = document.getElementById('genProgressBarFill');
+        const sub = document.getElementById('loadingSubText');
+        wrap.style.display = 'block';
+        fill.style.width = pct + '%';
+        if (label) sub.innerText = label;
+    }
+
     function startGeneration() {
         if(localPlanMeta.locked === true) return;
-        document.getElementById('loadingData').innerHTML = "Budowanie szkieletu i balansowanie godzin... <span>To może chwilę potrwać</span>";
+        document.getElementById('loadingMainText').innerText = "Generowanie grafiku...";
+        document.getElementById('loadingSubText').innerText = "Budowanie szkieletu i balansowanie godzin...";
+        document.getElementById('genProgressBarWrap').style.display = 'block';
+        document.getElementById('genProgressBarFill').style.width = '0%';
         document.getElementById('loadingData').style.display = 'flex';
 
         setTimeout(() => {
@@ -747,13 +899,13 @@
             for(let d=1; d<=daysInMonth; d++) {
                 if(new Date(year, curM, d).getDay() === 6 || new Date(year, curM, d).getDay() === 0 || !isWorkDay(d)) continue;
                 
-                let availPoks = employees.filter(e => e.p && canWork(e.charId, d, memorySchedule));
+                let availPoks = employees.filter(e => e.p && canWork(e.charId, d, memorySchedule, daysInMonth));
                 
                 if(availPoks.length >= 2) { 
                     shuffle(availPoks);
                     let p1 = availPoks[0]; let p2 = availPoks[1];
-                    let h1 = calcRealH(p1.charId, memorySchedule); 
-                    let h2 = calcRealH(p2.charId, memorySchedule);
+                    let h1 = calcRealH(p1.charId, memorySchedule, daysInMonth); 
+                    let h2 = calcRealH(p2.charId, memorySchedule, daysInMonth);
                     
                     let daysLeft = daysInMonth - d;
                     let futureCost = daysLeft * 8; 
@@ -769,9 +921,9 @@
                     memorySchedule[availPoks[0].charId][d] = fullShiftStr; 
                 }
 
-                let availSales = employees.filter(e => !e.p && e.dept !== 'ME' && canWork(e.charId, d, memorySchedule));
+                let availSales = employees.filter(e => !e.p && e.dept !== 'ME' && canWork(e.charId, d, memorySchedule, daysInMonth));
                 shuffle(availSales); 
-                availSales.sort((a,b) => calcRealH(a.charId, memorySchedule) - calcRealH(b.charId, memorySchedule));
+                availSales.sort((a,b) => calcRealH(a.charId, memorySchedule, daysInMonth) - calcRealH(b.charId, memorySchedule, daysInMonth));
                 
                 let otwNeeded = 3; let zamNeeded = 3;
                 let assignSale = (emp, isOtw) => {
@@ -787,13 +939,13 @@
                 }
             }
 
-            let allBalanced = false; let iterations = 0;
-            
+            updateGenProgress(15, "Balansowanie godzin pracy...");
+
             const tryAddShift = (emp) => {
                 let possibleDays = [];
                 for(let d=1; d<=daysInMonth; d++) {
                     let isWknd = new Date(year, curM, d).getDay() === 0 || new Date(year, curM, d).getDay() === 6;
-                    if(isWorkDay(d) && !isWknd && memorySchedule[emp.charId][d] === "" && getStreak(emp.charId, d, memorySchedule) < 5) {
+                    if(isWorkDay(d) && !isWknd && memorySchedule[emp.charId][d] === "" && getStreak(emp.charId, d, memorySchedule, daysInMonth) < 5) {
                         let c = 0; employees.forEach(em => { if(em.dept !== 'ME' && memorySchedule[em.charId][d].includes('-')) c++; }); possibleDays.push({ d, staff: c });
                     }
                 }
@@ -805,7 +957,7 @@
                 let possibleDays = [];
                 for(let d=1; d<=daysInMonth; d++) {
                     let isWknd = new Date(year, curM, d).getDay() === 0 || new Date(year, curM, d).getDay() === 6; let v = memorySchedule[emp.charId][d];
-                    if(!isWknd && (v === openShiftStr || v === closeShiftStr) && getStreak(emp.charId, d, memorySchedule) < 5) possibleDays.push(d);
+                    if(!isWknd && (v === openShiftStr || v === closeShiftStr) && getStreak(emp.charId, d, memorySchedule, daysInMonth) < 5) possibleDays.push(d);
                 }
                 if(possibleDays.length > 0) { shuffle(possibleDays); memorySchedule[emp.charId][possibleDays[0]] = fullShiftStr; return true; }
                 return false;
@@ -871,67 +1023,88 @@
                 return false;
             };
 
-            while(!allBalanced && iterations < 5000) {
-                allBalanced = true; 
-                let strictMode = iterations < 1500; 
-                let brutalMode = iterations > 3500; 
+            // NAPRAWA/USPRAWNIENIE: petla balansujaca podzielona na male partie (setTimeout) zamiast
+            // jednego blokujacego "while" - dzieki temu przegladarka moze na biezaco odswiezac pasek postepu
+            let allBalanced = false;
+            let iterations = 0;
+            const maxIterations = 5000;
 
-                let status = employees.map(e => {
-                    let target = baseNorm; 
-                    let current = calcRealH(e.charId, memorySchedule);
-                    return { e, target, current, diff: target - current };
-                });
+            function runBalanceBatch() {
+                const batchLimit = iterations + 60;
+                while (!allBalanced && iterations < maxIterations && iterations < batchLimit) {
+                    allBalanced = true; 
+                    let strictMode = iterations < 1500; 
+                    let brutalMode = iterations > 3500; 
 
-                shuffle(status); status.sort((a,b) => Math.abs(b.diff) - Math.abs(a.diff));
+                    let status = employees.map(e => {
+                        let target = baseNorm; 
+                        let current = calcRealH(e.charId, memorySchedule, daysInMonth);
+                        return { e, target, current, diff: target - current };
+                    });
 
-                for(let st of status) {
-                    if(st.diff === 0 || st.e.dept === 'ME') continue; 
-                    allBalanced = false; let actionTaken = false; let emp = st.e;
-                    
-                    if(st.diff > 0) { 
-                        if(st.diff >= 8) actionTaken = tryAddShift(emp);
-                        if(!actionTaken && st.diff >= 2) actionTaken = tryExtendShift(emp);
-                        if(!actionTaken && !strictMode) {
-                             for(let d=1; d<=daysInMonth; d++) {
-                                let isWknd = new Date(year, curM, d).getDay() === 0 || new Date(year, curM, d).getDay() === 6;
-                                if(isWorkDay(d) && !isWknd && memorySchedule[emp.charId][d] === "" && (getStreak(emp.charId, d, memorySchedule) < 5 || brutalMode)) { 
-                                    memorySchedule[emp.charId][d] = openShiftStr; 
-                                    actionTaken = true; break; 
-                                }
-                             }
-                        }
-                    } else if (st.diff < 0) { 
-                        if(st.diff <= -8) actionTaken = tryRemoveShift(emp, strictMode);
-                        if(!actionTaken && st.diff <= -2) actionTaken = tryShortenShift(emp, strictMode);
-                        if(!actionTaken && (!strictMode || brutalMode)) {
-                             for(let d=1; d<=daysInMonth; d++) {
-                                let isWknd = new Date(year, curM, d).getDay() === 0 || new Date(year, curM, d).getDay() === 6; 
-                                let s = memorySchedule[emp.charId][d];
-                                
-                                if(!isWknd && (s === openShiftStr || s === closeShiftStr || s === fullShiftStr)) {
-                                    let isLastPok = false;
-                                    if(emp.p) { 
-                                        let otherPok = 0; 
-                                        employees.forEach(em => { if(em.charId !== emp.charId && em.p && memorySchedule[em.charId][d].includes('-')) otherPok++; }); 
-                                        if(otherPok === 0) isLastPok = true; 
-                                    }
-                                    if(!isLastPok || brutalMode) { 
-                                        memorySchedule[emp.charId][d] = ""; 
+                    shuffle(status); status.sort((a,b) => Math.abs(b.diff) - Math.abs(a.diff));
+
+                    for(let st of status) {
+                        if(st.diff === 0 || st.e.dept === 'ME') continue; 
+                        allBalanced = false; let actionTaken = false; let emp = st.e;
+                        
+                        if(st.diff > 0) { 
+                            if(st.diff >= 8) actionTaken = tryAddShift(emp);
+                            if(!actionTaken && st.diff >= 2) actionTaken = tryExtendShift(emp);
+                            if(!actionTaken && !strictMode) {
+                                 for(let d=1; d<=daysInMonth; d++) {
+                                    let isWknd = new Date(year, curM, d).getDay() === 0 || new Date(year, curM, d).getDay() === 6;
+                                    if(isWorkDay(d) && !isWknd && memorySchedule[emp.charId][d] === "" && (getStreak(emp.charId, d, memorySchedule, daysInMonth) < 5 || brutalMode)) { 
+                                        memorySchedule[emp.charId][d] = openShiftStr; 
                                         actionTaken = true; break; 
                                     }
-                                }
-                             }
+                                 }
+                            }
+                        } else if (st.diff < 0) { 
+                            if(st.diff <= -8) actionTaken = tryRemoveShift(emp, strictMode);
+                            if(!actionTaken && st.diff <= -2) actionTaken = tryShortenShift(emp, strictMode);
+                            if(!actionTaken && (!strictMode || brutalMode)) {
+                                 for(let d=1; d<=daysInMonth; d++) {
+                                    let isWknd = new Date(year, curM, d).getDay() === 0 || new Date(year, curM, d).getDay() === 6; 
+                                    let s = memorySchedule[emp.charId][d];
+                                    
+                                    if(!isWknd && (s === openShiftStr || s === closeShiftStr || s === fullShiftStr)) {
+                                        let isLastPok = false;
+                                        if(emp.p) { 
+                                            let otherPok = 0; 
+                                            employees.forEach(em => { if(em.charId !== emp.charId && em.p && memorySchedule[em.charId][d].includes('-')) otherPok++; }); 
+                                            if(otherPok === 0) isLastPok = true; 
+                                        }
+                                        if(!isLastPok || brutalMode) { 
+                                            memorySchedule[emp.charId][d] = ""; 
+                                            actionTaken = true; break; 
+                                        }
+                                    }
+                                 }
+                            }
                         }
+                        if(actionTaken) break; 
                     }
-                    if(actionTaken) break; 
+                    iterations++;
                 }
-                iterations++;
+
+                let pct = 15 + Math.min(85, Math.round((iterations / maxIterations) * 85));
+                updateGenProgress(pct, `Balansowanie godzin pracy... (${Math.min(100, pct)}%)`);
+
+                if (!allBalanced && iterations < maxIterations) {
+                    setTimeout(runBalanceBatch, 0);
+                } else {
+                    updateGenProgress(100, "Zapisywanie do chmury...");
+                    let finalUpdates = {};
+                    employees.forEach(e => { for(let d=1; d<=daysInMonth; d++) { finalUpdates[`${e.charId}_${d}`] = memorySchedule[e.charId][d]; } });
+                    saveToFirebase(finalUpdates);
+                    document.getElementById('loadingData').style.display = 'none';
+                    document.getElementById('genProgressBarWrap').style.display = 'none';
+                    showToast("Grafik wygenerowany!");
+                }
             }
 
-            let finalUpdates = {};
-            employees.forEach(e => { for(let d=1; d<=daysInMonth; d++) { finalUpdates[`${e.charId}_${d}`] = memorySchedule[e.charId][d]; } });
-            saveToFirebase(finalUpdates);
-            document.getElementById('loadingData').style.display = 'none';
+            runBalanceBatch();
 
         }, 100);
     }
@@ -962,7 +1135,7 @@
 
         for (let d = 1; d <= daysInMonth; d++) {
             let date = new Date(year, curM, d); let tr = document.createElement('tr');
-            let ds = `${curM+1}-${d}`; let isHol = holidays2026.includes(ds); let isSun = date.getDay() === 0; let isSat = date.getDay() === 6;
+            let ds = `${curM+1}-${d}`; let isHol = holidaysArray.includes(ds); let isSun = date.getDay() === 0; let isSat = date.getDay() === 6;
             
             if (isSun || isHol) { tr.className = 'sun'; } else if (isSat) { tr.className = 'sat'; }
             if (isCurrentMonth && today.getDate() === d) { tr.classList.add('today-row'); }
@@ -982,7 +1155,7 @@
                 
                 let ic = ''; if (roles.includes('K')) ic += '🔑'; if (roles.includes('D')) ic += '📦'; if (roles.includes('S')) ic += '☕';
                 let displayHtml = `<div class="cell-shift">${shift}</div>`; if (ic) { displayHtml += `<div class="cell-icons">${ic}</div>`; }
-                let clickAttr = (!isLocked && isManagerOrKss) ? `onclick="openEditModal('${e.n}', '${e.charId}', ${d})"` : '';
+                let clickAttr = (!isLocked && isManagerOrKss) ? `onclick="openEditModal('${e.n}', '${e.charId}', ${d}, this)"` : '';
                 html += `<td class="${cellClass}" ${clickAttr}>${displayHtml}</td>`;
             });
             html += `<td class="obsada-col">${o} - ${suma} - ${z}</td>`; tr.innerHTML = html; body.appendChild(tr);
@@ -990,7 +1163,7 @@
 
         const fSum = document.getElementById('sumRow'); fSum.innerHTML = '<td class="date-col">GODZINY</td>';
         employees.forEach(e => { 
-            let h = calcRealH(e.charId); 
+            let h = calcRealH(e.charId, null, daysInMonth); 
             fSum.innerHTML += `<td style="color:${h === baseNorm ? '#0f0' : (h > baseNorm ? '#f44' : '#ffe800')}; font-size: 0.55rem;">${formatHours(h)} / ${baseNorm}h</td>`; 
         });
         fSum.innerHTML += '<td class="obsada-col"></td>';
@@ -1063,12 +1236,14 @@
         let wb = XLSX.utils.book_new(); 
         XLSX.utils.book_append_sheet(wb, ws, "Grafik"); 
         XLSX.writeFile(wb, `Grafik_ME_${months[curM]}.xlsx`);
+        showToast("Plik Excel pobrany!");
     }
 
     function toggleNav() { document.getElementById('sidebar').classList.toggle('active'); document.getElementById('overlay').classList.toggle('active'); }
     function logout() { localStorage.removeItem('currentUser'); window.location.href = 'login.html'; }
 
-    window.onload = () => { setMonth(curM); };
+    // NAPRAWA: przed pierwszym renderem wczytujemy ustawienia roczne (swieta / niedziele handlowe)
+    window.onload = () => { loadYearSettings(() => { setMonth(curM); }); };
 
     // SYSTEM POWIADOMIEŃ I WYKRZYKNIK KSS
     if (typeof db !== 'undefined' && typeof currentUser !== 'undefined') {
@@ -1109,13 +1284,45 @@
 
     function closeGlobalPopup() { document.getElementById('globalNotificationModal').style.display = 'none'; }
 
-    const minutyBezczynnosci = 5; 
-    const limitCzasu = minutyBezczynnosci * 60 * 1000; 
+    // ==========================================
+    // TIMER BEZCZYNNOŚCI (Z OSTRZEŻENIEM PRZED WYLOGOWANIEM)
+    // NAPRAWA: dodane 30-sekundowe ostrzezenie zamiast natychmiastowego wylogowania -
+    // spojne z zachowaniem na dashboardzie (index.html)
+    // ==========================================
+    const minutyBezczynnosci = 5;
+    const sekundOstrzezenia = 30;
+    const limitCzasu = (minutyBezczynnosci * 60 - sekundOstrzezenia) * 1000;
     let timerBezczynnosci;
+    let countdownInterval;
+    let ostrzezenieAktywne = false;
 
     function resetujTimer() {
+        if (ostrzezenieAktywne) return;
         clearTimeout(timerBezczynnosci);
-        timerBezczynnosci = setTimeout(wylogujZPowoduBezczynnosci, limitCzasu);
+        timerBezczynnosci = setTimeout(pokazOstrzezenie, limitCzasu);
+    }
+
+    function pokazOstrzezenie() {
+        ostrzezenieAktywne = true;
+        let secondsLeft = sekundOstrzezenia;
+        document.getElementById('idleCountdown').innerText = secondsLeft;
+        document.getElementById('idleWarningModal').style.display = 'flex';
+
+        countdownInterval = setInterval(() => {
+            secondsLeft--;
+            document.getElementById('idleCountdown').innerText = secondsLeft;
+            if (secondsLeft <= 0) {
+                clearInterval(countdownInterval);
+                wylogujZPowoduBezczynnosci();
+            }
+        }, 1000);
+    }
+
+    function pozostanZalogowany() {
+        ostrzezenieAktywne = false;
+        clearInterval(countdownInterval);
+        document.getElementById('idleWarningModal').style.display = 'none';
+        resetujTimer();
     }
 
     function wylogujZPowoduBezczynnosci() {

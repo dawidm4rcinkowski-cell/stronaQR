@@ -34,13 +34,24 @@
                 linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
                 linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
             background-size: 100% 100%, 40px 40px, 40px 40px;
-            background-position: center center;
+            background-position: center center, 0px 0px, 0px 0px;
             color: white; display: flex; align-items: center; justify-content: center; min-height: 100vh; overflow-y: auto; flex-direction: column; padding: 20px;
+            transition: background-position 0.2s ease-out;
         }
 
         .login-wrapper { width: 100%; max-width: 400px; z-index: 10; transition: 0.3s; }
-        .login-box { background: #0a0a0a; border: 2px solid #222; padding: 40px 30px; border-radius: 20px; box-shadow: 0 20px 50px rgba(0,0,0,0.9), inset 0 0 20px rgba(255,232,0,0.02); position: relative; text-align: center; transition: 0.3s; }
+        .login-box { background: #0a0a0a; border: 2px solid #222; padding: 40px 30px; border-radius: 20px; box-shadow: 0 20px 50px rgba(0,0,0,0.9), inset 0 0 20px rgba(255,232,0,0.02); position: relative; text-align: center; transition: border-color 0.3s, box-shadow 0.3s; }
         .login-box:hover { border-color: #ffe800; box-shadow: 0 20px 50px rgba(0,0,0,0.9), 0 0 30px rgba(255,232,0,0.1); }
+
+        .login-box.success-flash {
+            border-color: #ffe800;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.9), 0 0 45px rgba(255,232,0,0.55);
+            animation: successPulse 1s ease-in-out infinite;
+        }
+        @keyframes successPulse {
+            0%, 100% { box-shadow: 0 20px 50px rgba(0,0,0,0.9), 0 0 25px rgba(255,232,0,0.35); }
+            50% { box-shadow: 0 20px 50px rgba(0,0,0,0.9), 0 0 50px rgba(255,232,0,0.75); }
+        }
 
         .logo { color: #fff; font-weight: 900; font-size: 1.8rem; text-transform: uppercase; letter-spacing: 2px; display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 30px; }
         .logo span { background: #ffe800; color: #000; padding: 2px 10px; border-radius: 5px; user-select: none; cursor: default; }
@@ -53,12 +64,33 @@
         
         select { cursor: pointer; appearance: auto; -webkit-appearance: auto; }
 
-        .btn-login { width: 100%; background: #ffe800; color: #000; border: none; padding: 16px; font-weight: 900; border-radius: 10px; cursor: pointer; text-transform: uppercase; margin-top: 10px; transition: 0.3s; font-size: 1rem; letter-spacing: 1px; }
+        /* Password field with eye toggle */
+        .password-wrap { position: relative; }
+        .password-wrap .form-input { padding-right: 48px; }
+        .eye-toggle {
+            position: absolute; top: 50%; right: 14px; transform: translateY(-50%);
+            cursor: pointer; width: 22px; height: 22px; display: flex; align-items: center; justify-content: center;
+            color: #888; transition: color 0.2s;
+            user-select: none;
+        }
+        .eye-toggle:hover { color: #ffe800; }
+        .eye-toggle svg { width: 20px; height: 20px; }
+
+        .btn-login { width: 100%; background: #ffe800; color: #000; border: none; padding: 16px; font-weight: 900; border-radius: 10px; cursor: pointer; text-transform: uppercase; margin-top: 10px; transition: 0.3s; font-size: 1rem; letter-spacing: 1px; display: flex; align-items: center; justify-content: center; gap: 10px; }
         .btn-login:hover:not(:disabled) { transform: translateY(-3px); box-shadow: 0 10px 20px rgba(255, 232, 0, 0.3); }
         .btn-login:disabled { background: #333; color: #666; cursor: not-allowed; }
 
         .btn-secondary { background: transparent; border: 1px solid #555; color: #888; margin-top: 15px; padding: 12px; }
         .btn-secondary:hover { border-color: #fff; color: #fff; transform: none; box-shadow: none; }
+
+        /* Spinner */
+        .spinner {
+            width: 18px; height: 18px; border-radius: 50%;
+            border: 3px solid rgba(0,0,0,0.25); border-top-color: #000;
+            animation: spin 0.7s linear infinite;
+            display: inline-block;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
 
         .msg-box { padding: 12px; border-radius: 8px; font-size: 0.85rem; font-weight: bold; text-align: center; display: none; margin-top: 20px; }
         .msg-error { background: rgba(255, 68, 68, 0.1); border: 1px solid #f44; color: #f44; }
@@ -85,7 +117,7 @@
 <body>
 
     <div class="login-wrapper" id="loginForm">
-        <div class="login-box">
+        <div class="login-box" id="loginBox">
             <div class="logo">EXPERT <span onclick="triggerSecretAdmin()">TOOL</span></div>
             
             <div class="input-group">
@@ -100,12 +132,24 @@
             
             <div class="input-group" style="margin-bottom: 10px;">
                 <label>Hasło</label>
-                <input type="password" class="form-input" id="password" placeholder="Wpisz hasło">
+                <div class="password-wrap">
+                    <input type="password" class="form-input" id="password" placeholder="Wpisz hasło">
+                    <span class="eye-toggle" id="eyeToggle" onclick="togglePasswordVisibility()">
+                        <svg id="eyeIconOpen" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                            <circle cx="12" cy="12" r="3"></circle>
+                        </svg>
+                        <svg id="eyeIconClosed" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none;">
+                            <path d="M17.94 17.94A10.94 10.94 0 0 1 12 20c-7 0-11-8-11-8a18.77 18.77 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path>
+                            <line x1="1" y1="1" x2="23" y2="23"></line>
+                        </svg>
+                    </span>
+                </div>
             </div>
 
             <div id="loginMsg" class="msg-box"></div>
 
-            <button class="btn-login" id="loginBtn" onclick="attemptLogin()">ZALOGUJ SIĘ</button>
+            <button class="btn-login" id="loginBtn" onclick="attemptLogin()"><span id="loginBtnText">ZALOGUJ SIĘ</span></button>
             <button class="btn-login btn-secondary" onclick="startWizard()">ZAREJESTRUJ NOWY SKLEP</button>
         </div>
         <div class="footer-text">System Zarządzania Sklepem &copy; 2026</div>
@@ -122,7 +166,7 @@
                     <input type="text" class="form-input" id="wizToken" placeholder="np. 123456" style="text-align:center; font-size:1.5rem; letter-spacing:5px;">
                 </div>
                 <div id="wizMsg1" class="msg-box"></div>
-                <button class="btn-login" onclick="verifyToken()">WERYFIKUJ KOD</button>
+                <button class="btn-login" onclick="verifyToken()"><span id="verifyBtnText">WERYFIKUJ KOD</span></button>
                 <button class="btn-login btn-secondary" onclick="cancelWizard()">WRÓĆ DO LOGOWANIA</button>
             </div>
 
@@ -164,7 +208,19 @@
                     </div>
                     <div class="input-group" style="flex:1;">
                         <label>Ustaw swoje Tajne Hasło</label>
-                        <input type="password" class="form-input" id="wizMgrPass" placeholder="Min. 6 znaków">
+                        <div class="password-wrap">
+                            <input type="password" class="form-input" id="wizMgrPass" placeholder="Min. 6 znaków">
+                            <span class="eye-toggle" onclick="toggleFieldVisibility('wizMgrPass', this)">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="eye-open">
+                                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                                    <circle cx="12" cy="12" r="3"></circle>
+                                </svg>
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="eye-closed" style="display:none;">
+                                    <path d="M17.94 17.94A10.94 10.94 0 0 1 12 20c-7 0-11-8-11-8a18.77 18.77 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path>
+                                    <line x1="1" y1="1" x2="23" y2="23"></line>
+                                </svg>
+                            </span>
+                        </div>
                     </div>
                 </div>
                 <div id="wizMsg3" class="msg-box"></div>
@@ -219,7 +275,7 @@
                 </div>
                 
                 <div id="wizMsg4" class="msg-box"></div>
-                <button class="btn-login" style="background:#0a0; color:#fff;" onclick="finishAndBuildStore()">ZAKOŃCZ I STWÓRZ SKLEP!</button>
+                <button class="btn-login" style="background:#0a0; color:#fff;" onclick="finishAndBuildStore()"><span id="finishBtnText">ZAKOŃCZ I STWÓRZ SKLEP!</span></button>
             </div>
 
         </div>
@@ -232,6 +288,62 @@
                 window.location.href = 'index.html';
             }
         };
+
+        // ==========================================
+        // TŁO REAGUJĄCE NA RUCH MYSZY (PARALLAX SIATKI)
+        // ==========================================
+        (function() {
+            let targetX = 0, targetY = 0, curX = 0, curY = 0;
+            document.addEventListener('mousemove', (e) => {
+                const xPct = (e.clientX / window.innerWidth) - 0.5;
+                const yPct = (e.clientY / window.innerHeight) - 0.5;
+                // Im wieksza wartosc mnoznika, tym mocniejszy efekt
+                targetX = xPct * 30;
+                targetY = yPct * 30;
+            });
+            function animateBg() {
+                curX += (targetX - curX) * 0.06;
+                curY += (targetY - curY) * 0.06;
+                document.body.style.backgroundPosition =
+                    `center center, calc(50% + ${curX}px) calc(50% + ${curY}px), calc(50% + ${curX}px) calc(50% + ${curY}px)`;
+                requestAnimationFrame(animateBg);
+            }
+            animateBg();
+        })();
+
+        // ==========================================
+        // TOGGLE WIDOCZNOŚCI HASŁA (IKONA OKA)
+        // ==========================================
+        function togglePasswordVisibility() {
+            const pass = document.getElementById('password');
+            const eyeOpen = document.getElementById('eyeIconOpen');
+            const eyeClosed = document.getElementById('eyeIconClosed');
+            if (pass.type === 'password') {
+                pass.type = 'text';
+                eyeOpen.style.display = 'none';
+                eyeClosed.style.display = 'block';
+            } else {
+                pass.type = 'password';
+                eyeOpen.style.display = 'block';
+                eyeClosed.style.display = 'none';
+            }
+        }
+
+        // Uniwersalny toggle dla dodatkowych pol hasla (np. w kreatorze)
+        function toggleFieldVisibility(inputId, iconWrapEl) {
+            const input = document.getElementById(inputId);
+            const eyeOpen = iconWrapEl.querySelector('.eye-open');
+            const eyeClosed = iconWrapEl.querySelector('.eye-closed');
+            if (input.type === 'password') {
+                input.type = 'text';
+                eyeOpen.style.display = 'none';
+                eyeClosed.style.display = 'block';
+            } else {
+                input.type = 'password';
+                eyeOpen.style.display = 'block';
+                eyeClosed.style.display = 'none';
+            }
+        }
 
         // EASTER EGG (Ukryty panel admina)
         let secretClicks = 0, secretTimer = null;
@@ -248,23 +360,26 @@
             let password = document.getElementById('password').value.trim();
             let msgBox = document.getElementById('loginMsg');
             let btn = document.getElementById('loginBtn');
+            let btnText = document.getElementById('loginBtnText');
+            let loginBox = document.getElementById('loginBox');
 
             msgBox.style.display = 'block'; msgBox.className = 'msg-box';
             if (!storeNum || !inputCharId || !password) { msgBox.classList.add('msg-error'); msgBox.innerText = "Uzupełnij wszystkie pola!"; return; }
 
-            btn.disabled = true; btn.innerText = "WERYFIKACJA...";
+            btn.disabled = true; btnText.innerHTML = '<span class="spinner"></span>';
 
             try {
                 const storeSnap = await db.ref(`Stores/${storeNum}`).once('value');
-                if (!storeSnap.exists()) { msgBox.classList.add('msg-error'); msgBox.innerText = "Sklep nie istnieje!"; btn.disabled=false; btn.innerText="ZALOGUJ SIĘ"; return; }
+                if (!storeSnap.exists()) { msgBox.classList.add('msg-error'); msgBox.innerText = "Sklep nie istnieje!"; btn.disabled=false; btnText.innerText="ZALOGUJ SIĘ"; return; }
 
                 const userSnap = await db.ref(`Stores/${storeNum}/Users/${inputCharId}`).once('value');
-                if (!userSnap.exists()) { msgBox.classList.add('msg-error'); msgBox.innerText = "Błędny Kod Logowania!"; btn.disabled=false; btn.innerText="ZALOGUJ SIĘ"; return; }
+                if (!userSnap.exists()) { msgBox.classList.add('msg-error'); msgBox.innerText = "Błędny Kod Logowania!"; btn.disabled=false; btnText.innerText="ZALOGUJ SIĘ"; return; }
 
                 const userData = userSnap.val();
-                if (userData.password !== password) { msgBox.classList.add('msg-error'); msgBox.innerText = "Podano błędne hasło!"; btn.disabled=false; btn.innerText="ZALOGUJ SIĘ"; return; }
+                if (userData.password !== password) { msgBox.classList.add('msg-error'); msgBox.innerText = "Podano błędne hasło!"; btn.disabled=false; btnText.innerText="ZALOGUJ SIĘ"; return; }
 
                 msgBox.classList.add('msg-success'); msgBox.innerText = "Logowanie poprawne!";
+                loginBox.classList.add('success-flash');
                 
                 const secureUserData = {
                     charId: inputCharId, 
@@ -279,7 +394,7 @@
                 setTimeout(() => { window.location.href = 'index.html'; }, 500);
 
             } catch (error) {
-                msgBox.classList.add('msg-error'); msgBox.innerText = "Błąd połączenia z bazą!"; btn.disabled=false; btn.innerText="ZALOGUJ SIĘ";
+                msgBox.classList.add('msg-error'); msgBox.innerText = "Błąd połączenia z bazą!"; btn.disabled=false; btnText.innerText="ZALOGUJ SIĘ";
             }
         }
 
@@ -309,9 +424,12 @@
         async function verifyToken() {
             const token = document.getElementById('wizToken').value.trim();
             const msg = document.getElementById('wizMsg1');
+            const btnText = document.getElementById('verifyBtnText');
             msg.style.display = 'block'; msg.className = 'msg-box';
 
             if(!token) { msg.classList.add('msg-error'); msg.innerText = "Wpisz kod dostępu!"; return; }
+
+            btnText.innerHTML = '<span class="spinner"></span>';
 
             try {
                 const snap = await db.ref(`Admin/Tokens/${token}`).once('value');
@@ -323,6 +441,8 @@
                 }
             } catch(e) {
                 msg.classList.add('msg-error'); msg.innerText = "Błąd weryfikacji połączenia.";
+            } finally {
+                btnText.innerText = "WERYFIKUJ KOD";
             }
         }
 
@@ -423,8 +543,10 @@
         // FINAŁ - TWORZENIE BAZY
         async function finishAndBuildStore() {
             const msg = document.getElementById('wizMsg4');
+            const btnText = document.getElementById('finishBtnText');
             msg.style.display = 'block'; msg.className = 'msg-box';
             msg.innerText = "Tworzenie infrastruktury w chmurze...";
+            btnText.innerHTML = '<span class="spinner"></span>';
 
             const sNum = document.getElementById('wizStoreNum').value.trim().toUpperCase();
             
@@ -432,7 +554,7 @@
                 // Sprawdzenie czy sklep już nie istnieje (zabezpieczenie)
                 const checkSnap = await db.ref(`Stores/${sNum}`).once('value');
                 if(checkSnap.exists()) {
-                    msg.classList.add('msg-error'); msg.innerText = "Sklep o tym numerze już istnieje w bazie! Skontaktuj się z adminem."; return;
+                    msg.classList.add('msg-error'); msg.innerText = "Sklep o tym numerze już istnieje w bazie! Skontaktuj się z adminem."; btnText.innerText = "ZAKOŃCZ I STWÓRZ SKLEP!"; return;
                 }
 
                 let updates = {};
@@ -495,6 +617,7 @@
 
             } catch(e) {
                 msg.classList.add('msg-error'); msg.innerText = "Krytyczny błąd: " + e.message;
+                btnText.innerText = "ZAKOŃCZ I STWÓRZ SKLEP!";
             }
         }
     </script>

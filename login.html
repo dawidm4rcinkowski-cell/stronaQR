@@ -406,8 +406,16 @@
                     name: userData.name || "Nieznany",
                     dept: userData.dept || "ME",
                     isKss: userData.isKss || false,
-                    avatar: userData.avatar || ""
+                    avatar: userData.avatar || "",
+                    avatarColor: userData.avatarColor || ""
                 };
+
+                // NOWE: zapisujemy czas poprzedniego logowania (do pokazania w Ustawieniach Konta
+                // jako prosty slad bezpieczenstwa - "czy ktos inny nie logowal sie na moje konto")
+                db.ref(`Stores/${storeNum}/Users/${inputCharId}`).update({
+                    previousLogin: userData.lastLogin || null,
+                    lastLogin: Date.now()
+                });
 
                 localStorage.setItem('myStore', storeNum);
                 localStorage.setItem('currentUser', JSON.stringify(secureUserData));

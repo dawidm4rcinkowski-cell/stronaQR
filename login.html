@@ -672,12 +672,19 @@
                 updates[`Stores/${sNum}/Users/ADMIN`] = { charId: "ADMIN", name: "SYSTEM", dept: "IT", password: "xxx" };
 
                 // 5. USTAWIENIA WEEKENDÓW BAZUJĄC NA TYPIE SKLEPU
+                // NAPRAWA: bylo zaszyte na sztywno "PlanMeta/2026_0" (tylko styczen 2026) -
+                // sklep zalozony w innym miesiacu/roku nigdy nie dostawalby tych ustawien
+                // dla wlasciwego miesiaca. Teraz zapisujemy je dla wszystkich 12 miesiecy
+                // biezacego roku.
                 const sType = document.getElementById('wizStoreType').value;
                 let satCount = 6, sunCount = 6;
                 if(sType === 'small') { satCount = 4; sunCount = 4; }
                 if(sType === 'large') { satCount = 15; sunCount = 15; }
-                
-                updates[`Stores/${sNum}/PlanMeta/2026_0`] = { satStaffCount: satCount, sunStaffCount: sunCount }; // Domyslne wartosci zapisu np. dla pierwszego m-ca
+
+                const wizardYear = new Date().getFullYear();
+                for (let m = 0; m < 12; m++) {
+                    updates[`Stores/${sNum}/PlanMeta/${wizardYear}_${m}`] = { satStaffCount: satCount, sunStaffCount: sunCount };
+                }
 
                 // Zapis do bazy
                 await db.ref().update(updates);

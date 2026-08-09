@@ -119,7 +119,7 @@
         <div id="loginMsg" class="login-msg"></div>
         <div class="input-group">
             <label>E-mail administratora</label>
-            <input type="email" id="adminEmailInput" class="form-input" placeholder="np. login" autocomplete="username">
+            <input type="email" id="adminEmailInput" class="form-input" placeholder="np. admin@firma.pl" autocomplete="username">
         </div>
         <div class="input-group">
             <label>Hasło</label>
@@ -200,6 +200,54 @@
         
         <div class="stores-grid" id="storesGrid">
             <div style="color: #666; font-size:0.9rem; font-weight:bold; width:100%; text-align:center; padding:40px; grid-column: 1/-1;">Pobieranie infrastruktury...</div>
+        </div>
+    </div>
+
+    <!-- ZARZĄDZANIE PODPOWIEDZIAMI (?) -->
+    <div class="panel-card" style="margin-top: 20px; border-color: #ffe800;">
+        <div class="panel-title" style="color:#ffe800;">Zarządzanie Podpowiedziami (Przycisk "?")</div>
+        <p style="font-size:0.75rem; color:#888; margin-bottom:15px; line-height:1.4;">Treści widoczne po kliknięciu żółtego przycisku "?" w rogu każdej strony aplikacji. Możesz dołączyć zrzut ekranu do każdej podpowiedzi.</p>
+
+        <div class="input-group">
+            <label>Wybierz stronę</label>
+            <select id="helpPageSelect" class="form-input" onchange="clearHelpForm(); loadHelpAdminList();">
+                <option value="index">Strona główna (Dashboard)</option>
+                <option value="plan">Plan pracy</option>
+                <option value="inwa">Inwentury (pracownik)</option>
+                <option value="inwak">Inwentury (ME/KSS)</option>
+                <option value="azs">AZS</option>
+                <option value="kwt">KWT</option>
+                <option value="kierownik">Centrum Dowodzenia</option>
+                <option value="ustawienia">Ustawienia Konta</option>
+                <option value="feedback">Zgłoś problem / Pomysł</option>
+            </select>
+        </div>
+
+        <div id="helpAdminList" style="margin-bottom:20px;"></div>
+
+        <div style="background:#0a0a0a; border:1px solid #333; border-radius:10px; padding:15px;">
+            <div id="helpFormTitle" style="color:#ffe800; font-weight:900; font-size:0.8rem; text-transform:uppercase; margin-bottom:10px;">Nowa podpowiedź</div>
+            <div class="input-group">
+                <label>Tytuł podpowiedzi</label>
+                <input type="text" class="form-input" id="helpItemTitle" placeholder="np. Jak dodać pracownika">
+            </div>
+            <div class="input-group">
+                <label>Opis</label>
+                <textarea class="form-input" id="helpItemText" rows="3" placeholder="Krótki opis funkcji..."></textarea>
+            </div>
+            <div class="input-group">
+                <label>Zrzut ekranu (opcjonalnie)</label>
+                <input type="file" id="helpItemImageInput" accept="image/*" style="display:none;" onchange="handleHelpImageUpload(event)">
+                <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
+                    <button type="button" class="btn-small" onclick="document.getElementById('helpItemImageInput').click()">📎 DODAJ ZRZUT EKRANU</button>
+                    <button type="button" class="btn-token-del" id="btnRemoveHelpImage" style="display:none;" onclick="removeHelpImage()">USUŃ ZDJĘCIE</button>
+                </div>
+                <img id="helpImagePreview" style="max-width:160px; border-radius:8px; margin-top:10px; display:none; border:1px solid #444;">
+            </div>
+            <div style="display:flex; gap:10px;">
+                <button class="btn-action" style="flex:1; background:#333; color:#fff;" onclick="clearHelpForm()">WYCZYŚĆ FORMULARZ</button>
+                <button class="btn-action" style="flex:2; background:#ffe800; color:#000;" id="btnSaveHelpItem" onclick="saveHelpItem()">+ DODAJ PODPOWIEDŹ</button>
+            </div>
         </div>
     </div>
 </div>
@@ -311,6 +359,7 @@
 
         loadAllStores();
         loadTokensList();
+        loadHelpAdminList();
     }
 
     function generateToken() {
@@ -546,6 +595,143 @@
         db.ref(`Stores/${storeIdPendingDelete}`).remove().then(() => {
             closeDeleteConfirmModal();
         });
+    }
+
+    // ==========================================
+    // ZARZĄDZANIE PODPOWIEDZIAMI (?) - tresci wyswietlane po kliknieciu zoltego
+    // przycisku "?" na kazdej stronie aplikacji. Przechowywane w Admin/HelpContent/{strona}.
+    // ==========================================
+    let currentHelpImage = null;
+    let editingHelpItemId = null;
+
+    function loadHelpAdminList() {
+        const page = document.getElementById('helpPageSelect').value;
+        db.ref(`Admin/HelpContent/${page}`).on('value', snap => {
+            const data = snap.val() || {};
+            const entries = Object.entries(data).sort((a,b) => (a[1].order||0) - (b[1].order||0));
+            const container = document.getElementById('helpAdminList');
+
+            if (entries.length === 0) {
+                container.innerHTML = '<div style="color:#666; font-size:0.8rem; padding:10px; text-align:center;">Brak jeszcze podpowiedzi dla tej strony.</div>';
+                return;
+            }
+
+            container.innerHTML = entries.map(([id, item]) => {
+                const shortText = (item.text || '').length > 70 ? item.text.slice(0, 70) + '...' : (item.text || '');
+                const thumb = item.image ? `<img src="${item.image}" style="width:36px; height:36px; object-fit:cover; border-radius:6px; margin-right:10px; border:1px solid #333;">` : '';
+                return `<div class="token-item">
+                    <div style="display:flex; align-items:center; min-width:0;">
+                        ${thumb}
+                        <div style="min-width:0;">
+                            <div class="token-item-code" style="color:#ffe800; font-size:0.85rem; letter-spacing:0;">${item.title}</div>
+                            <div class="token-item-date">${shortText}</div>
+                        </div>
+                    </div>
+                    <div style="display:flex; gap:6px; flex-shrink:0;">
+                        <button class="btn-small" onclick="editHelpItem('${id}')">EDYTUJ</button>
+                        <button class="btn-token-del" onclick="deleteHelpItem('${id}')">USUŃ</button>
+                    </div>
+                </div>`;
+            }).join('');
+        });
+    }
+
+    function handleHelpImageUpload(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = e => {
+            const img = new Image();
+            img.onload = () => {
+                const canvas = document.createElement('canvas');
+                const MAX_W = 800;
+                const scale = Math.min(1, MAX_W / img.width);
+                canvas.width = img.width * scale;
+                canvas.height = img.height * scale;
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                currentHelpImage = canvas.toDataURL('image/jpeg', 0.75);
+
+                const preview = document.getElementById('helpImagePreview');
+                preview.src = currentHelpImage;
+                preview.style.display = 'block';
+                document.getElementById('btnRemoveHelpImage').style.display = 'inline-block';
+            };
+            img.src = e.target.result;
+        };
+        reader.readAsDataURL(file);
+    }
+
+    function removeHelpImage() {
+        currentHelpImage = null;
+        document.getElementById('helpItemImageInput').value = '';
+        document.getElementById('helpImagePreview').style.display = 'none';
+        document.getElementById('btnRemoveHelpImage').style.display = 'none';
+    }
+
+    function saveHelpItem() {
+        const page = document.getElementById('helpPageSelect').value;
+        const title = document.getElementById('helpItemTitle').value.trim();
+        const text = document.getElementById('helpItemText').value.trim();
+
+        if (!title || !text) { alert('Podaj tytuł i opis podpowiedzi!'); return; }
+
+        const itemData = { title, text, order: editingHelpItemId ? undefined : Date.now() };
+        if (currentHelpImage) itemData.image = currentHelpImage;
+
+        const id = editingHelpItemId || ('help_' + Date.now());
+
+        if (editingHelpItemId) {
+            // przy edycji nie nadpisujemy kolejnosci (order) ani nie kasujemy obrazka jesli currentHelpImage=null a wczesniej byl - update() laczy pola zamiast nadpisywac caly obiekt
+            const updates = { title, text };
+            if (currentHelpImage) updates.image = currentHelpImage;
+            db.ref(`Admin/HelpContent/${page}/${id}`).update(updates).then(() => clearHelpForm());
+        } else {
+            db.ref(`Admin/HelpContent/${page}/${id}`).set(itemData).then(() => clearHelpForm());
+        }
+    }
+
+    function editHelpItem(id) {
+        const page = document.getElementById('helpPageSelect').value;
+        db.ref(`Admin/HelpContent/${page}/${id}`).once('value').then(snap => {
+            const item = snap.val();
+            if (!item) return;
+
+            editingHelpItemId = id;
+            document.getElementById('helpFormTitle').innerText = 'Edycja podpowiedzi';
+            document.getElementById('helpItemTitle').value = item.title || '';
+            document.getElementById('helpItemText').value = item.text || '';
+            document.getElementById('btnSaveHelpItem').innerText = 'ZAPISZ ZMIANY';
+
+            if (item.image) {
+                currentHelpImage = item.image;
+                const preview = document.getElementById('helpImagePreview');
+                preview.src = item.image;
+                preview.style.display = 'block';
+                document.getElementById('btnRemoveHelpImage').style.display = 'inline-block';
+            } else {
+                removeHelpImage();
+            }
+
+            document.getElementById('helpItemTitle').scrollIntoView({ behavior: 'smooth', block: 'center' });
+        });
+    }
+
+    function deleteHelpItem(id) {
+        const page = document.getElementById('helpPageSelect').value;
+        if (confirm('Czy na pewno usunąć tę podpowiedź?')) {
+            db.ref(`Admin/HelpContent/${page}/${id}`).remove();
+            if (editingHelpItemId === id) clearHelpForm();
+        }
+    }
+
+    function clearHelpForm() {
+        editingHelpItemId = null;
+        document.getElementById('helpFormTitle').innerText = 'Nowa podpowiedź';
+        document.getElementById('helpItemTitle').value = '';
+        document.getElementById('helpItemText').value = '';
+        document.getElementById('btnSaveHelpItem').innerText = '+ DODAJ PODPOWIEDŹ';
+        removeHelpImage();
     }
 </script>
 </body>

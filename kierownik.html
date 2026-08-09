@@ -276,13 +276,16 @@
         
         <div class="main-admin-grid">
             
-            <!-- SZYBKI DOSTĘP DO LISTY OBECNOŚCI -->
-            <div class="card" style="border-color: #27ae60; box-shadow: 0 5px 20px rgba(39, 174, 96, 0.15);">
-                <div class="card-title" style="color: #27ae60; border-bottom-color: #27ae60;">
-                    📋 LISTA OBECNOŚCI
+            <!-- PODGLĄD INWENTUR -->
+            <div class="card full-width" style="border-color: #ffa502; box-shadow: 0 5px 20px rgba(255, 165, 2, 0.15);">
+                <div class="card-title" style="color: #ffa502; border-bottom-color: #ffa502;">
+                    📦 PODGLĄD INWENTUR <span id="inwaOverviewMonthLabel" style="font-size:0.7rem; color:#888; text-transform:none; font-weight:normal;"></span>
+                    <span id="inwaOverviewPendingBadge" style="font-size:0.7rem; text-transform:none; font-weight:900; color:#ffa502; background:rgba(255,165,2,0.12); border:1px solid #ffa502; padding:4px 10px; border-radius:20px;"></span>
                 </div>
-                <p style="font-size: 0.8rem; color: #888; margin-top:-5px;">Zarządzaj pracownikami na liście i wygeneruj dokument do wydruku (automatyczny podział na strony - max 4 osoby na kartkę).</p>
-                <button class="btn-action" style="background: #27ae60; color: #fff;" onclick="openAttendanceModal()">📋 OTWÓRZ GENERATOR LISTY</button>
+                <p style="font-size: 0.8rem; color: #888; margin-top:-5px; margin-bottom:5px;">Kliknij dział, aby zobaczyć rozbicie na okresy (tygodniowe / 2-tygodniowe / miesięczne) i wysłać przypomnienie.</p>
+                <div style="display:flex; gap:15px; flex-wrap:wrap;" id="inwaOverviewGrid">
+                    <div style="color:#666; font-size:0.8rem; padding:15px;">Wczytywanie danych inwentur...</div>
+                </div>
             </div>
 
             <!-- SYSTEM POWIADOMIEŃ (PUSH) -->
@@ -366,16 +369,13 @@
                 </div>
             </div>
 
-            <!-- PODGLĄD INWENTUR -->
-            <div class="card full-width" style="border-color: #ffa502; box-shadow: 0 5px 20px rgba(255, 165, 2, 0.15);">
-                <div class="card-title" style="color: #ffa502; border-bottom-color: #ffa502;">
-                    📦 PODGLĄD INWENTUR <span id="inwaOverviewMonthLabel" style="font-size:0.7rem; color:#888; text-transform:none; font-weight:normal;"></span>
-                    <span id="inwaOverviewPendingBadge" style="font-size:0.7rem; text-transform:none; font-weight:900; color:#ffa502; background:rgba(255,165,2,0.12); border:1px solid #ffa502; padding:4px 10px; border-radius:20px;"></span>
+            <!-- SZYBKI DOSTĘP DO LISTY OBECNOŚCI -->
+            <div class="card" style="border-color: #27ae60; box-shadow: 0 5px 20px rgba(39, 174, 96, 0.15);">
+                <div class="card-title" style="color: #27ae60; border-bottom-color: #27ae60;">
+                    📋 LISTA OBECNOŚCI
                 </div>
-                <p style="font-size: 0.8rem; color: #888; margin-top:-5px; margin-bottom:5px;">Kliknij dział, aby zobaczyć rozbicie na okresy (tygodniowe / 2-tygodniowe / miesięczne) i wysłać przypomnienie.</p>
-                <div style="display:flex; gap:15px; flex-wrap:wrap;" id="inwaOverviewGrid">
-                    <div style="color:#666; font-size:0.8rem; padding:15px;">Wczytywanie danych inwentur...</div>
-                </div>
+                <p style="font-size: 0.8rem; color: #888; margin-top:-5px;">Zarządzaj pracownikami na liście i wygeneruj dokument do wydruku (automatyczny podział na strony - max 4 osoby na kartkę).</p>
+                <button class="btn-action" style="background: #27ae60; color: #fff;" onclick="openAttendanceModal()">📋 OTWÓRZ GENERATOR LISTY</button>
             </div>
 
             <!-- RAPORTY EXCEL -->

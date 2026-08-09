@@ -273,56 +273,16 @@
 <div class="content">
     <div class="content-inner">
         <h1 class="page-title">CENTRUM <span>DOWODZENIA</span></h1>
-
-        <!-- SZYBKIE STATYSTYKI -->
-        <div class="stats-bar">
-            <div class="stat-box">
-                <div class="stat-value" id="statEmpCount">-</div>
-                <div class="stat-label">Pracowników w bazie</div>
-            </div>
-            <div class="stat-box" style="border-color: #ffa502;">
-                <div class="stat-value" id="statAwaitingInwa" style="color:#ffa502;">-</div>
-                <div class="stat-label">Inwentur czeka na akceptację</div>
-            </div>
-            <div class="stat-box" style="border-color: #3498db;">
-                <div class="stat-value" id="statDaysLeft" style="color:#3498db;">-</div>
-                <div class="stat-label">Dni do końca miesiąca</div>
-            </div>
-        </div>
         
         <div class="main-admin-grid">
             
-            <!-- LISTA OBECNOŚCI ZE STRONICOWANIEM (MAX 4 OSOBY NA KARTKĘ) -->
-            <div class="card full-width" style="border-color: #27ae60; box-shadow: 0 5px 20px rgba(39, 174, 96, 0.15);">
+            <!-- SZYBKI DOSTĘP DO LISTY OBECNOŚCI -->
+            <div class="card" style="border-color: #27ae60; box-shadow: 0 5px 20px rgba(39, 174, 96, 0.15);">
                 <div class="card-title" style="color: #27ae60; border-bottom-color: #27ae60;">
-                    📋 GENERATOR LISTY OBECNOŚCI
+                    📋 LISTA OBECNOŚCI
                 </div>
-                <p style="font-size: 0.8rem; color: #888; margin-top:-5px; margin-bottom:10px;">Wybierz miesiąc, zarządzaj pracownikami i wygeneruj dokument do wydruku (automatyczny podział na strony - max 4 osoby na kartkę).</p>
-                
-                <div style="display: flex; gap: 15px; flex-wrap: wrap; align-items: flex-end; margin-bottom: 15px;">
-                    <div class="input-group" style="flex: 1; min-width: 200px; margin: 0;">
-                        <label>WYBIERZ MIESIĄC</label>
-                        <select id="attMonthSelect" class="form-input" onchange="generateAttendancePreview()"></select>
-                    </div>
-                    <div class="input-group" style="flex: 2; min-width: 250px; margin: 0;">
-                        <label>DODAJ PRACOWNIKA DO LISTY</label>
-                        <div style="display: flex; gap: 5px;">
-                            <input type="text" id="attNewEmpName" class="form-input" placeholder="Imię i nazwisko pracownika" style="flex: 1;">
-                            <button class="btn-action" style="background: #27ae60; color: #fff; margin: 0; padding: 0 15px;" onclick="addAttendanceEmployee()">+ DODAJ</button>
-                        </div>
-                    </div>
-                    <button class="btn-action" style="background: #3498db; color: #fff; margin: 0; height: 45px;" onclick="printAttendance()">🖨️ DRUKUJ LISTĘ</button>
-                </div>
-
-                <div style="margin-bottom: 10px;">
-                    <label style="font-size: 0.75rem; color: #888; font-weight: 800; text-transform: uppercase;">Aktywni pracownicy na liście obecności (kliknij X aby usunąć):</label>
-                    <div id="attEmployeeTags" style="display: flex; flex-wrap: wrap; gap: 8px; margin-top: 5px;"></div>
-                </div>
-
-                <!-- PODGLĄD LISTY OBECNOŚCI DO WYDRUKU -->
-                <div id="printableAttendance">
-                    <!-- Strony będą generowane dynamicznie przez JS -->
-                </div>
+                <p style="font-size: 0.8rem; color: #888; margin-top:-5px;">Zarządzaj pracownikami na liście i wygeneruj dokument do wydruku (automatyczny podział na strony - max 4 osoby na kartkę).</p>
+                <button class="btn-action" style="background: #27ae60; color: #fff;" onclick="openAttendanceModal()">📋 OTWÓRZ GENERATOR LISTY</button>
             </div>
 
             <!-- SYSTEM POWIADOMIEŃ (PUSH) -->
@@ -405,21 +365,12 @@
                     <button class="btn-action" style="flex:2;" onclick="savePinboard()">📌 PRZYKLEJ NA STRONIE</button>
                 </div>
             </div>
-            
-            <!-- SZYBKI GENERATOR PLANU PRACY -->
-            <div class="card" style="border-color: #9b59b6; box-shadow: 0 5px 20px rgba(155, 89, 182, 0.15);">
-                <div class="card-title" style="color: #9b59b6; border-bottom-color: #9b59b6;">
-                    🗓️ PLAN PRACY
-                </div>
-                <p style="font-size: 0.8rem; color: #888; margin-top:-5px;">Szybko wygeneruj lub zaktualizuj grafik bez opuszczania Centrum Dowodzenia. Szczegółowa edycja komórek dostępna w pełnym widoku.</p>
-                <button class="btn-action" style="background: #9b59b6; color: #fff;" onclick="openPlanGeneratorModal()">🚀 OTWÓRZ GENERATOR PLANU</button>
-                <a href="plan.html" style="text-align:center; font-size:0.75rem; color:#888; margin-top:8px; text-decoration:underline;">Otwórz pełny widok planu i edycję ręczną →</a>
-            </div>
 
             <!-- PODGLĄD INWENTUR -->
             <div class="card full-width" style="border-color: #ffa502; box-shadow: 0 5px 20px rgba(255, 165, 2, 0.15);">
                 <div class="card-title" style="color: #ffa502; border-bottom-color: #ffa502;">
                     📦 PODGLĄD INWENTUR <span id="inwaOverviewMonthLabel" style="font-size:0.7rem; color:#888; text-transform:none; font-weight:normal;"></span>
+                    <span id="inwaOverviewPendingBadge" style="font-size:0.7rem; text-transform:none; font-weight:900; color:#ffa502; background:rgba(255,165,2,0.12); border:1px solid #ffa502; padding:4px 10px; border-radius:20px;"></span>
                 </div>
                 <p style="font-size: 0.8rem; color: #888; margin-top:-5px; margin-bottom:5px;">Kliknij dział, aby zobaczyć rozbicie na okresy (tygodniowe / 2-tygodniowe / miesięczne) i wysłać przypomnienie.</p>
                 <div style="display:flex; gap:15px; flex-wrap:wrap;" id="inwaOverviewGrid">
@@ -576,19 +527,37 @@
     </div>
 </div>
 
-<div class="modal" id="planGeneratorModal">
-    <div class="modal-content" style="max-width: 480px;">
-        <h3 style="color:#9b59b6; margin-bottom:15px; text-align:center; font-size: 1.3rem;">🚀 GENERATOR PLANU PRACY</h3>
-        <div class="input-group" style="text-align:left;">
-            <label>WYBIERZ MIESIĄC</label>
-            <select id="planGenMonthSelect" class="form-input"></select>
+<div class="modal" id="attendanceModal">
+    <div class="modal-content" style="max-width: 900px; text-align:left;">
+        <h3 style="color:#27ae60; margin-bottom:15px; text-align:center; font-size: 1.3rem;">📋 GENERATOR LISTY OBECNOŚCI</h3>
+
+        <div style="display: flex; gap: 15px; flex-wrap: wrap; align-items: flex-end; margin-bottom: 15px;">
+            <div class="input-group" style="flex: 1; min-width: 200px; margin: 0;">
+                <label>WYBIERZ MIESIĄC</label>
+                <select id="attMonthSelect" class="form-input" onchange="generateAttendancePreview()"></select>
+            </div>
+            <div class="input-group" style="flex: 2; min-width: 250px; margin: 0;">
+                <label>DODAJ PRACOWNIKA DO LISTY</label>
+                <div style="display: flex; gap: 5px;">
+                    <input type="text" id="attNewEmpName" class="form-input" placeholder="Imię i nazwisko pracownika" style="flex: 1;">
+                    <button class="btn-action" style="background: #27ae60; color: #fff; margin: 0; padding: 0 15px;" onclick="addAttendanceEmployee()">+ DODAJ</button>
+                </div>
+            </div>
         </div>
-        <p style="font-size:0.75rem; color:#888; margin-bottom:10px; text-align:left;">Wygeneruje grafik na podstawie ustawień zapisanych w pełnym widoku planu (pula zmian, obsada weekendów, urlopy). Istniejące urlopy, szkolenia i życzenia zostaną zachowane.</p>
-        <div id="planGenStatusText"></div>
-        <div id="planGenProgressWrap"><div id="planGenProgressFill"></div></div>
+
+        <div style="margin-bottom: 10px;">
+            <label style="font-size: 0.75rem; color: #888; font-weight: 800; text-transform: uppercase;">Aktywni pracownicy na liście obecności (kliknij X aby usunąć):</label>
+            <div id="attEmployeeTags" style="display: flex; flex-wrap: wrap; gap: 8px; margin-top: 5px;"></div>
+        </div>
+
+        <!-- PODGLĄD LISTY OBECNOŚCI DO WYDRUKU -->
+        <div id="printableAttendance">
+            <!-- Strony będą generowane dynamicznie przez JS -->
+        </div>
+
         <div style="display:flex; gap:10px; margin-top:20px;">
-            <button class="btn-action" style="flex:1; background:#333; color:#fff; margin-top:0;" onclick="closePlanGeneratorModal()">ZAMKNIJ</button>
-            <button class="btn-action" style="flex:2; background:#9b59b6; color:#fff; margin-top:0;" id="planGenStartBtn" onclick="runPlanGeneratorFromModal()">🚀 GENERUJ PLAN</button>
+            <button class="btn-action" style="flex:1; background:#333; color:#fff; margin-top:0;" onclick="closeAttendanceModal()">ZAMKNIJ</button>
+            <button class="btn-action" style="flex:2; background: #3498db; color: #fff; margin-top:0;" onclick="printAttendance()">🖨️ DRUKUJ LISTĘ</button>
         </div>
     </div>
 </div>
@@ -661,9 +630,7 @@
         loadAuditLog();
         loadDeletedUsers();
         updatePushPreview();
-        updateStatsBar();
         loadInwaOverview();
-        initPlanGenMonthSelect();
     };
 
     // ==========================================
@@ -712,18 +679,6 @@
     }
 
     // ==========================================
-    // SZYBKIE STATYSTYKI
-    // ==========================================
-    function updateStatsBar() {
-        const empCount = globalUsersList.filter(u => u.charId !== 'ADMIN').length;
-        document.getElementById('statEmpCount').innerText = empCount;
-
-        const today = new Date();
-        const daysInCurMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0).getDate();
-        document.getElementById('statDaysLeft').innerText = daysInCurMonth - today.getDate();
-    }
-
-    // ==========================================
     // WYSZUKIWARKA W LIŚCIE ZESPOŁU
     // ==========================================
     function filterTeamList() {
@@ -737,6 +692,12 @@
     // ==========================================
     // LOGIKA LISTY OBECNOŚCI PIONOWY TEKST + PAGINACJA (MAX 4 NA STRONĘ)
     // ==========================================
+    function openAttendanceModal() {
+        document.getElementById('attendanceModal').style.display = 'flex';
+        generateAttendancePreview();
+    }
+    function closeAttendanceModal() { document.getElementById('attendanceModal').style.display = 'none'; }
+
     function loadAttendanceEmployees() {
         // NAPRAWA: fallback nie zawiera juz na sztywno wpisanych, konkretnych nazwisk -
         // nowy sklep startuje z czysta, pusta lista obecnosci.
@@ -1022,7 +983,6 @@
             }
             document.getElementById('teamList').innerHTML = html;
             filterTeamList();
-            updateStatsBar();
 
             let pushSelect = document.getElementById('pushTarget');
             pushSelect.innerHTML = `
@@ -1456,6 +1416,14 @@
         const depts = ['IT', 'RTV', 'AGD'];
         const hasAnyData = Object.keys(currentInwaItems).length > 0;
 
+        // NOWE: licznik pozycji oczekujących na akceptację (przeniesiony tu z usunietego paska statystyk)
+        const pendingCount = Object.values(currentInwaItems).filter(i => i.status === 'awaiting_kss').length;
+        const badge = document.getElementById('inwaOverviewPendingBadge');
+        badge.innerText = pendingCount > 0 ? `${pendingCount} czeka na akceptację` : 'Brak oczekujących';
+        badge.style.color = pendingCount > 0 ? '#ffa502' : '#0a0';
+        badge.style.borderColor = pendingCount > 0 ? '#ffa502' : '#0a0';
+        badge.style.background = pendingCount > 0 ? 'rgba(255,165,2,0.12)' : 'rgba(0,170,0,0.1)';
+
         if (!hasAnyData) {
             grid.innerHTML = '<div style="color:#666; font-size:0.8rem; padding:15px;">Miesiąc jeszcze nie zainicjowany — pracownik musi najpierw wejść w zakładkę Inwentury.</div>';
             return;
@@ -1526,345 +1494,6 @@
             alert(`Przypomnienie wysłane do ${targets.length} pracowników działu ${dept}!`);
             closeInwaDeptModal();
         }).catch(e => alert("Błąd wysyłania: " + e.message));
-    }
-
-    // ==========================================
-    // SZYBKI GENERATOR PLANU PRACY (modal, bez pelnej tabeli)
-    // Uzywa dokladnie tego samego algorytmu balansujacego co pelny widok planu (plan.html),
-    // ale bez interfejsu recznej edycji komorek - zeby nie zajmowac miejsca w Centrum Dowodzenia.
-    // ==========================================
-    function initPlanGenMonthSelect() {
-        const sel = document.getElementById('planGenMonthSelect');
-        sel.innerHTML = '';
-        months.forEach((m, i) => {
-            let opt = document.createElement('option'); opt.value = i; opt.innerText = `${m} ${year}`;
-            if (i === new Date().getMonth()) opt.selected = true;
-            sel.appendChild(opt);
-        });
-    }
-
-    function openPlanGeneratorModal() {
-        document.getElementById('planGenStatusText').innerHTML = '';
-        document.getElementById('planGenProgressWrap').style.display = 'none';
-        document.getElementById('planGenProgressFill').style.width = '0%';
-        document.getElementById('planGenStartBtn').disabled = false;
-        document.getElementById('planGeneratorModal').style.display = 'flex';
-    }
-    function closePlanGeneratorModal() { document.getElementById('planGeneratorModal').style.display = 'none'; }
-
-    function planGenTimeToDecimal(tStr) {
-        if (!tStr) return 0;
-        let t = tStr.toString().trim();
-        if(!t.includes(':')) return parseInt(t) || 0;
-        let p = t.split(':'); return (parseInt(p[0]) || 0) + ((parseInt(p[1]) || 0) / 60);
-    }
-    function planGenGetH(shiftStr) {
-        if (!shiftStr) return 0;
-        if (shiftStr === "URLOP" || shiftStr === "SZK" || shiftStr === "SZK.") return 8;
-        let parts = shiftStr.split('-');
-        if (parts.length === 2) { let diff = planGenTimeToDecimal(parts[1]) - planGenTimeToDecimal(parts[0]); return diff > 0 ? diff : 0; }
-        return 0;
-    }
-
-    async function runPlanGeneratorFromModal() {
-        const mIndex = parseInt(document.getElementById('planGenMonthSelect').value);
-        const statusText = document.getElementById('planGenStatusText');
-        const startBtn = document.getElementById('planGenStartBtn');
-        startBtn.disabled = true;
-        statusText.innerHTML = 'Wczytywanie ustawień planu...';
-
-        try {
-            const metaSnap = await db.ref(`Stores/${myStore}/PlanMeta/${year}_${mIndex}`).once('value');
-            const meta = metaSnap.val() || {};
-
-            if (meta.locked === true) {
-                statusText.innerHTML = '<span style="color:#f44;">⚠️ Ten miesiąc jest ZATWIERDZONY (zablokowany). Odblokuj go w pełnym widoku planu pracy, aby wygenerować ponownie.</span>';
-                startBtn.disabled = false;
-                return;
-            }
-
-            const yearSettingsSnap = await db.ref(`Stores/${myStore}/YearSettings/${year}`).once('value');
-            const yearSettings = yearSettingsSnap.val();
-            let holidaysArr = [], tradingSundaysArr = [];
-            if (yearSettings) {
-                holidaysArr = (yearSettings.holidays || "").split(',').map(s=>s.trim()).filter(s=>s);
-                tradingSundaysArr = (yearSettings.tradingSundays || "").split(',').map(s=>s.trim()).filter(s=>s);
-            } else if (year === 2026) {
-                holidaysArr = ["1-1", "1-6", "4-5", "4-6", "5-1", "5-3", "5-24", "6-4", "8-15", "11-1", "11-11", "12-25", "12-26"];
-                tradingSundaysArr = ["1-25", "3-29", "4-26", "6-28", "8-30", "12-13", "12-20"];
-            }
-
-            const planSnap = await db.ref(`Stores/${myStore}/Plan/${year}_${mIndex}`).once('value');
-            const existingPlan = planSnap.val() || {};
-
-            const employeesForPlan = globalUsersList.filter(u => u.charId !== 'ADMIN').map(u => ({
-                charId: u.charId, n: u.name, p: u.dept === 'POK', dept: u.dept
-            }));
-
-            if (employeesForPlan.length === 0) {
-                statusText.innerHTML = '<span style="color:#f44;">Brak pracowników w bazie - nie ma kogo przydzielić do grafiku.</span>';
-                startBtn.disabled = false;
-                return;
-            }
-
-            const isWorkDayFn = (d) => {
-                let ds = `${mIndex+1}-${d}`;
-                if (holidaysArr.includes(ds)) return false;
-                if (new Date(year, mIndex, d).getDay() === 0 && !tradingSundaysArr.includes(ds)) return false;
-                return true;
-            };
-            const getShiftOnlyFn = (charId, d) => (existingPlan[`${charId}_${d}`] || "").split('|')[0] || "";
-
-            const baseNorm = meta.norm || 160;
-            const daysInMonth = new Date(year, mIndex + 1, 0).getDate();
-            const globalShiftsArr = (meta.globalShifts || "10:00-18:00, 12:00-20:00, 10:00-20:00").split(',').map(s=>s.trim()).filter(s=>s);
-
-            let shiftDefs = globalShiftsArr.map(s => ({ val: s, h: planGenGetH(s) })).filter(s => s.h > 0).sort((a,b) => a.h - b.h);
-            if (shiftDefs.length === 0) shiftDefs = [{val:"10:00-18:00", h:8}, {val:"12:00-20:00", h:8}, {val:"10:00-20:00", h:10}];
-            const openShiftStr = shiftDefs[0].val;
-            const closeShiftStr = shiftDefs.length > 1 ? shiftDefs[1].val : shiftDefs[0].val;
-            const fullShiftStr = shiftDefs[shiftDefs.length - 1].val;
-            const satShiftStr = meta.satHours || "10:00-20:00";
-            const sunShiftStr = meta.sunHours || "10:00-18:00";
-            const satStaffCount = meta.satStaffCount || 6;
-            const sunStaffCount = meta.sunStaffCount || 6;
-
-            function calcRealHLocal(charId, scheduleObj, maxDay) {
-                let h = 0; for(let d=1; d<=maxDay; d++) h += planGenGetH(scheduleObj[charId][d]); return h;
-            }
-            function getStreakLocal(charId, day, scheduleObj, maxDay) {
-                let s = 0;
-                for (let d = day-1; d >= 1; d--) { let st = scheduleObj[charId][d]; if(st && (st.includes('-') || st==="URLOP" || st==="SZK" || st.toLowerCase()==="szk.")) s++; else break; }
-                for (let d = day+1; d <= maxDay; d++) { let st = scheduleObj[charId][d]; if(st && (st.includes('-') || st==="URLOP" || st==="SZK" || st.toLowerCase()==="szk.")) s++; else break; }
-                return s;
-            }
-            function canWorkLocal(charId, day, scheduleObj) {
-                if (scheduleObj[charId][day] !== "") return false;
-                let streakBefore = 0; for (let d = day - 1; d >= 1; d--) { if (scheduleObj[charId][d] !== "") streakBefore++; else break; }
-                let streakAfter = 0; for (let d = day + 1; d <= daysInMonth; d++) { if (scheduleObj[charId][d] && scheduleObj[charId][d] !== "") streakAfter++; else break; }
-                return (streakBefore + 1 + streakAfter) <= 5;
-            }
-            function shuffleLocal(array) {
-                for (let i = array.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [array[i], array[j]] = [array[j], array[i]]; }
-                return array;
-            }
-
-            statusText.innerHTML = 'Budowanie szkieletu grafiku...';
-            document.getElementById('planGenProgressWrap').style.display = 'block';
-            document.getElementById('planGenProgressFill').style.width = '5%';
-
-            let memorySchedule = {};
-            employeesForPlan.forEach(e => {
-                memorySchedule[e.charId] = {};
-                for (let d = 1; d <= daysInMonth; d++) {
-                    let s = getShiftOnlyFn(e.charId, d);
-                    memorySchedule[e.charId][d] = (s === "URLOP" || s === "Ż" || s === "SZK" || (s && s.toLowerCase() === "szk.")) ? s : "";
-                }
-            });
-
-            let sats = [];
-            for(let d=1; d<=daysInMonth; d++) { if((new Date(year, mIndex, d).getDay() === 6 || new Date(year, mIndex, d).getDay() === 0) && isWorkDayFn(d)) sats.push(d); }
-
-            sats.forEach(d => {
-                let isSaturday = new Date(year, mIndex, d).getDay() === 6;
-                let targetShift = isSaturday ? satShiftStr : sunShiftStr;
-                let totalNeeded = isSaturday ? satStaffCount : sunStaffCount;
-
-                let available = employeesForPlan.filter(e => memorySchedule[e.charId][d] === "" && e.dept !== 'ME');
-                shuffleLocal(available);
-                available.sort((a,b) => {
-                    let aWork = 0, bWork = 0;
-                    sats.forEach(s => { if(memorySchedule[a.charId][s] && memorySchedule[a.charId][s].includes('-')) aWork++; });
-                    sats.forEach(s => { if(memorySchedule[b.charId][s] && memorySchedule[b.charId][s].includes('-')) bWork++; });
-                    return aWork - bWork;
-                });
-
-                let toWork = []; let poks = available.filter(e => e.p); let sales = available.filter(e => !e.p);
-                if(poks.length > 0 && totalNeeded > 0) { toWork.push({ e: poks[0], shift: targetShift }); if(poks.length > 1) sales.push(poks[1]); totalNeeded--; }
-                let it = sales.find(e => e.dept === 'IT'); if(it && totalNeeded > 0) { toWork.push({ e: it, shift: targetShift }); sales = sales.filter(e => e.charId !== it.charId); totalNeeded--; }
-                let agd = sales.find(e => e.dept === 'AGD'); if(agd && totalNeeded > 0) { toWork.push({ e: agd, shift: targetShift }); sales = sales.filter(e => e.charId !== agd.charId); totalNeeded--; }
-                for(let i=0; i<totalNeeded && sales.length>0; i++) { toWork.push({ e: sales[0], shift: targetShift }); sales.shift(); }
-                toWork.forEach(w => memorySchedule[w.e.charId][d] = w.shift);
-            });
-
-            document.getElementById('planGenProgressFill').style.width = '12%';
-
-            for(let d=1; d<=daysInMonth; d++) {
-                if(new Date(year, mIndex, d).getDay() === 6 || new Date(year, mIndex, d).getDay() === 0 || !isWorkDayFn(d)) continue;
-
-                let availPoks = employeesForPlan.filter(e => e.p && canWorkLocal(e.charId, d, memorySchedule));
-                if(availPoks.length >= 2) {
-                    shuffleLocal(availPoks);
-                    let p1 = availPoks[0]; let p2 = availPoks[1];
-                    let h1 = calcRealHLocal(p1.charId, memorySchedule, daysInMonth);
-                    let h2 = calcRealHLocal(p2.charId, memorySchedule, daysInMonth);
-                    let daysLeft = daysInMonth - d;
-                    let futureCost = daysLeft * 8;
-                    let availableCombined = (baseNorm * 2) - (h1 + h2);
-                    if (futureCost > availableCombined + 4) { memorySchedule[p1.charId][d] = fullShiftStr; }
-                    else { memorySchedule[p1.charId][d] = openShiftStr; memorySchedule[p2.charId][d] = closeShiftStr; }
-                } else if(availPoks.length === 1) { memorySchedule[availPoks[0].charId][d] = fullShiftStr; }
-
-                let availSales = employeesForPlan.filter(e => !e.p && e.dept !== 'ME' && canWorkLocal(e.charId, d, memorySchedule));
-                shuffleLocal(availSales);
-                availSales.sort((a,b) => calcRealHLocal(a.charId, memorySchedule, daysInMonth) - calcRealHLocal(b.charId, memorySchedule, daysInMonth));
-
-                let otwNeeded = 3; let zamNeeded = 3;
-                let assignSale = (emp, isOtw) => {
-                    if(isOtw) { memorySchedule[emp.charId][d] = openShiftStr; otwNeeded--; } else { memorySchedule[emp.charId][d] = closeShiftStr; zamNeeded--; }
-                    availSales = availSales.filter(e => e.charId !== emp.charId);
-                };
-                let it2 = availSales.find(e => e.dept === 'IT'); if(it2) assignSale(it2, true);
-                let agd2 = availSales.find(e => e.dept === 'AGD'); if(agd2) assignSale(agd2, false);
-                for(let i=0; i<availSales.length && (otwNeeded>0 || zamNeeded>0); i++) {
-                    if(otwNeeded > 0) { assignSale(availSales[i], true); i--; } else if (zamNeeded > 0) { assignSale(availSales[i], false); i--; }
-                }
-            }
-
-            document.getElementById('planGenProgressFill').style.width = '20%';
-            statusText.innerHTML = 'Balansowanie godzin pracy...';
-
-            const tryAddShift = (emp) => {
-                let possibleDays = [];
-                for(let d=1; d<=daysInMonth; d++) {
-                    let isWknd = new Date(year, mIndex, d).getDay() === 0 || new Date(year, mIndex, d).getDay() === 6;
-                    if(isWorkDayFn(d) && !isWknd && memorySchedule[emp.charId][d] === "" && getStreakLocal(emp.charId, d, memorySchedule, daysInMonth) < 5) {
-                        let c = 0; employeesForPlan.forEach(em => { if(em.dept !== 'ME' && memorySchedule[em.charId][d].includes('-')) c++; }); possibleDays.push({ d, staff: c });
-                    }
-                }
-                if(possibleDays.length > 0) { shuffleLocal(possibleDays); possibleDays.sort((a,b) => a.staff - b.staff); memorySchedule[emp.charId][possibleDays[0].d] = (Math.random()>0.5 ? openShiftStr : closeShiftStr); return true; }
-                return false;
-            };
-            const tryExtendShift = (emp) => {
-                let possibleDays = [];
-                for(let d=1; d<=daysInMonth; d++) {
-                    let isWknd = new Date(year, mIndex, d).getDay() === 0 || new Date(year, mIndex, d).getDay() === 6; let v = memorySchedule[emp.charId][d];
-                    if(!isWknd && (v === openShiftStr || v === closeShiftStr) && getStreakLocal(emp.charId, d, memorySchedule, daysInMonth) < 5) possibleDays.push(d);
-                }
-                if(possibleDays.length > 0) { shuffleLocal(possibleDays); memorySchedule[emp.charId][possibleDays[0]] = fullShiftStr; return true; }
-                return false;
-            };
-            const tryRemoveShift = (emp, strict) => {
-                let possibleDays = [];
-                for(let d=1; d<=daysInMonth; d++) {
-                    let v = memorySchedule[emp.charId][d]; let isWknd = new Date(year, mIndex, d).getDay() === 0 || new Date(year, mIndex, d).getDay() === 6;
-                    if(!isWknd && (v === openShiftStr || v === closeShiftStr || v === fullShiftStr)) {
-                        let otwSales=0, zamSales=0, otwPok=0, zamPok=0, itCount=0, agdCount=0;
-                        employeesForPlan.forEach(em => {
-                            if(em.charId === emp.charId || em.dept === 'ME') return; let ev = memorySchedule[em.charId][d];
-                            if(ev.includes('-')) {
-                                let p = ev.split('-'); let isO = planGenTimeToDecimal(p[0]) <= 11.5; let isZ = planGenTimeToDecimal(p[1]) >= 18.75;
-                                if(isO) { if(em.p) otwPok++; else otwSales++; } if(isZ) { if(em.p) zamPok++; else zamSales++; }
-                                if(em.dept === 'IT') itCount++; if(em.dept === 'AGD') agdCount++;
-                            }
-                        });
-                        let pV = v.split('-'); let isOtw = planGenTimeToDecimal(pV[0]) <= 11.5; let isZam = planGenTimeToDecimal(pV[1]) >= 18.75; let isSafe = true;
-                        if(strict) {
-                            if(isOtw && (otwSales < 3 || otwPok < 1)) isSafe = false;
-                            if(isZam && (zamSales < 3 || zamPok < 1)) isSafe = false;
-                            if(itCount < 1 || agdCount < 1) isSafe = false;
-                        } else {
-                            if(isOtw && (otwSales + otwPok <= 1)) isSafe = false;
-                            if(isZam && (zamSales + zamPok <= 1)) isSafe = false;
-                            if(emp.p && (otwPok + zamPok === 0)) isSafe = false;
-                        }
-                        if(isSafe) possibleDays.push({ d, staff: otwSales + zamSales });
-                    }
-                }
-                if(possibleDays.length > 0) { shuffleLocal(possibleDays); possibleDays.sort((a,b) => b.staff - a.staff); memorySchedule[emp.charId][possibleDays[0].d] = ""; return true; }
-                return false;
-            };
-            const tryShortenShift = (emp, strict) => {
-                let possibleDays = [];
-                for(let d=1; d<=daysInMonth; d++) {
-                    let isWknd = new Date(year, mIndex, d).getDay() === 0 || new Date(year, mIndex, d).getDay() === 6; let v = memorySchedule[emp.charId][d];
-                    if(!isWknd && v === fullShiftStr) {
-                        let isSafe = true;
-                        if(strict && emp.p) {
-                            let oP=0, zP=0;
-                            employeesForPlan.forEach(em => { if(em.charId !== emp.charId && em.p) { let ev = memorySchedule[em.charId][d]; if(ev.includes('-')) { let p = ev.split('-'); if(planGenTimeToDecimal(p[0])<=11.5) oP++; if(planGenTimeToDecimal(p[1])>=18.75) zP++; } } });
-                            if(oP === 0 || zP === 0) isSafe = false;
-                        }
-                        if(isSafe) possibleDays.push(d);
-                    }
-                }
-                if(possibleDays.length > 0) {
-                    shuffleLocal(possibleDays); let targetD = possibleDays[0]; let newShift = Math.random() > 0.5 ? openShiftStr : closeShiftStr;
-                    if(emp.p) {
-                        let oP=0, zP=0;
-                        employeesForPlan.forEach(em => { if(em.charId !== emp.charId && em.p) { let ev = memorySchedule[em.charId][targetD]; if(ev.includes('-')) { let p = ev.split('-'); if(planGenTimeToDecimal(p[0])<=11.5) oP++; if(planGenTimeToDecimal(p[1])>=18.75) zP++; } } });
-                        if(oP === 0 && zP > 0) newShift = openShiftStr; else if(zP === 0 && oP > 0) newShift = closeShiftStr;
-                    }
-                    memorySchedule[emp.charId][targetD] = newShift; return true;
-                }
-                return false;
-            };
-
-            let allBalanced = false; let iterations = 0; const maxIterations = 5000;
-
-            function runBalanceBatch() {
-                const batchLimit = iterations + 60;
-                while (!allBalanced && iterations < maxIterations && iterations < batchLimit) {
-                    allBalanced = true;
-                    let strictMode = iterations < 1500; let brutalMode = iterations > 3500;
-                    let status = employeesForPlan.map(e => { let current = calcRealHLocal(e.charId, memorySchedule, daysInMonth); return { e, diff: baseNorm - current }; });
-                    shuffleLocal(status); status.sort((a,b) => Math.abs(b.diff) - Math.abs(a.diff));
-
-                    for(let st of status) {
-                        if(st.diff === 0 || st.e.dept === 'ME') continue;
-                        allBalanced = false; let actionTaken = false; let emp = st.e;
-                        if(st.diff > 0) {
-                            if(st.diff >= 8) actionTaken = tryAddShift(emp);
-                            if(!actionTaken && st.diff >= 2) actionTaken = tryExtendShift(emp);
-                            if(!actionTaken && !strictMode) {
-                                for(let d=1; d<=daysInMonth; d++) {
-                                    let isWknd = new Date(year, mIndex, d).getDay() === 0 || new Date(year, mIndex, d).getDay() === 6;
-                                    if(isWorkDayFn(d) && !isWknd && memorySchedule[emp.charId][d] === "" && (getStreakLocal(emp.charId, d, memorySchedule, daysInMonth) < 5 || brutalMode)) { memorySchedule[emp.charId][d] = openShiftStr; actionTaken = true; break; }
-                                }
-                            }
-                        } else if (st.diff < 0) {
-                            if(st.diff <= -8) actionTaken = tryRemoveShift(emp, strictMode);
-                            if(!actionTaken && st.diff <= -2) actionTaken = tryShortenShift(emp, strictMode);
-                            if(!actionTaken && (!strictMode || brutalMode)) {
-                                for(let d=1; d<=daysInMonth; d++) {
-                                    let isWknd = new Date(year, mIndex, d).getDay() === 0 || new Date(year, mIndex, d).getDay() === 6; let s = memorySchedule[emp.charId][d];
-                                    if(!isWknd && (s === openShiftStr || s === closeShiftStr || s === fullShiftStr)) {
-                                        let isLastPok = false;
-                                        if(emp.p) { let otherPok = 0; employeesForPlan.forEach(em => { if(em.charId !== emp.charId && em.p && memorySchedule[em.charId][d].includes('-')) otherPok++; }); if(otherPok === 0) isLastPok = true; }
-                                        if(!isLastPok || brutalMode) { memorySchedule[emp.charId][d] = ""; actionTaken = true; break; }
-                                    }
-                                }
-                            }
-                        }
-                        if(actionTaken) break;
-                    }
-                    iterations++;
-                }
-
-                let pct = 20 + Math.min(75, Math.round((iterations / maxIterations) * 75));
-                document.getElementById('planGenProgressFill').style.width = pct + '%';
-                statusText.innerHTML = `Balansowanie godzin pracy... (${Math.min(100, pct)}%)`;
-
-                if (!allBalanced && iterations < maxIterations) {
-                    setTimeout(runBalanceBatch, 0);
-                } else {
-                    document.getElementById('planGenProgressFill').style.width = '100%';
-                    statusText.innerHTML = 'Zapisywanie do chmury...';
-                    let finalUpdates = {};
-                    employeesForPlan.forEach(e => { for(let d=1; d<=daysInMonth; d++) { finalUpdates[`${e.charId}_${d}`] = memorySchedule[e.charId][d]; } });
-                    db.ref(`Stores/${myStore}/Plan/${year}_${mIndex}`).update(finalUpdates).then(() => {
-                        statusText.innerHTML = `<span style="color:#0a0;">✅ Plan na ${months[mIndex]} ${year} wygenerowany pomyślnie!</span>`;
-                        logAdminAction('plan_generated', `Wygenerowano plan pracy: ${months[mIndex]} ${year}`);
-                        startBtn.disabled = false;
-                    });
-                }
-            }
-            runBalanceBatch();
-
-        } catch(e) {
-            statusText.innerHTML = `<span style="color:#f44;">Błąd generowania: ${e.message}</span>`;
-            startBtn.disabled = false;
-        }
     }
 
     // ==========================================

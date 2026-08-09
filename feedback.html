@@ -69,7 +69,10 @@
         .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.8); display: none; z-index: 9500; }
         .overlay.active { display: block; }
 
-        .content { flex-grow: 1; overflow-y: auto; padding: 40px 20px; display: flex; justify-content: center; align-items: flex-start; }
+        @keyframes blink { 0% { opacity: 1; } 50% { opacity: 0.3; } 100% { opacity: 1; } }
+        .nav-alert { color: #f44; font-weight: 900; animation: blink 1s infinite; font-size: 1rem; margin-left: 5px; }
+
+        .content { flex-grow: 1; overflow-y: auto; padding: 40px 20px; display: flex; flex-direction: column; align-items: center; gap: 25px; }
         .feedback-container { background: #111; border: 2px solid #333; border-radius: 15px; padding: 40px; width: 100%; max-width: 650px; box-shadow: 0 10px 30px rgba(0,0,0,0.8); height: fit-content; margin-top: 20px; }
         
         .page-title { font-size: 2rem; font-weight: 900; margin-bottom: 10px; text-transform: uppercase; text-align: center; color: #fff; letter-spacing: 1px; }
@@ -96,6 +99,18 @@
         select:focus, textarea:focus { border-color: #ffe800; box-shadow: 0 0 10px rgba(255, 232, 0, 0.2); }
         textarea { resize: vertical; min-height: 200px; line-height: 1.5; }
 
+        /* LICZNIK ZNAKOW */
+        .char-counter { text-align: right; font-size: 0.7rem; color: #666; font-weight: 700; margin-top: 6px; }
+        .char-counter.ok { color: #0a0; }
+        .char-counter.warn { color: #f44; }
+
+        /* ZALACZNIK */
+        .attachment-row { display: flex; align-items: center; gap: 12px; margin-top: 10px; }
+        .btn-attach { background: transparent; border: 1px dashed #ffe800; color: #ffe800; padding: 10px 16px; border-radius: 8px; font-weight: 900; font-size: 0.75rem; cursor: pointer; text-transform: uppercase; transition: 0.2s; }
+        .btn-attach:hover { background: #ffe800; color: #000; border-style: solid; }
+        .attachment-preview { width: 50px; height: 50px; border-radius: 8px; object-fit: cover; border: 2px solid #ffe800; display: none; }
+        .btn-remove-attach { background: transparent; border: none; color: #f44; font-size: 0.7rem; font-weight: 900; cursor: pointer; text-transform: uppercase; display: none; }
+
         .btn-submit { background: #ffe800; color: #000; border: none; width: 100%; padding: 18px; font-weight: 900; border-radius: 8px; cursor: pointer; font-size: 1.1rem; text-transform: uppercase; transition: 0.3s; margin-top: 15px; letter-spacing: 1px; }
         .btn-submit:hover:not(:disabled) { transform: translateY(-3px); box-shadow: 0 5px 20px rgba(255, 232, 0, 0.4); }
         .btn-submit:disabled { background: #333; color: #666; cursor: not-allowed; }
@@ -107,6 +122,34 @@
         .success-text { color: #ccc; font-size: 0.95rem; line-height: 1.5; margin-bottom: 30px; font-weight: 600; }
         .btn-ok { background: #0a0; color: #fff; border: none; padding: 15px 20px; font-weight: 900; border-radius: 8px; cursor: pointer; width: 100%; text-transform: uppercase; font-size: 1rem; transition: 0.3s; }
         .btn-ok:hover { background: #0c0; box-shadow: 0 0 15px rgba(0, 170, 0, 0.5); }
+
+        /* HISTORIA / PANEL ZGLOSZEN */
+        .list-container { background: #111; border: 2px solid #333; border-radius: 15px; padding: 30px; width: 100%; max-width: 650px; box-shadow: 0 10px 30px rgba(0,0,0,0.8); }
+        .list-container.wide { max-width: 850px; }
+        .list-title { color: #ffe800; font-weight: 900; font-size: 1.1rem; text-transform: uppercase; margin-bottom: 15px; border-bottom: 1px solid #333; padding-bottom: 10px; }
+        .fb-item { background: #0a0a0a; border: 1px solid #222; border-radius: 10px; padding: 15px; margin-bottom: 10px; }
+        .fb-item-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; margin-bottom: 8px; flex-wrap: wrap; }
+        .fb-item-type { color: #fff; font-weight: 900; font-size: 0.8rem; }
+        .fb-item-meta { color: #666; font-size: 0.65rem; font-weight: 700; }
+        .fb-item-msg { color: #ccc; font-size: 0.8rem; line-height: 1.4; margin-bottom: 8px; }
+        .fb-status { display: inline-block; padding: 4px 10px; border-radius: 15px; font-size: 0.6rem; font-weight: 900; text-transform: uppercase; }
+        .fb-status.status-nowe { background: rgba(255,232,0,0.15); color: #ffe800; border: 1px solid #ffe800; }
+        .fb-status.status-w-trakcie { background: rgba(52,152,219,0.15); color: #3498db; border: 1px solid #3498db; }
+        .fb-status.status-rozwiazane { background: rgba(0,170,0,0.15); color: #0a0; border: 1px solid #0a0; }
+        .fb-item-thumb { width: 60px; height: 60px; object-fit: cover; border-radius: 8px; border: 1px solid #333; margin-top: 8px; cursor: pointer; }
+        .fb-status-select { background: #000; border: 1px solid #444; color: #fff; padding: 5px 8px; border-radius: 6px; font-size: 0.65rem; font-weight: 700; outline: none; }
+
+        #globalNotificationModal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 15000; align-items: center; justify-content: center; padding: 20px; backdrop-filter: blur(5px); }
+        #popupBox { background: #0a0a0a; border: 3px solid #ffe800; padding: 30px; width: 100%; max-width: 500px; border-radius: 15px; text-align: center; box-shadow: 0 0 30px rgba(0,0,0,0.5); }
+        #globalPopupTitle { margin-bottom: 15px; font-size: 1.3rem; text-transform: uppercase; font-weight: 900; }
+        #globalPopupMsg { color: #fff; font-size: 1rem; margin-bottom: 25px; line-height: 1.5; font-weight: 700; }
+        .btn-close-popup { width: 100%; background: #ffe800; color: #000; border: none; padding: 12px 20px; font-weight: 900; border-radius: 8px; cursor: pointer; text-transform: uppercase; transition: 0.2s; }
+        .btn-close-popup:hover { transform: scale(1.02); }
+
+        /* IDLE WARNING - spojne z reszta aplikacji */
+        #idleWarningModal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.92); z-index: 20000; align-items: center; justify-content: center; padding: 20px; backdrop-filter: blur(5px); }
+        #idleWarningModal .modal-box { background: #0a0a0a; border: 3px solid #f44; padding: 30px; width: 100%; max-width: 380px; border-radius: 15px; text-align: center; box-shadow: 0 0 30px rgba(255,68,68,0.25); }
+        #idleCountdown { color: #f44; font-size: 2.5rem; font-weight: 900; margin: 15px 0; }
     </style>
 </head>
 <body>
@@ -123,10 +166,11 @@
         <a href="index.html" class="sidebar-link">Strona główna</a>
         <a href="plan.html" class="sidebar-link">Plan pracy</a>
         <a href="inwa.html" class="sidebar-link">Inwentury</a>
-        <a href="inwak.html" class="sidebar-link" id="navInwaKSS">Inwentury (ME/KSS)</a>
+        <a href="inwak.html" class="sidebar-link" id="navInwaKSS">Inwentury (ME/KSS) <span id="kssAlertBadge"></span></a>
         <a href="azs.html" class="sidebar-link">AZS (Agenda Zadań)</a>
         <a href="kwt.html" class="sidebar-link">KWT</a>
-        <a href="feedback.html" class="sidebar-feedback">💡 Zgłoś problem / Pomysł</a>
+        <a href="kierownik.html" class="sidebar-link" id="navKierownik">Centrum Dowodzenia</a>
+        <a href="feedback.html" class="sidebar-feedback" style="color:#ffe800; background:#1a1a1a;">💡 Zgłoś problem / Pomysł</a>
     </div>
     
     <div class="user-profile" onclick="window.location.href='ustawienia.html'">
@@ -157,10 +201,30 @@
 
         <div class="form-group">
             <label>Opis zgłoszenia:</label>
-            <textarea id="fbMessage" placeholder="Opisz dokładnie swój problem lub pomysł... Im więcej szczegółów podasz (np. jaki błąd wyskoczył, czyjej inwentury dotyczy, jakich dni brakuje na grafiku), tym szybciej i łatwiej będzie wprowadzić poprawki!"></textarea>
+            <textarea id="fbMessage" placeholder="Opisz dokładnie swój problem lub pomysł... Im więcej szczegółów podasz (np. jaki błąd wyskoczył, czyjej inwentury dotyczy, jakich dni brakuje na grafiku), tym szybciej i łatwiej będzie wprowadzić poprawki!" oninput="updateCharCounter()"></textarea>
+            <div class="char-counter" id="charCounter">0 / 20 znaków minimum</div>
+
+            <div class="attachment-row">
+                <input type="file" id="fbAttachmentInput" accept="image/*" style="display:none;" onchange="handleAttachmentUpload(event)">
+                <button type="button" class="btn-attach" onclick="document.getElementById('fbAttachmentInput').click()">📎 DOŁĄCZ ZRZUT EKRANU</button>
+                <img id="attachmentPreview" class="attachment-preview">
+                <button type="button" class="btn-remove-attach" id="btnRemoveAttach" onclick="removeAttachment()">USUŃ</button>
+            </div>
         </div>
 
         <button class="btn-submit" id="submitBtn" onclick="sendFeedback()">WYŚLIJ ZGŁOSZENIE DO DEWELOPERA</button>
+    </div>
+
+    <!-- HISTORIA WLASNYCH ZGLOSZEN -->
+    <div class="list-container">
+        <div class="list-title">📜 TWOJE ZGŁOSZENIA</div>
+        <div id="myFeedbackList"><div style="color:#666; font-size:0.8rem; text-align:center; padding:10px;">Wczytywanie...</div></div>
+    </div>
+
+    <!-- PANEL PODGLADU DLA ME/KSS -->
+    <div class="list-container wide" id="managerFeedbackPanel" style="display:none;">
+        <div class="list-title">🗂️ WSZYSTKIE ZGŁOSZENIA ZE SKLEPU (PANEL ME/KSS)</div>
+        <div id="allFeedbackList"><div style="color:#666; font-size:0.8rem; text-align:center; padding:10px;">Wczytywanie...</div></div>
     </div>
 </div>
 
@@ -173,8 +237,31 @@
     </div>
 </div>
 
+<div id="globalNotificationModal">
+    <div id="popupBox">
+        <h3 id="globalPopupTitle">POWIADOMIENIE</h3>
+        <p id="globalPopupMsg"></p>
+        <button class="btn-close-popup" onclick="closeGlobalPopup()">ZROZUMIAŁEM</button>
+    </div>
+</div>
+
+<div id="idleWarningModal">
+    <div class="modal-box">
+        <h2 style="color:#f44; font-weight:900; text-transform:uppercase;">Nadal tam jesteś?</h2>
+        <p style="color:#ccc; font-size:0.85rem; margin-top:10px;">Z powodu braku aktywności zostaniesz wylogowany za:</p>
+        <div id="idleCountdown">30</div>
+        <button class="btn-close-popup" onclick="pozostanZalogowany()">ZOSTAŃ ZALOGOWANY</button>
+    </div>
+</div>
+
 <script>
+    // NAPRAWA: pelna nazwa sklepu (numer + miasto) zamiast samego kodu, spojnie z reszta aplikacji
     document.getElementById('headerStore').innerText = myStore;
+    db.ref(`Stores/${myStore}/Setup`).once('value').then(snap => {
+        const setup = snap.val();
+        if (setup) document.getElementById('headerStore').innerText = `${setup.sNumber} ${setup.city}`;
+    });
+
     let finalDept = currentUser.dept; if (currentUser.isKss && currentUser.dept !== 'ME') finalDept = 'KSS';
     document.getElementById('sideName').innerText = `${currentUser.name} (${finalDept})`;
     
@@ -182,9 +269,68 @@
     const sideAvatarHtml = currentUser.avatar ? `<img src="${currentUser.avatar}" style="width:100%; height:100%; object-fit:cover; border-radius:50%;">` : currentUser.charId.charAt(0);
     document.getElementById('sideAvatar').innerHTML = sideAvatarHtml;
     
-    if (!isManagerOrKss) { document.getElementById('navInwaKSS').style.display = 'none'; }
+    // NAPRAWA: brakowalo ukrywania linku do Centrum Dowodzenia (ktorego wczesniej nawet nie bylo w menu)
+    if (!isManagerOrKss) {
+        document.getElementById('navInwaKSS').style.display = 'none';
+        document.getElementById('navKierownik').style.display = 'none';
+    } else {
+        document.getElementById('managerFeedbackPanel').style.display = 'block';
+    }
+
     function toggleNav() { document.getElementById('sidebar').classList.toggle('active'); document.getElementById('overlay').classList.toggle('active'); }
     function logout() { localStorage.removeItem('currentUser'); window.location.href = 'login.html'; }
+
+    // ==========================================
+    // LICZNIK ZNAKOW (minimum 20 znakow tresci)
+    // ==========================================
+    const MIN_FEEDBACK_LENGTH = 20;
+    function updateCharCounter() {
+        const len = document.getElementById('fbMessage').value.trim().length;
+        const counter = document.getElementById('charCounter');
+        if (len >= MIN_FEEDBACK_LENGTH) {
+            counter.className = 'char-counter ok';
+            counter.innerText = `${len} znaków ✓`;
+        } else {
+            counter.className = 'char-counter warn';
+            counter.innerText = `${len} / ${MIN_FEEDBACK_LENGTH} znaków minimum`;
+        }
+    }
+
+    // ==========================================
+    // ZALACZNIK (ZRZUT EKRANU) - kompresja do base64, tak jak awatar
+    // ==========================================
+    let attachmentDataUrl = null;
+    function handleAttachmentUpload(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const img = new Image();
+            img.onload = function() {
+                const canvas = document.createElement('canvas');
+                const MAX_W = 700;
+                const scale = Math.min(1, MAX_W / img.width);
+                canvas.width = img.width * scale;
+                canvas.height = img.height * scale;
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                attachmentDataUrl = canvas.toDataURL('image/jpeg', 0.7);
+
+                const preview = document.getElementById('attachmentPreview');
+                preview.src = attachmentDataUrl;
+                preview.style.display = 'block';
+                document.getElementById('btnRemoveAttach').style.display = 'inline-block';
+            };
+            img.src = e.target.result;
+        };
+        reader.readAsDataURL(file);
+    }
+    function removeAttachment() {
+        attachmentDataUrl = null;
+        document.getElementById('fbAttachmentInput').value = '';
+        document.getElementById('attachmentPreview').style.display = 'none';
+        document.getElementById('btnRemoveAttach').style.display = 'none';
+    }
 
     function sendFeedback() {
         const type = document.getElementById('fbType').value;
@@ -193,6 +339,11 @@
 
         if (!msg) {
             alert('Proszę, wpisz treść wiadomości przed wysłaniem!');
+            return;
+        }
+        // NAPRAWA/NOWE: wymagana minimalna dlugosc opisu, zeby ograniczyc zglaszanie jednym slowem
+        if (msg.length < MIN_FEEDBACK_LENGTH) {
+            alert(`Opisz zgłoszenie trochę dokładniej — potrzeba minimum ${MIN_FEEDBACK_LENGTH} znaków (masz ${msg.length}).`);
             return;
         }
 
@@ -210,13 +361,17 @@
             type: type,
             message: msg,
             time: timeStr,
-            timestamp: Date.now()
+            timestamp: Date.now(),
+            status: 'nowe'
         };
+        if (attachmentDataUrl) feedbackData.attachment = attachmentDataUrl;
 
         db.ref(`Stores/${myStore}/Feedback`).push(feedbackData)
             .then(() => {
                 document.getElementById('successModal').style.display = 'flex';
                 document.getElementById('fbMessage').value = '';
+                removeAttachment();
+                updateCharCounter();
                 btn.disabled = false;
                 btn.innerText = "WYŚLIJ ZGŁOSZENIE DO DEWELOPERA";
             })
@@ -228,40 +383,178 @@
     }
 
     function closeSuccessModal() { document.getElementById('successModal').style.display = 'none'; }
-</script>
-<script>
-    // Ustaw czas bezczynności w minutach
-    const minutyBezczynnosci = 5; 
-    
-    // Przeliczenie na milisekundy
-    const limitCzasu = minutyBezczynnosci * 60 * 1000; 
-    let timerBezczynnosci;
 
-    // Funkcja resetująca licznik
-    function resetujTimer() {
-        clearTimeout(timerBezczynnosci);
-        timerBezczynnosci = setTimeout(wylogujZPowoduBezczynnosci, limitCzasu);
+    // ==========================================
+    // HISTORIA WLASNYCH ZGLOSZEN
+    // ==========================================
+    const statusLabels = { 'nowe': 'Nowe', 'w-trakcie': 'W trakcie', 'rozwiazane': 'Rozwiązane' };
+
+    function loadMyFeedback() {
+        db.ref(`Stores/${myStore}/Feedback`).orderByChild('authorId').equalTo(currentUser.charId).on('value', snap => {
+            const data = snap.val() || {};
+            const arr = Object.values(data).sort((a,b) => b.timestamp - a.timestamp);
+            const container = document.getElementById('myFeedbackList');
+
+            if (arr.length === 0) { container.innerHTML = '<div style="color:#666; font-size:0.8rem; text-align:center; padding:10px;">Nie wysłałeś jeszcze żadnego zgłoszenia.</div>'; return; }
+
+            container.innerHTML = arr.map(f => {
+                const status = f.status || 'nowe';
+                const statusClass = 'status-' + status.replace('_', '-');
+                const thumb = f.attachment ? `<img src="${f.attachment}" class="fb-item-thumb" onclick="window.open('${f.attachment}')">` : '';
+                return `<div class="fb-item">
+                    <div class="fb-item-header">
+                        <span class="fb-item-type">${f.type}</span>
+                        <span class="fb-status ${statusClass}">${statusLabels[status] || status}</span>
+                    </div>
+                    <div class="fb-item-msg">${f.message}</div>
+                    <div class="fb-item-meta">${f.time}</div>
+                    ${thumb}
+                </div>`;
+            }).join('');
+        });
+    }
+    loadMyFeedback();
+
+    // ==========================================
+    // PANEL PODGLADU WSZYSTKICH ZGLOSZEN (ME/KSS)
+    // ==========================================
+    function loadAllFeedback() {
+        if (!isManagerOrKss) return;
+        db.ref(`Stores/${myStore}/Feedback`).on('value', snap => {
+            const data = snap.val() || {};
+            const arr = Object.entries(data).map(([key, val]) => ({ key, ...val })).sort((a,b) => b.timestamp - a.timestamp);
+            const container = document.getElementById('allFeedbackList');
+
+            if (arr.length === 0) { container.innerHTML = '<div style="color:#666; font-size:0.8rem; text-align:center; padding:10px;">Brak zgłoszeń w tym sklepie.</div>'; return; }
+
+            container.innerHTML = arr.map(f => {
+                const status = f.status || 'nowe';
+                const thumb = f.attachment ? `<img src="${f.attachment}" class="fb-item-thumb" onclick="window.open('${f.attachment}')">` : '';
+                return `<div class="fb-item">
+                    <div class="fb-item-header">
+                        <span class="fb-item-type">${f.type} <span style="color:#888; font-weight:700;">— ${f.authorName} (${f.authorDept})</span></span>
+                        <select class="fb-status-select" onchange="updateFeedbackStatus('${f.key}', this.value)">
+                            <option value="nowe" ${status==='nowe'?'selected':''}>Nowe</option>
+                            <option value="w-trakcie" ${status==='w-trakcie'?'selected':''}>W trakcie</option>
+                            <option value="rozwiazane" ${status==='rozwiazane'?'selected':''}>Rozwiązane</option>
+                        </select>
+                    </div>
+                    <div class="fb-item-msg">${f.message}</div>
+                    <div class="fb-item-meta">${f.time}</div>
+                    ${thumb}
+                </div>`;
+            }).join('');
+        });
+    }
+    loadAllFeedback();
+
+    function updateFeedbackStatus(key, newStatus) {
+        db.ref(`Stores/${myStore}/Feedback/${key}`).update({ status: newStatus });
     }
 
-    // Funkcja wylogowująca
+    // ==========================================
+    // SYSTEM POWIADOMIEŃ GLOBALNYCH + WYKRZYKNIK KSS
+    // NAPRAWA: ta strona nie mial w ogole modala powiadomien ani nasluchu Notifications -
+    // pracownik na tej stronie nie widzialby pilnych komunikatow od kierownika.
+    // ==========================================
+    if (typeof db !== 'undefined' && typeof currentUser !== 'undefined') {
+        const isManagerOrKssGlobal = (currentUser.dept === 'ME' || currentUser.isKss);
+
+        db.ref(`Stores/${myStore}/Notifications`).on('value', snap => {
+            let notifsObj = snap.val() || {};
+            let notifs = Object.keys(notifsObj).map(key => ({ keyId: key, ...notifsObj[key] }));
+
+            let myUnread = notifs.filter(n => !n.read && (n.to === currentUser.charId || (n.to === 'KSS' && isManagerOrKssGlobal)));
+
+            if (myUnread.length > 0) {
+                let n = myUnread[0];
+                document.getElementById('globalPopupTitle').innerText = n.title;
+                document.getElementById('globalPopupMsg').innerText = n.msg;
+                document.getElementById('globalNotificationModal').style.display = 'flex';
+
+                let box = document.getElementById('popupBox');
+                if(n.type === 'success') { box.style.borderColor = '#0a0'; document.getElementById('globalPopupTitle').style.color = '#0a0'; }
+                else if(n.type === 'error') { box.style.borderColor = '#f44'; document.getElementById('globalPopupTitle').style.color = '#f44'; }
+                else { box.style.borderColor = '#ffe800'; document.getElementById('globalPopupTitle').style.color = '#ffe800'; }
+
+                db.ref(`Stores/${myStore}/Notifications/${n.keyId}`).update({ read: true });
+            }
+        });
+
+        if (isManagerOrKssGlobal) {
+            db.ref(`Stores/${myStore}/Inwentury`).on('value', snap => {
+                let allInwa = snap.val() || {};
+                let hasAwaiting = false;
+
+                Object.keys(allInwa).forEach(monthKey => {
+                    let monthData = allInwa[monthKey] || {};
+                    Object.values(monthData).forEach(item => {
+                        if (item.status === 'awaiting_kss') {
+                            hasAwaiting = true;
+                        }
+                    });
+                });
+
+                let badge = document.getElementById('kssAlertBadge');
+                if(badge) badge.innerHTML = hasAwaiting ? `<span class="nav-alert">[!]</span>` : '';
+            });
+        }
+    }
+
+    function closeGlobalPopup() { document.getElementById('globalNotificationModal').style.display = 'none'; }
+
+    // ==========================================
+    // SYSTEM AUTOWYLOGOWANIA (Z OSTRZEŻENIEM PRZED WYLOGOWANIEM)
+    // NAPRAWA: dodane 30-sekundowe ostrzezenie zamiast natychmiastowego wylogowania -
+    // spojne z zachowaniem na pozostalych stronach aplikacji.
+    // ==========================================
+    const minutyBezczynnosci = 5;
+    const sekundOstrzezenia = 30;
+    const limitCzasu = (minutyBezczynnosci * 60 - sekundOstrzezenia) * 1000;
+    let timerBezczynnosci;
+    let countdownInterval;
+    let ostrzezenieAktywne = false;
+
+    function resetujTimer() {
+        if (ostrzezenieAktywne) return;
+        clearTimeout(timerBezczynnosci);
+        timerBezczynnosci = setTimeout(pokazOstrzezenie, limitCzasu);
+    }
+
+    function pokazOstrzezenie() {
+        ostrzezenieAktywne = true;
+        let secondsLeft = sekundOstrzezenia;
+        document.getElementById('idleCountdown').innerText = secondsLeft;
+        document.getElementById('idleWarningModal').style.display = 'flex';
+
+        countdownInterval = setInterval(() => {
+            secondsLeft--;
+            document.getElementById('idleCountdown').innerText = secondsLeft;
+            if (secondsLeft <= 0) {
+                clearInterval(countdownInterval);
+                wylogujZPowoduBezczynnosci();
+            }
+        }, 1000);
+    }
+
+    function pozostanZalogowany() {
+        ostrzezenieAktywne = false;
+        clearInterval(countdownInterval);
+        document.getElementById('idleWarningModal').style.display = 'none';
+        resetujTimer();
+    }
+
     function wylogujZPowoduBezczynnosci() {
-        // Usuwamy dane sesji
         localStorage.removeItem('currentUser');
-        // Zapisujemy powód wylogowania, żeby strona logowania mogła pokazać komunikat
         sessionStorage.setItem('powodWylogowania', 'bezczynnosc');
-        // Wyrzucamy do logowania
         window.location.href = 'login.html';
     }
 
-    // Lista akcji, które oznaczają, że użytkownik żyje i coś robi na stronie
     const akcjeUzytkownika = ['mousemove', 'keydown', 'click', 'scroll', 'touchstart'];
-
-    // Podpinamy resetowanie timera pod każdy ruch użytkownika
     akcjeUzytkownika.forEach(akcja => {
         document.addEventListener(akcja, resetujTimer, { passive: true });
     });
 
-    // Uruchamiamy timer przy pierwszym załadowaniu strony
     resetujTimer();
 </script>
 </body>

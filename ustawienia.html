@@ -92,6 +92,22 @@
         .btn-remove-avatar { background: transparent; border: 1px solid #f44; color: #f44; padding: 8px 14px; border-radius: 8px; font-weight: 900; font-size: 0.65rem; cursor: pointer; text-transform: uppercase; transition: 0.2s; align-self: flex-start; margin-top: 6px; }
         .btn-remove-avatar:hover { background: #f44; color: #000; }
 
+        /* SZYBKIE SKROTY */
+        .shortcuts-list { display: flex; flex-direction: column; gap: 10px; }
+        .shortcut-link { display: block; background: #0a0a0a; border: 1px solid #333; color: #fff; padding: 14px 16px; border-radius: 8px; font-weight: 800; font-size: 0.9rem; text-decoration: none; transition: 0.2s; }
+        .shortcut-link:hover { border-color: #ffe800; background: #151515; color: #ffe800; }
+
+        /* TWOJE DANE W SKROCIE */
+        .mini-stats-row { display: flex; gap: 15px; }
+        .mini-stat-box { flex: 1; background: #0a0a0a; border: 1px solid #333; border-radius: 10px; padding: 16px; text-align: center; }
+        .mini-stat-value { font-size: 1.6rem; font-weight: 900; color: #ffe800; }
+        .mini-stat-label { font-size: 0.65rem; color: #888; font-weight: 800; text-transform: uppercase; margin-top: 4px; }
+
+        /* PERSONALIZACJA - KOLOR AWATARA */
+        .color-swatch-row { display: flex; gap: 12px; flex-wrap: wrap; }
+        .color-swatch { width: 38px; height: 38px; border-radius: 50%; cursor: pointer; border: 3px solid transparent; transition: 0.2s; }
+        .color-swatch.active { border-color: #fff; transform: scale(1.1); }
+
         /* POLE HASLA Z IKONA OKA */
         .password-wrap { position: relative; }
         .password-wrap .form-input { padding-right: 44px; }
@@ -223,6 +239,46 @@
                 <div id="passMsg" class="msg-box"></div>
                 <button class="btn-action" onclick="changePassword()" id="btnSavePass">Zaktualizuj Hasło</button>
             </div>
+
+            <!-- SZYBKIE SKRÓTY -->
+            <div class="card">
+                <div class="card-title">Szybkie skróty</div>
+                <div class="shortcuts-list">
+                    <a href="plan.html" class="shortcut-link">📅 Zobacz mój grafik</a>
+                    <a href="inwa.html" class="shortcut-link">📦 Moje inwentury</a>
+                    <a href="index.html" class="shortcut-link">🏠 Strona główna</a>
+                </div>
+            </div>
+
+            <!-- TWOJE DANE W SKRÓCIE -->
+            <div class="card">
+                <div class="card-title">Twoje dane w skrócie <span id="quickStatsMonth" style="font-size:0.6rem; color:#888; text-transform:none; font-weight:normal;"></span></div>
+                <div class="mini-stats-row">
+                    <div class="mini-stat-box">
+                        <div class="mini-stat-value" id="statWorkedDays">-</div>
+                        <div class="mini-stat-label">Dni przepracowanych</div>
+                    </div>
+                    <div class="mini-stat-box">
+                        <div class="mini-stat-value" id="statAcceptedInwa">-</div>
+                        <div class="mini-stat-label">Zaakceptowanych inwentur</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PERSONALIZACJA -->
+            <div class="card">
+                <div class="card-title">Personalizacja</div>
+                <p style="font-size: 0.8rem; color: #888; margin-top:-10px;">Wybierz kolor obramowania swojego awatara.</p>
+                <div class="color-swatch-row" id="colorSwatchRow"></div>
+            </div>
+
+            <!-- AKTYWNOŚĆ KONTA -->
+            <div class="card">
+                <div class="card-title">Aktywność konta</div>
+                <p style="font-size: 0.8rem; color: #ccc;">Poprzednie logowanie:</p>
+                <p style="font-size: 1rem; color: #ffe800; font-weight: 900;" id="previousLoginText">Wczytywanie...</p>
+                <p style="font-size: 0.7rem; color: #666; margin-top: 5px;">Jeśli ta data/godzina wygląda podejrzanie (nie byłeś wtedy zalogowany), zgłoś to kierownikowi i zmień hasło.</p>
+            </div>
             
         </div>
     </div>
@@ -268,8 +324,77 @@
         document.getElementById('profileAvatar').innerHTML = avatarHtml;
         document.getElementById('sideAvatar').innerHTML = avatarHtml;
         document.getElementById('btnRemoveAvatar').style.display = hasAvatar ? 'inline-block' : 'none';
+
+        // NOWE: kolor obramowania wlasnego awatara (personalizacja)
+        const borderColor = currentUser.avatarColor || '#ffe800';
+        document.getElementById('profileAvatar').style.borderColor = borderColor;
+        document.getElementById('sideAvatar').style.borderColor = borderColor;
     }
     renderAvatars();
+
+    // ==========================================
+    // PERSONALIZACJA - KOLOR OBRAMOWANIA AWATARA
+    // ==========================================
+    const avatarColorOptions = ['#ffe800', '#f44', '#0a0', '#3498db', '#9b59b6', '#ffa502', '#1abc9c', '#e84393'];
+    function renderColorSwatches() {
+        const row = document.getElementById('colorSwatchRow');
+        const current = currentUser.avatarColor || '#ffe800';
+        row.innerHTML = avatarColorOptions.map(c => 
+            `<div class="color-swatch ${c === current ? 'active' : ''}" style="background:${c};" onclick="setAvatarColor('${c}')"></div>`
+        ).join('');
+    }
+    renderColorSwatches();
+
+    function setAvatarColor(color) {
+        currentUser.avatarColor = color;
+        localStorage.setItem('currentUser', JSON.stringify(currentUser));
+        renderAvatars();
+        renderColorSwatches();
+        db.ref(`Stores/${myStore}/Users/${currentUser.charId}`).update({ avatarColor: color });
+    }
+
+    // ==========================================
+    // TWOJE DANE W SKRÓCIE (dni przepracowane + zaakceptowane inwentury w tym miesiacu)
+    // ==========================================
+    function loadQuickStats() {
+        const now = new Date();
+        const year = now.getFullYear();
+        const mIndex = now.getMonth();
+        const months = ["STYCZEŃ", "LUTY", "MARZEC", "KWIECIEŃ", "MAJ", "CZERWIEC", "LIPIEC", "SIERPIEŃ", "WRZESIEŃ", "PAŹDZIERNIK", "LISTOPAD", "GRUDZIEŃ"];
+        document.getElementById('quickStatsMonth').innerText = `(${months[mIndex]} ${year})`;
+
+        db.ref(`Stores/${myStore}/Plan/${year}_${mIndex}`).once('value', snap => {
+            const planData = snap.val() || {};
+            const daysInMonth = new Date(year, mIndex + 1, 0).getDate();
+            let workedDays = 0;
+            for (let d = 1; d <= daysInMonth; d++) {
+                let shift = (planData[`${currentUser.charId}_${d}`] || "").split('|')[0] || "";
+                if (shift.includes('-')) workedDays++;
+            }
+            document.getElementById('statWorkedDays').innerText = workedDays;
+        });
+
+        db.ref(`Stores/${myStore}/Inwentury/${year}_${mIndex}`).once('value', snap => {
+            const items = snap.val() || {};
+            const accepted = Object.values(items).filter(i => i.submitterId === currentUser.charId && i.status === 'done').length;
+            document.getElementById('statAcceptedInwa').innerText = accepted;
+        });
+    }
+    loadQuickStats();
+
+    // ==========================================
+    // AKTYWNOŚĆ KONTA - poprzednie logowanie
+    // ==========================================
+    function loadPreviousLogin() {
+        db.ref(`Stores/${myStore}/Users/${currentUser.charId}/previousLogin`).once('value', snap => {
+            const ts = snap.val();
+            const el = document.getElementById('previousLoginText');
+            if (!ts) { el.innerText = "Brak wcześniejszych logowań"; return; }
+            const d = new Date(ts);
+            el.innerText = d.toLocaleDateString('pl-PL') + ', godz. ' + d.toLocaleTimeString('pl-PL', {hour:'2-digit', minute:'2-digit'});
+        });
+    }
+    loadPreviousLogin();
 
     db.ref(`Stores/${myStore}/Users/${currentUser.charId}`).once('value', snap => {
         const userData = snap.val() || {};

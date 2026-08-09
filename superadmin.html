@@ -54,8 +54,8 @@
         .btn-logout { background: transparent; border: 1px solid #666; color: #888; padding: 10px 15px; border-radius: 8px; font-weight: bold; cursor: pointer; transition: 0.3s; }
         .btn-logout:hover { color: #fff; border-color: #fff; }
 
-        .admin-grid { display: grid; grid-template-columns: 1fr 1.5fr; gap: 20px; align-items: start; margin-bottom: 20px; }
-        @media(max-width: 1000px) { .admin-grid { grid-template-columns: 1fr; } }
+        .admin-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; align-items: start; margin-bottom: 20px; }
+        @media(max-width: 900px) { .admin-grid { grid-template-columns: 1fr; } }
 
         .panel-card { background: #111; border: 1px solid #333; padding: 25px; border-radius: 12px; display: flex; flex-direction: column; }
         .panel-title { color: #f44; font-weight: 900; font-size: 1.2rem; border-bottom: 1px solid #222; padding-bottom: 10px; margin-bottom: 20px; text-transform: uppercase; }
@@ -65,15 +65,6 @@
         .msg-box { padding: 10px; border-radius: 5px; font-size: 0.8rem; font-weight: bold; text-align: center; display: none; margin-bottom: 15px; }
         .msg-success { background: rgba(0, 170, 0, 0.2); border: 1px solid #0a0; color: #0a0; display: block; }
 
-        /* GRID DLA MIESIĘCY */
-        .months-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 20px; }
-        @media(max-width: 600px) { .months-grid { grid-template-columns: repeat(3, 1fr); } }
-        @media(max-width: 400px) { .months-grid { grid-template-columns: repeat(2, 1fr); } }
-        
-        .month-input-box label { font-size: 0.65rem; color: #888; font-weight: 900; text-transform: uppercase; display: block; margin-bottom: 4px; text-align: center; }
-        .month-input-box input { width: 100%; background: #000; border: 1px solid #444; color: #fff; padding: 10px; border-radius: 6px; font-size: 0.9rem; font-weight: bold; text-align: center; outline: none; }
-        .month-input-box input:focus { border-color: #0a0; }
-        
         /* CZEKBOX */
         .custom-checkbox { display: flex; align-items: center; gap: 10px; cursor: pointer; font-size: 0.85rem; font-weight: bold; color: #fff; margin-bottom: 15px; }
         .custom-checkbox input { width: 20px; height: 20px; cursor: pointer; accent-color: #f44; }
@@ -164,53 +155,38 @@
     </div>
 
     <div class="admin-grid">
-        
-        <div style="display: flex; flex-direction: column; gap: 20px;">
-            <div class="panel-card">
-                <div class="panel-title">Generator Dostępów</div>
-                <p style="font-size:0.75rem; color:#888; margin-bottom:15px; line-height:1.4;">Wygeneruj jednorazowy kod (OTP) dla nowego Kierownika Sklepu.</p>
-                <button class="btn-action" onclick="generateToken()">GENERUJ KOD OTP</button>
-                <div class="token-display" id="tokenDisplay">------</div>
-
-                <div style="margin-top:20px; border-top:1px solid #222; padding-top:15px;">
-                    <label style="font-size:0.65rem; color:#888; font-weight:900; text-transform:uppercase; display:block; margin-bottom:10px;">Niewykorzystane kody:</label>
-                    <div id="tokensList"><div style="color:#666; font-size:0.75rem;">Wczytywanie...</div></div>
-                </div>
-            </div>
-
-            <div class="panel-card" style="border-color: #ffe800;">
-                <div class="panel-title" style="color: #ffe800;">Popup Informacyjny (Wiadomość Dnia)</div>
-                <p style="font-size:0.75rem; color:#888; margin-bottom:15px; line-height:1.4;">Ten komunikat wyskoczy jako okienko u każdego pracownika po wejściu na stronę (raz dziennie).</p>
-                
-                <div class="input-group">
-                    <label>Tytuł Komunikatu</label>
-                    <input type="text" class="form-input" id="globalMsgTitle" placeholder="np. AKTUALIZACJA SYSTEMU">
-                </div>
-                <div class="input-group">
-                    <label>Treść wiadomości</label>
-                    <textarea class="form-input" id="globalMsgText" rows="4" placeholder="Wpisz ważny komunikat dla całej sieci..."></textarea>
-                </div>
-                
-                <label class="custom-checkbox">
-                    <input type="checkbox" id="globalMsgActive"> Aktywuj wyświetlanie powiadomienia na sklepach
-                </label>
-
-                <div id="msgStatus" class="msg-box msg-success" style="display:none;">Zapisano i zaktualizowano!</div>
-                <button class="btn-action" style="background:#ffe800; color:#000;" onclick="saveGlobalMessage()">ZAPISZ POWIADOMIENIE</button>
-            </div>
-        </div>
-
         <div class="panel-card">
-            <div class="panel-title" id="normsPanelTitle">Normy Godzinowe</div>
-            <p style="font-size:0.75rem; color:#888; margin-bottom:15px; line-height:1.4;">Ustal normę na każdy miesiąc z góry. Aplikacje we wszystkich sklepach będą automatycznie zaciągać te liczby do generatora grafiku.</p>
-            
-            <div class="months-grid" id="monthsGrid">
-                </div>
+            <div class="panel-title">Generator Dostępów</div>
+            <p style="font-size:0.75rem; color:#888; margin-bottom:15px; line-height:1.4;">Wygeneruj jednorazowy kod (OTP) dla nowego Kierownika Sklepu.</p>
+            <button class="btn-action" onclick="generateToken()">GENERUJ KOD OTP</button>
+            <div class="token-display" id="tokenDisplay">------</div>
 
-            <div id="normsStatus" class="msg-box msg-success" style="display:none;">Zapisano normy dla całego roku!</div>
-            <button class="btn-action" style="background:#0a0; color:#fff;" onclick="saveGlobalNorms()">ZAPISZ NORMY MIESIĘCZNE</button>
+            <div style="margin-top:20px; border-top:1px solid #222; padding-top:15px;">
+                <label style="font-size:0.65rem; color:#888; font-weight:900; text-transform:uppercase; display:block; margin-bottom:10px;">Niewykorzystane kody:</label>
+                <div id="tokensList"><div style="color:#666; font-size:0.75rem;">Wczytywanie...</div></div>
+            </div>
         </div>
 
+        <div class="panel-card" style="border-color: #ffe800;">
+            <div class="panel-title" style="color: #ffe800;">Popup Informacyjny (Wiadomość Dnia)</div>
+            <p style="font-size:0.75rem; color:#888; margin-bottom:15px; line-height:1.4;">Ten komunikat wyskoczy jako okienko u każdego pracownika po wejściu na stronę (raz dziennie).</p>
+            
+            <div class="input-group">
+                <label>Tytuł Komunikatu</label>
+                <input type="text" class="form-input" id="globalMsgTitle" placeholder="np. AKTUALIZACJA SYSTEMU">
+            </div>
+            <div class="input-group">
+                <label>Treść wiadomości</label>
+                <textarea class="form-input" id="globalMsgText" rows="4" placeholder="Wpisz ważny komunikat dla całej sieci..."></textarea>
+            </div>
+            
+            <label class="custom-checkbox">
+                <input type="checkbox" id="globalMsgActive"> Aktywuj wyświetlanie powiadomienia na sklepach
+            </label>
+
+            <div id="msgStatus" class="msg-box msg-success" style="display:none;">Zapisano i zaktualizowano!</div>
+            <button class="btn-action" style="background:#ffe800; color:#000;" onclick="saveGlobalMessage()">ZAPISZ POWIADOMIENIE</button>
+        </div>
     </div>
 
     <div class="panel-card" style="margin-top: 20px;">
@@ -270,10 +246,6 @@
 </div>
 
 <script>
-    const monthNames = ["Styczeń", "Luty", "Marzec", "Kwiecień", "Maj", "Czerwiec", "Lipiec", "Sierpień", "Wrzesień", "Październik", "Listopad", "Grudzień"];
-    const currentYear = new Date().getFullYear();
-    document.getElementById('normsPanelTitle').innerText = `Normy Godzinowe (Rok ${currentYear})`;
-
     let allStoresCache = {};
 
     // ==========================================
@@ -322,23 +294,9 @@
         document.getElementById('loginBtn').innerText = "ZALOGUJ SIĘ";
     }
 
-    function buildMonthsGrid() {
-        let html = '';
-        monthNames.forEach((m, idx) => {
-            html += `
-            <div class="month-input-box">
-                <label>${m}</label>
-                <input type="number" id="norm_${idx}" placeholder="160">
-            </div>`;
-        });
-        document.getElementById('monthsGrid').innerHTML = html;
-    }
-
     function showDashboard() {
         document.getElementById('loginScreen').style.display = 'none';
         document.getElementById('adminDashboard').style.display = 'block';
-
-        buildMonthsGrid();
 
         // Pobieranie ustawień z bazy
         db.ref('Admin/Settings').on('value', snap => {
@@ -348,16 +306,6 @@
                 document.getElementById('globalMsgTitle').value = data.Announcement.title || '';
                 document.getElementById('globalMsgText').value = data.Announcement.text || '';
                 document.getElementById('globalMsgActive').checked = data.Announcement.active || false;
-            }
-            
-            if(data.Norms) {
-                for(let i=0; i<12; i++) {
-                    if(document.getElementById(`norm_${i}`) && data.Norms[i] !== undefined) {
-                        document.getElementById(`norm_${i}`).value = data.Norms[i];
-                    }
-                }
-            } else {
-                for(let i=0; i<12; i++) { document.getElementById(`norm_${i}`).value = 160; }
             }
         });
 
@@ -417,20 +365,6 @@
             updatedAt: Date.now() 
         }).then(() => {
             const box = document.getElementById('msgStatus');
-            box.style.display = 'block';
-            setTimeout(() => box.style.display = 'none', 3000);
-        });
-    }
-
-    function saveGlobalNorms() {
-        let normsObj = {};
-        for(let i=0; i<12; i++) {
-            let val = parseInt(document.getElementById(`norm_${i}`).value);
-            normsObj[i] = isNaN(val) ? 160 : val;
-        }
-
-        db.ref('Admin/Settings/Norms').set(normsObj).then(() => {
-            const box = document.getElementById('normsStatus');
             box.style.display = 'block';
             setTimeout(() => box.style.display = 'none', 3000);
         });

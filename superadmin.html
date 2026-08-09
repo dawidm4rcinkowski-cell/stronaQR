@@ -9,6 +9,7 @@
 
     <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-auth-compat.js"></script>
 
     <script>
         const firebaseConfig = {
@@ -22,6 +23,7 @@
         };
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
+        const auth = firebase.auth();
     </script>
 
     <style>
@@ -41,7 +43,11 @@
         .form-input { width: 100%; background: #000; border: 1px solid #444; color: #fff; padding: 15px; border-radius: 8px; font-size: 1rem; font-weight: bold; outline: none; transition: 0.3s; }
         .form-input:focus { border-color: #f44; box-shadow: 0 0 10px rgba(255, 68, 68, 0.3); }
         .btn-action { width: 100%; background: #f44; color: #000; border: none; padding: 15px; font-weight: 900; border-radius: 8px; cursor: pointer; text-transform: uppercase; margin-top: 10px; transition: 0.3s; font-size: 1rem; }
-        .btn-action:hover { background: #ff6666; transform: translateY(-2px); box-shadow: 0 5px 15px rgba(255, 68, 68, 0.4); }
+        .btn-action:hover:not(:disabled) { background: #ff6666; transform: translateY(-2px); box-shadow: 0 5px 15px rgba(255, 68, 68, 0.4); }
+        .btn-action:disabled { background: #333; color: #666; cursor: not-allowed; }
+
+        .login-msg { padding: 10px; border-radius: 5px; font-size: 0.8rem; font-weight: bold; text-align: center; display: none; margin-bottom: 15px; }
+        .login-msg.msg-error { background: rgba(255, 68, 68, 0.15); border: 1px solid #f44; color: #f44; display: block; }
 
         #adminDashboard { display: none; padding: 30px 20px; max-width: 1400px; margin: 0 auto; width: 100%; }
         .dashboard-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; flex-wrap: wrap; gap: 15px; }
@@ -73,6 +79,10 @@
         .custom-checkbox input { width: 20px; height: 20px; cursor: pointer; accent-color: #f44; }
 
         /* SKLEPY */
+        .stores-header-row { display:flex; justify-content:space-between; align-items:center; border-bottom: 1px solid #222; padding-bottom: 10px; margin-bottom: 20px; flex-wrap: wrap; gap: 15px; }
+        .store-search-input { background: #000; border: 1px solid #444; color: #fff; padding: 10px 16px; border-radius: 20px; font-size: 0.8rem; font-weight: bold; outline: none; width: 100%; max-width: 260px; }
+        .store-search-input:focus { border-color: #f44; }
+        .stores-summary { font-size: 0.7rem; color: #888; font-weight: 800; text-transform: uppercase; margin-bottom: 15px; }
         .stores-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 15px; }
         .store-item { background: #0a0a0a; border: 1px solid #222; padding: 20px; border-radius: 10px; display: flex; flex-direction: column; gap: 15px; transition: 0.3s; }
         .store-item:hover { border-color: #f44; background: #111; }
@@ -86,11 +96,24 @@
         .btn-del { background: transparent; color: #f44; border: 1px solid #f44; padding: 8px 12px; border-radius: 5px; font-weight: bold; cursor: pointer; font-size: 0.7rem; transition: 0.2s; }
         .btn-del:hover { background: #f44; color: #000; }
 
-        /* MODAL EDYCJI SKLEPU */
+        /* MODAL EDYCJI SKLEPU / USUWANIA / TOKENOW */
         .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 11000; align-items: center; justify-content: center; padding: 20px; backdrop-filter: blur(5px); }
         .modal-content { background: #111; border: 2px solid #f44; padding: 30px; width: 100%; max-width: 450px; border-radius: 15px; box-shadow: 0 0 30px rgba(255, 68, 68, 0.3); }
         .modal-content h3 { color: #f44; text-align: center; margin-bottom: 20px; text-transform: uppercase; font-weight: 900; }
         .modal-buttons { display: flex; gap: 10px; margin-top: 20px; }
+
+        /* LISTA TOKENOW OTP */
+        .token-item { display: flex; justify-content: space-between; align-items: center; background: #0a0a0a; border: 1px solid #222; border-radius: 8px; padding: 10px 15px; margin-bottom: 8px; }
+        .token-item-code { font-weight: 900; font-size: 1rem; color: #f44; letter-spacing: 2px; }
+        .token-item-date { font-size: 0.65rem; color: #888; font-weight: 700; }
+        .btn-token-del { background: transparent; border: 1px solid #f44; color: #f44; padding: 5px 10px; border-radius: 5px; font-weight: 900; font-size: 0.6rem; cursor: pointer; transition: 0.2s; }
+        .btn-token-del:hover { background: #f44; color: #000; }
+
+        /* STATYSTYKI SIECI */
+        .network-stats-row { display: flex; gap: 15px; margin-bottom: 20px; flex-wrap: wrap; }
+        .network-stat-box { flex: 1; min-width: 150px; background: #0a0a0a; border: 1px solid #333; border-radius: 10px; padding: 16px; text-align: center; }
+        .network-stat-value { font-size: 1.8rem; font-weight: 900; color: #f44; }
+        .network-stat-label { font-size: 0.65rem; color: #888; font-weight: 800; text-transform: uppercase; margin-top: 4px; }
     </style>
 </head>
 <body>
@@ -102,15 +125,16 @@
 <div class="login-container" id="loginScreen">
     <div class="login-box">
         <h2>PANEL LOGOWANIA</h2>
+        <div id="loginMsg" class="login-msg"></div>
         <div class="input-group">
-            <label>ID Administratora</label>
-            <input type="password" id="adminIdInput" class="form-input" placeholder="Wpisz ID">
+            <label>E-mail administratora</label>
+            <input type="email" id="adminEmailInput" class="form-input" placeholder="np. admin@firma.pl" autocomplete="username">
         </div>
         <div class="input-group">
             <label>Hasło</label>
-            <input type="password" id="adminPwInput" class="form-input" placeholder="Wpisz hasło">
+            <input type="password" id="adminPwInput" class="form-input" placeholder="Wpisz hasło" autocomplete="current-password">
         </div>
-        <button class="btn-action" onclick="verifyAdmin()">ZALOGUJ SIĘ</button>
+        <button class="btn-action" id="loginBtn" onclick="verifyAdmin()">ZALOGUJ SIĘ</button>
     </div>
 </div>
 
@@ -123,6 +147,22 @@
         <button class="btn-logout" onclick="logoutAdmin()">WYLOGUJ</button>
     </div>
 
+    <!-- STATYSTYKI SIECI -->
+    <div class="network-stats-row">
+        <div class="network-stat-box">
+            <div class="network-stat-value" id="statStoreCount">-</div>
+            <div class="network-stat-label">Sklepów w sieci</div>
+        </div>
+        <div class="network-stat-box">
+            <div class="network-stat-value" id="statTotalEmployees">-</div>
+            <div class="network-stat-label">Pracowników łącznie</div>
+        </div>
+        <div class="network-stat-box">
+            <div class="network-stat-value" id="statActiveTokens">-</div>
+            <div class="network-stat-label">Aktywnych kodów OTP</div>
+        </div>
+    </div>
+
     <div class="admin-grid">
         
         <div style="display: flex; flex-direction: column; gap: 20px;">
@@ -131,6 +171,11 @@
                 <p style="font-size:0.75rem; color:#888; margin-bottom:15px; line-height:1.4;">Wygeneruj jednorazowy kod (OTP) dla nowego Kierownika Sklepu.</p>
                 <button class="btn-action" onclick="generateToken()">GENERUJ KOD OTP</button>
                 <div class="token-display" id="tokenDisplay">------</div>
+
+                <div style="margin-top:20px; border-top:1px solid #222; padding-top:15px;">
+                    <label style="font-size:0.65rem; color:#888; font-weight:900; text-transform:uppercase; display:block; margin-bottom:10px;">Niewykorzystane kody:</label>
+                    <div id="tokensList"><div style="color:#666; font-size:0.75rem;">Wczytywanie...</div></div>
+                </div>
             </div>
 
             <div class="panel-card" style="border-color: #ffe800;">
@@ -156,7 +201,7 @@
         </div>
 
         <div class="panel-card">
-            <div class="panel-title">Normy Godzinowe (Rok 2026)</div>
+            <div class="panel-title" id="normsPanelTitle">Normy Godzinowe</div>
             <p style="font-size:0.75rem; color:#888; margin-bottom:15px; line-height:1.4;">Ustal normę na każdy miesiąc z góry. Aplikacje we wszystkich sklepach będą automatycznie zaciągać te liczby do generatora grafiku.</p>
             
             <div class="months-grid" id="monthsGrid">
@@ -169,9 +214,12 @@
     </div>
 
     <div class="panel-card" style="margin-top: 20px;">
-        <div style="display:flex; justify-content:space-between; align-items:center; border-bottom: 1px solid #222; padding-bottom: 10px; margin-bottom: 20px;">
+        <div class="stores-header-row">
             <div class="panel-title" style="border:none; margin:0; padding:0;">ZARZĄDZANIE SKLEPAMI</div>
-            <button class="btn-action" style="width:auto; margin:0; padding:8px 15px; font-size:0.8rem;" onclick="openStoreModal()">+ DODAJ NOWY SKLEP</button>
+            <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:center;">
+                <input type="text" class="store-search-input" id="storeSearchInput" placeholder="🔍 Szukaj po numerze/mieście..." oninput="filterStoresList()">
+                <button class="btn-action" style="width:auto; margin:0; padding:8px 15px; font-size:0.8rem;" onclick="openStoreModal()">+ DODAJ NOWY SKLEP</button>
+            </div>
         </div>
         
         <div class="stores-grid" id="storesGrid">
@@ -207,32 +255,71 @@
     </div>
 </div>
 
+<!-- NAPRAWA: wlasny stylowany modal z wpisaniem klucza sklepu do potwierdzenia, zamiast natywnego prompt() -->
+<div class="modal" id="deleteConfirmModal">
+    <div class="modal-content">
+        <h3>USUŃ SKLEP TRWALE</h3>
+        <p style="color:#ccc; font-size:0.85rem; margin-bottom:15px; line-height:1.5;">Aby potwierdzić trwałe usunięcie sklepu <strong id="deleteConfirmStoreId" style="color:#f44;"></strong> wraz z całą jego zawartością (pracownicy, plan pracy, inwentury), przepisz jego klucz poniżej:</p>
+        <input type="text" class="form-input" id="deleteConfirmInput" placeholder="Wpisz klucz sklepu">
+        <div id="deleteConfirmMsg" class="msg-box" style="background:rgba(255,68,68,0.15); border:1px solid #f44; color:#f44;"></div>
+        <div class="modal-buttons">
+            <button class="btn-action" style="flex:1; background:#333; color:#fff;" onclick="closeDeleteConfirmModal()">ANULUJ</button>
+            <button class="btn-action" style="flex:2;" onclick="confirmDeleteStore()">USUŃ TRWALE</button>
+        </div>
+    </div>
+</div>
+
 <script>
-    const adminID = "782058521";
-    const adminPW = "dawid2902";
-
     const monthNames = ["Styczeń", "Luty", "Marzec", "Kwiecień", "Maj", "Czerwiec", "Lipiec", "Sierpień", "Wrzesień", "Październik", "Listopad", "Grudzień"];
+    const currentYear = new Date().getFullYear();
+    document.getElementById('normsPanelTitle').innerText = `Normy Godzinowe (Rok ${currentYear})`;
 
-    if(sessionStorage.getItem('superAdminLogged') === 'true') { showDashboard(); }
+    let allStoresCache = {};
 
-    function verifyAdmin() {
-        const id = document.getElementById('adminIdInput').value;
-        const pw = document.getElementById('adminPwInput').value;
-        
-        if(id === adminID && pw === adminPW) {
-            sessionStorage.setItem('superAdminLogged', 'true');
+    // ==========================================
+    // NAPRAWA (BEZPIECZEŃSTWO): logowanie przez Firebase Authentication zamiast
+    // porownywania stringow zaszytych w kodzie JS. Haslo nigdy nie trafia do kodu strony -
+    // Firebase weryfikuje je po swojej stronie. Wymaga wczesniejszego wlaczenia
+    // "Email/Password" w konsoli Firebase (Authentication -> Sign-in method) i dodania
+    // tam konta administratora.
+    // ==========================================
+    auth.onAuthStateChanged(user => {
+        if (user) {
             showDashboard();
         } else {
-            alert("Błędne dane uwierzytelniające!");
+            document.getElementById('adminDashboard').style.display = 'none';
+            document.getElementById('loginScreen').style.display = 'flex';
+        }
+    });
+
+    async function verifyAdmin() {
+        const email = document.getElementById('adminEmailInput').value.trim();
+        const pw = document.getElementById('adminPwInput').value;
+        const btn = document.getElementById('loginBtn');
+        const msgBox = document.getElementById('loginMsg');
+
+        msgBox.style.display = 'none';
+
+        if (!email || !pw) { msgBox.className = 'login-msg msg-error'; msgBox.innerText = "Podaj e-mail i hasło!"; return; }
+
+        btn.disabled = true; btn.innerText = "WERYFIKACJA...";
+
+        try {
+            await auth.signInWithEmailAndPassword(email, pw);
+            // onAuthStateChanged wywola showDashboard()
+        } catch (e) {
+            msgBox.className = 'login-msg msg-error';
+            msgBox.innerText = "Błędne dane logowania!";
+            btn.disabled = false; btn.innerText = "ZALOGUJ SIĘ";
         }
     }
 
     function logoutAdmin() {
-        sessionStorage.removeItem('superAdminLogged');
-        document.getElementById('adminDashboard').style.display = 'none';
-        document.getElementById('loginScreen').style.display = 'flex';
-        document.getElementById('adminIdInput').value = '';
+        auth.signOut();
+        document.getElementById('adminEmailInput').value = '';
         document.getElementById('adminPwInput').value = '';
+        document.getElementById('loginBtn').disabled = false;
+        document.getElementById('loginBtn').innerText = "ZALOGUJ SIĘ";
     }
 
     function buildMonthsGrid() {
@@ -275,6 +362,7 @@
         });
 
         loadAllStores();
+        loadTokensList();
     }
 
     function generateToken() {
@@ -284,6 +372,37 @@
             display.innerText = token;
             display.style.display = 'block';
         });
+    }
+
+    // ==========================================
+    // LISTA WYGENEROWANYCH KODOW OTP (podglad + reczne uniewaznienie)
+    // ==========================================
+    function loadTokensList() {
+        db.ref('Admin/Tokens').on('value', snap => {
+            const data = snap.val() || {};
+            const entries = Object.entries(data).filter(([code, v]) => v && v.valid);
+            const container = document.getElementById('tokensList');
+            const statEl = document.getElementById('statActiveTokens');
+            if (statEl) statEl.innerText = entries.length;
+
+            if (entries.length === 0) { container.innerHTML = '<div style="color:#666; font-size:0.75rem;">Brak niewykorzystanych kodów.</div>'; return; }
+
+            entries.sort((a,b) => (b[1].createdAt||0) - (a[1].createdAt||0));
+            container.innerHTML = entries.map(([code, v]) => {
+                const d = v.createdAt ? new Date(v.createdAt).toLocaleString('pl-PL') : '?';
+                return `<div class="token-item">
+                    <div>
+                        <div class="token-item-code">${code}</div>
+                        <div class="token-item-date">Wygenerowano: ${d}</div>
+                    </div>
+                    <button class="btn-token-del" onclick="revokeToken('${code}')">UNIEWAŻNIJ</button>
+                </div>`;
+            }).join('');
+        });
+    }
+
+    function revokeToken(code) {
+        db.ref(`Admin/Tokens/${code}`).remove();
     }
 
     function saveGlobalMessage() {
@@ -322,51 +441,84 @@
     // ===============================================
     function loadAllStores() {
         db.ref('Stores').on('value', snap => {
-            const stores = snap.val() || {};
-            let html = '';
-            
-            let storeIds = Object.keys(stores);
-            
-            if(storeIds.length === 0) {
-                document.getElementById('storesGrid').innerHTML = '<div style="color:#888; text-align:center; padding:20px; grid-column: 1/-1;">Brak sklepów w bazie.</div>';
-                return;
-            }
-            
-            for(const storeId in stores) {
-                const setup = stores[storeId].Setup || {};
-                const sNum = setup.sNumber || 'Brak numeru';
-                const city = setup.city || 'Brak nazwy';
-                
-                html += `
-                <div class="store-item">
-                    <div class="store-info">
-                        <strong>${sNum}</strong>
-                        <span style="color:#fff; font-size: 1rem; margin-bottom: 10px;">${city}</span>
-                        <span>Klucz bazy: ${storeId}</span>
-                    </div>
-                    
-                    <div style="display:flex; flex-direction:column; gap:8px;">
-                        <button class="btn-ghost" onclick="enterAsGhost('${storeId}')">👁️ WEJDŹ JAKO DUCH</button>
-                        <div style="display:flex; gap:10px;">
-                            <button class="btn-small" style="flex:1;" onclick="openStoreModal('${storeId}', '${sNum}', '${city}')">EDYTUJ</button>
-                            <button class="btn-del" style="flex:1;" onclick="deleteStore('${storeId}')">USUŃ</button>
-                        </div>
-                    </div>
-                </div>`;
-            }
-            
-            document.getElementById('storesGrid').innerHTML = html;
+            allStoresCache = snap.val() || {};
+            renderStoresList();
+            updateNetworkStats();
         });
     }
+
+    function updateNetworkStats() {
+        const storeIds = Object.keys(allStoresCache);
+        document.getElementById('statStoreCount').innerText = storeIds.length;
+
+        let totalEmployees = 0;
+        storeIds.forEach(id => {
+            const users = allStoresCache[id].Users || {};
+            totalEmployees += Object.keys(users).filter(k => k !== 'ADMIN').length;
+        });
+        document.getElementById('statTotalEmployees').innerText = totalEmployees;
+    }
+
+    function renderStoresList() {
+        const query = (document.getElementById('storeSearchInput').value || '').trim().toLowerCase();
+        let storeIds = Object.keys(allStoresCache);
+
+        if(storeIds.length === 0) {
+            document.getElementById('storesGrid').innerHTML = '<div style="color:#888; text-align:center; padding:20px; grid-column: 1/-1;">Brak sklepów w bazie.</div>';
+            return;
+        }
+
+        let html = '';
+        let visibleCount = 0;
+
+        for(const storeId of storeIds) {
+            const setup = allStoresCache[storeId].Setup || {};
+            const sNum = setup.sNumber || 'Brak numeru';
+            const city = setup.city || 'Brak nazwy';
+
+            const searchable = `${storeId} ${sNum} ${city}`.toLowerCase();
+            if (query && !searchable.includes(query)) continue;
+            visibleCount++;
+
+            html += `
+            <div class="store-item">
+                <div class="store-info">
+                    <strong>${sNum}</strong>
+                    <span style="color:#fff; font-size: 1rem; margin-bottom: 10px;">${city}</span>
+                    <span>Klucz bazy: ${storeId}</span>
+                </div>
+                
+                <div style="display:flex; flex-direction:column; gap:8px;">
+                    <button class="btn-ghost" onclick="enterAsGhost('${storeId}')">👁️ WEJDŹ JAKO DUCH</button>
+                    <div style="display:flex; gap:10px;">
+                        <button class="btn-small" style="flex:1;" onclick="openStoreModal('${storeId}', '${sNum}', '${city}')">EDYTUJ</button>
+                        <button class="btn-del" style="flex:1;" onclick="deleteStore('${storeId}')">USUŃ</button>
+                    </div>
+                </div>
+            </div>`;
+        }
+
+        if (visibleCount === 0) {
+            html = '<div style="color:#888; text-align:center; padding:20px; grid-column: 1/-1;">Brak sklepów pasujących do wyszukiwania.</div>';
+        }
+
+        document.getElementById('storesGrid').innerHTML = html;
+    }
+
+    function filterStoresList() { renderStoresList(); }
 
     // GŁÓWNA FUNKCJA LOGOWANIA JAKO DUCH
     function enterAsGhost(storeId) {
         // Ustawiamy identyfikator wybranego sklepu
         localStorage.setItem('myStore', storeId);
         
-        // Tworzymy profil superadmina ("Boga") w tym sklepie
+        // NAPRAWA: charId "ADMIN" kolidowal z systemowym kontem zabezpieczajacym
+        // (Stores/{sklep}/Users/ADMIN), ktore jest tworzone automatycznie dla kazdego
+        // nowego sklepu. Zapisanie czegokolwiek w Ustawieniach Konta jako duch (np. avatar,
+        // haslo) nadpisywalo to konto w bazie. Uzywamy teraz unikalnego identyfikatora,
+        // ktory nigdy nie jest zapisywany do bazy Users - duch istnieje tylko w localStorage.
         const ghostProfile = {
-            charId: "ADMIN",
+            charId: "SADMIN_GHOST",
             name: "SUPERADMIN",
             dept: "ME", // Ważne: uprawnienia kierownika
             isKss: true, // Uprawnienia KSS
@@ -431,9 +583,35 @@
         });
     }
 
+    // NAPRAWA: wlasny modal z wpisaniem klucza sklepu zamiast natywnego prompt()
+    let storeIdPendingDelete = null;
+
     function deleteStore(storeId) {
-        const confirmCode = prompt(`Zniszczyć całkowicie sklep ${storeId}? Przepisz klucz sklepu aby potwierdzić:`);
-        if(confirmCode === storeId) { db.ref(`Stores/${storeId}`).remove(); }
+        storeIdPendingDelete = storeId;
+        document.getElementById('deleteConfirmStoreId').innerText = storeId;
+        document.getElementById('deleteConfirmInput').value = '';
+        document.getElementById('deleteConfirmMsg').style.display = 'none';
+        document.getElementById('deleteConfirmModal').style.display = 'flex';
+    }
+
+    function closeDeleteConfirmModal() {
+        document.getElementById('deleteConfirmModal').style.display = 'none';
+        storeIdPendingDelete = null;
+    }
+
+    function confirmDeleteStore() {
+        const typed = document.getElementById('deleteConfirmInput').value.trim();
+        const msgBox = document.getElementById('deleteConfirmMsg');
+
+        if (typed !== storeIdPendingDelete) {
+            msgBox.style.display = 'block';
+            msgBox.innerText = "Wpisany klucz nie zgadza się z kluczem sklepu!";
+            return;
+        }
+
+        db.ref(`Stores/${storeIdPendingDelete}`).remove().then(() => {
+            closeDeleteConfirmModal();
+        });
     }
 </script>
 </body>

@@ -65,7 +65,14 @@
         
         .content { flex-grow: 1; overflow-y: auto; padding: 30px 20px; }
         .content-inner { max-width: 1200px; margin: 0 auto; }
-        .page-title { font-size: 2rem; font-weight: 900; margin-bottom: 30px; text-transform: uppercase; text-align: center; } .page-title span { color: #ffe800; }
+        .page-title { font-size: 2rem; font-weight: 900; margin-bottom: 20px; text-transform: uppercase; text-align: center; } .page-title span { color: #ffe800; }
+
+        /* SZYBKIE STATYSTYKI */
+        .stats-bar { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-bottom: 25px; }
+        @media (max-width: 700px) { .stats-bar { grid-template-columns: 1fr; } }
+        .stat-box { background: #111; border: 1px solid #333; border-radius: 12px; padding: 18px; text-align: center; }
+        .stat-value { font-size: 1.8rem; font-weight: 900; color: #ffe800; }
+        .stat-label { font-size: 0.65rem; color: #888; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; margin-top: 4px; }
         
         .main-admin-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; align-items: start; margin-bottom: 20px; }
         @media (max-width: 1000px) { .main-admin-grid { grid-template-columns: 1fr; } }
@@ -94,12 +101,15 @@
         .btn-add-emp { background: #0a0; color: #fff; border: none; padding: 10px 20px; border-radius: 8px; font-weight: 900; font-size: 0.8rem; cursor: pointer; text-transform: uppercase; transition: 0.3s;}
         .btn-add-emp:hover { background: #0c0; box-shadow: 0 4px 10px rgba(0,170,0,0.3); transform: translateY(-2px); }
 
+        .team-search-input { background: #0a0a0a; border: 1px solid #333; color: #fff; padding: 10px 14px; border-radius: 20px; font-size: 0.8rem; font-weight: bold; outline: none; width: 100%; max-width: 260px; }
+        .team-search-input:focus { border-color: #ffe800; }
+
         .team-list-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); gap: 15px; margin-top: 10px; }
         .team-row { display: flex; justify-content: space-between; align-items: center; background: #0a0a0a; padding: 15px; border-radius: 10px; border: 1px solid #222; transition: 0.3s; }
         .team-row:hover { border-color: #ffe800; background: #151515; box-shadow: 0 5px 15px rgba(0,0,0,0.5); }
         .avatar-small { width: 45px; height: 45px; border-radius: 50%; background: #151515; border: 2px solid #ffe800; display: flex; align-items: center; justify-content: center; font-weight: 900; color: #ffe800; font-size: 1.1rem; overflow: hidden; flex-shrink: 0; }
         
-        .action-buttons-group { display: flex; gap: 8px; }
+        .action-buttons-group { display: flex; gap: 8px; flex-wrap: wrap; }
         .btn-edit-emp { background: transparent; border: 1px solid #0a0; color: #0a0; padding: 8px 12px; border-radius: 5px; font-weight: 900; font-size: 0.65rem; cursor: pointer; transition: 0.3s; text-transform: uppercase; }
         .btn-edit-emp:hover { background: #0a0; color: #000; }
         .btn-reset { background: transparent; border: 1px solid #ffe800; color: #ffe800; padding: 8px 12px; border-radius: 5px; font-weight: 900; font-size: 0.65rem; cursor: pointer; transition: 0.3s; text-transform: uppercase; }
@@ -126,6 +136,39 @@
 
         .push-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
         @media (max-width: 768px) { .push-grid { grid-template-columns: 1fr; } }
+
+        /* SZABLONY POWIADOMIEŃ */
+        .template-row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; background: #0a0a0a; border: 1px solid #222; padding: 10px; border-radius: 8px; margin-bottom: 10px; }
+        .template-row select { flex: 2; min-width: 160px; }
+        .btn-mini { background: transparent; border: 1px solid #555; color: #ccc; padding: 8px 12px; border-radius: 6px; font-size: 0.65rem; font-weight: 900; cursor: pointer; text-transform: uppercase; transition: 0.2s; white-space: nowrap; }
+        .btn-mini:hover { border-color: #ffe800; color: #ffe800; }
+        .btn-mini.danger:hover { border-color: #f44; color: #f44; }
+
+        /* PODGLĄD POWIADOMIENIA */
+        #pushPreviewBox { background: #0a0a0a; border: 2px solid #ffe800; border-radius: 10px; padding: 15px; text-align: center; }
+        #pushPreviewTitle { font-size: 0.95rem; font-weight: 900; text-transform: uppercase; margin-bottom: 8px; color: #ffe800; }
+        #pushPreviewMsg { font-size: 0.8rem; color: #ccc; line-height: 1.4; }
+        .preview-label { font-size: 0.65rem; color: #666; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
+
+        /* DZIENNIK ZMIAN / KOSZ */
+        .log-entry { background:#0a0a0a; border:1px solid #222; border-radius:8px; padding:10px 15px; margin-bottom:8px; font-size:0.8rem; }
+        .log-meta { display:flex; justify-content:space-between; color:#888; font-size:0.65rem; margin-bottom:4px; }
+        .log-admin { color:#ffe800; font-weight:bold; }
+
+        /* WLASNY MODAL POTWIERDZENIA (zamiast confirm()) */
+        #customConfirmModal .modal-content { border-color: #f44; max-width: 420px; }
+        #confirmModalTitle { color: #f44; font-weight: 900; text-transform: uppercase; margin-bottom: 12px; font-size: 1.2rem; }
+        #confirmModalText { color: #ccc; font-size: 0.85rem; line-height: 1.5; margin-bottom: 20px; white-space: pre-line; }
+        .confirm-buttons { display: flex; gap: 10px; }
+        .btn-confirm-yes { flex: 1; background: #f44; color: #000; border: none; padding: 12px; font-weight: 900; border-radius: 8px; cursor: pointer; text-transform: uppercase; transition: 0.2s; }
+        .btn-confirm-yes:hover { transform: scale(1.02); }
+        .btn-confirm-no { flex: 1; background: #151515; color: #888; border: 1px solid #333; padding: 12px; font-weight: 900; border-radius: 8px; cursor: pointer; text-transform: uppercase; transition: 0.2s; }
+        .btn-confirm-no:hover { background: #222; color: #fff; }
+
+        /* IDLE WARNING - spojne z reszta aplikacji */
+        #idleWarningModal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.92); z-index: 20000; align-items: center; justify-content: center; padding: 20px; backdrop-filter: blur(5px); }
+        #idleWarningModal .modal-content { max-width: 380px; border-color: #f44; box-shadow: 0 0 30px rgba(255,68,68,0.25); }
+        #idleCountdown { color: #f44; font-size: 2.5rem; font-weight: 900; margin: 15px 0; }
 
         /* LISTA OBECNOŚCI - BEZPIECZNY PIONOWY UKŁAD TEKSTU I STRONICOWANIE */
         #printableAttendance { margin-top: 15px; overflow-y: auto; max-height: 600px; padding: 10px 0; }
@@ -214,6 +257,22 @@
 <div class="content">
     <div class="content-inner">
         <h1 class="page-title">CENTRUM <span>DOWODZENIA</span></h1>
+
+        <!-- SZYBKIE STATYSTYKI -->
+        <div class="stats-bar">
+            <div class="stat-box">
+                <div class="stat-value" id="statEmpCount">-</div>
+                <div class="stat-label">Pracowników w bazie</div>
+            </div>
+            <div class="stat-box" style="border-color: #ffa502;">
+                <div class="stat-value" id="statAwaitingInwa" style="color:#ffa502;">-</div>
+                <div class="stat-label">Inwentur czeka na akceptację</div>
+            </div>
+            <div class="stat-box" style="border-color: #3498db;">
+                <div class="stat-value" id="statDaysLeft" style="color:#3498db;">-</div>
+                <div class="stat-label">Dni do końca miesiąca</div>
+            </div>
+        </div>
         
         <div class="main-admin-grid">
             
@@ -256,6 +315,16 @@
                     📢 SYSTEM POWIADOMIEŃ (PUSH)
                 </div>
                 <p style="font-size: 0.8rem; color: #888; margin-top:-5px; margin-bottom:10px;">Wysyłaj komunikaty do całego sklepu, wybranych działów lub pojedynczych osób.</p>
+
+                <div class="template-row">
+                    <select id="pushTemplateSelect" class="form-input"></select>
+                    <button class="btn-mini" onclick="loadPushTemplate()">📥 WCZYTAJ</button>
+                    <button class="btn-mini danger" onclick="deleteSelectedTemplate()">USUŃ SZABLON</button>
+                </div>
+                <div style="display:flex; gap:8px; margin-bottom: 10px;">
+                    <input type="text" id="templateNameInput" class="form-input" placeholder="Nazwa nowego szablonu..." style="flex:1;">
+                    <button class="btn-mini" style="white-space:nowrap;" onclick="savePushTemplate()">💾 ZAPISZ JAKO SZABLON</button>
+                </div>
                 
                 <div class="push-grid">
                     <div>
@@ -274,21 +343,26 @@
                         </div>
                         <div class="input-group">
                             <label>PRIORYTET WIADOMOŚCI</label>
-                            <select id="pushType" class="form-input">
+                            <select id="pushType" class="form-input" onchange="updatePushPreview()">
                                 <option value="warning">🟡 ZWYKŁA (Żółta)</option>
                                 <option value="success">🟢 POZYTYWNA (Zielona)</option>
                                 <option value="error">🔴 PILNE / BŁĄD (Czerwona)</option>
                             </select>
                         </div>
+                        <div class="preview-label">👁️ PODGLĄD JAK ZOBACZY TO PRACOWNIK</div>
+                        <div id="pushPreviewBox">
+                            <div id="pushPreviewTitle">Podgląd tytułu</div>
+                            <div id="pushPreviewMsg">Podgląd treści komunikatu pojawi się tutaj...</div>
+                        </div>
                     </div>
                     <div>
                         <div class="input-group">
                             <label>TYTUŁ</label>
-                            <input type="text" id="pushTitle" class="form-input" placeholder="np. UWAGA! Zmiana w grafiku">
+                            <input type="text" id="pushTitle" class="form-input" placeholder="np. UWAGA! Zmiana w grafiku" oninput="updatePushPreview()">
                         </div>
                         <div class="input-group">
                             <label>TREŚĆ KOMUNIKATU</label>
-                            <textarea id="pushMsg" class="form-input" placeholder="Wpisz treść komunikatu..."></textarea>
+                            <textarea id="pushMsg" class="form-input" placeholder="Wpisz treść komunikatu..." oninput="updatePushPreview()"></textarea>
                         </div>
                     </div>
                 </div>
@@ -335,11 +409,31 @@
                 <div class="card-title">Zarządzanie Zespołem</div>
                 <div class="team-header">
                     <p style="font-size:0.8rem; color:#888; margin:0;">Zarządzaj załogą, resetuj hasła i nadawaj uprawnienia.</p>
-                    <button class="btn-add-emp" onclick="openAddEmployeeModal()">+ Nowy Pracownik</button>
+                    <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:center;">
+                        <input type="text" id="teamSearchInput" class="team-search-input" placeholder="🔍 Szukaj po imieniu lub dziale..." oninput="filterTeamList()">
+                        <button class="btn-add-emp" onclick="openAddEmployeeModal()">+ Nowy Pracownik</button>
+                    </div>
                 </div>
                 <div class="team-list-grid" id="teamList">
                     <div style="color: #666; font-size:0.8rem; font-weight:bold; width:100%; text-align:center; padding:20px;">POBIERANIE DANYCH EKIPY...</div>
                 </div>
+            </div>
+
+            <!-- KOSZ (USUNIĘCI PRACOWNICY) -->
+            <div class="card full-width" style="border-color: #555;">
+                <div class="card-title" style="color: #ccc; border-bottom-color: #555;">
+                    🗑️ KOSZ (USUNIĘCI PRACOWNICY)
+                </div>
+                <p style="font-size: 0.8rem; color: #888; margin-top:-5px; margin-bottom:10px;">Usunięci pracownicy trafiają najpierw tutaj. Możesz ich przywrócić w dowolnym momencie — pozycje starsze niż 30 dni kwalifikują się do trwałego usunięcia.</p>
+                <div id="trashList"></div>
+            </div>
+
+            <!-- DZIENNIK ZMIAN -->
+            <div class="card full-width" style="border-color: #555;">
+                <div class="card-title" style="color: #ccc; border-bottom-color: #555;">
+                    🕒 DZIENNIK ZMIAN (OSTATNIE 20 DZIAŁAŃ)
+                </div>
+                <div id="auditLogList"></div>
             </div>
 
         </div>
@@ -426,9 +520,42 @@
     </div>
 </div>
 
+<div id="globalNotificationModal">
+    <div id="popupBox">
+        <h3 id="globalPopupTitle">POWIADOMIENIE</h3>
+        <p id="globalPopupMsg"></p>
+        <button class="btn-close-popup" onclick="closeGlobalPopup()">ZROZUMIAŁEM</button>
+    </div>
+</div>
+
+<div class="modal" id="customConfirmModal" style="z-index: 16000;">
+    <div class="modal-content">
+        <h3 id="confirmModalTitle">Potwierdź akcję</h3>
+        <p id="confirmModalText"></p>
+        <div class="confirm-buttons">
+            <button class="btn-confirm-no" onclick="resolveConfirm(false)">ANULUJ</button>
+            <button class="btn-confirm-yes" onclick="resolveConfirm(true)">POTWIERDŹ</button>
+        </div>
+    </div>
+</div>
+
+<div id="idleWarningModal">
+    <div class="modal-content">
+        <h2 style="color:#f44; font-weight:900; text-transform:uppercase;">Nadal tam jesteś?</h2>
+        <p style="color:#ccc; font-size:0.85rem; margin-top:10px;">Z powodu braku aktywności zostaniesz wylogowany za:</p>
+        <div id="idleCountdown">30</div>
+        <button class="btn-action" style="width:100%;" onclick="pozostanZalogowany()">ZOSTAŃ ZALOGOWANY</button>
+    </div>
+</div>
+
 <script>
-    // INICJALIZACJA UI
+    // NAPRAWA: pelna nazwa sklepu (numer + miasto) zamiast samego kodu, spojnie z reszta aplikacji
     document.getElementById('headerStore').innerText = myStore;
+    db.ref(`Stores/${myStore}/Setup`).once('value').then(snap => {
+        const setup = snap.val();
+        if (setup) document.getElementById('headerStore').innerText = `${setup.sNumber} ${setup.city}`;
+    });
+
     let finalDept = currentUser.dept; if(currentUser.isKss && currentUser.dept !== 'ME') finalDept = 'KSS';
     document.getElementById('sideName').innerText = `${currentUser.name} (${finalDept})`;
 
@@ -438,6 +565,8 @@
     function toggleNav() { document.getElementById('sidebar').classList.toggle('active'); document.getElementById('overlay').classList.toggle('active'); }
     function logout() { localStorage.removeItem('currentUser'); window.location.href = 'login.html'; }
 
+    // NAPRAWA: rok liczony dynamicznie zamiast na sztywno "2026"
+    const year = new Date().getFullYear();
     const months = ["STYCZEŃ", "LUTY", "MARZEC", "KWIECIEŃ", "MAJ", "CZERWIEC", "LIPIEC", "SIERPIEŃ", "WRZESIEŃ", "PAŹDZIERNIK", "LISTOPAD", "GRUDZIEŃ"];
     let globalUsersList = [];
     let attendanceEmployees = [];
@@ -447,11 +576,11 @@
         let attMonthSelect = document.getElementById('attMonthSelect');
         
         months.forEach((m, i) => {
-            let opt = document.createElement('option'); opt.value = i; opt.innerText = `${m} 2026`;
+            let opt = document.createElement('option'); opt.value = i; opt.innerText = `${m} ${year}`;
             if (i === new Date().getMonth()) opt.selected = true;
             repSelect.appendChild(opt);
 
-            let opt2 = document.createElement('option'); opt2.value = i; opt2.innerText = `${m} 2026`;
+            let opt2 = document.createElement('option'); opt2.value = i; opt2.innerText = `${m} ${year}`;
             if (i === new Date().getMonth()) opt2.selected = true;
             attMonthSelect.appendChild(opt2);
         });
@@ -463,14 +592,89 @@
         });
 
         loadAttendanceEmployees();
+        loadPushTemplatesFromDb();
+        loadAuditLog();
+        loadDeletedUsers();
+        updatePushPreview();
+        updateStatsBar();
     };
+
+    // ==========================================
+    // WLASNY MODAL POTWIERDZENIA (zamiast confirm())
+    // ==========================================
+    let _confirmCallback = null;
+    function customConfirm(message, onConfirm) {
+        document.getElementById('confirmModalText').innerText = message;
+        _confirmCallback = onConfirm;
+        document.getElementById('customConfirmModal').style.display = 'flex';
+    }
+    function resolveConfirm(result) {
+        document.getElementById('customConfirmModal').style.display = 'none';
+        if (result && _confirmCallback) _confirmCallback();
+        _confirmCallback = null;
+    }
+
+    // ==========================================
+    // DZIENNIK ZMIAN (AUDIT LOG)
+    // ==========================================
+    function logAdminAction(action, details) {
+        db.ref(`Stores/${myStore}/AdminLog`).push({
+            timestamp: Date.now(), admin: currentUser.name, action: action, details: details
+        });
+    }
+
+    function loadAuditLog() {
+        db.ref(`Stores/${myStore}/AdminLog`).limitToLast(20).on('value', snap => {
+            const data = snap.val() || {};
+            let arr = Object.values(data).sort((a,b) => b.timestamp - a.timestamp);
+            const container = document.getElementById('auditLogList');
+            if (arr.length === 0) { container.innerHTML = '<div style="color:#666; font-size:0.8rem; text-align:center; padding:15px;">Brak zarejestrowanych działań.</div>'; return; }
+
+            const icons = { reset_password: '🔑', delete_employee: '🗑️', restore_employee: '♻️', purge_employee: '❌', add_employee: '➕', edit_employee: '✏️', pinboard_save: '📌', pinboard_clear: '📌', push_sent: '📢' };
+
+            container.innerHTML = arr.map(entry => {
+                const d = new Date(entry.timestamp);
+                const dateStr = d.toLocaleDateString('pl-PL') + ' ' + d.toLocaleTimeString('pl-PL', {hour:'2-digit', minute:'2-digit'});
+                const icon = icons[entry.action] || '•';
+                return `<div class="log-entry">
+                    <div class="log-meta"><span>${dateStr}</span><span class="log-admin">${entry.admin}</span></div>
+                    <div style="color:#fff;">${icon} ${entry.details}</div>
+                </div>`;
+            }).join('');
+        });
+    }
+
+    // ==========================================
+    // SZYBKIE STATYSTYKI
+    // ==========================================
+    function updateStatsBar() {
+        const empCount = globalUsersList.filter(u => u.charId !== 'ADMIN').length;
+        document.getElementById('statEmpCount').innerText = empCount;
+
+        const today = new Date();
+        const daysInCurMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0).getDate();
+        document.getElementById('statDaysLeft').innerText = daysInCurMonth - today.getDate();
+    }
+
+    // ==========================================
+    // WYSZUKIWARKA W LIŚCIE ZESPOŁU
+    // ==========================================
+    function filterTeamList() {
+        const q = document.getElementById('teamSearchInput').value.trim().toLowerCase();
+        document.querySelectorAll('#teamList .team-row').forEach(row => {
+            const s = row.getAttribute('data-search') || '';
+            row.style.display = s.includes(q) ? 'flex' : 'none';
+        });
+    }
 
     // ==========================================
     // LOGIKA LISTY OBECNOŚCI PIONOWY TEKST + PAGINACJA (MAX 4 NA STRONĘ)
     // ==========================================
     function loadAttendanceEmployees() {
+        // NAPRAWA: fallback nie zawiera juz na sztywno wpisanych, konkretnych nazwisk -
+        // nowy sklep startuje z czysta, pusta lista obecnosci.
         db.ref(`Stores/${myStore}/Settings/AttendanceEmployees`).on('value', snap => {
-            attendanceEmployees = snap.val() || ["ŁUKASZ KLISZKO", "MAGDALENA LISEK", "DAWID MARCINKOWSKI", "ADRIAN MATUSZEWSKI"];
+            attendanceEmployees = snap.val() || [];
             renderAttendanceTags();
             generateAttendancePreview();
         });
@@ -516,7 +720,7 @@
         const mIndex = parseInt(document.getElementById('attMonthSelect').value);
         const monthName = months[mIndex].toLowerCase();
         const daysPL = ["niedziela", "poniedziałek", "wtorek", "środa", "czwartek", "piątek", "sobota"];
-        const daysInMonth = new Date(2026, mIndex + 1, 0).getDate();
+        const daysInMonth = new Date(year, mIndex + 1, 0).getDate();
 
         // Paginacja: 4 osoby na jedną tabelę (kartkę)
         const chunkSize = 4;
@@ -531,7 +735,7 @@
             // Nagłówki z informacją o numerze strony (jeśli jest ich więcej)
             let pageIndicator = totalPages > 1 ? ` <span style="float:right; font-weight:bold;">Strona ${p+1} / ${totalPages}</span>` : '';
             pageHtml += `<div style="font-size: 9px; margin-bottom: 3px; color: #444;">Zgodnie z Regulaminem Pracy - obecność w pracy należy osobiście potwierdzić parafką w danym dniu kalendarzowym.${pageIndicator}</div>`;
-            pageHtml += `<div style="text-align: center; font-weight: bold; font-size: 13px; margin-bottom: 8px; text-transform: uppercase;">LISTA OBECNOŚCI – ${monthName} 2026 r.</div>`;
+            pageHtml += `<div style="text-align: center; font-weight: bold; font-size: 13px; margin-bottom: 8px; text-transform: uppercase;">LISTA OBECNOŚCI – ${monthName} ${year} r.</div>`;
             
             pageHtml += `<table class="att-table">`;
             pageHtml += `<thead><tr>`;
@@ -558,7 +762,7 @@
 
             // Generowanie dni miesiąca
             for(let d = 1; d <= daysInMonth; d++) {
-                let dateObj = new Date(2026, mIndex, d);
+                let dateObj = new Date(year, mIndex, d);
                 let dayOfWeekStr = daysPL[dateObj.getDay()];
                 
                 pageHtml += `<tr><td>${d}</td><td>${dayOfWeekStr}</td>`;
@@ -598,18 +802,23 @@
         
         db.ref(`Stores/${myStore}/Settings/DashboardPin`).set({
             active: true, title: title, message: msg, timestamp: Date.now(), author: currentUser.name
-        }).then(() => alert("✅ Ogłoszenie pomyślnie przyklejone do tablicy na stronie głównej!"));
+        }).then(() => {
+            logAdminAction('pinboard_save', `Ustawiono ogłoszenie: "${title}"`);
+            alert("✅ Ogłoszenie pomyślnie przyklejone do tablicy na stronie głównej!");
+        });
     }
 
+    // NAPRAWA: zamiast natywnego confirm() przegladarki, uzywamy wlasnego stylowanego modala
     function clearPinboard() {
-        if(confirm("Czy na pewno chcesz zdjąć ogłoszenie z tablicy głównej?")) {
+        customConfirm("Czy na pewno chcesz zdjąć ogłoszenie z tablicy głównej?", () => {
             db.ref(`Stores/${myStore}/Settings/DashboardPin/active`).set(false)
               .then(() => {
                   document.getElementById('pinTitle').value = '';
                   document.getElementById('pinMsg').value = '';
+                  logAdminAction('pinboard_clear', 'Usunięto ogłoszenie z tablicy');
                   alert("Ogłoszenie usunięte.");
               });
-        }
+        });
     }
 
     async function generateExcelReport() {
@@ -641,7 +850,8 @@
                 ]);
             });
 
-            const inwaSnap = await db.ref(`Stores/${myStore}/Inwentury/2026_${mIndex}`).once('value');
+            // NAPRAWA: rok liczony dynamicznie zamiast na sztywno "2026"
+            const inwaSnap = await db.ref(`Stores/${myStore}/Inwentury/${year}_${mIndex}`).once('value');
             const inwa = inwaSnap.val() || {};
             let inwaData = [["OKRES", "NAZWA TOWARU/GRUPY", "OBECNY STATUS", "ZGŁOSZONE PRZEZ"]];
             Object.keys(inwa).forEach(key => {
@@ -719,8 +929,10 @@
                     
                     let tilesBadge = u.canEditTiles ? `<div style="margin-top: 4px;"><span style="display:inline-block; border: 1px solid #0a0; color:#0a0; background:rgba(0,170,0,0.1); padding: 2px 6px; border-radius:4px; font-size:0.55rem; font-weight:900; white-space:nowrap;">🛠️ KAFELKI</span></div>` : '';
                     
+                    let searchAttr = `${u.name} ${displayDept}`.toLowerCase();
+
                     html += `
-                    <div class="team-row">
+                    <div class="team-row" data-search="${searchAttr}">
                         <div style="display:flex; align-items:center; gap:12px; min-width:0; padding-right: 10px;">
                             <div class="avatar-small">${uAvatar}</div>
                             <div style="display:flex; flex-direction:column; justify-content:center; min-width:0;">
@@ -742,6 +954,8 @@
                 });
             }
             document.getElementById('teamList').innerHTML = html;
+            filterTeamList();
+            updateStatsBar();
 
             let pushSelect = document.getElementById('pushTarget');
             pushSelect.innerHTML = `
@@ -759,6 +973,81 @@
                 pushSelect.innerHTML += `<option value="${u.charId}">👤 Pracownik: ${u.name} (${u.dept})</option>`; 
             });
         });
+    }
+
+    // ==========================================
+    // SZABLONY POWIADOMIEŃ PUSH
+    // ==========================================
+    let pushTemplates = {};
+
+    function loadPushTemplatesFromDb() {
+        db.ref(`Stores/${myStore}/Settings/PushTemplates`).on('value', snap => {
+            pushTemplates = snap.val() || {};
+            renderPushTemplateOptions();
+        });
+    }
+
+    function renderPushTemplateOptions() {
+        const sel = document.getElementById('pushTemplateSelect');
+        sel.innerHTML = '<option value="">-- Wybierz zapisany szablon --</option>';
+        Object.keys(pushTemplates).forEach(id => {
+            let t = pushTemplates[id];
+            let opt = document.createElement('option'); opt.value = id; opt.innerText = t.name;
+            sel.appendChild(opt);
+        });
+    }
+
+    function loadPushTemplate() {
+        const id = document.getElementById('pushTemplateSelect').value;
+        if(!id) { alert("Najpierw wybierz szablon z listy!"); return; }
+        let t = pushTemplates[id];
+        document.getElementById('pushTarget').value = t.target;
+        document.getElementById('pushType').value = t.type;
+        document.getElementById('pushTitle').value = t.title;
+        document.getElementById('pushMsg').value = t.msg;
+        updatePushPreview();
+    }
+
+    function savePushTemplate() {
+        const name = document.getElementById('templateNameInput').value.trim();
+        if(!name) { alert("Podaj nazwę dla nowego szablonu!"); return; }
+
+        const newId = 'tmpl_' + Date.now();
+        db.ref(`Stores/${myStore}/Settings/PushTemplates/${newId}`).set({
+            name: name,
+            target: document.getElementById('pushTarget').value,
+            type: document.getElementById('pushType').value,
+            title: document.getElementById('pushTitle').value.trim(),
+            msg: document.getElementById('pushMsg').value.trim()
+        }).then(() => { document.getElementById('templateNameInput').value = ''; });
+    }
+
+    // NAPRAWA: zamiast natywnego confirm() przegladarki, uzywamy wlasnego stylowanego modala
+    function deleteSelectedTemplate() {
+        const id = document.getElementById('pushTemplateSelect').value;
+        if(!id) { alert("Najpierw wybierz szablon do usunięcia!"); return; }
+        customConfirm("Usunąć wybrany szablon powiadomienia?", () => {
+            db.ref(`Stores/${myStore}/Settings/PushTemplates/${id}`).remove();
+        });
+    }
+
+    // ==========================================
+    // PODGLĄD POWIADOMIENIA PRZED WYSŁANIEM
+    // ==========================================
+    function updatePushPreview() {
+        const title = document.getElementById('pushTitle').value.trim() || 'Podgląd tytułu';
+        const msg = document.getElementById('pushMsg').value.trim() || 'Podgląd treści komunikatu pojawi się tutaj...';
+        const type = document.getElementById('pushType').value;
+
+        const box = document.getElementById('pushPreviewBox');
+        const titleEl = document.getElementById('pushPreviewTitle');
+        const msgEl = document.getElementById('pushPreviewMsg');
+
+        let color = type === 'success' ? '#0a0' : (type === 'error' ? '#f44' : '#ffe800');
+        box.style.borderColor = color;
+        titleEl.style.color = color;
+        titleEl.innerText = title;
+        msgEl.innerText = msg;
     }
 
     function sendPushNotification() {
@@ -790,6 +1079,7 @@
             Promise.all(promises).then(() => {
                 statusBox.className = 'msg-box msg-success';
                 statusBox.innerText = 'Wysłano powiadomienie do całego sklepu!';
+                logAdminAction('push_sent', `Wysłano powiadomienie "${title}" do: wszystkich`);
                 clearPushForm();
             }).catch(e => {
                 statusBox.className = 'msg-box msg-error';
@@ -815,18 +1105,33 @@
             Promise.all(promises).then(() => {
                 statusBox.className = 'msg-box msg-success';
                 statusBox.innerText = `Wysłano powiadomienie do działu ${deptName}!`;
+                logAdminAction('push_sent', `Wysłano powiadomienie "${title}" do: działu ${deptName}`);
                 clearPushForm();
             }).catch(e => {
                 statusBox.className = 'msg-box msg-error';
                 statusBox.innerText = 'Błąd wysyłania: ' + e.message;
             });
 
+        } else if (target === 'KSS') {
+            db.ref(`Stores/${myStore}/Notifications`).push({
+                to: 'KSS', title: title, msg: msg, type: type, read: false, timestamp: Date.now()
+            }).then(() => {
+                statusBox.className = 'msg-box msg-success';
+                statusBox.innerText = 'Wysłano powiadomienie do kierownictwa!';
+                logAdminAction('push_sent', `Wysłano powiadomienie "${title}" do: kierownictwa (KSS/ME)`);
+                clearPushForm();
+            }).catch(e => {
+                statusBox.className = 'msg-box msg-error';
+                statusBox.innerText = 'Błąd wysyłania: ' + e.message;
+            });
         } else {
+            let targetUser = globalUsersList.find(u => u.charId === target);
             db.ref(`Stores/${myStore}/Notifications`).push({
                 to: target, title: title, msg: msg, type: type, read: false, timestamp: Date.now()
             }).then(() => {
                 statusBox.className = 'msg-box msg-success';
                 statusBox.innerText = 'Wysłano powiadomienie!';
+                logAdminAction('push_sent', `Wysłano powiadomienie "${title}" do: ${targetUser ? targetUser.name : target}`);
                 clearPushForm();
             }).catch(e => {
                 statusBox.className = 'msg-box msg-error';
@@ -838,25 +1143,91 @@
     function clearPushForm() {
         document.getElementById('pushTitle').value = '';
         document.getElementById('pushMsg').value = '';
+        updatePushPreview();
         setTimeout(() => { document.getElementById('pushStatus').style.display = 'none'; }, 4000);
     }
 
+    // NAPRAWA: zamiast natywnego confirm() przegladarki, uzywamy wlasnego stylowanego modala
     function confirmPasswordReset(empCharId, empName) {
-        if(confirm(`UWAGA!\nCzy na pewno chcesz zresetować hasło użytkownika ${empName}?\n\nPracownik zostanie wylogowany, a jego nowym hasłem do logowania stanie się jego kod CharID.`)) {
+        customConfirm(`UWAGA!\nCzy na pewno chcesz zresetować hasło użytkownika ${empName}?\n\nPracownik zostanie wylogowany, a jego nowym hasłem do logowania stanie się jego kod CharID.`, () => {
             db.ref(`Stores/${myStore}/Users/${empCharId}`).update({ password: empCharId }).then(() => {
                 document.getElementById('resetEmpName').innerText = empName;
                 document.getElementById('resetEmpCode').innerText = empCharId;
                 document.getElementById('resetSuccessModal').style.display = 'flex';
+                logAdminAction('reset_password', `Zresetowano hasło: ${empName} (${empCharId})`);
             }).catch(err => alert("Błąd połączenia z bazą: " + err.message));
-        }
+        });
     }
     function closeResetModal() { document.getElementById('resetSuccessModal').style.display = 'none'; }
 
+    // NAPRAWA (funkcja): usuwanie pracownika bylo trwale i natychmiastowe (jeden klik = bezpowrotna
+    // utrata danych w razie pomylki). Teraz pracownik trafia najpierw do Kosza (DeletedUsers) z
+    // mozliwoscia przywrocenia - dopiero recznie mozna go usunac na zawsze.
     function confirmDeleteEmployee(empCharId, empName) {
-        if(confirm(`OSTRZEŻENIE!\nCzy na pewno chcesz całkowicie USUNĄĆ pracownika ${empName} (Kod: ${empCharId}) z bazy sklepu?\n\nTej operacji nie można cofnąć.`)) {
-            db.ref(`Stores/${myStore}/Users/${empCharId}`).remove()
-                .then(() => alert(`Pracownik ${empName} został poprawnie usunięty z bazy.`));
-        }
+        customConfirm(`OSTRZEŻENIE!\nCzy na pewno chcesz przenieść pracownika ${empName} (Kod: ${empCharId}) do kosza?\n\nBędzie można go przywrócić w dowolnym momencie.`, async () => {
+            try {
+                const snap = await db.ref(`Stores/${myStore}/Users/${empCharId}`).once('value');
+                const userData = snap.val();
+                if (!userData) return;
+
+                await db.ref(`Stores/${myStore}/DeletedUsers/${empCharId}`).set({ ...userData, deletedAt: Date.now(), deletedBy: currentUser.name });
+                await db.ref(`Stores/${myStore}/Users/${empCharId}`).remove();
+                logAdminAction('delete_employee', `Przeniesiono do kosza: ${empName} (${empCharId})`);
+            } catch(e) { alert("Błąd podczas usuwania: " + e.message); }
+        });
+    }
+
+    // ==========================================
+    // KOSZ (USUNIĘCI PRACOWNICY)
+    // ==========================================
+    function loadDeletedUsers() {
+        db.ref(`Stores/${myStore}/DeletedUsers`).on('value', snap => {
+            const data = snap.val() || {};
+            let arr = Object.keys(data).map(key => ({ charId: key, ...data[key] })).sort((a,b) => b.deletedAt - a.deletedAt);
+            const container = document.getElementById('trashList');
+
+            if (arr.length === 0) { container.innerHTML = '<div style="color:#666; font-size:0.8rem; text-align:center; padding:15px;">Kosz jest pusty.</div>'; return; }
+
+            const now = Date.now();
+            container.innerHTML = arr.map(u => {
+                const daysAgo = Math.floor((now - u.deletedAt) / 86400000);
+                const expiredBadge = daysAgo > 30 ? `<span style="color:#f44; font-size:0.6rem; font-weight:900; margin-left:8px;">KWALIFIKUJE SIĘ DO TRWAŁEGO USUNIĘCIA</span>` : '';
+                const safeName = (u.name || '').replace(/'/g, "");
+                return `<div class="team-row">
+                    <div style="display:flex; flex-direction:column;">
+                        <div style="font-weight:900; color:#fff;">${u.name} <span style="color:#888; font-weight:normal; font-size:0.7rem;">(${u.charId})</span></div>
+                        <div style="font-size:0.7rem; color:#888; margin-top:3px;">Usunięty ${daysAgo === 0 ? 'dzisiaj' : daysAgo + ' dni temu'} przez ${u.deletedBy || '?'}${expiredBadge}</div>
+                    </div>
+                    <div class="action-buttons-group">
+                        <button class="btn-edit-emp" onclick="restoreEmployee('${u.charId}')">PRZYWRÓĆ</button>
+                        <button class="btn-delete-emp" onclick="purgeDeletedEmployee('${u.charId}', '${safeName}')">USUŃ TRWALE</button>
+                    </div>
+                </div>`;
+            }).join('');
+        });
+    }
+
+    async function restoreEmployee(charId) {
+        try {
+            const snap = await db.ref(`Stores/${myStore}/DeletedUsers/${charId}`).once('value');
+            const data = snap.val();
+            if (!data) return;
+
+            const existing = await db.ref(`Stores/${myStore}/Users/${charId}`).once('value');
+            if (existing.exists()) { alert("Nie można przywrócić - ten kod CharID jest już zajęty przez innego, aktualnego pracownika!"); return; }
+
+            const { deletedAt, deletedBy, ...userData } = data;
+            await db.ref(`Stores/${myStore}/Users/${charId}`).set(userData);
+            await db.ref(`Stores/${myStore}/DeletedUsers/${charId}`).remove();
+            logAdminAction('restore_employee', `Przywrócono z kosza: ${userData.name} (${charId})`);
+        } catch(e) { alert("Błąd przywracania: " + e.message); }
+    }
+
+    function purgeDeletedEmployee(charId, name) {
+        customConfirm(`Czy na pewno chcesz TRWALE usunąć ${name} z kosza?\n\nTej operacji nie można cofnąć.`, () => {
+            db.ref(`Stores/${myStore}/DeletedUsers/${charId}`).remove();
+            logAdminAction('purge_employee', `Trwale usunięto z kosza: ${name} (${charId})`);
+        });
     }
 
     function openAddEmployeeModal() {
@@ -892,6 +1263,7 @@
             });
 
             msgBox.classList.add('msg-success'); msgBox.innerText = "Pracownik dodany pomyślnie!";
+            logAdminAction('add_employee', `Dodano pracownika: ${name} (${charId}, dział ${dept})`);
             setTimeout(() => { closeAddEmployeeModal(); }, 1500);
         } catch(e) {
             msgBox.classList.add('msg-error'); msgBox.innerText = "Błąd komunikacji: " + e.message;
@@ -950,12 +1322,13 @@
             }
 
             msgBox.classList.add('msg-success'); msgBox.innerText = "Dane zaktualizowane pomyślnie!";
+            logAdminAction('edit_employee', `Zaktualizowano dane: ${name} (${newCharId})`);
             setTimeout(() => { closeEditEmployeeModal(); }, 1500);
 
         } catch(e) { msgBox.classList.add('msg-error'); msgBox.innerText = "Błąd z chmurą: " + e.message; }
     }
 
-    // NASŁUCH DLA WYKRZYKNIKA W MENU (Inwentury ME/KSS)
+    // NASŁUCH DLA WYKRZYKNIKA W MENU (Inwentury ME/KSS) + LICZNIK DO STATYSTYK
     if (typeof db !== 'undefined' && typeof currentUser !== 'undefined') {
         const isManagerOrKssGlobal = (currentUser.dept === 'ME' || currentUser.isKss);
 
@@ -963,21 +1336,80 @@
             db.ref(`Stores/${myStore}/Inwentury`).on('value', snap => {
                 let allInwa = snap.val() || {};
                 let hasAwaiting = false;
+                let awaitingCount = 0;
 
                 Object.keys(allInwa).forEach(monthKey => {
                     let monthData = allInwa[monthKey] || {};
                     Object.values(monthData).forEach(item => {
                         if (item.status === 'awaiting_kss') {
                             hasAwaiting = true;
+                            awaitingCount++;
                         }
                     });
                 });
 
                 let badge = document.getElementById('kssAlertBadge');
                 if(badge) badge.innerHTML = hasAwaiting ? `<span class="nav-alert">[!]</span>` : '';
+
+                let statEl = document.getElementById('statAwaitingInwa');
+                if(statEl) statEl.innerText = awaitingCount;
             });
         }
     }
+
+    function closeGlobalPopup() { document.getElementById('globalNotificationModal').style.display = 'none'; }
+
+    // ==========================================
+    // AUTOWYLOGOWANIE (Z OSTRZEŻENIEM PRZED WYLOGOWANIEM)
+    // NAPRAWA: ta strona w ogole nie mial timera bezczynnosci, mimo ze jest to panel z
+    // najbardziej wrazliwymi akcjami w calej aplikacji (usuwanie pracownikow, reset hasel).
+    // Dodany identyczny 30-sekundowy system ostrzezenia jak na pozostalych stronach.
+    // ==========================================
+    const minutyBezczynnosci = 5;
+    const sekundOstrzezenia = 30;
+    const limitCzasu = (minutyBezczynnosci * 60 - sekundOstrzezenia) * 1000;
+    let timerBezczynnosci;
+    let countdownInterval;
+    let ostrzezenieAktywne = false;
+
+    function resetujTimer() {
+        if (ostrzezenieAktywne) return;
+        clearTimeout(timerBezczynnosci);
+        timerBezczynnosci = setTimeout(pokazOstrzezenie, limitCzasu);
+    }
+
+    function pokazOstrzezenie() {
+        ostrzezenieAktywne = true;
+        let secondsLeft = sekundOstrzezenia;
+        document.getElementById('idleCountdown').innerText = secondsLeft;
+        document.getElementById('idleWarningModal').style.display = 'flex';
+
+        countdownInterval = setInterval(() => {
+            secondsLeft--;
+            document.getElementById('idleCountdown').innerText = secondsLeft;
+            if (secondsLeft <= 0) {
+                clearInterval(countdownInterval);
+                wylogujZPowoduBezczynnosci();
+            }
+        }, 1000);
+    }
+
+    function pozostanZalogowany() {
+        ostrzezenieAktywne = false;
+        clearInterval(countdownInterval);
+        document.getElementById('idleWarningModal').style.display = 'none';
+        resetujTimer();
+    }
+
+    function wylogujZPowoduBezczynnosci() {
+        localStorage.removeItem('currentUser');
+        sessionStorage.setItem('powodWylogowania', 'bezczynnosc');
+        window.location.href = 'login.html';
+    }
+
+    const akcjeUzytkownika = ['mousemove', 'keydown', 'click', 'scroll', 'touchstart'];
+    akcjeUzytkownika.forEach(akcja => { document.addEventListener(akcja, resetujTimer, { passive: true }); });
+    resetujTimer();
 </script>
 </body>
 </html>

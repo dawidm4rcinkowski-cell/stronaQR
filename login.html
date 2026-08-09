@@ -98,9 +98,12 @@
             100% { box-shadow: 0 0 0 rgba(255, 232, 0, 0); transform: scale(1); }
         }
 
-        /* Formularz logowania czeka niewidoczny, az splash sie schowa */
-        .login-wrapper { opacity: 0; transform: translateY(15px); transition: opacity 0.6s ease, transform 0.6s ease; }
-        .login-wrapper.content-visible { opacity: 1; transform: translateY(0); }
+        /* Formularz logowania czeka niewidoczny, az splash sie schowa.
+           NAPRAWA: regula byla na .login-wrapper, ktora dzieli tez #wizardWrapper -
+           kreator nigdy nie dostawal klasy content-visible, wiec zostawal na opacity:0
+           na stale i "znikal" po kliknieciu "ZAREJESTRUJ NOWY SKLEP". Zawezone do #loginForm. */
+        #loginForm { opacity: 0; transform: translateY(15px); transition: opacity 0.6s ease, transform 0.6s ease; }
+        #loginForm.content-visible { opacity: 1; transform: translateY(0); }
 
         .input-group { margin-bottom: 20px; text-align: left; }
         .input-group label { font-size: 0.75rem; color: #888; font-weight: 900; letter-spacing: 1px; margin-bottom: 8px; display: block; text-transform: uppercase; }
@@ -149,6 +152,11 @@
         .wizard-step { display: none; }
         .wizard-step.active { display: block; animation: fadeIn 0.4s ease; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* PASEK POSTĘPU KREATORA */
+        .wizard-progress-bar { background: #000; border: 1px solid #333; height: 8px; border-radius: 10px; overflow: hidden; margin-bottom: 8px; }
+        .wizard-progress-fill { background: linear-gradient(90deg, #b3a200, #ffe800); height: 100%; width: 20%; transition: width 0.4s ease; }
+        .wizard-progress-label { font-size: 0.7rem; color: #888; font-weight: 900; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 20px; text-align: right; }
         
         .step-header { color: #ffe800; font-size: 1.2rem; font-weight: 900; margin-bottom: 25px; border-bottom: 1px solid #333; padding-bottom: 10px; text-align: left; }
         .flex-row { display: flex; gap: 15px; }
@@ -208,6 +216,9 @@
     <div class="login-wrapper" id="wizardWrapper" style="max-width: 600px;">
         <div class="login-box" style="text-align: left;">
             <div class="logo" style="justify-content: flex-start;">NOWY <span>SKLEP</span></div>
+
+            <div class="wizard-progress-bar"><div class="wizard-progress-fill" id="wizardProgressFill"></div></div>
+            <div class="wizard-progress-label" id="wizardProgressLabel">Krok 1 z 5</div>
             
             <div class="wizard-step active" id="step1">
                 <div class="step-header">KROK 1: Autoryzacja</div>
@@ -233,15 +244,15 @@
                     </div>
                 </div>
                 <div class="input-group">
-                    <label>Typ Sklepu (Wpływa na algorytm obsady weekendów)</label>
-                    <select id="wizStoreType">
-                        <option value="small">Mały Sklep (ok. 4 os. na weekend)</option>
-                        <option value="medium" selected>Średni Sklep (ok. 8 os. na weekend)</option>
-                        <option value="large">Duży Sklep (ok. 15 os. na weekend)</option>
-                    </select>
+                    <label>Ile osób potrzebujesz na typowy weekend (sobota/niedziela)?</label>
+                    <input type="number" class="form-input" id="wizWeekendStaff" placeholder="np. 8" value="8" min="1">
+                    <span style="font-size:0.6rem; color:#888; display:block; margin-top:5px;">Ta liczba trafi do ustawień grafiku jako domyślna obsada weekendowa - zawsze można to później zmienić w Planie Pracy.</span>
                 </div>
                 <div id="wizMsg2" class="msg-box"></div>
-                <button class="btn-login" onclick="goToStep3()">DALEJ</button>
+                <div class="flex-row">
+                    <button class="btn-login btn-secondary" style="flex:1;" onclick="showStep(1)">WSTECZ</button>
+                    <button class="btn-login" style="flex:2;" onclick="goToStep3()">DALEJ</button>
+                </div>
             </div>
 
             <div class="wizard-step" id="step3">
@@ -273,8 +284,27 @@
                         </div>
                     </div>
                 </div>
+                <div class="input-group">
+                    <label>Powtórz Hasło</label>
+                    <div class="password-wrap">
+                        <input type="password" class="form-input" id="wizMgrPassConfirm" placeholder="Powtórz hasło">
+                        <span class="eye-toggle" onclick="toggleFieldVisibility('wizMgrPassConfirm', this)">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="eye-open">
+                                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                                <circle cx="12" cy="12" r="3"></circle>
+                            </svg>
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="eye-closed" style="display:none;">
+                                <path d="M17.94 17.94A10.94 10.94 0 0 1 12 20c-7 0-11-8-11-8a18.77 18.77 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path>
+                                <line x1="1" y1="1" x2="23" y2="23"></line>
+                            </svg>
+                        </span>
+                    </div>
+                </div>
                 <div id="wizMsg3" class="msg-box"></div>
-                <button class="btn-login" onclick="goToStep4()">DALEJ: Zbuduj Ekipę</button>
+                <div class="flex-row">
+                    <button class="btn-login btn-secondary" style="flex:1;" onclick="showStep(2)">WSTECZ</button>
+                    <button class="btn-login" style="flex:2;" onclick="goToStep4()">DALEJ: Zbuduj Ekipę</button>
+                </div>
             </div>
 
             <div class="wizard-step" id="step4">
@@ -330,7 +360,23 @@
                 </div>
                 
                 <div id="wizMsg4" class="msg-box"></div>
-                <button class="btn-login" style="background:#0a0; color:#fff;" onclick="finishAndBuildStore()"><span id="finishBtnText">ZAKOŃCZ I STWÓRZ SKLEP!</span></button>
+                <div class="flex-row">
+                    <button class="btn-login btn-secondary" style="flex:1;" onclick="showStep(3)">WSTECZ</button>
+                    <button class="btn-login" style="flex:2;" onclick="goToStep5()">DALEJ: PODSUMOWANIE</button>
+                </div>
+            </div>
+
+            <div class="wizard-step" id="step5">
+                <div class="step-header">KROK 5: Podsumowanie</div>
+                <p style="font-size: 0.8rem; color:#888; margin-bottom: 15px;">Sprawdź dane przed utworzeniem sklepu - po tym kroku token dostępu zostanie zużyty.</p>
+
+                <div id="summaryBox" style="background:#111; border:1px solid #333; border-radius:10px; padding:18px; margin-bottom:20px; font-size:0.85rem; line-height:1.9;"></div>
+
+                <div id="wizMsg5" class="msg-box"></div>
+                <div class="flex-row">
+                    <button class="btn-login btn-secondary" style="flex:1;" onclick="showStep(4)">WSTECZ</button>
+                    <button class="btn-login" style="flex:2; background:#0a0; color:#fff;" onclick="finishAndBuildStore()"><span id="finishBtnText">ZAKOŃCZ I STWÓRZ SKLEP!</span></button>
+                </div>
             </div>
 
         </div>
@@ -489,7 +535,9 @@
 
         function startWizard() {
             document.getElementById('loginForm').style.display = 'none';
-            document.getElementById('wizardWrapper').style.display = 'block';
+            const wizard = document.getElementById('wizardWrapper');
+            wizard.style.display = 'block';
+            wizard.classList.add('content-visible'); // NAPRAWA: bez tej klasy formularz zostawal na opacity:0 (niewidoczny)
         }
 
         function cancelWizard() {
@@ -500,6 +548,11 @@
         function showStep(stepNum) {
             document.querySelectorAll('.wizard-step').forEach(el => el.classList.remove('active'));
             document.getElementById(`step${stepNum}`).classList.add('active');
+
+            // NOWE: aktualizacja paska postepu kreatora
+            const totalSteps = 5;
+            document.getElementById('wizardProgressFill').style.width = `${(stepNum / totalSteps) * 100}%`;
+            document.getElementById('wizardProgressLabel').innerText = `Krok ${stepNum} z ${totalSteps}`;
         }
 
         // KROK 1: TOKEN
@@ -532,9 +585,11 @@
         function goToStep3() {
             const sNum = document.getElementById('wizStoreNum').value.trim();
             const city = document.getElementById('wizCity').value.trim();
+            const weekendStaff = parseInt(document.getElementById('wizWeekendStaff').value);
             const msg = document.getElementById('wizMsg2');
             
             if(!sNum || !city) { msg.style.display='block'; msg.className='msg-box msg-error'; msg.innerText="Wypełnij Numer i Miejscowość!"; return; }
+            if(isNaN(weekendStaff) || weekendStaff < 1) { msg.style.display='block'; msg.className='msg-box msg-error'; msg.innerText="Podaj poprawną liczbę osób na weekend (minimum 1)!"; return; }
             msg.style.display = 'none';
             showStep(3);
         }
@@ -544,13 +599,33 @@
             const name = document.getElementById('wizMgrName').value.trim();
             const charId = document.getElementById('wizMgrChar').value.trim().replace(/\s+/g, '');
             const pass = document.getElementById('wizMgrPass').value.trim();
+            const passConfirm = document.getElementById('wizMgrPassConfirm').value.trim();
             const msg = document.getElementById('wizMsg3');
             
-            if(!name || !charId || !pass) { msg.style.display='block'; msg.className='msg-box msg-error'; msg.innerText="Uzupełnij wszystkie pola!"; return; }
+            if(!name || !charId || !pass || !passConfirm) { msg.style.display='block'; msg.className='msg-box msg-error'; msg.innerText="Uzupełnij wszystkie pola!"; return; }
             if(pass.length < 6) { msg.style.display='block'; msg.className='msg-box msg-error'; msg.innerText="Hasło musi mieć minimum 6 znaków!"; return; }
+            if(pass !== passConfirm) { msg.style.display='block'; msg.className='msg-box msg-error'; msg.innerText="Powtórzone hasło nie zgadza się z poprzednim polem!"; return; }
             
             msg.style.display = 'none';
             showStep(4);
+        }
+
+        // KROK 5: PODSUMOWANIE
+        function goToStep5() {
+            const sNum = document.getElementById('wizStoreNum').value.trim().toUpperCase();
+            const city = document.getElementById('wizCity').value.trim();
+            const weekendStaff = document.getElementById('wizWeekendStaff').value.trim();
+            const mgrName = document.getElementById('wizMgrName').value.trim().toUpperCase();
+            const mgrChar = document.getElementById('wizMgrChar').value.trim().toUpperCase();
+
+            document.getElementById('summaryBox').innerHTML = `
+                <div><strong style="color:#ffe800;">Sklep:</strong> ${sNum} — ${city}</div>
+                <div><strong style="color:#ffe800;">Obsada weekendowa:</strong> ${weekendStaff} os. (sob. i niedz.)</div>
+                <div><strong style="color:#ffe800;">Kierownik:</strong> ${mgrName} (kod: ${mgrChar})</div>
+                <div><strong style="color:#ffe800;">Dodani pracownicy:</strong> ${newStoreEmployees.length}</div>
+            `;
+            document.getElementById('wizMsg5').style.display = 'none';
+            showStep(5);
         }
 
         // KROK 4: ZAŁOGA
@@ -629,7 +704,7 @@
 
         // FINAŁ - TWORZENIE BAZY
         async function finishAndBuildStore() {
-            const msg = document.getElementById('wizMsg4');
+            const msg = document.getElementById('wizMsg5');
             const btnText = document.getElementById('finishBtnText');
             msg.style.display = 'block'; msg.className = 'msg-box';
             msg.innerText = "Tworzenie infrastruktury w chmurze...";
@@ -671,19 +746,14 @@
                 // 4. KONTO ZABEZPIECZAJĄCE (Admin)
                 updates[`Stores/${sNum}/Users/ADMIN`] = { charId: "ADMIN", name: "SYSTEM", dept: "IT", password: "xxx" };
 
-                // 5. USTAWIENIA WEEKENDÓW BAZUJĄC NA TYPIE SKLEPU
-                // NAPRAWA: bylo zaszyte na sztywno "PlanMeta/2026_0" (tylko styczen 2026) -
-                // sklep zalozony w innym miesiacu/roku nigdy nie dostawalby tych ustawien
-                // dla wlasciwego miesiaca. Teraz zapisujemy je dla wszystkich 12 miesiecy
-                // biezacego roku.
-                const sType = document.getElementById('wizStoreType').value;
-                let satCount = 6, sunCount = 6;
-                if(sType === 'small') { satCount = 4; sunCount = 4; }
-                if(sType === 'large') { satCount = 15; sunCount = 15; }
+                // 5. USTAWIENIA WEEKENDÓW - wlasna liczba osob podana przez uzytkownika
+                // zamiast sztywnych progow maly/sredni/duzy. Zapisujemy dla wszystkich
+                // 12 miesiecy biezacego roku (naprawa wczesniejszego bledu z "PlanMeta/2026_0").
+                const weekendStaff = parseInt(document.getElementById('wizWeekendStaff').value) || 6;
 
                 const wizardYear = new Date().getFullYear();
                 for (let m = 0; m < 12; m++) {
-                    updates[`Stores/${sNum}/PlanMeta/${wizardYear}_${m}`] = { satStaffCount: satCount, sunStaffCount: sunCount };
+                    updates[`Stores/${sNum}/PlanMeta/${wizardYear}_${m}`] = { satStaffCount: weekendStaff, sunStaffCount: weekendStaff };
                 }
 
                 // Zapis do bazy

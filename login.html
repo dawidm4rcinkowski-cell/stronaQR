@@ -67,8 +67,20 @@
             90% { transform: translateX(2px); }
         }
 
-        .logo { color: #fff; font-weight: 900; font-size: 1.8rem; text-transform: uppercase; letter-spacing: 2px; display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 30px; }
-        .logo span { background: #ffe800; color: #000; padding: 2px 10px; border-radius: 5px; user-select: none; cursor: default; }
+        .logo { color: #fff; font-weight: 900; font-size: 1.8rem; text-transform: uppercase; letter-spacing: 2px; display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 30px; opacity: 0; animation: logoEntrance 0.9s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; }
+        .logo span { background: #ffe800; color: #000; padding: 2px 10px; border-radius: 5px; user-select: none; cursor: default; display: inline-block; animation: badgeGlow 1.3s ease-out 0.55s forwards; }
+
+        @keyframes logoEntrance {
+            0% { opacity: 0; transform: scale(0.2) translateY(-25px) rotate(-8deg); }
+            55% { opacity: 1; transform: scale(1.18) translateY(4px) rotate(3deg); }
+            75% { transform: scale(0.94) rotate(-1deg); }
+            100% { opacity: 1; transform: scale(1) translateY(0) rotate(0deg); }
+        }
+        @keyframes badgeGlow {
+            0% { box-shadow: 0 0 0 rgba(255, 232, 0, 0); transform: scale(1); }
+            35% { box-shadow: 0 0 28px rgba(255, 232, 0, 0.9); transform: scale(1.12); }
+            100% { box-shadow: 0 0 0 rgba(255, 232, 0, 0); transform: scale(1); }
+        }
 
         .input-group { margin-bottom: 20px; text-align: left; }
         .input-group label { font-size: 0.75rem; color: #888; font-weight: 900; letter-spacing: 1px; margin-bottom: 8px; display: block; text-transform: uppercase; }

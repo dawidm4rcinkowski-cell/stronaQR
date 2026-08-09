@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Media Expert - Inwentury</title>
+    <title>Media Expert - AZS</title>
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='48' fill='%23ffe800'/><path d='M75.6,24.4c-9.1-9.1-23.9-9.1-33,0c-7.3,7.3-8.8,17.7-4.7,26.5L12.4,76.4c-1.6,1.6-1.6,4.1,0,5.7l5.5,5.5c1.6,1.6,4.1,1.6,5.7,0l25.5-25.5c8.8,4.1,19.2,2.6,26.5-4.7C84.7,48.3,84.7,33.5,75.6,24.4z M66.8,41.2c-3.1,3.1-8.2,3.1-11.3,0s-3.1-8.2,0-11.3s8.2-3.1,11.3,0S69.9,38.1,66.8,41.2z' fill='%23000'/></svg>">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&display=swap" rel="stylesheet">
     
@@ -20,15 +20,6 @@
         
         const isManagerOrKss = (currentUser.dept === 'ME' || currentUser.isKss);
 
-        // NAPRAWA (bezpieczenstwo): to jest panel ME/KSS do akceptowania/odrzucania/cofania
-        // cudzych inwentur. Wczesniej link byl tylko ukryty w menu dla zwyklych pracownikow,
-        // ale sama strona nie sprawdzala uprawnien - znajac adres, kazdy mogl tu wejsc i
-        // podejmowac decyzje za kierownika. Teraz brak uprawnien = natychmiastowe przekierowanie.
-        if (currentUser && myStore && !isManagerOrKss) {
-            window.location.href = 'index.html';
-        }
-
-        // INICJALIZACJA FIREBASE
         const firebaseConfig = {
             apiKey: "AIzaSyD0N6Bjyzs34piOoujEn9mxKir8LDGdD2k",
             authDomain: "expert-tool.firebaseapp.com",
@@ -45,15 +36,17 @@
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Montserrat', sans-serif; }
         body { background: #080808; color: white; display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
-        ::-webkit-scrollbar { width: 12px; height: 12px; } 
-        ::-webkit-scrollbar-track { background: #111; } 
+        ::-webkit-scrollbar { width: 12px; height: 12px; }
+        ::-webkit-scrollbar-track { background: #111; border-left: 1px solid #222; border-top: 1px solid #222; }
         ::-webkit-scrollbar-thumb { background: #ffe800; border-radius: 2px; }
+        ::-webkit-scrollbar-thumb:hover { background: #e6d100; }
         
-        header { background: #ffe800; height: 50px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; z-index: 9999; border-bottom: 2px solid #000; position: relative; }
-        .logo { color: #000; font-weight: 900; font-size: 1.2rem; text-transform: uppercase; letter-spacing: 1px; display: flex; align-items: center; gap: 10px; }
+        /* HEADER I MENU */
+        header { background: #ffe800; height: 50px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; z-index: 9999; border-bottom: 2px solid #000; position: relative; box-shadow: 0 2px 10px rgba(255, 232, 0, 0.2); }
+        .logo { color: #000; font-weight: 900; font-size: 1.4rem; text-transform: uppercase; letter-spacing: 1px; display: flex; align-items: center; gap: 10px; }
         .logo span { background: #000; color: #ffe800; padding: 0 6px; border-radius: 3px; }
         .store-badge { font-size: 0.7rem; background: rgba(0,0,0,0.1); padding: 4px 8px; border-radius: 20px; font-weight: 800; border: 1px solid #000; }
-        .menu-btn { position: absolute; left: 15px; cursor: pointer; color: #000; font-size: 1.5rem; }
+        .menu-btn { position: absolute; left: 15px; cursor: pointer; color: #000; font-size: 1.5rem; transition: 0.2s; }
         
         .sidebar { position: fixed; left: -280px; top: 0; width: 260px; height: 100%; background: #0a0a0a; border-right: 3px solid #ffe800; transition: 0.4s; z-index: 10000; padding-top: 60px; display: flex; flex-direction: column; }
         .sidebar.active { left: 0; }
@@ -61,94 +54,132 @@
         .sidebar-header { color: #ffe800; font-weight: 900; font-size: 1rem; padding: 0 25px 15px 25px; letter-spacing: 2px; text-transform: uppercase; }
         .sidebar-link { display: block; color: white; padding: 15px 25px; text-decoration: none; font-weight: 700; font-size: 0.8rem; border-bottom: 1px solid #111; transition: 0.2s; }
         .sidebar-link:hover { background: #1a1a1a; color: #ffe800; padding-left: 35px; }
-
-        .sidebar-feedback, .sidebar-feedback:visited, .sidebar-feedback:link { display: block; margin-top: auto; background: #111; color: #ffe800 !important; padding: 15px 25px; text-decoration: none !important; font-weight: 900; font-size: 0.8rem; border-top: 1px solid #222; border-bottom: 1px solid #222; transition: 0.3s; text-transform: uppercase; letter-spacing: 0.5px; }
-        .sidebar-feedback:hover { background: #ffe800 !important; color: #000 !important; padding-left: 35px; }
         
-        .user-profile { padding: 15px 20px; border-top: 2px solid #1a1a1a; display: flex; align-items: center; gap: 15px; cursor: pointer; background: #0f0f0f; }
-        .user-avatar { width: 45px; height: 45px; border-radius: 50%; background: #151515; border: 2px solid #ffe800; display: flex; align-items: center; justify-content: center; font-weight: 900; color: #ffe800; font-size: 1.2rem; flex-shrink: 0; overflow: hidden; }
+        .sidebar-feedback, .sidebar-feedback:visited, .sidebar-feedback:link { 
+            display: block; 
+            margin-top: auto; 
+            background: #111; 
+            color: #ffe800 !important; 
+            padding: 15px 25px; 
+            text-decoration: none !important; 
+            font-weight: 900; 
+            font-size: 0.8rem; 
+            border-top: 1px solid #222; 
+            border-bottom: 1px solid #222; 
+            transition: 0.3s; 
+            text-transform: uppercase; 
+            letter-spacing: 0.5px; 
+        }
+        .sidebar-feedback:hover { 
+            background: #ffe800 !important; 
+            color: #000 !important; 
+            padding-left: 35px; 
+        }
+        
+        .user-profile { padding: 15px 20px; border-top: 2px solid #1a1a1a; display: flex; align-items: center; gap: 15px; cursor: pointer; transition: 0.3s; background: #0f0f0f; }
+        .user-profile:hover { background: #151515; }
+        .user-profile:hover .user-settings { color: #ffe800; }
+        .user-avatar { width: 45px; height: 45px; border-radius: 50%; background: #151515; border: 2px solid #ffe800; display: flex; align-items: center; justify-content: center; font-weight: 900; color: #ffe800; font-size: 1.2rem; flex-shrink: 0; box-shadow: inset 0 0 10px rgba(0,0,0,0.8); overflow: hidden; }
         .user-info { display: flex; flex-direction: column; }
-        .user-name { font-weight: 900; font-size: 0.85rem; color: #fff; }
-        .user-settings { font-size: 0.65rem; color: #888; font-weight: 700; margin-top: 4px; }
-        .logout-btn { display: block; width: 100%; text-align: center; background: transparent; color: #f44; border: none; border-top: 1px solid #1a1a1a; padding: 15px; font-weight: 900; font-size: 0.8rem; cursor: pointer; text-transform: uppercase; }
+        .user-name { font-weight: 900; font-size: 0.85rem; color: #fff; letter-spacing: 0.5px; }
+        .user-settings { font-size: 0.65rem; color: #888; font-weight: 700; margin-top: 4px; transition: 0.2s; }
+        .logout-btn { display: block; width: 100%; text-align: center; background: transparent; color: #f44; border: none; border-top: 1px solid #1a1a1a; padding: 15px; font-weight: 900; font-size: 0.8rem; cursor: pointer; transition: 0.3s; text-transform: uppercase; letter-spacing: 1px; }
+        .logout-btn:hover { background: #f44; color: #000; }
         .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.8); display: none; z-index: 9500; }
         .overlay.active { display: block; }
-        
-        .content { flex-grow: 1; overflow-y: auto; padding: 30px 20px; position: relative;}
-        .content-inner { max-width: 1400px; margin: 0 auto; }
-        
-        .page-header { display: flex; flex-direction: column; align-items: center; margin-bottom: 30px; }
-        .page-title { font-size: 2rem; font-weight: 900; margin-bottom: 15px; text-transform: uppercase; text-align: center;} .page-title span { color: #ffe800; } .mgr-badge { font-size: 1rem; color: #0a0; border: 2px solid #0a0; padding: 5px 10px; border-radius: 5px; vertical-align: middle; margin-left: 10px; }
-        
-        .month-selector { display: flex; gap: 8px; overflow-x: auto; white-space: nowrap; scrollbar-width: none; padding-bottom: 10px; max-width: 100%; justify-content: center; }
-        .month-btn { padding: 8px 16px; border-radius: 20px; border: 1px solid #333; background: #111; color: #888; font-size: 0.75rem; font-weight: 700; cursor: pointer; transition: 0.3s; position: relative; }
-        .month-btn.active { background: #ffe800; color: #000; border-color: #ffe800; box-shadow: 0 0 10px rgba(255, 232, 0, 0.4); }
-        .month-btn:hover:not(.active) { background: #222; color: #fff; }
 
-        .dept-tabs { display: flex; gap: 15px; margin-bottom: 40px; flex-wrap: wrap; justify-content: center;}
-        .tab-btn { background: #151515; border: 1px solid #333; color: #fff; padding: 12px 30px; border-radius: 12px; font-weight: 900; cursor: pointer; transition: 0.3s; font-size: 0.9rem; flex: 1; max-width: 200px; position: relative; }
-        .tab-btn.active { background: #ffe800; color: #000; border-color: #ffe800; }
+        /* ZAWARTOŚĆ AZS */
+        .navigation-area { background: #111; border-bottom: 2px solid #ffe800; flex-shrink: 0; padding: 10px 15px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; z-index: 800; }
+        .controls-group { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+        select { background: #000; color: #fff; border: 1px solid #ffe800; padding: 8px 12px; font-weight: 900; border-radius: 8px; outline: none; cursor: pointer; font-size: 0.8rem; }
+        .btn-gen { background: #ffe800; color: #000; border: none; padding: 8px 15px; font-weight: 900; border-radius: 8px; cursor: pointer; font-size: 0.8rem; transition: 0.3s; text-transform: uppercase; }
+        .btn-print { background: #3498db; color: #fff; border: none; padding: 8px 15px; font-weight: 900; border-radius: 8px; cursor: pointer; font-size: 0.8rem; transition: 0.3s; text-transform: uppercase; }
         
-        .inwa-section { margin-bottom: 50px; } 
-        .section-label { font-size: 1rem; color: #ffe800; text-transform: uppercase; margin-bottom: 20px; border-left: 4px solid #ffe800; padding-left: 10px; }
-        .items-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 15px; }
-        .item-card { background: #111; border: 1px solid #333; border-radius: 15px; padding: 20px; display: flex; flex-direction: column; justify-content: space-between; transition: 0.3s; }
-        .item-card.highlight { border-color: #ffa502; background: #1a1500; box-shadow: 0 5px 15px rgba(255, 165, 2, 0.2); }
-        .item-card h3 { font-size: 1.1rem; font-weight: 900; text-transform: uppercase; margin-bottom: 10px; color: #eee; line-height: 1.3;}
+        .azs-title { text-align: center; color: #ffe800; font-weight: 900; font-size: 1.5rem; margin-top: 10px; text-transform: uppercase; letter-spacing: 2px; }
+        .azs-dates { text-align: center; color: #888; font-weight: 700; font-size: 1rem; margin-bottom: 10px; margin-top: 5px;}
         
-        .status-row { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 20px; font-size: 0.75rem; font-weight: 800; color: #888; }
-        .dot { width: 12px; height: 12px; border-radius: 50%; margin-top: 2px; background: #444; }
-        .status-waiting .dot { background: #ffa502; box-shadow: 0 0 8px rgba(255, 165, 2, 0.6); } .status-waiting span { color: #ffa502; }
-        .status-accepted .dot { background: #0a0; } .status-accepted span { color: #0a0; }
-        .status-rejected .dot { background: #f44; } .status-rejected span { color: #f44; }
-        .submitted-by { color: #fff; font-size: 0.75rem; margin-top: 4px; display: block; font-weight: 900; }
+        .table-container { 
+            flex: 1; 
+            overflow: auto; 
+            background: #080808; 
+            width: 100%; 
+            padding: 0 10px 10px 10px; 
+            position: relative; 
+        }
         
-        .check-btn { width: 100%; background: #ffa502; color: #000; border: none; padding: 12px; border-radius: 8px; font-weight: 900; cursor: pointer; text-transform: uppercase; transition: 0.3s;}
-        .check-btn:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(255, 165, 2, 0.4); }
-        .btn-disabled { background: transparent; border: 2px solid #333; color: #555; cursor: not-allowed; width: 100%; padding: 10px; border-radius: 8px; font-weight: 900; text-transform: uppercase; margin-bottom: 5px;}
-        .undo-btn { background: transparent; border: 1px solid #f44; color: #f44; padding: 8px; border-radius: 8px; font-weight: 900; cursor: pointer; width: 100%; font-size: 0.7rem; text-transform: uppercase; transition: 0.2s;}
-        .undo-btn:hover { background: #f44; color: #000; }
+        table { 
+            border-collapse: separate; 
+            border-spacing: 0; 
+            width: 100%; 
+            min-width: 1500px; 
+            background: #111; 
+            border: 2px solid #333; 
+        }
+        
+        thead { position: sticky; top: 0; z-index: 1000; background: #1a1a1a; box-shadow: 0 2px 10px rgba(0,0,0,0.8); }
+        thead th { padding: 10px 5px; border-right: 1px solid #333; border-bottom: 1px solid #333; font-size: 0.65rem; color: #ffe800; text-transform: uppercase; }
+        .header-main-row th { border-bottom: 3px solid #ffe800; }
+        .th-task { width: 350px; text-align: left; padding-left: 15px !important; border-left: 1px solid #333; }
+        .th-day { width: 75px; text-align: center; }
+        .th-sign { width: 75px; text-align: center; background: #0a0a0a; color: #888; border-bottom: 3px solid #ffe800; }
+        
+        tbody tr { height: 65px; transition: background-color 0.2s; }
+        tbody tr:hover { background-color: #1a1a1a; }
+        td { border-right: 1px solid #333; border-bottom: 1px solid #333; padding: 5px 10px; font-size: 0.75rem; font-weight: 700; color: #fff; text-align: center; vertical-align: middle; }
+        td:first-child { border-left: 1px solid #333; }
+        
+        .td-task { text-align: left; padding-left: 15px; font-size: 0.65rem; color: #ccc; font-weight: 600; line-height: 1.3; }
+        .td-name { color: #ffe800; font-weight: 900; text-transform: uppercase; letter-spacing: 0.5px; }
+        .td-blocked { background-color: #000 !important; color: transparent !important; }
+        .td-sign { background: #151515; } 
+        
+        .error-msg { text-align: center; color: #f44; font-weight: bold; margin-top: 20px; font-size: 1.2rem; display: none; }
 
-        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 11000; align-items: center; justify-content: center; padding: 20px; backdrop-filter: blur(5px);}
-        .modal-content { background: #0a0a0a; border: 3px solid #ffa502; padding: 30px; width: 100%; max-width: 500px; border-radius: 15px; text-align: center; }
-        .modal-subtitle { color: #ffa502; font-size: 0.8rem; font-weight: 900; margin-bottom: 25px; }
-        .mgr-buttons { display: flex; gap: 10px; }
-        .btn-accept { flex: 1; background: transparent; color: #0a0; border: 2px solid #0a0; padding: 15px 10px; font-weight: 900; border-radius: 8px; cursor: pointer; transition:0.3s; } .btn-accept:hover { background: #0a0; color:#000; }
-        .btn-reject { flex: 1; background: transparent; color: #f44; border: 2px solid #f44; padding: 15px 10px; font-weight: 900; border-radius: 8px; cursor: pointer; transition:0.3s; } .btn-reject:hover { background: #f44; color:#000; }
-        .btn-cancel { width: 100%; background: #151515; color: #888; border: 1px solid #333; padding: 12px 20px; font-weight: 900; border-radius: 8px; cursor: pointer; margin-top: 15px; transition: 0.2s; }
-        .btn-cancel:hover { background: #222; color: #fff; }
-
-        @keyframes blink { 0% { opacity: 1; } 50% { opacity: 0.3; } 100% { opacity: 1; } }
-        .nav-alert { color: #f44; font-weight: 900; animation: blink 1s infinite; font-size: 1rem; margin-left: 5px; }
-        .btn-alert { color: #f44; font-weight: 900; animation: blink 1s infinite; margin-left: 4px; }
         .loading-overlay { position: absolute; inset: 0; background: rgba(0,0,0,0.8); z-index: 2000; display: flex; align-items: center; justify-content: center; color: #ffe800; font-weight: bold; font-size: 1.5rem; display: none; flex-direction: column; gap: 15px; }
+        .loading-overlay span { font-size: 0.8rem; color: #ccc; font-weight: normal;}
 
         /* SPINNER (spojny z reszta aplikacji) */
         .spinner { width: 32px; height: 32px; border-radius: 50%; border: 4px solid rgba(255,232,0,0.2); border-top-color: #ffe800; animation: spin 0.7s linear infinite; }
         @keyframes spin { to { transform: rotate(360deg); } }
-        
-        #globalNotificationModal .modal-content { border-color: #ffe800; box-shadow: 0 0 30px rgba(0,0,0,0.5); }
+
+        @keyframes blink { 0% { opacity: 1; } 50% { opacity: 0.3; } 100% { opacity: 1; } }
+        .nav-alert { color: #f44; font-weight: 900; animation: blink 1s infinite; font-size: 1rem; margin-left: 5px; }
+
+        /* STYL MODALA POWIADOMIEŃ */
+        #globalNotificationModal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 15000; align-items: center; justify-content: center; padding: 20px; backdrop-filter: blur(5px); }
+        #popupBox { background: #0a0a0a; border: 3px solid #ffe800; padding: 30px; width: 100%; max-width: 500px; border-radius: 15px; text-align: center; box-shadow: 0 0 30px rgba(0,0,0,0.5); }
         #globalPopupTitle { margin-bottom: 15px; font-size: 1.3rem; text-transform: uppercase; font-weight: 900; }
         #globalPopupMsg { color: #fff; font-size: 1rem; margin-bottom: 25px; line-height: 1.5; font-weight: 700; }
         .btn-close-popup { width: 100%; background: #ffe800; color: #000; border: none; padding: 12px 20px; font-weight: 900; border-radius: 8px; cursor: pointer; text-transform: uppercase; transition: 0.2s; }
         .btn-close-popup:hover { transform: scale(1.02); }
 
-        /* WLASNY MODAL POTWIERDZENIA (zamiast confirm()) */
-        #customConfirmModal .modal-content { border-color: #f44; max-width: 420px; }
-        #confirmModalTitle { color: #f44; font-weight: 900; text-transform: uppercase; margin-bottom: 12px; font-size: 1.2rem; }
-        #confirmModalText { color: #ccc; font-size: 0.85rem; line-height: 1.5; margin-bottom: 20px; }
-        .confirm-buttons { display: flex; gap: 10px; }
-        .btn-confirm-yes { flex: 1; background: #f44; color: #000; border: none; padding: 12px; font-weight: 900; border-radius: 8px; cursor: pointer; text-transform: uppercase; transition: 0.2s; }
-        .btn-confirm-yes:hover { transform: scale(1.02); }
-        .btn-confirm-no { flex: 1; background: #151515; color: #888; border: 1px solid #333; padding: 12px; font-weight: 900; border-radius: 8px; cursor: pointer; text-transform: uppercase; transition: 0.2s; }
-        .btn-confirm-no:hover { background: #222; color: #fff; }
-
         /* IDLE WARNING - spojne z reszta aplikacji */
         #idleWarningModal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.92); z-index: 20000; align-items: center; justify-content: center; padding: 20px; backdrop-filter: blur(5px); }
-        #idleWarningModal .modal-content { max-width: 380px; border-color: #f44; box-shadow: 0 0 30px rgba(255,68,68,0.25); }
+        #idleWarningModal .modal-box { background: #0a0a0a; border: 3px solid #f44; padding: 30px; width: 100%; max-width: 380px; border-radius: 15px; text-align: center; box-shadow: 0 0 30px rgba(255,68,68,0.25); }
         #idleCountdown { color: #f44; font-size: 2.5rem; font-weight: 900; margin: 15px 0; }
         .btn-stay-logged { width: 100%; background: #ffe800; color: #000; border: none; padding: 14px; font-weight: 900; border-radius: 8px; cursor: pointer; text-transform: uppercase; transition: 0.2s; }
         .btn-stay-logged:hover { transform: scale(1.02); }
+
+        @media print {
+            @page { size: A4 landscape; margin: 3mm 8mm; } 
+            body { background: white; color: black; font-family: Arial, sans-serif; overflow: visible; margin: 0; padding: 0; height: auto; }
+            header, .sidebar, .overlay, .navigation-area, .menu-btn, .error-msg, .loading-overlay { display: none !important; }
+            .table-container { overflow: visible; padding: 0; height: auto; width: 100%; display: block; }
+            .azs-title { color: black; margin-top: 0; font-size: 13px; margin-bottom: 2px; }
+            .azs-dates { color: black; font-size: 10px; font-weight: bold; margin-bottom: 5px; }
+            table { min-width: 100%; border: 2px solid black; background: white; table-layout: fixed; margin: 0; }
+            thead { position: static !important; }
+            thead th { background: #eee !important; color: black !important; border: 1px solid black !important; font-size: 6.5px !important; padding: 2px !important; }
+            .header-main-row th { border-bottom: 1px solid black !important; }
+            tbody tr { border-bottom: 1px solid black; height: auto !important; }
+            td { border: 1px solid black !important; color: black !important; padding: 1.5px 2px !important; font-size: 6.5px !important; line-height: 1 !important; }
+            .th-task { width: 33%; } 
+            .td-task { font-weight: bold; font-size: 5.5px !important; padding-left: 2px !important; word-wrap: break-word; }
+            .td-name { font-weight: 900; font-size: 6.5px !important; }
+            .td-blocked { background-color: #666 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; color: transparent !important; } 
+            .td-sign { background: white !important; }
+            tr, td, th { page-break-inside: avoid !important; }
+        }
     </style>
 </head>
 <body>
@@ -156,7 +187,7 @@
 <header>
     <div class="menu-btn" onclick="toggleNav()">☰</div>
     <div class="logo">EXPERT <span>TOOL</span></div>
-    <div class="store-badge" id="headerStore">SXXX</div>
+    <div class="store-badge" id="headerStore">Łączenie...</div>
 </header>
 
 <div class="sidebar" id="sidebar">
@@ -165,18 +196,17 @@
         <a href="index.html" class="sidebar-link">Strona główna</a>
         <a href="plan.html" class="sidebar-link">Plan pracy</a>
         <a href="inwa.html" class="sidebar-link">Inwentury</a>
-        <a href="inwak.html" class="sidebar-link" style="color:#ffe800" id="navInwaKSS">Inwentury (ME/KSS) <span id="kssAlertBadge"></span></a>
-        <a href="azs.html" class="sidebar-link">AZS</a>
+        <!-- Tutaj przywrócono obsługę wykrzyknika kssAlertBadge -->
+        <a href="inwak.html" class="sidebar-link" id="navInwaKSS">Inwentury (ME/KSS) <span id="kssAlertBadge"></span></a>
+        <a href="azs.html" class="sidebar-link" style="color:#ffe800">AZS (Agenda Zadań)</a>
         <a href="kwt.html" class="sidebar-link">KWT</a>
-        
         <a href="kierownik.html" class="sidebar-link" id="navKierownik">Centrum Dowodzenia</a>
-        
         <a href="feedback.html" class="sidebar-feedback">💡 Zgłoś problem / Pomysł</a>
     </div>
     <div class="user-profile" onclick="window.location.href='ustawienia.html'">
         <div class="user-avatar" id="sideAvatar">?</div>
         <div class="user-info">
-            <span class="user-name" id="sideName">Wczytywanie...</span>
+            <span class="user-name" id="sideName">Ładowanie...</span>
             <span class="user-settings">⚙️ Ustawienia konta</span>
         </div>
     </div>
@@ -184,59 +214,52 @@
 </div>
 <div class="overlay" id="overlay" onclick="toggleNav()"></div>
 
-<div class="content">
-    <div class="loading-overlay" id="loadingData"><div class="spinner"></div><span>Synchronizacja z chmurą...</span></div>
-    <div class="content-inner">
-        <div class="page-header">
-            <h1 class="page-title">WERYFIKACJA <span>INWENTUR</span> <span class="mgr-badge">PANEL ME/KSS</span></h1>
-            <div class="month-selector" id="monthSelector"></div>
-        </div>
-        
-        <div class="dept-tabs">
-            <button class="tab-btn active" onclick="switchDept('IT')" data-dept="IT">DZIAŁ IT <span id="badge_IT"></span></button>
-            <button class="tab-btn" onclick="switchDept('RTV')" data-dept="RTV">DZIAŁ RTV <span id="badge_RTV"></span></button>
-            <button class="tab-btn" onclick="switchDept('AGD')" data-dept="AGD">DZIAŁ AGD <span id="badge_AGD"></span></button>
-        </div>
-        <section class="inwa-section" id="secWeekly"><h2 class="section-label">Tygodniowe</h2><div class="items-grid" id="gridWeekly"></div></section>
-        <section class="inwa-section" id="secTwoWeeks"><h2 class="section-label">2-tygodniowe</h2><div class="items-grid" id="grid2Weeks"></div></section>
-        <section class="inwa-section" id="secMonthly"><h2 class="section-label">Miesięczne</h2><div class="items-grid" id="gridMonthly"></div></section>
+<div class="navigation-area">
+    <div class="controls-group">
+        <select id="monthSelect" onchange="updateWeeks()"></select>
+        <select id="weekSelect"></select>
+        <button class="btn-gen" onclick="generateAZS()">🔄 GENERUJ AZS Z PLANU</button>
     </div>
+    <button class="btn-print" onclick="window.print()">🖨️ DRUKUJ AZS</button>
 </div>
 
-<div class="modal" id="reviewModal">
-    <div class="modal-content">
-        <h3 id="modalItemName" style="color:#fff; margin-bottom: 5px; font-size: 1.5rem; line-height:1.2;">Nazwa</h3>
-        <div class="modal-subtitle">WYMAGA TWOJEJ DECYZJI</div>
-        <p style="color:#ccc; margin-bottom: 25px;">Zgłaszający pracownik:<br><strong style="color:#fff; font-size:1.2rem;" id="modalSubmitter">PRACOWNIK</strong></p>
-        <div class="mgr-buttons">
-            <button class="btn-reject" onclick="submitDecision('reject')">✖ ODRZUĆ (DO POPRAWY)</button>
-            <button class="btn-accept" onclick="submitDecision('accept')">✔ ZAAKCEPTUJ WYNIK</button>
-        </div>
-        <button class="btn-cancel" onclick="closeReviewModal()">Wróć do listy</button>
-    </div>
+<div class="azs-title">AGENDA ZADAŃ SKLEPU (AZS)</div>
+<div class="azs-dates" id="azsDates">Wybierz tydzień i kliknij generuj...</div>
+<div id="errorMsg" class="error-msg">⚠️ BRAK DANYCH GRAFIKU W BAZIE - Wygenerowano pustą listę zadań. Wygeneruj plan pracy!</div>
+
+<div class="table-container">
+    <div class="loading-overlay" id="loadingData"><div class="spinner"></div><span>Pobieranie z chmury... Synchronizacja grafiku</span></div>
+    
+    <table id="azsTable">
+        <thead>
+            <tr>
+                <th rowspan="2" class="th-task">NAZWISKA OSÓB ODPOWIEDZIALNYCH ZA WYKONANIE ZADANIA:</th>
+                <th colspan="7" style="border-right: 2px solid #ffe800; font-size:0.8rem;">PRZYPISANE OSOBY</th>
+                <th colspan="7" style="font-size:0.8rem;">TU PODPISUJĄ SIĘ OSOBY PO WYKONANIU ZADANIA:</th>
+            </tr>
+            <tr class="header-main-row">
+                <th class="th-day">PON</th><th class="th-day">WTO</th><th class="th-day">ŚRO</th>
+                <th class="th-day">CZW</th><th class="th-day">PIĄ</th><th class="th-day">SOB</th>
+                <th class="th-day" style="border-right: 2px solid #ffe800;">NIE</th>
+                <th class="th-sign">PON</th><th class="th-sign">WTO</th><th class="th-sign">ŚRO</th>
+                <th class="th-sign">CZW</th><th class="th-sign">PIĄ</th><th class="th-sign">SOB</th><th class="th-sign">NIE</th>
+            </tr>
+        </thead>
+        <tbody id="azsBody"></tbody>
+    </table>
 </div>
 
-<div class="modal" id="globalNotificationModal">
-    <div class="modal-content" id="popupBox">
+<!-- Globalne Powiadomienia -->
+<div id="globalNotificationModal">
+    <div id="popupBox">
         <h3 id="globalPopupTitle">POWIADOMIENIE</h3>
         <p id="globalPopupMsg"></p>
         <button class="btn-close-popup" onclick="closeGlobalPopup()">ZROZUMIAŁEM</button>
     </div>
 </div>
 
-<div class="modal" id="customConfirmModal">
-    <div class="modal-content">
-        <h3 id="confirmModalTitle">Potwierdź akcję</h3>
-        <p id="confirmModalText"></p>
-        <div class="confirm-buttons">
-            <button class="btn-confirm-no" onclick="resolveConfirm(false)">ANULUJ</button>
-            <button class="btn-confirm-yes" onclick="resolveConfirm(true)">POTWIERDŹ</button>
-        </div>
-    </div>
-</div>
-
 <div id="idleWarningModal">
-    <div class="modal-content">
+    <div class="modal-box">
         <h2 style="color:#f44; font-weight:900; text-transform:uppercase;">Nadal tam jesteś?</h2>
         <p style="color:#ccc; font-size:0.85rem; margin-top:10px;">Z powodu braku aktywności zostaniesz wylogowany za:</p>
         <div id="idleCountdown">30</div>
@@ -245,114 +268,10 @@
 </div>
 
 <script>
-    // NAPRAWA: rok liczony dynamicznie zamiast na sztywno "2026"
-    const year = new Date().getFullYear();
-    const months = ["STYCZEŃ", "LUTY", "MARZEC", "KWIECIEŃ", "MAJ", "CZERWIEC", "LIPIEC", "SIERPIEŃ", "WRZESIEŃ", "PAŹDZIERNIK", "LISTOPAD", "GRUDZIEŃ"];
-    let currentMonth = new Date().getMonth();
-    let inwaDataLive = {};
-    let inwaListener = null;
-    let curM = currentMonth; 
-    let allStoreInwentury = {}; // Przechowuje dane ze wszystkich miesięcy do globalnych oznaczeń
-
-    const defaultInventoryList = [
-        { id: "it_w1", dept: "IT", period: "weekly", name: "Myszki gamingowe" }, { id: "it_w2", dept: "IT", period: "weekly", name: "Słuchawki Truewireless" }, { id: "it_w3", dept: "IT", period: "weekly", name: "Smartfony" },
-        { id: "it_2w1", dept: "IT", period: "twoWeeks", name: "Słuchawki Nauszne" },
-        { id: "it_m1", dept: "IT", period: "monthly", name: "Tusze" }, { id: "it_m2", dept: "IT", period: "monthly", name: "Papier" }, { id: "it_m3", dept: "IT", period: "monthly", name: "Głośniki mobilne" }, { id: "it_m4", dept: "IT", period: "monthly", name: "Słuchawki douszne" }, { id: "it_m5", dept: "IT", period: "monthly", name: "Smartbandy" }, { id: "it_m6", dept: "IT", period: "monthly", name: "Smartwatche" }, { id: "it_m7", dept: "IT", period: "monthly", name: "Folie ochronne" }, { id: "it_m8", dept: "IT", period: "monthly", name: "Dyski PSSD" }, { id: "it_m9", dept: "IT", period: "monthly", name: "Dyski SSD M.2 NVME" }, { id: "it_m10", dept: "IT", period: "monthly", name: "Dyski SSD SATA" }, { id: "it_m11", dept: "IT", period: "monthly", name: "Dyski zewnętrzne" }, { id: "it_m12", dept: "IT", period: "monthly", name: "Słuchawki gamingowe" }, { id: "it_m13", dept: "IT", period: "monthly", name: "Nośniki logistyczne" },
-        { id: "rtv_2w1", dept: "RTV", period: "twoWeeks", name: "Konsole" }, { id: "rtv_2w2", dept: "RTV", period: "twoWeeks", name: "Android TV" }, { id: "rtv_2w3", dept: "RTV", period: "twoWeeks", name: "Alkomaty" }, { id: "rtv_2w4", dept: "RTV", period: "twoWeeks", name: "Wideorejestratory" },
-        { id: "rtv_m1", dept: "RTV", period: "monthly", name: "Akcesoria do konsol" }, { id: "rtv_m2", dept: "RTV", period: "monthly", name: "Komunikatory drogowe" }, { id: "rtv_m3", dept: "RTV", period: "monthly", name: "Kamery sportowe" }, { id: "rtv_m4", dept: "RTV", period: "monthly", name: "Nawigacje" },
-        { id: "agd_m1", dept: "AGD", period: "monthly", name: "Akcesoria do golarek" }, { id: "agd_m2", dept: "AGD", period: "monthly", name: "Depilatory świetlne" }, { id: "agd_m3", dept: "AGD", period: "monthly", name: "Szczoteczki" }, { id: "agd_m4", dept: "AGD", period: "monthly", name: "Trymery" }, { id: "agd_m5", dept: "AGD", period: "monthly", name: "Urządzenia do pielęgnacji twarzy i ciała" }, { id: "agd_m6", dept: "AGD", period: "monthly", name: "Akcesoria do urządzeń SODASTREAM" }, { id: "agd_m7", dept: "AGD", period: "monthly", name: "Kawa ziarnista" }, { id: "agd_m8", dept: "AGD", period: "monthly", name: "Kawa w kapsułkach" }, { id: "agd_m9", dept: "AGD", period: "monthly", name: "Syropy" }
-    ];
-
-    // Globalny nasłuch na całe inwentury sklepu w celu obsługi wykrzykników na miesiącach i działach
-    db.ref(`Stores/${myStore}/Inwentury`).on('value', snap => {
-        allStoreInwentury = snap.val() || {};
-        renderMonthSelector();
-        updateDeptBadges();
-        updateKssBadge();
-    });
-
-    // NAPRAWA: odpiecie starego nasluchiwacza musi uzyc numeru miesiaca SPRZED zmiany.
-    // Wczesniej `curM` bylo nadpisywane w onclick przed wywolaniem tej funkcji, wiec .off()
-    // probowal odpiac sie od sciezki nowego (jeszcze nigdy nie obserwowanego) miesiaca zamiast
-    // starego - stary listener nigdy nie znikal (wyciek przy kazdej zmianie miesiaca).
-    function loadMonthDataFromFirebase(m) {
-        document.getElementById('loadingData').style.display = 'flex';
-        if (inwaListener) { db.ref(`Stores/${myStore}/Inwentury/${year}_${curM}`).off('value', inwaListener); inwaListener = null; }
-        
-        curM = m;
-        currentMonth = m;
-        const dbRef = db.ref(`Stores/${myStore}/Inwentury/${year}_${curM}`);
-        
-        dbRef.once('value', snapshot => {
-            if (!snapshot.exists()) {
-                let initialDb = {};
-                defaultInventoryList.forEach(item => {
-                    if (item.period === 'weekly') {
-                        for(let i=1; i<=4; i++) { initialDb[`${item.id}_t${i}`] = { ...item, id: `${item.id}_t${i}`, name: `${item.name} <span style="color:#ffe800; font-size:0.8rem; display:block; margin-top:5px;">(Tydzień ${i})</span>`, status: 'do_zrobienia', submittedBy: null, submitterId: null }; }
-                    } else if (item.period === 'twoWeeks') {
-                        initialDb[`${item.id}_p1`] = { ...item, id: `${item.id}_p1`, name: `${item.name} <span style="color:#ffe800; font-size:0.8rem; display:block; margin-top:5px;">(Tydzień 1-2)</span>`, status: 'do_zrobienia', submittedBy: null, submitterId: null };
-                        initialDb[`${item.id}_p2`] = { ...item, id: `${item.id}_p2`, name: `${item.name} <span style="color:#ffe800; font-size:0.8rem; display:block; margin-top:5px;">(Tydzień 3-4)</span>`, status: 'do_zrobienia', submittedBy: null, submitterId: null };
-                    } else {
-                        initialDb[item.id] = { ...item, status: 'do_zrobienia', submittedBy: null, submitterId: null };
-                    }
-                });
-                dbRef.set(initialDb);
-            }
-            
-            inwaListener = dbRef.on('value', snap => {
-                inwaDataLive = snap.val() || {};
-                document.getElementById('loadingData').style.display = 'none';
-                let activeTabBtn = document.querySelector('.tab-btn.active');
-                let activeTab = activeTabBtn ? activeTabBtn.getAttribute('data-dept') : 'IT';
-                switchDept(activeTab);
-                updateDeptBadges();
-                updateKssBadge();
-            });
-        });
-    }
-
-    function renderMonthSelector() {
-        const div = document.getElementById('monthSelector');
-        div.innerHTML = "";
-        months.forEach((m, i) => {
-            let monthKey = `${year}_${i}`;
-            let monthObj = allStoreInwentury[monthKey] || {};
-            let hasAwaitingInMonth = Object.values(monthObj).some(item => item.status === 'awaiting_kss');
-
-            const b = document.createElement('button');
-            b.className = `month-btn ${i === currentMonth ? 'active' : ''}`;
-            b.innerHTML = `${m} ${hasAwaitingInMonth ? '<span class="btn-alert">[!]</span>' : ''}`;
-            b.onclick = () => { renderMonthSelectorActive(i); loadMonthDataFromFirebase(i); };
-            div.appendChild(b);
-        });
-    }
-
-    // NAPRAWA: podswietlenie aktywnego przycisku miesiaca bez przedwczesnego nadpisywania
-    // globalnego `curM`/`currentMonth` (o to dba dopiero loadMonthDataFromFirebase, PO
-    // odpieciu starego listenera).
-    function renderMonthSelectorActive(i) {
-        document.querySelectorAll('.month-btn').forEach((btn, idx) => btn.classList.toggle('active', idx === i));
-    }
-
-    function updateDeptBadges() {
-        ['IT', 'RTV', 'AGD'].forEach(dept => {
-            let badgeEl = document.getElementById(`badge_${dept}`);
-            if(badgeEl) {
-                let hasAwaitingInDept = Object.values(inwaDataLive).some(item => item.dept === dept && item.status === 'awaiting_kss');
-                badgeEl.innerHTML = hasAwaitingInDept ? `<span class="btn-alert">[!]</span>` : '';
-            }
-        });
-    }
-
-    // NAPRAWA: pelna nazwa sklepu (numer + miasto) zamiast samego kodu, spojnie z reszta aplikacji
-    document.getElementById('headerStore').innerText = myStore;
-    db.ref(`Stores/${myStore}/Setup`).once('value').then(snap => {
-        const setup = snap.val();
-        if (setup) document.getElementById('headerStore').innerText = `${setup.sNumber} ${setup.city}`;
-    });
-
+    // NAPRAWA: brakowalo tu przeliczenia etykiety KSS (osoba z isKss=true a dept != 'ME'
+    // widziala swoj surowy dzial zamiast "KSS", niespojnie z reszta aplikacji)
     let finalDept = currentUser.dept; if(currentUser.isKss && currentUser.dept !== 'ME') finalDept = 'KSS';
-    document.getElementById('sideName').innerText = `${currentUser.name} (${finalDept})`;
+    document.getElementById('sideName').innerText = currentUser ? `${currentUser.name} (${finalDept})` : 'Zaloguj się';
     
     const sideAvatarHtml = currentUser.avatar ? `<img src="${currentUser.avatar}" style="width:100%; height:100%; object-fit:cover; border-radius:50%;">` : currentUser.charId.charAt(0);
     document.getElementById('sideAvatar').innerHTML = sideAvatarHtml;
@@ -361,110 +280,201 @@
         if(document.getElementById('navInwaKSS')) document.getElementById('navInwaKSS').style.display = 'none'; 
         if(document.getElementById('navKierownik')) document.getElementById('navKierownik').style.display = 'none'; 
     }
+
+    // NAPRAWA: brakowalo plakietki sklepu w headerze (byla wszedzie indziej, tu jej nigdy nie bylo)
+    document.getElementById('headerStore').innerText = myStore;
+    db.ref(`Stores/${myStore}/Setup`).once('value').then(snap => {
+        const setup = snap.val();
+        if (setup) document.getElementById('headerStore').innerText = `${setup.sNumber} ${setup.city}`;
+    });
     
     function toggleNav() { document.getElementById('sidebar').classList.toggle('active'); document.getElementById('overlay').classList.toggle('active'); }
     function logout() { localStorage.removeItem('currentUser'); window.location.href = 'login.html'; }
 
-    let currentReviewId = null;
+    let employees = [];
+    let localPlanData = {};
+    // NAPRAWA: rok liczony dynamicznie zamiast na sztywno "2026"
+    const year = new Date().getFullYear();
+    const months = ["STYCZEŃ", "LUTY", "MARZEC", "KWIECIEŃ", "MAJ", "CZERWIEC", "LIPIEC", "SIERPIEŃ", "WRZESIEŃ", "PAŹDZIERNIK", "LISTOPAD", "GRUDZIEŃ"];
+    let currentWeeks = [];
 
-    function switchDept(dept) {
-        document.querySelectorAll('.tab-btn').forEach(btn => { 
-            btn.classList.remove('active'); 
-            if(btn.getAttribute('data-dept') === dept) btn.classList.add('active'); 
+    const azsTasksData = [
+        { name: "Reagowanie na SMS i KOMUNIKAT W MARKECIE informujący o złożeniu zamówienia OZG i SZS + wysłanie potwierdzenia max. do 15 minut", days: [1,2,3,4,5,6] },
+        { name: "Zatwierdzanie OZG i SZS z NOCY do 15 minut od włączenia Marketu w sklepie", days: [1,2,3,4,5,6] },
+        { name: "Osoba odpowiedzialna za odbieranie TELEFONÓW SKLEPOWYCH w ciągu dnia + za utrzymywanie ich maksymalnej głośności i naładowania baterii", days: [1,2,3,4,5,6] },
+        { name: "Wydruk CENÓWEK + Wydruk RAPORTU WYWIESZEK KORZYŚCI i sprawdzenie wszystkich WYWIESZEK KORZYŚCI do wywieszenia oraz tych do usunięcia", days: [1,2,3,4,5,6] },
+        { name: "Porządek i bezpieczeństwo SOCJAL, MAGAZYN, pozostałe pomieszczenia + OTOCZENIE SKLEPU i NAMIOTU, w tym kontrola FLAG i LOGO ŚWIETLNEGO", days: [1,2,3,4,5,6] },
+        { name: "Kontrola: Brak zalegających DOKUMENTÓW na widoku + PORZĄDEK POK, SERWIS, STANOWISKA KOMPUTEROWE + ODKURZANIE SALI SPRZEDAŻY", days: [1,2,3,4,5,6] },
+        { name: "Wystawienie POTYKACZY + uzupełnianie obowiązujących materiałów DRUKOWANYCH", days: [1,2,3,4,5,6] },
+        { name: "Uzupełnienie LODÓWKI Z NAPOJAMI (LAYOUT) + EKSPOZYCJI NA POK + KOSZYKA Z DROBNYM SLW NA POK (towar + zamówienia)", days: [1,2,3,4,5,6] },
+        { name: "Wykonanie FORMATEK zgodnie z datami podanymi na TOL", days: [1,2,3,4,5,6] },
+        { name: "Kontrola dokumentów MM przyjęcia zatwierdzonych w nocy + informacja o tym fakcie do KE/KSS", days: [1,2,3,4,5,6] },
+        { name: "Weryfikacja ilości i wartości zamówień OZG i MESK i PWS do dbioru w danym dniu + informacja do KE/KSS maksymalnie godzinę po otwarciu sklepu", days: [1,2,3,4,5,6] },
+        { name: "Przekazanie informacji Pracownikom POK na temat OZG i MESK O WARTOŚCI POWYŻEJ 500 ZŁ w celu zapewnienia dosprzedaży", days: [1,2,3,4,5,6] },
+        { name: "Kontrola: Włączony radiowęzeł oraz MUZYKA na wszystkich nośnikach + Przestrzeganie zakazu odtwarzania treści chron. prawem autorskim", days: [1,2,3,4,5,6] },
+        { name: "Kontrola: Włączone wszystkie TOWARY objęte obowiązkiem włączenia + Włączone i zapętlone wszystkie obowiązkowe prezentacje", days: [1,2,3,4,5,6] },
+        { name: "Kontrola: Na wszystkich SZCZYTACH, WYSPACH, KOSZACH i EKSPOZYTORACH Prawidłowe MODELE, CENY, WYWIESZKI i WYSTAWIENIE 100% SZTUK towarów", days: [1,2,3,4,5,6] },
+        { name: "Kontrola: Uzupełnione DZIURY towarowe we wszystkich DZIAŁACH + informacja o tym fakcie do KE/KSS", days: [1,2,3,4,5,6] },
+        { name: "Kontrola POPRAWNOŚCI CEN wg HARMONOGRAMU + w grupach, w których wystąpiła NIEZGODNA CENA SYSTEMOWA", days: [1,2,3,4,5,6] },
+        { name: "Przyjęcie TOWARU + wydruk z Marketu RAPORTU NOWYCH TOWARÓW, żeby wiedzieć co należy wystawić na półkę", days: [1,2,3,4,5,6] },
+        { name: "Kontrola Wystawienia Towaru (KWT) - rozłożenie kontroli na wszyskie dni tygodnia (razem wszystkie grupy muszą być skontrolowane w sklepie RAZ W TYGODNIU)", days: [1,2,3,4,5,6] },
+        { name: "Kontrola listy OBECNOŚCI + Kontrola zeszytu WYJŚĆ + Kontrola grafików PRZERW/POSIŁKÓW", days: [1,2,3,4,5,6] },
+        { name: "Praca z REKLAMACJAMI, w tym również WYSYŁKI, WYDANIA oraz BIEŻĄCY KONTAKT TELEFONICZNY Z KLIENTEM", days: [1,2,3,4,5,6] },
+        { name: "INWENTARYZACJA cząstkowa kolejnych działów oraz kolejnych GRUP WYSOKIEGO RYZYKA (polecenie wykonania pracownikowi SALI + egzekwowanie)", days: [1,2,3,4,5,6] },
+        { name: "Kontrola wyrywkowa kazdego rodzaju ZABEZPIECZEŃ", days: [1,2,3,4,5] }, 
+        { name: "Wskazanie osób do BADANIA KONKURENCJI zgodnie z aktualnymi wytycznymi", days: [1,2,3,4,5] },
+        { name: "Kontrola MESK i PWS (sprawność procesu + składowanie wg zasad + nieodebrane >1 dnia: czy wykonane telefony do klientów z komentarzem w PDS)", days: [1,2,3,4,5] },
+        { name: "Kontrola wywołanych ZWROTÓW NIEODEBRANYCH MESK i PWS (RAPORT 507) + wystawienie na salę sprzedaży towarów pozostawionych na stanie sklepu", days: [1,2,3,4,5] },
+        { name: "Opróżnianie szafek i strefy MESK z zalegających towarów NIEODEBRANYCH (MESK, PWS, OZG)", days: [1] }, 
+        { name: "Kontrola czy nie ma zapisanych HASEŁ przy stanowiskach, SZCZEGÓLNIE RATALNE I SERWISOWE", days: [1] },
+        { name: "Kontrola PUSTE MAGAZYNY + podział na 10 stref (Puste, Pełne, Wartościówka, Internet, Zwroty, Wywózki, Reklamacje, Wyposażenie, Odpady, Dostawa)", days: [2] }, 
+        { name: "Kontrola towarów NPW (Wystawienie 100% + Oznaczenie + Cena + Strategia sprzedaży)", days: [3] }, 
+        { name: "Sprawdzenie CAŁEJ ekspozycji czy nie ma niezgłoszonych towarów NPW lub PSP i niezwłoczne zgłoszenie ich do KE/KSS", days: [3] },
+        { name: "Kontrola towarów SLW (Wystawienie 100% + Oznaczenie + Cena + Strategia sprzedaży)", days: [3] },
+        { name: "Kontrola towarów z kończącą się datą (wprowadzenie na NPW kat. T) + towarów już przeterminowanych (ZWROT)", days: [3] },
+        { name: "Kontrola CZYSTOŚCI towaru i regałów", days: [3] },
+        { name: "Kontrola TOP (ZA POMOCĄ KOLEKTORA)", days: [4] }, 
+        { name: "Kontrola oznaczeń AKCJI PROMOCYJNYCH w całym sklepie", days: [4] },
+        { name: "Kontrola NTOL LISTA VM - REKLAMACJE (zrealizuj w dniach od poniedziałku do czwartku)", days: [4] },
+        { name: "Kontrola NTOL LISTA VM - DZIAŁ AGD DROBNE (zrealizuj w dniach od poniedziałku do czwartku)", days: [4] },
+        { name: "Kontrola NTOL LISTA VM - DZIAŁ AGD DUŻE (zrealizuj w dniach od poniedziałku do czwartku)", days: [4] },
+        { name: "Kontrola NTOL LISTA VM - DZIAŁ IT (zrealizuj w dniach od poniedziałku do czwartku)", days: [4] },
+        { name: "Kontrola NTOL LISTA VM - DZIAŁ RTV i ROZRYWKA (zrealizuj w dniach od poniedziałku do czwartku)", days: [4] },
+        { name: "Kontrola NTOL LISTA VM - DZIAŁ RS (zrealizuj w dniach od poniedziałku do czwartku)", days: [4] },
+        { name: "Kontrola NTOL LISTA VM - POK (zrealizuj w dniach od poniedziałku do czwartku)", days: [4] },
+        { name: "Kontrola NTOL LISTA VM - OGÓLNE (zrealizuj w dniach od poniedziałku do czwartku)", days: [4] }
+    ];
+
+    function loadEmployeesAndInit() {
+        document.getElementById('loadingData').style.display = 'flex';
+        db.ref(`Stores/${myStore}/Users`).once('value', snap => {
+            const usersObj = snap.val() || {};
+            let rawUsers = Object.keys(usersObj).map(key => ({ charId: key, ...usersObj[key] })).filter(u => u.charId !== 'ADMIN');
+            
+            employees = rawUsers.map(u => ({
+                n: u.name, 
+                charId: u.charId, 
+                p: u.dept === 'POK', 
+                dept: u.dept 
+            }));
+            
+            initSelectors();
         });
-        let dataArray = Object.values(inwaDataLive);
-        renderSection('gridWeekly', dataArray.filter(i => i.dept === dept && i.period === 'weekly'), 'secWeekly');
-        renderSection('grid2Weeks', dataArray.filter(i => i.dept === dept && i.period === 'twoWeeks'), 'secTwoWeeks');
-        renderSection('gridMonthly', dataArray.filter(i => i.dept === dept && i.period === 'monthly'), 'secMonthly');
     }
 
-    function renderSection(gridId, data, sectionId) {
-        const section = document.getElementById(sectionId);
-        const grid = document.getElementById(gridId);
-        if(data.length === 0) { section.style.display = 'none'; return; }
-        section.style.display = 'block';
-        
-        grid.innerHTML = data.map((item) => {
-            let stHtml, btnHtml, undoHtml = '', cardClass = '';
-            if (item.status === 'do_zrobienia') {
-                stHtml = `<div class="status-row"><div class="dot"></div><span>BRAK ZGŁOSZENIA</span></div>`;
-                btnHtml = `<button class="btn-disabled" disabled>CZEKA NA PRACOWNIKA</button>`;
-            } else if (item.status === 'awaiting_kss') {
-                cardClass = 'highlight';
-                stHtml = `<div class="status-row status-waiting"><div class="dot"></div><div><span>OCZEKUJE NA DECYZJĘ</span><span class="submitted-by">Zgłosił: ${item.submittedBy}</span></div></div>`;
-                let cleanName = item.name.replace(/<[^>]*>?/gm, ''); 
-                btnHtml = `<button class="check-btn" onclick="openReviewModal('${item.id}', '${cleanName}', '${item.submittedBy}')">🔍 WERYFIKUJ</button>`;
-            } else if (item.status === 'done') {
-                stHtml = `<div class="status-row status-accepted"><div class="dot"></div><div><span>ZAAKCEPTOWANO</span><span style="color:#888; font-size:0.65rem;">(Przez: ${item.submittedBy})</span></div></div>`;
-                btnHtml = `<button class="btn-disabled" disabled style="border-color:#0a0; color:#0a0;">✔ ROZLICZONE</button>`;
-                undoHtml = `<button class="undo-btn" onclick="undoDecision('${item.id}')">COFNIJ DECYZJĘ</button>`;
-            } else if (item.status === 'rejected') {
-                stHtml = `<div class="status-row status-rejected"><div class="dot"></div><div><span>ODRZUCONO</span><span style="color:#888; font-size:0.65rem;">(Czeka na poprawę)</span></div></div>`;
-                btnHtml = `<button class="btn-disabled" disabled style="border-color:#f44; color:#f44;">✖ W POPRAWIE</button>`;
-                undoHtml = `<button class="undo-btn" onclick="undoDecision('${item.id}')">COFNIJ DECYZJĘ</button>`;
-            }
-            return `<div class="item-card ${cardClass}"><h3>${item.name}</h3>${stHtml}<div>${btnHtml}${undoHtml}</div></div>`;
-        }).join('');
+    function initSelectors() {
+        const mSel = document.getElementById('monthSelect');
+        months.forEach((m, i) => { let opt = document.createElement('option'); opt.value = i; opt.innerText = `${m} ${year}`; mSel.appendChild(opt); });
+        mSel.value = new Date().getMonth(); 
+        updateWeeks();
     }
 
-    function openReviewModal(id, itemName, submitter) { 
-        currentReviewId = id; 
-        document.getElementById('modalItemName').innerText = itemName; 
-        document.getElementById('modalSubmitter').innerText = submitter; 
-        document.getElementById('reviewModal').style.display = 'flex'; 
-    }
-    function closeReviewModal() { document.getElementById('reviewModal').style.display = 'none'; }
-    
-    function submitDecision(dec) {
-        let item = inwaDataLive[currentReviewId];
-        let cleanName = item.name.replace(/<[^>]*>?/gm, '');
+    function updateWeeks() {
+        const mIndex = parseInt(document.getElementById('monthSelect').value);
+        let firstDayOfMonth = new Date(year, mIndex, 1);
+        let diff = firstDayOfMonth.getDay() === 0 ? -6 : 1 - firstDayOfMonth.getDay();
+        let currentDate = new Date(year, mIndex, 1 + diff); 
+        currentWeeks = [];
         
-        let newStatus = dec === 'accept' ? 'done' : 'rejected';
-        db.ref(`Stores/${myStore}/Inwentury/${year}_${curM}/${currentReviewId}`).update({ status: newStatus });
-        
-        if(dec === 'accept') {
-            db.ref(`Stores/${myStore}/Notifications`).push({ to: item.submitterId, title: '✅ INWENTURA ZAAKCEPTOWANA', msg: `Kierownik/KSS sprawdził i zatwierdził twoją inwenturę: ${cleanName} (${months[currentMonth]}). Dobra robota!`, type: 'success', read: false, timestamp: Date.now() });
-        } else {
-            db.ref(`Stores/${myStore}/Notifications`).push({ to: item.submitterId, title: '❌ INWENTURA ODRZUCONA', msg: `Kierownik/KSS znalazł błędy w inwenturze: ${cleanName} (${months[currentMonth]}). Wróć na dział i policz jeszcze raz!`, type: 'error', read: false, timestamp: Date.now() });
+        while (true) {
+            let week = [];
+            for (let i = 0; i < 7; i++) { week.push(new Date(currentDate)); currentDate.setDate(currentDate.getDate() + 1); }
+            currentWeeks.push(week);
+            if (currentDate.getMonth() !== mIndex && currentDate.getFullYear() >= year) break;
         }
+
+        const wSel = document.getElementById('weekSelect'); wSel.innerHTML = "";
+        currentWeeks.forEach((week, i) => {
+            let opt = document.createElement('option'); opt.value = i;
+            let startStr = `${String(week[0].getDate()).padStart(2, '0')}.${String(week[0].getMonth()+1).padStart(2, '0')}`;
+            let endStr = `${String(week[6].getDate()).padStart(2, '0')}.${String(week[6].getMonth()+1).padStart(2, '0')}`;
+            opt.innerText = `Tydzień ${i + 1} (${startStr} - ${endStr})`; wSel.appendChild(opt);
+        });
         
-        closeReviewModal();
+        document.getElementById('loadingData').style.display = 'none';
     }
 
-    // NAPRAWA: zamiast natywnego confirm() przegladarki, uzywamy wlasnego stylowanego modala
-    function undoDecision(id) {
-        customConfirm("Czy na pewno chcesz wycofać decyzję dla tej inwentury? Spowoduje to wyzerowanie jej statusu (wróci do pracownika).", () => {
-            let item = inwaDataLive[id];
-            let oldSubmitter = item.submitterId;
-            let cleanName = item.name.replace(/<[^>]*>?/gm, '');
+    function getShiftFromDb(charId, d, m) {
+        return (localPlanData[`${charId}_${d}`] || "").split('|')[0] || "";
+    }
 
-            db.ref(`Stores/${myStore}/Inwentury/${year}_${curM}/${id}`).update({
-                status: 'do_zrobienia',
-                submittedBy: null,
-                submitterId: null
+    function generateAZS() {
+        const mIndex = parseInt(document.getElementById('monthSelect').value);
+        document.getElementById('loadingData').style.display = 'flex';
+
+        db.ref(`Stores/${myStore}/Plan/${year}_${mIndex}`).once('value', snap => {
+            localPlanData = snap.val() || {};
+            
+            const wIndex = parseInt(document.getElementById('weekSelect').value);
+            const weekDays = currentWeeks[wIndex];
+            
+            let startStr = `${String(weekDays[0].getDate()).padStart(2, '0')}.${String(weekDays[0].getMonth()+1).padStart(2, '0')}`;
+            let endStr = `${String(weekDays[6].getDate()).padStart(2, '0')}.${String(weekDays[6].getMonth()+1).padStart(2, '0')}`;
+            document.getElementById('azsDates').innerText = `WPISZ DATY: OD ${startStr} DO ${endStr}`;
+            
+            const tbody = document.getElementById('azsBody'); tbody.innerHTML = "";
+            let hasAnyRealData = false; 
+            let dailyAssignments = {}; 
+
+            weekDays.forEach(dayObj => {
+                let currentDayOfWeek = dayObj.getDay(); 
+                let dateIso = dayObj.toISOString();
+                let dayNum = dayObj.getDate();
+                let monthNum = dayObj.getMonth();
+
+                let workingToday = [];
+                if (monthNum === mIndex) {
+                    employees.forEach(e => {
+                        let shift = getShiftFromDb(e.charId, dayNum, mIndex);
+                        if (shift !== "" && shift !== "WOLNE" && shift !== "URLOP" && shift !== "Ż" && shift !== "SZK" && e.dept !== 'ME') {
+                            workingToday.push(e);
+                        }
+                    });
+                }
+                
+                if(workingToday.length > 0) hasAnyRealData = true;
+                if(workingToday.length === 0) workingToday = employees.filter(e => e.dept !== 'ME');
+
+                let dayWorkload = {}; workingToday.forEach(e => dayWorkload[e.n] = 0);
+                dailyAssignments[dateIso] = {};
+
+                azsTasksData.forEach(task => {
+                    if (task.days.includes(currentDayOfWeek)) {
+                        if (workingToday.length > 0) {
+                            let minLoad = Math.min(...workingToday.map(e => dayWorkload[e.n]));
+                            let candidates = workingToday.filter(e => dayWorkload[e.n] === minLoad);
+                            let assigned = candidates[Math.floor(Math.random() * candidates.length)];
+                            dayWorkload[assigned.n]++; dailyAssignments[dateIso][task.name] = assigned.n;
+                        } else { dailyAssignments[dateIso][task.name] = "BRAK"; }
+                    } else { dailyAssignments[dateIso][task.name] = "BLOCKED"; }
+                });
             });
 
-            if (oldSubmitter) {
-                db.ref(`Stores/${myStore}/Notifications`).push({ to: oldSubmitter, title: '🔄 INWENTURA WYCOFANA', msg: `Kierownik/KSS wycofał decyzję dla inwentury: ${cleanName} (${months[currentMonth]}). Status powrócił na DO ZROBIENIA.`, type: 'warning', read: false, timestamp: Date.now() });
-            }
+            document.getElementById('errorMsg').style.display = hasAnyRealData ? 'none' : 'block';
+
+            azsTasksData.forEach(task => {
+                let tr = document.createElement('tr'); let html = `<td class="td-task">${task.name}</td>`;
+                let activeDaysHtml = ""; let signaturesHtml = "";
+                
+                weekDays.forEach(dayObj => {
+                    let assignment = dailyAssignments[dayObj.toISOString()][task.name];
+                    if (assignment === "BLOCKED") { activeDaysHtml += `<td class="td-blocked"></td>`; signaturesHtml += `<td class="td-blocked"></td>`; } 
+                    else if (assignment === "BRAK") { activeDaysHtml += `<td style="color:#f44; font-size:0.6rem;">BRAK</td>`; signaturesHtml += `<td class="td-sign"></td>`; } 
+                    else { activeDaysHtml += `<td class="td-name">${assignment}</td>`; signaturesHtml += `<td class="td-sign"></td>`; }
+                });
+                
+                html += activeDaysHtml + signaturesHtml; tr.innerHTML = html; tbody.appendChild(tr);
+            });
+
+            document.getElementById('loadingData').style.display = 'none';
         });
     }
 
-    // ==========================================
-    // WLASNY MODAL POTWIERDZENIA (zamiast confirm())
-    // ==========================================
-    let _confirmCallback = null;
-    function customConfirm(message, onConfirm) {
-        document.getElementById('confirmModalText').innerText = message;
-        _confirmCallback = onConfirm;
-        document.getElementById('customConfirmModal').style.display = 'flex';
-    }
-    function resolveConfirm(result) {
-        document.getElementById('customConfirmModal').style.display = 'none';
-        if (result && _confirmCallback) _confirmCallback();
-        _confirmCallback = null;
-    }
+    window.onload = () => { loadEmployeesAndInit(); };
 
+    // ==========================================
+    // SYSTEM POWIADOMIEŃ GLOBALNYCH I WYKRZYKNIK KSS
+    // ==========================================
     if (typeof db !== 'undefined' && typeof currentUser !== 'undefined') {
         const isManagerOrKssGlobal = (currentUser.dept === 'ME' || currentUser.isKss);
 
@@ -475,12 +485,13 @@
             let myUnread = notifs.filter(n => !n.read && (n.to === currentUser.charId || (n.to === 'KSS' && isManagerOrKssGlobal)));
             
             if (myUnread.length > 0) {
-                let n = myUnread[0];
+                let n = myUnread[0]; 
+                
                 document.getElementById('globalPopupTitle').innerText = n.title;
                 document.getElementById('globalPopupMsg').innerText = n.msg;
                 document.getElementById('globalNotificationModal').style.display = 'flex';
-                let box = document.getElementById('popupBox');
                 
+                let box = document.getElementById('popupBox');
                 if(n.type === 'success') { box.style.borderColor = '#0a0'; document.getElementById('globalPopupTitle').style.color = '#0a0'; }
                 else if(n.type === 'error') { box.style.borderColor = '#f44'; document.getElementById('globalPopupTitle').style.color = '#f44'; }
                 else { box.style.borderColor = '#ffe800'; document.getElementById('globalPopupTitle').style.color = '#ffe800'; }
@@ -488,27 +499,36 @@
                 db.ref(`Stores/${myStore}/Notifications/${n.keyId}`).update({ read: true });
             }
         });
+
+        // NASŁUCH DLA WYKRZYKNIKA W MENU (Inwentury ME/KSS)
+        if (isManagerOrKssGlobal) {
+            db.ref(`Stores/${myStore}/Inwentury`).on('value', snap => {
+                let allInwa = snap.val() || {};
+                let hasAwaiting = false;
+
+                Object.keys(allInwa).forEach(monthKey => {
+                    let monthData = allInwa[monthKey] || {};
+                    Object.values(monthData).forEach(item => {
+                        if (item.status === 'awaiting_kss') {
+                            hasAwaiting = true;
+                        }
+                    });
+                });
+
+                let badge = document.getElementById('kssAlertBadge');
+                if(badge) badge.innerHTML = hasAwaiting ? `<span class="nav-alert">[!]</span>` : '';
+            });
+        }
     }
 
-    function updateKssBadge() {
-        if (!isManagerOrKss) return;
-        let dataArray = Object.values(inwaDataLive);
-        let hasAwaiting = dataArray.some(item => item.status === 'awaiting_kss');
-        let badge = document.getElementById('kssAlertBadge');
-        if(badge) badge.innerHTML = hasAwaiting ? `<span class="nav-alert">[!]</span>` : '';
+    function closeGlobalPopup() { 
+        document.getElementById('globalNotificationModal').style.display = 'none'; 
     }
-
-    function closeGlobalPopup() { document.getElementById('globalNotificationModal').style.display = 'none'; }
-    
-    window.onload = () => { 
-        renderMonthSelector(); 
-        loadMonthDataFromFirebase(currentMonth);
-    };
 
     // ==========================================
     // SYSTEM AUTOWYLOGOWANIA (Z OSTRZEŻENIEM PRZED WYLOGOWANIEM)
     // NAPRAWA: dodane 30-sekundowe ostrzezenie zamiast natychmiastowego wylogowania -
-    // spojne z zachowaniem na dashboardzie, w planie pracy i inwenturach pracownika.
+    // spojne z zachowaniem na pozostalych stronach aplikacji.
     // ==========================================
     const minutyBezczynnosci = 5;
     const sekundOstrzezenia = 30;
@@ -556,7 +576,7 @@
     akcjeUzytkownika.forEach(akcja => {
         document.addEventListener(akcja, resetujTimer, { passive: true });
     });
-
+    
     resetujTimer();
 </script>
 
@@ -576,7 +596,7 @@
 <button class="help-fab" onclick="openHelpModal()" title="Pomoc">?</button>
 <div id="helpModal">
     <div class="help-modal-box">
-        <h3 style="color:#ffe800; margin-bottom:15px; text-transform:uppercase; text-align:center; font-weight:900;">Pomoc — Inwentury (ME/KSS)</h3>
+        <h3 style="color:#ffe800; margin-bottom:15px; text-transform:uppercase; text-align:center; font-weight:900;">Pomoc — AZS</h3>
         <div id="helpItemsList"><div style="color:#666; text-align:center; padding:15px;">Wczytywanie...</div></div>
         <button class="btn-close-help" onclick="closeHelpModal()">ZAMKNIJ</button>
     </div>
@@ -593,7 +613,7 @@
     function closeHelpModal() { document.getElementById('helpModal').style.display = 'none'; }
 
     function loadHelpContent() {
-        db.ref('Admin/HelpContent/inwak').once('value').then(snap => {
+        db.ref('Admin/HelpContent/azs').once('value').then(snap => {
             const data = snap.val() || {};
             const items = Object.values(data).sort((a,b) => (a.order||0) - (b.order||0));
             const container = document.getElementById('helpItemsList');

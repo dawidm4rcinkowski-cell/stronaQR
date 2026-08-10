@@ -579,33 +579,71 @@
     
     resetujTimer();
 </script>
-
 <style>
     .help-fab { position: fixed; bottom: 20px; right: 20px; z-index: 8000; width: 46px; height: 46px; border-radius: 50%; background: #ffe800; color: #000; border: none; font-size: 1.3rem; font-weight: 900; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 15px rgba(255,232,0,0.4); transition: 0.2s; }
     .help-fab:hover { transform: scale(1.1); box-shadow: 0 6px 20px rgba(255,232,0,0.6); }
+
     #helpModal { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.9); z-index:18000; align-items:center; justify-content:center; padding:20px; backdrop-filter: blur(5px); }
-    #helpModal .help-modal-box { background:#0a0a0a; border:2px solid #ffe800; border-radius:15px; padding:25px; max-width:550px; width:100%; max-height:85vh; overflow-y:auto; }
-    .help-item { background:#111; border:1px solid #222; border-radius:10px; padding:15px; margin-bottom:12px; }
-    .help-item h4 { color:#ffe800; margin-bottom:6px; font-size:0.95rem; text-transform:none; }
-    .help-item p { color:#ccc; font-size:0.8rem; line-height:1.5; }
-    .help-item img { width:100%; border-radius:8px; margin-top:10px; border:1px solid #333; cursor:pointer; }
-    .btn-close-help { width: 100%; background: #ffe800; color: #000; border: none; padding: 12px 20px; font-weight: 900; border-radius: 8px; cursor: pointer; text-transform: uppercase; transition: 0.2s; margin-top: 10px; }
-    .btn-close-help:hover { transform: scale(1.02); }
+    #helpModal .help-modal-box { background:#0a0a0a; border:2px solid #ffe800; border-radius:15px; padding:25px; max-width:720px; width:100%; max-height:90vh; display:flex; flex-direction:column; box-shadow: 0 0 40px rgba(255,232,0,0.15); }
+
+    .help-modal-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:15px; flex-shrink:0; gap:10px; }
+    .help-modal-header h3 { color:#ffe800; text-transform:uppercase; font-weight:900; font-size:1.1rem; }
+    .help-counter { color:#888; font-size:0.75rem; font-weight:800; white-space:nowrap; }
+
+    .help-carousel-body { flex-grow:1; overflow-y:auto; min-height:0; display:flex; flex-direction:column; align-items:center; text-align:center; padding: 10px 5px; }
+    .help-carousel-body h4 { color:#ffe800; font-size:1.2rem; margin-bottom:12px; }
+    .help-carousel-body p { color:#ccc; font-size:0.9rem; line-height:1.6; margin-bottom:18px; max-width:620px; white-space:pre-wrap; }
+    .help-carousel-body img { width:100%; max-width:660px; border-radius:10px; border:1px solid #333; cursor:zoom-in; box-shadow: 0 5px 25px rgba(0,0,0,0.6); transition: 0.2s; }
+    .help-carousel-body img:hover { border-color:#ffe800; }
+
+    .help-nav-row { display:flex; align-items:center; justify-content:space-between; gap:15px; margin-top:18px; flex-shrink:0; }
+    .help-nav-btn { background:#151515; border:1px solid #444; color:#ffe800; width:44px; height:44px; border-radius:50%; font-size:1.4rem; font-weight:900; cursor:pointer; transition:0.2s; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+    .help-nav-btn:hover:not(:disabled) { background:#ffe800; color:#000; transform:scale(1.08); }
+    .help-nav-btn:disabled { opacity:0.2; cursor:not-allowed; }
+
+    .help-dots { display:flex; gap:8px; justify-content:center; flex-wrap:wrap; }
+    .help-dot { width:9px; height:9px; border-radius:50%; background:#333; border:none; cursor:pointer; transition:0.2s; padding:0; }
+    .help-dot.active { background:#ffe800; transform:scale(1.3); }
+    .help-dot:hover { background:#888; }
+
+    .btn-close-help { width: 100%; background: #222; color: #fff; border: 1px solid #333; padding: 12px 20px; font-weight: 900; border-radius: 8px; cursor: pointer; text-transform: uppercase; transition: 0.2s; margin-top: 15px; flex-shrink:0; }
+    .btn-close-help:hover { background:#333; border-color:#555; }
+
+    /* LIGHTBOX - powiekszony podglad zrzutu ekranu */
+    #helpImgLightbox { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.96); z-index:19000; align-items:center; justify-content:center; padding:30px; cursor:zoom-out; }
+    #helpImgLightbox img { max-width:100%; max-height:100%; border-radius:10px; box-shadow: 0 0 40px rgba(255,232,0,0.2); }
 </style>
 
 <button class="help-fab" onclick="openHelpModal()" title="Pomoc">?</button>
 <div id="helpModal">
     <div class="help-modal-box">
-        <h3 style="color:#ffe800; margin-bottom:15px; text-transform:uppercase; text-align:center; font-weight:900;">Pomoc — AZS</h3>
-        <div id="helpItemsList"><div style="color:#666; text-align:center; padding:15px;">Wczytywanie...</div></div>
+        <div class="help-modal-header">
+            <h3>Pomoc — AZS</h3>
+            <span class="help-counter" id="helpCounter"></span>
+        </div>
+        <div class="help-carousel-body" id="helpCarouselBody">
+            <div style="color:#666;">Wczytywanie...</div>
+        </div>
+        <div class="help-nav-row">
+            <button class="help-nav-btn" id="helpPrevBtn" onclick="helpGoPrev()">‹</button>
+            <div class="help-dots" id="helpDots"></div>
+            <button class="help-nav-btn" id="helpNextBtn" onclick="helpGoNext()">›</button>
+        </div>
         <button class="btn-close-help" onclick="closeHelpModal()">ZAMKNIJ</button>
     </div>
 </div>
 
+<div id="helpImgLightbox" onclick="closeHelpLightbox()">
+    <img id="helpLightboxImg" src="">
+</div>
+
 <script>
     // ==========================================
-    // PODPOWIEDZI (?) - tresci zarzadzane z panelu superadmina
+    // PODPOWIEDZI (?) - karuzela z tresciami zarzadzanymi z panelu superadmina
     // ==========================================
+    let helpItemsData = [];
+    let helpCurrentIndex = 0;
+
     function openHelpModal() {
         document.getElementById('helpModal').style.display = 'flex';
         loadHelpContent();
@@ -613,27 +651,83 @@
     function closeHelpModal() { document.getElementById('helpModal').style.display = 'none'; }
 
     function loadHelpContent() {
+        const body = document.getElementById('helpCarouselBody');
+        body.innerHTML = '<div style="color:#666;">Wczytywanie...</div>';
+
         db.ref('Admin/HelpContent/azs').once('value').then(snap => {
             const data = snap.val() || {};
-            const items = Object.values(data).sort((a,b) => (a.order||0) - (b.order||0));
-            const container = document.getElementById('helpItemsList');
-
-            if (items.length === 0) {
-                container.innerHTML = '<div style="color:#666; text-align:center; padding:15px;">Brak jeszcze podpowiedzi dla tej strony.</div>';
-                return;
-            }
-
-            container.innerHTML = items.map(i => `
-                <div class="help-item">
-                    <h4>${i.title}</h4>
-                    <p>${i.text}</p>
-                    ${i.image ? `<img src="${i.image}" onclick="window.open('${i.image}')">` : ''}
-                </div>
-            `).join('');
+            helpItemsData = Object.values(data).sort((a,b) => (a.order||0) - (b.order||0));
+            helpCurrentIndex = 0;
+            renderHelpSlide();
         }).catch(() => {
-            document.getElementById('helpItemsList').innerHTML = '<div style="color:#666; text-align:center; padding:15px;">Nie udało się wczytać podpowiedzi.</div>';
+            body.innerHTML = '<div style="color:#666;">Nie udało się wczytać podpowiedzi.</div>';
         });
     }
+
+    function renderHelpDots() {
+        const dotsEl = document.getElementById('helpDots');
+        if (helpItemsData.length <= 1) { dotsEl.innerHTML = ''; return; }
+        dotsEl.innerHTML = '';
+        helpItemsData.forEach((_, i) => {
+            const dot = document.createElement('button');
+            dot.className = 'help-dot' + (i === helpCurrentIndex ? ' active' : '');
+            dot.onclick = () => helpGoTo(i);
+            dotsEl.appendChild(dot);
+        });
+    }
+
+    function renderHelpSlide() {
+        const body = document.getElementById('helpCarouselBody');
+        const counter = document.getElementById('helpCounter');
+        const prevBtn = document.getElementById('helpPrevBtn');
+        const nextBtn = document.getElementById('helpNextBtn');
+
+        if (helpItemsData.length === 0) {
+            body.innerHTML = '<div style="color:#666; padding:30px 0;">Brak jeszcze podpowiedzi dla tej strony.</div>';
+            counter.innerText = '';
+            prevBtn.style.visibility = 'hidden'; nextBtn.style.visibility = 'hidden';
+            document.getElementById('helpDots').innerHTML = '';
+            return;
+        }
+
+        prevBtn.style.visibility = 'visible'; nextBtn.style.visibility = 'visible';
+        const item = helpItemsData[helpCurrentIndex];
+        counter.innerText = `${helpCurrentIndex + 1} / ${helpItemsData.length}`;
+
+        body.innerHTML = '';
+        const h4 = document.createElement('h4'); h4.innerText = item.title || '';
+        const p = document.createElement('p'); p.innerText = item.text || '';
+        body.appendChild(h4); body.appendChild(p);
+
+        if (item.image) {
+            const img = document.createElement('img');
+            img.src = item.image;
+            img.onclick = () => openHelpLightbox(item.image);
+            body.appendChild(img);
+        }
+
+        prevBtn.disabled = helpCurrentIndex === 0;
+        nextBtn.disabled = helpCurrentIndex === helpItemsData.length - 1;
+        renderHelpDots();
+    }
+
+    function helpGoPrev() { if (helpCurrentIndex > 0) { helpCurrentIndex--; renderHelpSlide(); } }
+    function helpGoNext() { if (helpCurrentIndex < helpItemsData.length - 1) { helpCurrentIndex++; renderHelpSlide(); } }
+    function helpGoTo(i) { helpCurrentIndex = i; renderHelpSlide(); }
+
+    function openHelpLightbox(src) {
+        document.getElementById('helpLightboxImg').src = src;
+        document.getElementById('helpImgLightbox').style.display = 'flex';
+    }
+    function closeHelpLightbox() { document.getElementById('helpImgLightbox').style.display = 'none'; }
+
+    // Nawigacja strzalkami klawiatury + Escape, tylko gdy modal pomocy jest otwarty
+    document.addEventListener('keydown', (e) => {
+        if (document.getElementById('helpModal').style.display !== 'flex') return;
+        if (e.key === 'ArrowRight') helpGoNext();
+        else if (e.key === 'ArrowLeft') helpGoPrev();
+        else if (e.key === 'Escape') closeHelpModal();
+    });
 </script>
 
 </body>

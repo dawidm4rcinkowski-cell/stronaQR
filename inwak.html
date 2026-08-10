@@ -20,14 +20,6 @@
         
         const isManagerOrKss = (currentUser.dept === 'ME' || currentUser.isKss);
 
-        // NAPRAWA (bezpieczenstwo): to jest panel ME/KSS do akceptowania/odrzucania/cofania
-        // cudzych inwentur. Wczesniej link byl tylko ukryty w menu dla zwyklych pracownikow,
-        // ale sama strona nie sprawdzala uprawnien - znajac adres, kazdy mogl tu wejsc i
-        // podejmowac decyzje za kierownika. Teraz brak uprawnien = natychmiastowe przekierowanie.
-        if (currentUser && myStore && !isManagerOrKss) {
-            window.location.href = 'index.html';
-        }
-
         // INICJALIZACJA FIREBASE
         const firebaseConfig = {
             apiKey: "AIzaSyD0N6Bjyzs34piOoujEn9mxKir8LDGdD2k",
@@ -53,7 +45,8 @@
         .logo { color: #000; font-weight: 900; font-size: 1.2rem; text-transform: uppercase; letter-spacing: 1px; display: flex; align-items: center; gap: 10px; }
         .logo span { background: #000; color: #ffe800; padding: 0 6px; border-radius: 3px; }
         .store-badge { font-size: 0.7rem; background: rgba(0,0,0,0.1); padding: 4px 8px; border-radius: 20px; font-weight: 800; border: 1px solid #000; }
-        .menu-btn { position: absolute; left: 15px; cursor: pointer; color: #000; font-size: 1.5rem; }
+        .menu-btn { position: absolute; left: 15px; cursor: pointer; color: #000; font-size: 1.5rem; transition: 0.2s; }
+        .menu-btn:hover { transform: scale(1.1); }
         
         .sidebar { position: fixed; left: -280px; top: 0; width: 260px; height: 100%; background: #0a0a0a; border-right: 3px solid #ffe800; transition: 0.4s; z-index: 10000; padding-top: 60px; display: flex; flex-direction: column; }
         .sidebar.active { left: 0; }
@@ -65,90 +58,81 @@
         .sidebar-feedback, .sidebar-feedback:visited, .sidebar-feedback:link { display: block; margin-top: auto; background: #111; color: #ffe800 !important; padding: 15px 25px; text-decoration: none !important; font-weight: 900; font-size: 0.8rem; border-top: 1px solid #222; border-bottom: 1px solid #222; transition: 0.3s; text-transform: uppercase; letter-spacing: 0.5px; }
         .sidebar-feedback:hover { background: #ffe800 !important; color: #000 !important; padding-left: 35px; }
         
-        .user-profile { padding: 15px 20px; border-top: 2px solid #1a1a1a; display: flex; align-items: center; gap: 15px; cursor: pointer; background: #0f0f0f; }
+        .user-profile { padding: 15px 20px; border-top: 2px solid #1a1a1a; display: flex; align-items: center; gap: 15px; cursor: pointer; background: #0f0f0f; transition: 0.3s; }
+        .user-profile:hover { background: #151515; }
         .user-avatar { width: 45px; height: 45px; border-radius: 50%; background: #151515; border: 2px solid #ffe800; display: flex; align-items: center; justify-content: center; font-weight: 900; color: #ffe800; font-size: 1.2rem; flex-shrink: 0; overflow: hidden; }
         .user-info { display: flex; flex-direction: column; }
         .user-name { font-weight: 900; font-size: 0.85rem; color: #fff; }
         .user-settings { font-size: 0.65rem; color: #888; font-weight: 700; margin-top: 4px; }
-        .logout-btn { display: block; width: 100%; text-align: center; background: transparent; color: #f44; border: none; border-top: 1px solid #1a1a1a; padding: 15px; font-weight: 900; font-size: 0.8rem; cursor: pointer; text-transform: uppercase; }
+        .logout-btn { display: block; width: 100%; text-align: center; background: transparent; color: #f44; border: none; border-top: 1px solid #1a1a1a; padding: 15px; font-weight: 900; font-size: 0.8rem; cursor: pointer; text-transform: uppercase; transition: 0.3s; }
+        .logout-btn:hover { background: #f44; color: #000; }
         .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.8); display: none; z-index: 9500; }
         .overlay.active { display: block; }
         
-        .content { flex-grow: 1; overflow-y: auto; padding: 30px 20px; position: relative;}
+        .content { flex-grow: 1; overflow-y: auto; padding: 30px 20px; position: relative; }
         .content-inner { max-width: 1400px; margin: 0 auto; }
-        
         .page-header { display: flex; flex-direction: column; align-items: center; margin-bottom: 30px; }
-        .page-title { font-size: 2rem; font-weight: 900; margin-bottom: 15px; text-transform: uppercase; text-align: center;} .page-title span { color: #ffe800; } .mgr-badge { font-size: 1rem; color: #0a0; border: 2px solid #0a0; padding: 5px 10px; border-radius: 5px; vertical-align: middle; margin-left: 10px; }
+        .page-title { font-size: 2rem; font-weight: 900; margin-bottom: 15px; text-transform: uppercase; text-align: center; } 
+        .page-title span { color: #ffe800; }
         
         .month-selector { display: flex; gap: 8px; overflow-x: auto; white-space: nowrap; scrollbar-width: none; padding-bottom: 10px; max-width: 100%; justify-content: center; }
-        .month-btn { padding: 8px 16px; border-radius: 20px; border: 1px solid #333; background: #111; color: #888; font-size: 0.75rem; font-weight: 700; cursor: pointer; transition: 0.3s; position: relative; }
+        .month-btn { padding: 8px 16px; border-radius: 20px; border: 1px solid #333; background: #111; color: #888; font-size: 0.75rem; font-weight: 700; cursor: pointer; transition: 0.3s; }
         .month-btn.active { background: #ffe800; color: #000; border-color: #ffe800; box-shadow: 0 0 10px rgba(255, 232, 0, 0.4); }
         .month-btn:hover:not(.active) { background: #222; color: #fff; }
 
-        .dept-tabs { display: flex; gap: 15px; margin-bottom: 40px; flex-wrap: wrap; justify-content: center;}
-        .tab-btn { background: #151515; border: 1px solid #333; color: #fff; padding: 12px 30px; border-radius: 12px; font-weight: 900; cursor: pointer; transition: 0.3s; font-size: 0.9rem; flex: 1; max-width: 200px; position: relative; }
+        .dept-tabs { display: flex; gap: 15px; margin-bottom: 40px; flex-wrap: wrap; justify-content: center; }
+        .tab-btn { background: #151515; border: 1px solid #333; color: #fff; padding: 12px 30px; border-radius: 12px; font-weight: 900; cursor: pointer; transition: 0.3s; font-size: 0.9rem; flex: 1; max-width: 200px; }
         .tab-btn.active { background: #ffe800; color: #000; border-color: #ffe800; }
         
         .inwa-section { margin-bottom: 50px; } 
         .section-label { font-size: 1rem; color: #ffe800; text-transform: uppercase; margin-bottom: 20px; border-left: 4px solid #ffe800; padding-left: 10px; }
         .items-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 15px; }
-        .item-card { background: #111; border: 1px solid #333; border-radius: 15px; padding: 20px; display: flex; flex-direction: column; justify-content: space-between; transition: 0.3s; }
-        .item-card.highlight { border-color: #ffa502; background: #1a1500; box-shadow: 0 5px 15px rgba(255, 165, 2, 0.2); }
-        .item-card h3 { font-size: 1.1rem; font-weight: 900; text-transform: uppercase; margin-bottom: 10px; color: #eee; line-height: 1.3;}
-        
-        .status-row { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 20px; font-size: 0.75rem; font-weight: 800; color: #888; }
-        .dot { width: 12px; height: 12px; border-radius: 50%; margin-top: 2px; background: #444; }
-        .status-waiting .dot { background: #ffa502; box-shadow: 0 0 8px rgba(255, 165, 2, 0.6); } .status-waiting span { color: #ffa502; }
-        .status-accepted .dot { background: #0a0; } .status-accepted span { color: #0a0; }
-        .status-rejected .dot { background: #f44; } .status-rejected span { color: #f44; }
-        .submitted-by { color: #fff; font-size: 0.75rem; margin-top: 4px; display: block; font-weight: 900; }
-        
-        .check-btn { width: 100%; background: #ffa502; color: #000; border: none; padding: 12px; border-radius: 8px; font-weight: 900; cursor: pointer; text-transform: uppercase; transition: 0.3s;}
-        .check-btn:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(255, 165, 2, 0.4); }
-        .btn-disabled { background: transparent; border: 2px solid #333; color: #555; cursor: not-allowed; width: 100%; padding: 10px; border-radius: 8px; font-weight: 900; text-transform: uppercase; margin-bottom: 5px;}
-        .undo-btn { background: transparent; border: 1px solid #f44; color: #f44; padding: 8px; border-radius: 8px; font-weight: 900; cursor: pointer; width: 100%; font-size: 0.7rem; text-transform: uppercase; transition: 0.2s;}
-        .undo-btn:hover { background: #f44; color: #000; }
+        .item-card { background: #111; border: 1px solid #222; border-radius: 15px; padding: 20px; display: flex; flex-direction: column; justify-content: space-between; transition: 0.3s; }
+        .item-card h3 { font-size: 1.1rem; font-weight: 900; text-transform: uppercase; margin-bottom: 15px; min-height: 2.5rem; line-height: 1.3; }
 
-        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 11000; align-items: center; justify-content: center; padding: 20px; backdrop-filter: blur(5px);}
-        .modal-content { background: #0a0a0a; border: 3px solid #ffa502; padding: 30px; width: 100%; max-width: 500px; border-radius: 15px; text-align: center; }
-        .modal-subtitle { color: #ffa502; font-size: 0.8rem; font-weight: 900; margin-bottom: 25px; }
-        .mgr-buttons { display: flex; gap: 10px; }
-        .btn-accept { flex: 1; background: transparent; color: #0a0; border: 2px solid #0a0; padding: 15px 10px; font-weight: 900; border-radius: 8px; cursor: pointer; transition:0.3s; } .btn-accept:hover { background: #0a0; color:#000; }
-        .btn-reject { flex: 1; background: transparent; color: #f44; border: 2px solid #f44; padding: 15px 10px; font-weight: 900; border-radius: 8px; cursor: pointer; transition:0.3s; } .btn-reject:hover { background: #f44; color:#000; }
-        .btn-cancel { width: 100%; background: #151515; color: #888; border: 1px solid #333; padding: 12px 20px; font-weight: 900; border-radius: 8px; cursor: pointer; margin-top: 15px; transition: 0.2s; }
-        .btn-cancel:hover { background: #222; color: #fff; }
-
+        /* NAPRAWA: klasy card-done / card-rejected byly nadawane w JS, ale nigdzie nie mialy stylu -
+           zaakceptowane i odrzucone inwentury wygladaly identycznie jak zwykle karty. */
+        .item-card.card-done { border-color: #0a0; box-shadow: 0 0 15px rgba(0, 170, 0, 0.12); }
+        .item-card.card-rejected { border-color: #f44; box-shadow: 0 0 15px rgba(255, 68, 68, 0.15); animation: rejectedGlow 1.6s ease-in-out infinite; }
+        @keyframes rejectedGlow {
+            0%, 100% { box-shadow: 0 0 15px rgba(255, 68, 68, 0.15); }
+            50% { box-shadow: 0 0 25px rgba(255, 68, 68, 0.4); }
+        }
+        
+        .status-row { display: flex; align-items: center; gap: 10px; margin-bottom: 20px; font-size: 0.75rem; font-weight: 800; color: #888; }
+        .dot { width: 10px; height: 10px; background: #ff4444; border-radius: 50%; box-shadow: 0 0 8px rgba(255, 68, 68, 0.6); }
+        .status-waiting .dot { background: #ffa502; box-shadow: 0 0 8px rgba(255, 165, 2, 0.6); } .status-waiting { color: #ffa502; }
+        .status-done .dot { background: #0a0; box-shadow: 0 0 8px rgba(0, 170, 0, 0.6); } .status-done { color: #0a0; }
+        .status-rejected .dot { background: #f44; animation: blink 1s infinite; } .status-rejected { color: #f44; }
+        
+        .approve-btn { width: 100%; background: transparent; border: 2px solid #ffe800; color: #ffe800; padding: 10px; border-radius: 8px; font-weight: 900; cursor: pointer; transition: 0.3s; text-transform: uppercase; }
+        .approve-btn:hover:not(:disabled) { background: #ffe800; color: #000; }
+        .approve-btn:disabled { border-color: #333; color: #555; background: transparent; cursor: not-allowed; }
+        
+        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 11000; align-items: center; justify-content: center; padding: 20px; backdrop-filter: blur(5px); }
+        .modal-content { background: #0a0a0a; border: 3px solid #ffe800; padding: 30px; width: 100%; max-width: 450px; border-radius: 15px; text-align: center; box-shadow: 0 0 30px rgba(255, 232, 0, 0.2); }
+        .btn-modal { background: #ffe800; color: #000; border: none; padding: 15px 20px; font-weight: 900; border-radius: 8px; cursor: pointer; width: 100%; margin-top: 10px; text-transform: uppercase; letter-spacing: 1px; transition: 0.2s; }
+        .btn-modal:hover { transform: scale(1.02); }
+        
         @keyframes blink { 0% { opacity: 1; } 50% { opacity: 0.3; } 100% { opacity: 1; } }
         .nav-alert { color: #f44; font-weight: 900; animation: blink 1s infinite; font-size: 1rem; margin-left: 5px; }
-        .btn-alert { color: #f44; font-weight: 900; animation: blink 1s infinite; margin-left: 4px; }
         .loading-overlay { position: absolute; inset: 0; background: rgba(0,0,0,0.8); z-index: 2000; display: flex; align-items: center; justify-content: center; color: #ffe800; font-weight: bold; font-size: 1.5rem; display: none; flex-direction: column; gap: 15px; }
 
         /* SPINNER (spojny z reszta aplikacji) */
         .spinner { width: 32px; height: 32px; border-radius: 50%; border: 4px solid rgba(255,232,0,0.2); border-top-color: #ffe800; animation: spin 0.7s linear infinite; }
         @keyframes spin { to { transform: rotate(360deg); } }
         
-        #globalNotificationModal .modal-content { border-color: #ffe800; box-shadow: 0 0 30px rgba(0,0,0,0.5); }
+        #globalNotificationModal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 15000; align-items: center; justify-content: center; padding: 20px; backdrop-filter: blur(5px); }
+        #popupBox { background: #0a0a0a; border: 3px solid #ffe800; padding: 30px; width: 100%; max-width: 500px; border-radius: 15px; text-align: center; box-shadow: 0 0 30px rgba(0,0,0,0.5); }
         #globalPopupTitle { margin-bottom: 15px; font-size: 1.3rem; text-transform: uppercase; font-weight: 900; }
         #globalPopupMsg { color: #fff; font-size: 1rem; margin-bottom: 25px; line-height: 1.5; font-weight: 700; }
         .btn-close-popup { width: 100%; background: #ffe800; color: #000; border: none; padding: 12px 20px; font-weight: 900; border-radius: 8px; cursor: pointer; text-transform: uppercase; transition: 0.2s; }
         .btn-close-popup:hover { transform: scale(1.02); }
 
-        /* WLASNY MODAL POTWIERDZENIA (zamiast confirm()) */
-        #customConfirmModal .modal-content { border-color: #f44; max-width: 420px; }
-        #confirmModalTitle { color: #f44; font-weight: 900; text-transform: uppercase; margin-bottom: 12px; font-size: 1.2rem; }
-        #confirmModalText { color: #ccc; font-size: 0.85rem; line-height: 1.5; margin-bottom: 20px; }
-        .confirm-buttons { display: flex; gap: 10px; }
-        .btn-confirm-yes { flex: 1; background: #f44; color: #000; border: none; padding: 12px; font-weight: 900; border-radius: 8px; cursor: pointer; text-transform: uppercase; transition: 0.2s; }
-        .btn-confirm-yes:hover { transform: scale(1.02); }
-        .btn-confirm-no { flex: 1; background: #151515; color: #888; border: 1px solid #333; padding: 12px; font-weight: 900; border-radius: 8px; cursor: pointer; text-transform: uppercase; transition: 0.2s; }
-        .btn-confirm-no:hover { background: #222; color: #fff; }
-
-        /* IDLE WARNING - spojne z reszta aplikacji */
+        /* IDLE WARNING - spojne z dashboardem i planem pracy */
         #idleWarningModal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.92); z-index: 20000; align-items: center; justify-content: center; padding: 20px; backdrop-filter: blur(5px); }
         #idleWarningModal .modal-content { max-width: 380px; border-color: #f44; box-shadow: 0 0 30px rgba(255,68,68,0.25); }
         #idleCountdown { color: #f44; font-size: 2.5rem; font-weight: 900; margin: 15px 0; }
-        .btn-stay-logged { width: 100%; background: #ffe800; color: #000; border: none; padding: 14px; font-weight: 900; border-radius: 8px; cursor: pointer; text-transform: uppercase; transition: 0.2s; }
-        .btn-stay-logged:hover { transform: scale(1.02); }
     </style>
 </head>
 <body>
@@ -164,15 +148,14 @@
         <div class="sidebar-header">Nawigacja</div>
         <a href="index.html" class="sidebar-link">Strona główna</a>
         <a href="plan.html" class="sidebar-link">Plan pracy</a>
-        <a href="inwa.html" class="sidebar-link">Inwentury</a>
-        <a href="inwak.html" class="sidebar-link" style="color:#ffe800" id="navInwaKSS">Inwentury (ME/KSS) <span id="kssAlertBadge"></span></a>
+        <a href="inwa.html" class="sidebar-link" style="color:#ffe800">Inwentury</a>
+        <a href="inwak.html" class="sidebar-link" id="navInwaKSS">Inwentury (ME/KSS) <span id="kssAlertBadge"></span></a>
         <a href="azs.html" class="sidebar-link">AZS</a>
         <a href="kwt.html" class="sidebar-link">KWT</a>
-        
         <a href="kierownik.html" class="sidebar-link" id="navKierownik">Centrum Dowodzenia</a>
-        
         <a href="feedback.html" class="sidebar-feedback">💡 Zgłoś problem / Pomysł</a>
     </div>
+    
     <div class="user-profile" onclick="window.location.href='ustawienia.html'">
         <div class="user-avatar" id="sideAvatar">?</div>
         <div class="user-info">
@@ -188,50 +171,27 @@
     <div class="loading-overlay" id="loadingData"><div class="spinner"></div><span>Synchronizacja z chmurą...</span></div>
     <div class="content-inner">
         <div class="page-header">
-            <h1 class="page-title">WERYFIKACJA <span>INWENTUR</span> <span class="mgr-badge">PANEL ME/KSS</span></h1>
+            <h1 class="page-title">LISTA <span>INWENTUR</span></h1>
             <div class="month-selector" id="monthSelector"></div>
         </div>
-        
+
         <div class="dept-tabs">
-            <button class="tab-btn active" onclick="switchDept('IT')" data-dept="IT">DZIAŁ IT <span id="badge_IT"></span></button>
-            <button class="tab-btn" onclick="switchDept('RTV')" data-dept="RTV">DZIAŁ RTV <span id="badge_RTV"></span></button>
-            <button class="tab-btn" onclick="switchDept('AGD')" data-dept="AGD">DZIAŁ AGD <span id="badge_AGD"></span></button>
+            <button class="tab-btn active" onclick="switchDept('IT')">DZIAŁ IT</button>
+            <button class="tab-btn" onclick="switchDept('RTV')">DZIAŁ RTV</button>
+            <button class="tab-btn" onclick="switchDept('AGD')">DZIAŁ AGD</button>
         </div>
+        
         <section class="inwa-section" id="secWeekly"><h2 class="section-label">Tygodniowe</h2><div class="items-grid" id="gridWeekly"></div></section>
         <section class="inwa-section" id="secTwoWeeks"><h2 class="section-label">2-tygodniowe</h2><div class="items-grid" id="grid2Weeks"></div></section>
         <section class="inwa-section" id="secMonthly"><h2 class="section-label">Miesięczne</h2><div class="items-grid" id="gridMonthly"></div></section>
     </div>
 </div>
 
-<div class="modal" id="reviewModal">
-    <div class="modal-content">
-        <h3 id="modalItemName" style="color:#fff; margin-bottom: 5px; font-size: 1.5rem; line-height:1.2;">Nazwa</h3>
-        <div class="modal-subtitle">WYMAGA TWOJEJ DECYZJI</div>
-        <p style="color:#ccc; margin-bottom: 25px;">Zgłaszający pracownik:<br><strong style="color:#fff; font-size:1.2rem;" id="modalSubmitter">PRACOWNIK</strong></p>
-        <div class="mgr-buttons">
-            <button class="btn-reject" onclick="submitDecision('reject')">✖ ODRZUĆ (DO POPRAWY)</button>
-            <button class="btn-accept" onclick="submitDecision('accept')">✔ ZAAKCEPTUJ WYNIK</button>
-        </div>
-        <button class="btn-cancel" onclick="closeReviewModal()">Wróć do listy</button>
-    </div>
-</div>
-
-<div class="modal" id="globalNotificationModal">
-    <div class="modal-content" id="popupBox">
+<div id="globalNotificationModal">
+    <div id="popupBox">
         <h3 id="globalPopupTitle">POWIADOMIENIE</h3>
         <p id="globalPopupMsg"></p>
         <button class="btn-close-popup" onclick="closeGlobalPopup()">ZROZUMIAŁEM</button>
-    </div>
-</div>
-
-<div class="modal" id="customConfirmModal">
-    <div class="modal-content">
-        <h3 id="confirmModalTitle">Potwierdź akcję</h3>
-        <p id="confirmModalText"></p>
-        <div class="confirm-buttons">
-            <button class="btn-confirm-no" onclick="resolveConfirm(false)">ANULUJ</button>
-            <button class="btn-confirm-yes" onclick="resolveConfirm(true)">POTWIERDŹ</button>
-        </div>
     </div>
 </div>
 
@@ -240,19 +200,41 @@
         <h2 style="color:#f44; font-weight:900; text-transform:uppercase;">Nadal tam jesteś?</h2>
         <p style="color:#ccc; font-size:0.85rem; margin-top:10px;">Z powodu braku aktywności zostaniesz wylogowany za:</p>
         <div id="idleCountdown">30</div>
-        <button class="btn-stay-logged" onclick="pozostanZalogowany()">ZOSTAŃ ZALOGOWANY</button>
+        <button class="btn-modal" onclick="pozostanZalogowany()">ZOSTAŃ ZALOGOWANY</button>
     </div>
 </div>
 
 <script>
+    let finalDept = currentUser.dept; 
+    if(currentUser.isKss && currentUser.dept !== 'ME') finalDept = 'KSS';
+    document.getElementById('sideName').innerText = `${currentUser.name} (${finalDept})`;
+    
+    // Wczytywanie awatara z local storage dla bocznego paska
+    const sideAvatarHtml = currentUser.avatar ? `<img src="${currentUser.avatar}" style="width:100%; height:100%; object-fit:cover; border-radius:50%;">` : currentUser.charId.charAt(0);
+    document.getElementById('sideAvatar').innerHTML = sideAvatarHtml;
+    
+    // Ukrywanie uprawnień menedżerskich przed zwykłymi pracownikami
+    if(!isManagerOrKss) { 
+        if(document.getElementById('navInwaKSS')) document.getElementById('navInwaKSS').style.display = 'none'; 
+        if(document.getElementById('navKierownik')) document.getElementById('navKierownik').style.display = 'none'; 
+    }
+
+    // NAPRAWA: pelna nazwa sklepu (numer + miasto) zamiast samego kodu, spojnie z reszta aplikacji
+    document.getElementById('headerStore').innerText = myStore;
+    db.ref(`Stores/${myStore}/Setup`).once('value').then(snap => {
+        const setup = snap.val();
+        if (setup) document.getElementById('headerStore').innerText = `${setup.sNumber} ${setup.city}`;
+    });
+
+    function toggleNav() { document.getElementById('sidebar').classList.toggle('active'); document.getElementById('overlay').classList.toggle('active'); }
+    function logout() { localStorage.removeItem('currentUser'); window.location.href = 'login.html'; }
+
     // NAPRAWA: rok liczony dynamicznie zamiast na sztywno "2026"
     const year = new Date().getFullYear();
     const months = ["STYCZEŃ", "LUTY", "MARZEC", "KWIECIEŃ", "MAJ", "CZERWIEC", "LIPIEC", "SIERPIEŃ", "WRZESIEŃ", "PAŹDZIERNIK", "LISTOPAD", "GRUDZIEŃ"];
     let currentMonth = new Date().getMonth();
-    let inwaDataLive = {};
+    let inwaDataLive = {}; 
     let inwaListener = null;
-    let curM = currentMonth; 
-    let allStoreInwentury = {}; // Przechowuje dane ze wszystkich miesięcy do globalnych oznaczeń
 
     const defaultInventoryList = [
         { id: "it_w1", dept: "IT", period: "weekly", name: "Myszki gamingowe" }, { id: "it_w2", dept: "IT", period: "weekly", name: "Słuchawki Truewireless" }, { id: "it_w3", dept: "IT", period: "weekly", name: "Smartfony" },
@@ -263,25 +245,16 @@
         { id: "agd_m1", dept: "AGD", period: "monthly", name: "Akcesoria do golarek" }, { id: "agd_m2", dept: "AGD", period: "monthly", name: "Depilatory świetlne" }, { id: "agd_m3", dept: "AGD", period: "monthly", name: "Szczoteczki" }, { id: "agd_m4", dept: "AGD", period: "monthly", name: "Trymery" }, { id: "agd_m5", dept: "AGD", period: "monthly", name: "Urządzenia do pielęgnacji twarzy i ciała" }, { id: "agd_m6", dept: "AGD", period: "monthly", name: "Akcesoria do urządzeń SODASTREAM" }, { id: "agd_m7", dept: "AGD", period: "monthly", name: "Kawa ziarnista" }, { id: "agd_m8", dept: "AGD", period: "monthly", name: "Kawa w kapsułkach" }, { id: "agd_m9", dept: "AGD", period: "monthly", name: "Syropy" }
     ];
 
-    // Globalny nasłuch na całe inwentury sklepu w celu obsługi wykrzykników na miesiącach i działach
-    db.ref(`Stores/${myStore}/Inwentury`).on('value', snap => {
-        allStoreInwentury = snap.val() || {};
-        renderMonthSelector();
-        updateDeptBadges();
-        updateKssBadge();
-    });
-
     // NAPRAWA: odpiecie starego nasluchiwacza musi uzyc numeru miesiaca SPRZED zmiany.
-    // Wczesniej `curM` bylo nadpisywane w onclick przed wywolaniem tej funkcji, wiec .off()
-    // probowal odpiac sie od sciezki nowego (jeszcze nigdy nie obserwowanego) miesiaca zamiast
-    // starego - stary listener nigdy nie znikal (wyciek przy kazdej zmianie miesiaca).
+    // Wczesniej `currentMonth` bylo nadpisywane w onclick przed wywolaniem tej funkcji,
+    // wiec .off() probowal odpiac sie od sciezki nowego (jeszcze nigdy nie obserwowanego)
+    // miesiaca zamiast starego - stary listener nigdy nie znikal (wyciek przy kazdej zmianie miesiaca).
     function loadMonthDataFromFirebase(m) {
         document.getElementById('loadingData').style.display = 'flex';
-        if (inwaListener) { db.ref(`Stores/${myStore}/Inwentury/${year}_${curM}`).off('value', inwaListener); inwaListener = null; }
+        if (inwaListener) { db.ref(`Stores/${myStore}/Inwentury/${year}_${currentMonth}`).off('value', inwaListener); inwaListener = null; }
         
-        curM = m;
         currentMonth = m;
-        const dbRef = db.ref(`Stores/${myStore}/Inwentury/${year}_${curM}`);
+        const dbRef = db.ref(`Stores/${myStore}/Inwentury/${year}_${currentMonth}`);
         
         dbRef.once('value', snapshot => {
             if (!snapshot.exists()) {
@@ -296,16 +269,15 @@
                         initialDb[item.id] = { ...item, status: 'do_zrobienia', submittedBy: null, submitterId: null };
                     }
                 });
-                dbRef.set(initialDb);
+                dbRef.set(initialDb); 
             }
             
             inwaListener = dbRef.on('value', snap => {
                 inwaDataLive = snap.val() || {};
                 document.getElementById('loadingData').style.display = 'none';
                 let activeTabBtn = document.querySelector('.tab-btn.active');
-                let activeTab = activeTabBtn ? activeTabBtn.getAttribute('data-dept') : 'IT';
+                let activeTab = activeTabBtn ? activeTabBtn.innerText.replace('DZIAŁ ', '') : 'IT';
                 switchDept(activeTab);
-                updateDeptBadges();
                 updateKssBadge();
             });
         });
@@ -315,64 +287,24 @@
         const div = document.getElementById('monthSelector');
         div.innerHTML = "";
         months.forEach((m, i) => {
-            let monthKey = `${year}_${i}`;
-            let monthObj = allStoreInwentury[monthKey] || {};
-            let hasAwaitingInMonth = Object.values(monthObj).some(item => item.status === 'awaiting_kss');
-
             const b = document.createElement('button');
             b.className = `month-btn ${i === currentMonth ? 'active' : ''}`;
-            b.innerHTML = `${m} ${hasAwaitingInMonth ? '<span class="btn-alert">[!]</span>' : ''}`;
+            b.innerText = m;
             b.onclick = () => { renderMonthSelectorActive(i); loadMonthDataFromFirebase(i); };
             div.appendChild(b);
         });
     }
 
     // NAPRAWA: podswietlenie aktywnego przycisku miesiaca bez przedwczesnego nadpisywania
-    // globalnego `curM`/`currentMonth` (o to dba dopiero loadMonthDataFromFirebase, PO
-    // odpieciu starego listenera).
+    // globalnego `currentMonth` (to loadMonthDataFromFirebase odpowiada za jego zmiane,
+    // dopiero PO odpieciu starego listenera).
     function renderMonthSelectorActive(i) {
         document.querySelectorAll('.month-btn').forEach((btn, idx) => btn.classList.toggle('active', idx === i));
     }
 
-    function updateDeptBadges() {
-        ['IT', 'RTV', 'AGD'].forEach(dept => {
-            let badgeEl = document.getElementById(`badge_${dept}`);
-            if(badgeEl) {
-                let hasAwaitingInDept = Object.values(inwaDataLive).some(item => item.dept === dept && item.status === 'awaiting_kss');
-                badgeEl.innerHTML = hasAwaitingInDept ? `<span class="btn-alert">[!]</span>` : '';
-            }
-        });
-    }
-
-    // NAPRAWA: pelna nazwa sklepu (numer + miasto) zamiast samego kodu, spojnie z reszta aplikacji
-    document.getElementById('headerStore').innerText = myStore;
-    db.ref(`Stores/${myStore}/Setup`).once('value').then(snap => {
-        const setup = snap.val();
-        if (setup) document.getElementById('headerStore').innerText = `${setup.sNumber} ${setup.city}`;
-    });
-
-    let finalDept = currentUser.dept; if(currentUser.isKss && currentUser.dept !== 'ME') finalDept = 'KSS';
-    document.getElementById('sideName').innerText = `${currentUser.name} (${finalDept})`;
-    
-    const sideAvatarHtml = currentUser.avatar ? `<img src="${currentUser.avatar}" style="width:100%; height:100%; object-fit:cover; border-radius:50%;">` : currentUser.charId.charAt(0);
-    document.getElementById('sideAvatar').innerHTML = sideAvatarHtml;
-    
-    if(!isManagerOrKss) { 
-        if(document.getElementById('navInwaKSS')) document.getElementById('navInwaKSS').style.display = 'none'; 
-        if(document.getElementById('navKierownik')) document.getElementById('navKierownik').style.display = 'none'; 
-    }
-    
-    function toggleNav() { document.getElementById('sidebar').classList.toggle('active'); document.getElementById('overlay').classList.toggle('active'); }
-    function logout() { localStorage.removeItem('currentUser'); window.location.href = 'login.html'; }
-
-    let currentReviewId = null;
-
     function switchDept(dept) {
-        document.querySelectorAll('.tab-btn').forEach(btn => { 
-            btn.classList.remove('active'); 
-            if(btn.getAttribute('data-dept') === dept) btn.classList.add('active'); 
-        });
-        let dataArray = Object.values(inwaDataLive);
+        document.querySelectorAll('.tab-btn').forEach(btn => { btn.classList.remove('active'); if(btn.innerText.includes(dept)) btn.classList.add('active'); });
+        let dataArray = Object.values(inwaDataLive); 
         renderSection('gridWeekly', dataArray.filter(i => i.dept === dept && i.period === 'weekly'), 'secWeekly');
         renderSection('grid2Weeks', dataArray.filter(i => i.dept === dept && i.period === 'twoWeeks'), 'secTwoWeeks');
         renderSection('gridMonthly', dataArray.filter(i => i.dept === dept && i.period === 'monthly'), 'secMonthly');
@@ -385,86 +317,39 @@
         section.style.display = 'block';
         
         grid.innerHTML = data.map((item) => {
-            let stHtml, btnHtml, undoHtml = '', cardClass = '';
+            let stHtml, btnHtml, cardClass = '';
             if (item.status === 'do_zrobienia') {
-                stHtml = `<div class="status-row"><div class="dot"></div><span>BRAK ZGŁOSZENIA</span></div>`;
-                btnHtml = `<button class="btn-disabled" disabled>CZEKA NA PRACOWNIKA</button>`;
+                stHtml = `<div class="status-row"><div class="dot"></div><span>DO ZROBIENIA</span></div>`;
+                btnHtml = `<button class="approve-btn" onclick="submitInventory('${item.id}')">ZGŁOŚ WYKONANIE</button>`;
             } else if (item.status === 'awaiting_kss') {
-                cardClass = 'highlight';
-                stHtml = `<div class="status-row status-waiting"><div class="dot"></div><div><span>OCZEKUJE NA DECYZJĘ</span><span class="submitted-by">Zgłosił: ${item.submittedBy}</span></div></div>`;
-                let cleanName = item.name.replace(/<[^>]*>?/gm, ''); 
-                btnHtml = `<button class="check-btn" onclick="openReviewModal('${item.id}', '${cleanName}', '${item.submittedBy}')">🔍 WERYFIKUJ</button>`;
+                stHtml = `<div class="status-row status-waiting"><div class="dot"></div><span>OCZEKUJE NA KIEROWNIKA</span></div>`;
+                btnHtml = `<button class="approve-btn" disabled>W WERYFIKACJI</button>`;
             } else if (item.status === 'done') {
-                stHtml = `<div class="status-row status-accepted"><div class="dot"></div><div><span>ZAAKCEPTOWANO</span><span style="color:#888; font-size:0.65rem;">(Przez: ${item.submittedBy})</span></div></div>`;
-                btnHtml = `<button class="btn-disabled" disabled style="border-color:#0a0; color:#0a0;">✔ ROZLICZONE</button>`;
-                undoHtml = `<button class="undo-btn" onclick="undoDecision('${item.id}')">COFNIJ DECYZJĘ</button>`;
+                stHtml = `<div class="status-row status-done"><div class="dot"></div><span>ZAAKCEPTOWANE (${item.submittedBy})</span></div>`;
+                btnHtml = `<button class="approve-btn" disabled style="border-color:#0a0; color:#0a0;">GOTOWE</button>`;
+                cardClass = 'card-done';
             } else if (item.status === 'rejected') {
-                stHtml = `<div class="status-row status-rejected"><div class="dot"></div><div><span>ODRZUCONO</span><span style="color:#888; font-size:0.65rem;">(Czeka na poprawę)</span></div></div>`;
-                btnHtml = `<button class="btn-disabled" disabled style="border-color:#f44; color:#f44;">✖ W POPRAWIE</button>`;
-                undoHtml = `<button class="undo-btn" onclick="undoDecision('${item.id}')">COFNIJ DECYZJĘ</button>`;
+                stHtml = `<div class="status-row status-rejected"><div class="dot"></div><span>DO POPRAWY!</span></div>`;
+                btnHtml = `<button class="approve-btn" style="border-color:#f44; color:#f44;" onclick="submitInventory('${item.id}')">ZGŁOŚ POPRAWĘ</button>`;
+                cardClass = 'card-rejected';
             }
-            return `<div class="item-card ${cardClass}"><h3>${item.name}</h3>${stHtml}<div>${btnHtml}${undoHtml}</div></div>`;
+            return `<div class="item-card ${cardClass}"><h3>${item.name}</h3>${stHtml}${btnHtml}</div>`;
         }).join('');
     }
 
-    function openReviewModal(id, itemName, submitter) { 
-        currentReviewId = id; 
-        document.getElementById('modalItemName').innerText = itemName; 
-        document.getElementById('modalSubmitter').innerText = submitter; 
-        document.getElementById('reviewModal').style.display = 'flex'; 
-    }
-    function closeReviewModal() { document.getElementById('reviewModal').style.display = 'none'; }
-    
-    function submitDecision(dec) {
-        let item = inwaDataLive[currentReviewId];
-        let cleanName = item.name.replace(/<[^>]*>?/gm, '');
+    function submitInventory(itemId) {
+        let item = inwaDataLive[itemId];
+        db.ref(`Stores/${myStore}/Inwentury/${year}_${currentMonth}/${itemId}`).update({
+            status: 'awaiting_kss', submittedBy: currentUser.name, submitterId: currentUser.charId
+        });
         
-        let newStatus = dec === 'accept' ? 'done' : 'rejected';
-        db.ref(`Stores/${myStore}/Inwentury/${year}_${curM}/${currentReviewId}`).update({ status: newStatus });
-        
-        if(dec === 'accept') {
-            db.ref(`Stores/${myStore}/Notifications`).push({ to: item.submitterId, title: '✅ INWENTURA ZAAKCEPTOWANA', msg: `Kierownik/KSS sprawdził i zatwierdził twoją inwenturę: ${cleanName} (${months[currentMonth]}). Dobra robota!`, type: 'success', read: false, timestamp: Date.now() });
-        } else {
-            db.ref(`Stores/${myStore}/Notifications`).push({ to: item.submitterId, title: '❌ INWENTURA ODRZUCONA', msg: `Kierownik/KSS znalazł błędy w inwenturze: ${cleanName} (${months[currentMonth]}). Wróć na dział i policz jeszcze raz!`, type: 'error', read: false, timestamp: Date.now() });
-        }
-        
-        closeReviewModal();
-    }
-
-    // NAPRAWA: zamiast natywnego confirm() przegladarki, uzywamy wlasnego stylowanego modala
-    function undoDecision(id) {
-        customConfirm("Czy na pewno chcesz wycofać decyzję dla tej inwentury? Spowoduje to wyzerowanie jej statusu (wróci do pracownika).", () => {
-            let item = inwaDataLive[id];
-            let oldSubmitter = item.submitterId;
-            let cleanName = item.name.replace(/<[^>]*>?/gm, '');
-
-            db.ref(`Stores/${myStore}/Inwentury/${year}_${curM}/${id}`).update({
-                status: 'do_zrobienia',
-                submittedBy: null,
-                submitterId: null
-            });
-
-            if (oldSubmitter) {
-                db.ref(`Stores/${myStore}/Notifications`).push({ to: oldSubmitter, title: '🔄 INWENTURA WYCOFANA', msg: `Kierownik/KSS wycofał decyzję dla inwentury: ${cleanName} (${months[currentMonth]}). Status powrócił na DO ZROBIENIA.`, type: 'warning', read: false, timestamp: Date.now() });
-            }
+        let cleanName = item.name.replace(/<[^>]*>?/gm, ''); 
+        db.ref(`Stores/${myStore}/Notifications`).push({
+            to: 'KSS', title: 'NOWA INWENTURA', msg: `Pracownik ${currentUser.name} zakończył inwenturę: ${cleanName} (${months[currentMonth]}). Sprawdź to!`, type: 'warning', read: false, timestamp: Date.now()
         });
     }
 
-    // ==========================================
-    // WLASNY MODAL POTWIERDZENIA (zamiast confirm())
-    // ==========================================
-    let _confirmCallback = null;
-    function customConfirm(message, onConfirm) {
-        document.getElementById('confirmModalText').innerText = message;
-        _confirmCallback = onConfirm;
-        document.getElementById('customConfirmModal').style.display = 'flex';
-    }
-    function resolveConfirm(result) {
-        document.getElementById('customConfirmModal').style.display = 'none';
-        if (result && _confirmCallback) _confirmCallback();
-        _confirmCallback = null;
-    }
-
+    // SYSTEM POWIADOMIEŃ GLOBALNYCH
     if (typeof db !== 'undefined' && typeof currentUser !== 'undefined') {
         const isManagerOrKssGlobal = (currentUser.dept === 'ME' || currentUser.isKss);
 
@@ -475,12 +360,13 @@
             let myUnread = notifs.filter(n => !n.read && (n.to === currentUser.charId || (n.to === 'KSS' && isManagerOrKssGlobal)));
             
             if (myUnread.length > 0) {
-                let n = myUnread[0];
+                let n = myUnread[0]; 
+                
                 document.getElementById('globalPopupTitle').innerText = n.title;
                 document.getElementById('globalPopupMsg').innerText = n.msg;
                 document.getElementById('globalNotificationModal').style.display = 'flex';
-                let box = document.getElementById('popupBox');
                 
+                let box = document.getElementById('popupBox');
                 if(n.type === 'success') { box.style.borderColor = '#0a0'; document.getElementById('globalPopupTitle').style.color = '#0a0'; }
                 else if(n.type === 'error') { box.style.borderColor = '#f44'; document.getElementById('globalPopupTitle').style.color = '#f44'; }
                 else { box.style.borderColor = '#ffe800'; document.getElementById('globalPopupTitle').style.color = '#ffe800'; }
@@ -499,16 +385,12 @@
     }
 
     function closeGlobalPopup() { document.getElementById('globalNotificationModal').style.display = 'none'; }
-    
-    window.onload = () => { 
-        renderMonthSelector(); 
-        loadMonthDataFromFirebase(currentMonth);
-    };
+    window.onload = () => { renderMonthSelector(); loadMonthDataFromFirebase(currentMonth); };
 
     // ==========================================
     // SYSTEM AUTOWYLOGOWANIA (Z OSTRZEŻENIEM PRZED WYLOGOWANIEM)
     // NAPRAWA: dodane 30-sekundowe ostrzezenie zamiast natychmiastowego wylogowania -
-    // spojne z zachowaniem na dashboardzie, w planie pracy i inwenturach pracownika.
+    // spojne z zachowaniem na dashboardzie i w planie pracy.
     // ==========================================
     const minutyBezczynnosci = 5;
     const sekundOstrzezenia = 30;
@@ -559,33 +441,71 @@
 
     resetujTimer();
 </script>
-
 <style>
     .help-fab { position: fixed; bottom: 20px; right: 20px; z-index: 8000; width: 46px; height: 46px; border-radius: 50%; background: #ffe800; color: #000; border: none; font-size: 1.3rem; font-weight: 900; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 15px rgba(255,232,0,0.4); transition: 0.2s; }
     .help-fab:hover { transform: scale(1.1); box-shadow: 0 6px 20px rgba(255,232,0,0.6); }
+
     #helpModal { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.9); z-index:18000; align-items:center; justify-content:center; padding:20px; backdrop-filter: blur(5px); }
-    #helpModal .help-modal-box { background:#0a0a0a; border:2px solid #ffe800; border-radius:15px; padding:25px; max-width:550px; width:100%; max-height:85vh; overflow-y:auto; }
-    .help-item { background:#111; border:1px solid #222; border-radius:10px; padding:15px; margin-bottom:12px; }
-    .help-item h4 { color:#ffe800; margin-bottom:6px; font-size:0.95rem; text-transform:none; }
-    .help-item p { color:#ccc; font-size:0.8rem; line-height:1.5; }
-    .help-item img { width:100%; border-radius:8px; margin-top:10px; border:1px solid #333; cursor:pointer; }
-    .btn-close-help { width: 100%; background: #ffe800; color: #000; border: none; padding: 12px 20px; font-weight: 900; border-radius: 8px; cursor: pointer; text-transform: uppercase; transition: 0.2s; margin-top: 10px; }
-    .btn-close-help:hover { transform: scale(1.02); }
+    #helpModal .help-modal-box { background:#0a0a0a; border:2px solid #ffe800; border-radius:15px; padding:25px; max-width:720px; width:100%; max-height:90vh; display:flex; flex-direction:column; box-shadow: 0 0 40px rgba(255,232,0,0.15); }
+
+    .help-modal-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:15px; flex-shrink:0; gap:10px; }
+    .help-modal-header h3 { color:#ffe800; text-transform:uppercase; font-weight:900; font-size:1.1rem; }
+    .help-counter { color:#888; font-size:0.75rem; font-weight:800; white-space:nowrap; }
+
+    .help-carousel-body { flex-grow:1; overflow-y:auto; min-height:0; display:flex; flex-direction:column; align-items:center; text-align:center; padding: 10px 5px; }
+    .help-carousel-body h4 { color:#ffe800; font-size:1.2rem; margin-bottom:12px; }
+    .help-carousel-body p { color:#ccc; font-size:0.9rem; line-height:1.6; margin-bottom:18px; max-width:620px; white-space:pre-wrap; }
+    .help-carousel-body img { width:100%; max-width:660px; border-radius:10px; border:1px solid #333; cursor:zoom-in; box-shadow: 0 5px 25px rgba(0,0,0,0.6); transition: 0.2s; }
+    .help-carousel-body img:hover { border-color:#ffe800; }
+
+    .help-nav-row { display:flex; align-items:center; justify-content:space-between; gap:15px; margin-top:18px; flex-shrink:0; }
+    .help-nav-btn { background:#151515; border:1px solid #444; color:#ffe800; width:44px; height:44px; border-radius:50%; font-size:1.4rem; font-weight:900; cursor:pointer; transition:0.2s; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+    .help-nav-btn:hover:not(:disabled) { background:#ffe800; color:#000; transform:scale(1.08); }
+    .help-nav-btn:disabled { opacity:0.2; cursor:not-allowed; }
+
+    .help-dots { display:flex; gap:8px; justify-content:center; flex-wrap:wrap; }
+    .help-dot { width:9px; height:9px; border-radius:50%; background:#333; border:none; cursor:pointer; transition:0.2s; padding:0; }
+    .help-dot.active { background:#ffe800; transform:scale(1.3); }
+    .help-dot:hover { background:#888; }
+
+    .btn-close-help { width: 100%; background: #222; color: #fff; border: 1px solid #333; padding: 12px 20px; font-weight: 900; border-radius: 8px; cursor: pointer; text-transform: uppercase; transition: 0.2s; margin-top: 15px; flex-shrink:0; }
+    .btn-close-help:hover { background:#333; border-color:#555; }
+
+    /* LIGHTBOX - powiekszony podglad zrzutu ekranu */
+    #helpImgLightbox { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.96); z-index:19000; align-items:center; justify-content:center; padding:30px; cursor:zoom-out; }
+    #helpImgLightbox img { max-width:100%; max-height:100%; border-radius:10px; box-shadow: 0 0 40px rgba(255,232,0,0.2); }
 </style>
 
 <button class="help-fab" onclick="openHelpModal()" title="Pomoc">?</button>
 <div id="helpModal">
     <div class="help-modal-box">
-        <h3 style="color:#ffe800; margin-bottom:15px; text-transform:uppercase; text-align:center; font-weight:900;">Pomoc — Inwentury (ME/KSS)</h3>
-        <div id="helpItemsList"><div style="color:#666; text-align:center; padding:15px;">Wczytywanie...</div></div>
+        <div class="help-modal-header">
+            <h3>Pomoc — Inwentury</h3>
+            <span class="help-counter" id="helpCounter"></span>
+        </div>
+        <div class="help-carousel-body" id="helpCarouselBody">
+            <div style="color:#666;">Wczytywanie...</div>
+        </div>
+        <div class="help-nav-row">
+            <button class="help-nav-btn" id="helpPrevBtn" onclick="helpGoPrev()">‹</button>
+            <div class="help-dots" id="helpDots"></div>
+            <button class="help-nav-btn" id="helpNextBtn" onclick="helpGoNext()">›</button>
+        </div>
         <button class="btn-close-help" onclick="closeHelpModal()">ZAMKNIJ</button>
     </div>
 </div>
 
+<div id="helpImgLightbox" onclick="closeHelpLightbox()">
+    <img id="helpLightboxImg" src="">
+</div>
+
 <script>
     // ==========================================
-    // PODPOWIEDZI (?) - tresci zarzadzane z panelu superadmina
+    // PODPOWIEDZI (?) - karuzela z tresciami zarzadzanymi z panelu superadmina
     // ==========================================
+    let helpItemsData = [];
+    let helpCurrentIndex = 0;
+
     function openHelpModal() {
         document.getElementById('helpModal').style.display = 'flex';
         loadHelpContent();
@@ -593,27 +513,83 @@
     function closeHelpModal() { document.getElementById('helpModal').style.display = 'none'; }
 
     function loadHelpContent() {
-        db.ref('Admin/HelpContent/inwak').once('value').then(snap => {
+        const body = document.getElementById('helpCarouselBody');
+        body.innerHTML = '<div style="color:#666;">Wczytywanie...</div>';
+
+        db.ref('Admin/HelpContent/inwa').once('value').then(snap => {
             const data = snap.val() || {};
-            const items = Object.values(data).sort((a,b) => (a.order||0) - (b.order||0));
-            const container = document.getElementById('helpItemsList');
-
-            if (items.length === 0) {
-                container.innerHTML = '<div style="color:#666; text-align:center; padding:15px;">Brak jeszcze podpowiedzi dla tej strony.</div>';
-                return;
-            }
-
-            container.innerHTML = items.map(i => `
-                <div class="help-item">
-                    <h4>${i.title}</h4>
-                    <p>${i.text}</p>
-                    ${i.image ? `<img src="${i.image}" onclick="window.open('${i.image}')">` : ''}
-                </div>
-            `).join('');
+            helpItemsData = Object.values(data).sort((a,b) => (a.order||0) - (b.order||0));
+            helpCurrentIndex = 0;
+            renderHelpSlide();
         }).catch(() => {
-            document.getElementById('helpItemsList').innerHTML = '<div style="color:#666; text-align:center; padding:15px;">Nie udało się wczytać podpowiedzi.</div>';
+            body.innerHTML = '<div style="color:#666;">Nie udało się wczytać podpowiedzi.</div>';
         });
     }
+
+    function renderHelpDots() {
+        const dotsEl = document.getElementById('helpDots');
+        if (helpItemsData.length <= 1) { dotsEl.innerHTML = ''; return; }
+        dotsEl.innerHTML = '';
+        helpItemsData.forEach((_, i) => {
+            const dot = document.createElement('button');
+            dot.className = 'help-dot' + (i === helpCurrentIndex ? ' active' : '');
+            dot.onclick = () => helpGoTo(i);
+            dotsEl.appendChild(dot);
+        });
+    }
+
+    function renderHelpSlide() {
+        const body = document.getElementById('helpCarouselBody');
+        const counter = document.getElementById('helpCounter');
+        const prevBtn = document.getElementById('helpPrevBtn');
+        const nextBtn = document.getElementById('helpNextBtn');
+
+        if (helpItemsData.length === 0) {
+            body.innerHTML = '<div style="color:#666; padding:30px 0;">Brak jeszcze podpowiedzi dla tej strony.</div>';
+            counter.innerText = '';
+            prevBtn.style.visibility = 'hidden'; nextBtn.style.visibility = 'hidden';
+            document.getElementById('helpDots').innerHTML = '';
+            return;
+        }
+
+        prevBtn.style.visibility = 'visible'; nextBtn.style.visibility = 'visible';
+        const item = helpItemsData[helpCurrentIndex];
+        counter.innerText = `${helpCurrentIndex + 1} / ${helpItemsData.length}`;
+
+        body.innerHTML = '';
+        const h4 = document.createElement('h4'); h4.innerText = item.title || '';
+        const p = document.createElement('p'); p.innerText = item.text || '';
+        body.appendChild(h4); body.appendChild(p);
+
+        if (item.image) {
+            const img = document.createElement('img');
+            img.src = item.image;
+            img.onclick = () => openHelpLightbox(item.image);
+            body.appendChild(img);
+        }
+
+        prevBtn.disabled = helpCurrentIndex === 0;
+        nextBtn.disabled = helpCurrentIndex === helpItemsData.length - 1;
+        renderHelpDots();
+    }
+
+    function helpGoPrev() { if (helpCurrentIndex > 0) { helpCurrentIndex--; renderHelpSlide(); } }
+    function helpGoNext() { if (helpCurrentIndex < helpItemsData.length - 1) { helpCurrentIndex++; renderHelpSlide(); } }
+    function helpGoTo(i) { helpCurrentIndex = i; renderHelpSlide(); }
+
+    function openHelpLightbox(src) {
+        document.getElementById('helpLightboxImg').src = src;
+        document.getElementById('helpImgLightbox').style.display = 'flex';
+    }
+    function closeHelpLightbox() { document.getElementById('helpImgLightbox').style.display = 'none'; }
+
+    // Nawigacja strzalkami klawiatury + Escape, tylko gdy modal pomocy jest otwarty
+    document.addEventListener('keydown', (e) => {
+        if (document.getElementById('helpModal').style.display !== 'flex') return;
+        if (e.key === 'ArrowRight') helpGoNext();
+        else if (e.key === 'ArrowLeft') helpGoPrev();
+        else if (e.key === 'Escape') closeHelpModal();
+    });
 </script>
 
 </body>

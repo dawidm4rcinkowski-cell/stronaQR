@@ -604,11 +604,14 @@
     let currentHelpImage = null;
     let editingHelpItemId = null;
 
+    let helpAdminEntriesCache = [];
+
     function loadHelpAdminList() {
         const page = document.getElementById('helpPageSelect').value;
         db.ref(`Admin/HelpContent/${page}`).on('value', snap => {
             const data = snap.val() || {};
             const entries = Object.entries(data).sort((a,b) => (a[1].order||0) - (b[1].order||0));
+            helpAdminEntriesCache = entries;
             const container = document.getElementById('helpAdminList');
 
             if (entries.length === 0) {
@@ -616,9 +619,11 @@
                 return;
             }
 
-            container.innerHTML = entries.map(([id, item]) => {
+            container.innerHTML = entries.map(([id, item], index) => {
                 const shortText = (item.text || '').length > 70 ? item.text.slice(0, 70) + '...' : (item.text || '');
                 const thumb = item.image ? `<img src="${item.image}" style="width:36px; height:36px; object-fit:cover; border-radius:6px; margin-right:10px; border:1px solid #333;">` : '';
+                const isFirst = index === 0;
+                const isLast = index === entries.length - 1;
                 return `<div class="token-item">
                     <div style="display:flex; align-items:center; min-width:0;">
                         ${thumb}
@@ -627,13 +632,35 @@
                             <div class="token-item-date">${shortText}</div>
                         </div>
                     </div>
-                    <div style="display:flex; gap:6px; flex-shrink:0;">
+                    <div style="display:flex; gap:6px; flex-shrink:0; align-items:center;">
+                        <button class="btn-small" style="padding:8px 10px;" ${isFirst ? 'disabled' : ''} onclick="moveHelpItem(${index}, -1)" title="Przesuń wyżej">▲</button>
+                        <button class="btn-small" style="padding:8px 10px;" ${isLast ? 'disabled' : ''} onclick="moveHelpItem(${index}, 1)" title="Przesuń niżej">▼</button>
                         <button class="btn-small" onclick="editHelpItem('${id}')">EDYTUJ</button>
                         <button class="btn-token-del" onclick="deleteHelpItem('${id}')">USUŃ</button>
                     </div>
                 </div>`;
             }).join('');
         });
+    }
+
+    // NOWE: zmiana kolejnosci podpowiedzi (strzalki gora/dol) - zamienia wartosci "order"
+    // miedzy dwoma sasiednimi elementami, co przekłada się bezpośrednio na kolejność
+    // wyswietlania w karuzeli "?" na docelowej stronie.
+    function moveHelpItem(index, direction) {
+        const targetIndex = index + direction;
+        if (targetIndex < 0 || targetIndex >= helpAdminEntriesCache.length) return;
+
+        const page = document.getElementById('helpPageSelect').value;
+        const [idA, itemA] = helpAdminEntriesCache[index];
+        const [idB, itemB] = helpAdminEntriesCache[targetIndex];
+
+        const orderA = itemA.order || 0;
+        const orderB = itemB.order || 0;
+
+        const updates = {};
+        updates[`Admin/HelpContent/${page}/${idA}/order`] = orderB;
+        updates[`Admin/HelpContent/${page}/${idB}/order`] = orderA;
+        db.ref().update(updates);
     }
 
     function handleHelpImageUpload(event) {

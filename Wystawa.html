@@ -1,0 +1,568 @@
+!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Media Expert - Wystawa</title>
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='48' fill='%23ffe800'/><path d='M75.6,24.4c-9.1-9.1-23.9-9.1-33,0c-7.3,7.3-8.8,17.7-4.7,26.5L12.4,76.4c-1.6,1.6-1.6,4.1,0,5.7l5.5,5.5c1.6,1.6,4.1,1.6,5.7,0l25.5-25.5c8.8,4.1,19.2,2.6,26.5-4.7C84.7,48.3,84.7,33.5,75.6,24.4z M66.8,41.2c-3.1,3.1-8.2,3.1-11.3,0s-3.1-8.2,0-11.3s8.2-3.1,11.3,0S69.9,38.1,66.8,41.2z' fill='%23000'/></svg>">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&display=swap" rel="stylesheet">
+ 
+    <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-database-compat.js"></script>
+ 
+    <script>
+        const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+        const myStore = localStorage.getItem('myStore');
+        if (!currentUser || !myStore) { window.location.href = 'login.html'; }
+        const isManagerOrKss = (currentUser.dept === 'ME' || currentUser.isKss);
+ 
+        const firebaseConfig = {
+            apiKey: "AIzaSyD0N6Bjyzs34piOoujEn9mxKir8LDGdD2k",
+            authDomain: "expert-tool.firebaseapp.com",
+            databaseURL: "https://expert-tool-default-rtdb.europe-west1.firebasedatabase.app/",
+            projectId: "expert-tool",
+            storageBucket: "expert-tool.firebasestorage.app",
+            messagingSenderId: "880843997228",
+            appId: "1:880843997228:web:fa37aa80b7f9f017705189"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+    </script>
+ 
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Montserrat', sans-serif; }
+        body { background: #080808; color: white; display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
+        ::-webkit-scrollbar { width: 12px; height: 12px; }
+        ::-webkit-scrollbar-track { background: #111; border-left: 1px solid #222; border-top: 1px solid #222; }
+        ::-webkit-scrollbar-thumb { background: #ffe800; border-radius: 2px; }
+        ::-webkit-scrollbar-thumb:hover { background: #e6d100; }
+ 
+        header { background: #ffe800; height: 50px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; z-index: 9999; border-bottom: 2px solid #000; position: relative; box-shadow: 0 2px 10px rgba(255, 232, 0, 0.2); }
+        .logo { color: #000; font-weight: 900; font-size: 1.4rem; text-transform: uppercase; letter-spacing: 1px; display: flex; align-items: center; gap: 10px; }
+        .logo span { background: #000; color: #ffe800; padding: 0 6px; border-radius: 3px; }
+        .store-badge { font-size: 0.7rem; background: rgba(0,0,0,0.1); padding: 4px 8px; border-radius: 20px; font-weight: 800; border: 1px solid #000; }
+        .menu-btn { position: absolute; left: 15px; cursor: pointer; color: #000; font-size: 1.5rem; transition: 0.2s; }
+        .menu-btn:hover { transform: scale(1.1); }
+ 
+        .sidebar { position: fixed; left: -280px; top: 0; width: 260px; height: 100%; background: #0a0a0a; border-right: 3px solid #ffe800; transition: 0.4s; z-index: 10000; padding-top: 60px; display: flex; flex-direction: column; }
+        .sidebar.active { left: 0; }
+        .sidebar-nav { flex-grow: 1; overflow-y: auto; display: flex; flex-direction: column; }
+        .sidebar-header { color: #ffe800; font-weight: 900; font-size: 1rem; padding: 0 25px 15px 25px; letter-spacing: 2px; text-transform: uppercase; }
+        .sidebar-link { display: block; color: white; padding: 15px 25px; text-decoration: none; font-weight: 700; font-size: 0.8rem; border-bottom: 1px solid #111; transition: 0.2s; }
+        .sidebar-link:hover { background: #1a1a1a; color: #ffe800; padding-left: 35px; }
+        .sidebar-feedback { display: block; margin-top: auto; background: #111; color: #ffe800 !important; padding: 15px 25px; text-decoration: none !important; font-weight: 900; font-size: 0.8rem; border-top: 1px solid #222; border-bottom: 1px solid #222; transition: 0.3s; text-transform: uppercase; letter-spacing: 0.5px; }
+        .sidebar-feedback:hover { background: #ffe800 !important; color: #000 !important; padding-left: 35px; }
+ 
+        .user-profile { padding: 15px 20px; border-top: 2px solid #1a1a1a; display: flex; align-items: center; gap: 15px; cursor: pointer; transition: 0.3s; background: #0f0f0f; }
+        .user-profile:hover { background: #151515; }
+        .user-avatar { width: 45px; height: 45px; border-radius: 50%; background: #151515; border: 2px solid #ffe800; display: flex; align-items: center; justify-content: center; font-weight: 900; color: #ffe800; font-size: 1.2rem; flex-shrink: 0; overflow: hidden; }
+        .user-info { display: flex; flex-direction: column; }
+        .user-name { font-weight: 900; font-size: 0.85rem; color: #fff; }
+        .user-settings { font-size: 0.65rem; color: #888; font-weight: 700; margin-top: 4px; }
+        .logout-btn { display: block; width: 100%; text-align: center; background: transparent; color: #f44; border: none; border-top: 1px solid #1a1a1a; padding: 15px; font-weight: 900; font-size: 0.8rem; cursor: pointer; transition: 0.3s; text-transform: uppercase; }
+        .logout-btn:hover { background: #f44; color: #000; }
+        .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.8); display: none; z-index: 9500; }
+        .overlay.active { display: block; }
+ 
+        .dept-tabs { display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; background: #111; border-bottom: 2px solid #ffe800; padding: 12px 15px; flex-shrink: 0; }
+        .tab-btn { background: #151515; border: 1px solid #333; color: #fff; padding: 10px 22px; border-radius: 12px; font-weight: 900; cursor: pointer; transition: 0.3s; font-size: 0.8rem; }
+        .tab-btn.active { background: #ffe800; color: #000; border-color: #ffe800; }
+        .tab-btn:hover:not(.active) { border-color: #ffe800; color: #ffe800; }
+ 
+        .content { flex-grow: 1; overflow-y: auto; padding: 25px 20px 60px; }
+        .content-inner { max-width: 1400px; margin: 0 auto; }
+ 
+        .top-bar { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; margin-bottom: 25px; }
+        .top-bar h1 { font-size: 1.4rem; font-weight: 900; text-transform: uppercase; } .top-bar h1 span { color: #ffe800; }
+        .btn-add { background: #ffe800; color: #000; border: none; padding: 12px 20px; border-radius: 10px; font-weight: 900; cursor: pointer; text-transform: uppercase; font-size: 0.75rem; transition: 0.3s; }
+        .btn-add:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(255,232,0,0.3); }
+ 
+        .station { background: #111; border: 1px solid #333; border-radius: 14px; padding: 20px; margin-bottom: 22px; }
+        .station-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 15px; flex-wrap: wrap; gap: 10px; }
+        .station-title { color: #ffe800; font-weight: 900; font-size: 1.05rem; text-transform: uppercase; }
+        .station-meta { color: #888; font-size: 0.7rem; font-weight: 700; margin-top: 4px; }
+        .station-actions { display: flex; gap: 8px; }
+        .btn-mini { background: transparent; border: 1px solid #555; color: #ccc; padding: 6px 10px; border-radius: 6px; font-size: 0.62rem; font-weight: 900; cursor: pointer; text-transform: uppercase; transition: 0.2s; }
+        .btn-mini:hover { border-color: #ffe800; color: #ffe800; }
+        .btn-mini.danger:hover { border-color: #f44; color: #f44; }
+ 
+        .grid-scroll { overflow-x: auto; padding-bottom: 6px; }
+        .level-row { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+        .level-label { width: 78px; flex-shrink: 0; font-size: 0.6rem; color: #888; font-weight: 900; text-transform: uppercase; text-align: right; }
+        .cells-row { display: flex; gap: 6px; }
+        .cell { width: 78px; height: 78px; flex-shrink: 0; border: 1px dashed #333; border-radius: 8px; background: #0a0a0a; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 4px; cursor: pointer; transition: 0.2s; text-align: center; }
+        .cell:hover { border-color: #ffe800; background: #151515; }
+        .cell.filled { border: 1px solid #ffe800; background: #151107; }
+        .cell-dots { display: flex; flex-wrap: wrap; justify-content: center; gap: 2px; max-width: 60px; margin-bottom: 3px; }
+        .dot { width: 6px; height: 6px; border-radius: 50%; background: #f44; }
+        .cell-idx { font-size: 0.55rem; color: #ffe800; font-weight: 900; line-height: 1.1; }
+        .cell-name { font-size: 0.5rem; color: #ccc; font-weight: 700; line-height: 1.1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 70px; }
+        .cell-qty-badge { position: relative; top: -2px; font-size: 0.55rem; color: #888; font-weight: 900; }
+        .cell.locked { cursor: default; }
+        .cell.locked:hover { border-color: #333; background: #0a0a0a; }
+ 
+        .empty-msg { color: #666; font-size: 0.85rem; font-weight: bold; text-align: center; padding: 40px 10px; }
+ 
+        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 11000; align-items: center; justify-content: center; padding: 20px; backdrop-filter: blur(5px); }
+        .modal-content { background: #0a0a0a; border: 2px solid #ffe800; padding: 25px; width: 100%; max-width: 420px; border-radius: 15px; box-shadow: 0 0 30px rgba(255, 232, 0, 0.15); }
+        .modal-content h3 { color: #ffe800; text-align: center; margin-bottom: 18px; text-transform: uppercase; font-weight: 900; font-size: 1.1rem; }
+        .input-group { display: flex; flex-direction: column; gap: 5px; margin-bottom: 14px; }
+        .input-group label { font-size: 0.68rem; color: #888; font-weight: 800; text-transform: uppercase; }
+        .form-input, select.form-input { background: #111; border: 1px solid #333; color: #fff; padding: 11px; border-radius: 8px; font-size: 0.9rem; font-weight: bold; outline: none; }
+        .form-input:focus { border-color: #ffe800; }
+        .flex-row { display: flex; gap: 10px; }
+        .flex-row .input-group { flex: 1; }
+        .modal-buttons { display: flex; gap: 10px; margin-top: 18px; }
+        .btn-modal-cancel { flex: 1; background: #333; color: #fff; border: none; padding: 12px; font-weight: 900; border-radius: 8px; cursor: pointer; text-transform: uppercase; font-size: 0.75rem; }
+        .btn-modal-danger { flex: 1; background: #a00; color: #fff; border: none; padding: 12px; font-weight: 900; border-radius: 8px; cursor: pointer; text-transform: uppercase; font-size: 0.75rem; }
+        .btn-modal-save { flex: 2; background: #ffe800; color: #000; border: none; padding: 12px; font-weight: 900; border-radius: 8px; cursor: pointer; text-transform: uppercase; font-size: 0.75rem; }
+        .hint { font-size: 0.6rem; color: #666; margin-top: -8px; margin-bottom: 12px; display: block; }
+ 
+        .msg-box { padding: 10px; border-radius: 5px; font-size: 0.8rem; font-weight: bold; text-align: center; display: none; margin-bottom: 12px; }
+        .msg-error { background: rgba(255, 68, 68, 0.2); border: 1px solid #f44; color: #f44; display: block; }
+ 
+        #idleWarningModal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.92); z-index: 20000; align-items: center; justify-content: center; padding: 20px; }
+        #idleWarningModal .modal-content { max-width: 380px; border-color: #f44; text-align: center; }
+        #idleCountdown { color: #f44; font-size: 2.5rem; font-weight: 900; margin: 15px 0; }
+    </style>
+</head>
+<body>
+ 
+<header>
+    <div class="menu-btn" onclick="toggleNav()">☰</div>
+    <div class="logo">EXPERT <span>TOOL</span></div>
+    <div class="store-badge" id="headerStore">Łączenie...</div>
+</header>
+ 
+<div class="sidebar" id="sidebar">
+    <div class="sidebar-nav">
+        <div class="sidebar-header">Nawigacja</div>
+        <a href="index.html" class="sidebar-link">Strona główna</a>
+        <a href="plan.html" class="sidebar-link">Plan pracy</a>
+        <a href="inwa.html" class="sidebar-link">Inwentury</a>
+        <a href="inwak.html" class="sidebar-link" id="navInwaKSS">Inwentury (ME/KSS) <span id="kssAlertBadge"></span></a>
+        <a href="azs.html" class="sidebar-link">AZS</a>
+        <a href="kwt.html" class="sidebar-link">KWT</a>
+        <a href="wystawa.html" class="sidebar-link" style="color:#ffe800">Wystawa</a>
+        <a href="kierownik.html" class="sidebar-link" id="navKierownik">Centrum Dowodzenia</a>
+        <a href="feedback.html" class="sidebar-feedback">💡 Zgłoś problem / Pomysł</a>
+    </div>
+    <div class="user-profile" onclick="window.location.href='ustawienia.html'">
+        <div class="user-avatar" id="sideAvatar">?</div>
+        <div class="user-info">
+            <span class="user-name" id="sideName">Ładowanie...</span>
+            <span class="user-settings">⚙️ Ustawienia konta</span>
+        </div>
+    </div>
+    <button class="logout-btn" onclick="logout()">Wyloguj się</button>
+</div>
+<div class="overlay" id="overlay" onclick="toggleNav()"></div>
+ 
+<div class="dept-tabs" id="deptTabs"></div>
+ 
+<div class="content">
+    <div class="content-inner">
+        <div class="top-bar">
+            <h1>WYSTAWA — <span id="tabTitle">IT</span></h1>
+            <button class="btn-add" id="btnAddStation" onclick="openStationModal()">+ DODAJ STANOWISKO</button>
+        </div>
+        <div id="stationsContainer"></div>
+    </div>
+</div>
+ 
+<!-- MODAL: DODAJ / EDYTUJ STANOWISKO -->
+<div class="modal" id="stationModal">
+    <div class="modal-content">
+        <h3 id="stationModalTitle">NOWE STANOWISKO</h3>
+        <input type="hidden" id="stationId">
+        <div id="stationModalMsg" class="msg-box"></div>
+        <div class="input-group">
+            <label>Nazwa (np. "Stół IT - wejście", "Metr Samsung")</label>
+            <input type="text" class="form-input" id="stName" placeholder="Wpisz nazwę stanowiska">
+        </div>
+        <div class="input-group">
+            <label>Typ</label>
+            <select class="form-input" id="stType" onchange="onTypeChange()">
+                <option value="stol">Stół / Regał (1 poziom)</option>
+                <option value="marka">Metr marki (kilka poziomów)</option>
+            </select>
+        </div>
+        <div class="flex-row">
+            <div class="input-group">
+                <label>Szerokość (m)</label>
+                <input type="number" step="0.1" class="form-input" id="stWidth" placeholder="np. 1.5">
+            </div>
+            <div class="input-group">
+                <label>Długość (m)</label>
+                <input type="number" step="0.1" class="form-input" id="stLength" placeholder="np. 15">
+            </div>
+        </div>
+        <div class="flex-row">
+            <div class="input-group">
+                <label>Liczba miejsc w rzędzie</label>
+                <input type="number" min="1" max="60" class="form-input" id="stCols" placeholder="np. 15">
+            </div>
+            <div class="input-group">
+                <label>Liczba poziomów</label>
+                <input type="number" min="1" max="6" class="form-input" id="stRows" placeholder="np. 1">
+            </div>
+        </div>
+        <span class="hint">Podziel stanowisko na tyle miejsc, ile faktycznie chcesz oznaczać produktami — nie musi to być 1:1 z metrami.</span>
+        <div class="modal-buttons">
+            <button class="btn-modal-cancel" onclick="closeStationModal()">ANULUJ</button>
+            <button class="btn-modal-save" onclick="saveStation()">ZAPISZ</button>
+        </div>
+    </div>
+</div>
+ 
+<!-- MODAL: EDYCJA MIEJSCA (PRODUKT) -->
+<div class="modal" id="cellModal">
+    <div class="modal-content" style="max-width: 380px;">
+        <h3 id="cellModalTitle">MIEJSCE</h3>
+        <div class="input-group">
+            <label>Indeks produktu</label>
+            <input type="text" class="form-input" id="cellIndex" placeholder="np. SM-A546">
+        </div>
+        <div class="input-group">
+            <label>Nazwa produktu</label>
+            <input type="text" class="form-input" id="cellName" placeholder="np. Samsung Galaxy A54">
+        </div>
+        <div class="input-group">
+            <label>Ilość sztuk w tym miejscu</label>
+            <input type="number" min="1" max="50" class="form-input" id="cellQty" value="1">
+        </div>
+        <div class="modal-buttons" id="cellModalButtons">
+            <button class="btn-modal-cancel" onclick="closeCellModal()">ANULUJ</button>
+            <button class="btn-modal-danger" onclick="clearCell()">WYCZYŚĆ</button>
+            <button class="btn-modal-save" onclick="saveCell()">ZAPISZ</button>
+        </div>
+    </div>
+</div>
+ 
+<!-- MODAL: POTWIERDZENIE USUNIĘCIA -->
+<div class="modal" id="confirmModal">
+    <div class="modal-content" style="max-width: 380px; border-color:#f44;">
+        <h3 style="color:#f44;">USUŃ STANOWISKO</h3>
+        <p style="color:#ccc; font-size:0.85rem; text-align:center; margin-bottom:15px;" id="confirmText"></p>
+        <div class="modal-buttons">
+            <button class="btn-modal-cancel" onclick="closeConfirmModal()">ANULUJ</button>
+            <button class="btn-modal-danger" style="flex:2;" onclick="confirmDeleteStation()">USUŃ TRWALE</button>
+        </div>
+    </div>
+</div>
+ 
+<div id="idleWarningModal">
+    <div class="modal-content">
+        <h2 style="color:#f44; font-weight:900; text-transform:uppercase;">Nadal tam jesteś?</h2>
+        <p style="color:#ccc; font-size:0.85rem; margin-top:10px;">Z powodu braku aktywności zostaniesz wylogowany za:</p>
+        <div id="idleCountdown">30</div>
+        <button class="btn-modal-save" style="width:100%;" onclick="pozostanZalogowany()">ZOSTAŃ ZALOGOWANY</button>
+    </div>
+</div>
+ 
+<script>
+    // NAGŁÓWEK / SIDEBAR / SESJA
+    let finalDept = currentUser.dept; if (currentUser.isKss && currentUser.dept !== 'ME') finalDept = 'KSS';
+    document.getElementById('sideName').innerText = `${currentUser.name} (${finalDept})`;
+    const sideAvatarHtml = currentUser.avatar ? `<img src="${currentUser.avatar}" style="width:100%; height:100%; object-fit:cover; border-radius:50%;">` : currentUser.charId.charAt(0);
+    document.getElementById('sideAvatar').innerHTML = sideAvatarHtml;
+    if (!isManagerOrKss) {
+        if (document.getElementById('navInwaKSS')) document.getElementById('navInwaKSS').style.display = 'none';
+        if (document.getElementById('navKierownik')) document.getElementById('navKierownik').style.display = 'none';
+    }
+    document.getElementById('headerStore').innerText = myStore;
+    db.ref(`Stores/${myStore}/Setup`).once('value').then(snap => {
+        const setup = snap.val();
+        if (setup) document.getElementById('headerStore').innerText = `${setup.sNumber} ${setup.city}`;
+    });
+    function toggleNav() { document.getElementById('sidebar').classList.toggle('active'); document.getElementById('overlay').classList.toggle('active'); }
+    function logout() { localStorage.removeItem('currentUser'); window.location.href = 'login.html'; }
+ 
+    // ==========================================
+    // ZAKŁADKI DZIAŁÓW
+    // ==========================================
+    const tabDefs = [
+        { key: 'IT', label: 'IT', dept: 'IT' },
+        { key: 'RTV', label: 'RTV', dept: 'RTV' },
+        { key: 'AGD_DUZE', label: 'AGD - DUŻE', dept: 'AGD' },
+        { key: 'AGD_MALE', label: 'AGD - MAŁE', dept: 'AGD' }
+    ];
+    let currentTab = 'IT';
+    let currentStations = {};
+    let stationsListener = null;
+ 
+    function canEditCurrentTab() {
+        if (isManagerOrKss) return true;
+        const def = tabDefs.find(t => t.key === currentTab);
+        return def && currentUser.dept === def.dept;
+    }
+ 
+    function renderTabs() {
+        const container = document.getElementById('deptTabs');
+        container.innerHTML = '';
+        tabDefs.forEach(t => {
+            const b = document.createElement('button');
+            b.className = 'tab-btn' + (t.key === currentTab ? ' active' : '');
+            b.innerText = t.label;
+            b.onclick = () => switchTab(t.key);
+            container.appendChild(b);
+        });
+    }
+ 
+    function switchTab(key) {
+        currentTab = key;
+        document.getElementById('tabTitle').innerText = tabDefs.find(t => t.key === key).label;
+        renderTabs();
+        document.getElementById('btnAddStation').style.display = canEditCurrentTab() ? 'block' : 'none';
+ 
+        if (stationsListener) db.ref(`Stores/${myStore}/Wystawa`).off('value', stationsListener);
+        document.getElementById('stationsContainer').innerHTML = '<div class="empty-msg">Wczytywanie...</div>';
+ 
+        stationsListener = db.ref(`Stores/${myStore}/Wystawa/${key}`).on('value', snap => {
+            currentStations = snap.val() || {};
+            renderStations();
+        });
+    }
+ 
+    // ==========================================
+    // RENDEROWANIE STANOWISK
+    // ==========================================
+    function renderStations() {
+        const container = document.getElementById('stationsContainer');
+        const ids = Object.keys(currentStations);
+        if (ids.length === 0) {
+            container.innerHTML = '<div class="empty-msg">Brak jeszcze żadnych stanowisk w tym dziale.<br>Kliknij "+ DODAJ STANOWISKO", aby dodać pierwszy stół, regał lub metr marki.</div>';
+            return;
+        }
+        const canEdit = canEditCurrentTab();
+        container.innerHTML = '';
+ 
+        ids.forEach(stId => {
+            const st = currentStations[stId];
+            const rows = st.rows || 1;
+            const cols = st.cols || 1;
+            const cells = st.cells || {};
+ 
+            let filled = 0;
+            for (let r = 0; r < rows; r++) for (let c = 0; c < cols; c++) if (cells[`${r}_${c}`]) filled++;
+ 
+            const box = document.createElement('div');
+            box.className = 'station';
+ 
+            let actionsHtml = '';
+            if (canEdit) {
+                actionsHtml = `
+                    <div class="station-actions">
+                        <button class="btn-mini" onclick="openStationModal('${stId}')">EDYTUJ</button>
+                        <button class="btn-mini danger" onclick="askDeleteStation('${stId}', '${(st.name||'').replace(/'/g,"")}')">USUŃ</button>
+                    </div>`;
+            }
+ 
+            let gridHtml = '<div class="grid-scroll">';
+            for (let r = 0; r < rows; r++) {
+                gridHtml += `<div class="level-row">`;
+                gridHtml += rows > 1 ? `<div class="level-label">POZIOM ${r + 1}</div>` : `<div class="level-label"></div>`;
+                gridHtml += `<div class="cells-row">`;
+                for (let c = 0; c < cols; c++) {
+                    const cell = cells[`${r}_${c}`];
+                    const lockedClass = canEdit ? '' : ' locked';
+                    if (cell) {
+                        const qty = Math.max(1, parseInt(cell.qty) || 1);
+                        const dotsCount = Math.min(qty, 12);
+                        let dotsHtml = '';
+                        for (let i = 0; i < dotsCount; i++) dotsHtml += '<div class="dot"></div>';
+                        gridHtml += `<div class="cell filled${lockedClass}" onclick="openCellModal('${stId}', ${r}, ${c})">
+                            <div class="cell-dots">${dotsHtml}</div>
+                            <div class="cell-idx">${(cell.index || '').substring(0,10)}</div>
+                            <div class="cell-name">${(cell.name || '').substring(0,14)}</div>
+                            <div class="cell-qty-badge">x${qty}</div>
+                        </div>`;
+                    } else {
+                        gridHtml += `<div class="cell${lockedClass}" onclick="openCellModal('${stId}', ${r}, ${c})">
+                            <span style="color:#444; font-size:1.3rem;">+</span>
+                        </div>`;
+                    }
+                }
+                gridHtml += `</div></div>`;
+            }
+            gridHtml += '</div>';
+ 
+            box.innerHTML = `
+                <div class="station-header">
+                    <div>
+                        <div class="station-title">${st.name || 'Bez nazwy'}</div>
+                        <div class="station-meta">${st.widthM || '?'}m x ${st.lengthM || '?'}m • ${st.type === 'marka' ? 'Metr marki' : 'Stół / Regał'} • zajęte ${filled}/${rows*cols} miejsc</div>
+                    </div>
+                    ${actionsHtml}
+                </div>
+                ${gridHtml}
+            `;
+            container.appendChild(box);
+        });
+    }
+ 
+    // ==========================================
+    // MODAL: DODAJ / EDYTUJ STANOWISKO
+    // ==========================================
+    function onTypeChange() {
+        const type = document.getElementById('stType').value;
+        if (!document.getElementById('stationId').value) {
+            document.getElementById('stRows').value = type === 'marka' ? 2 : 1;
+        }
+    }
+ 
+    function openStationModal(stId = null) {
+        if (!canEditCurrentTab()) return;
+        document.getElementById('stationModalMsg').style.display = 'none';
+        document.getElementById('stationId').value = stId || '';
+ 
+        if (stId && currentStations[stId]) {
+            const st = currentStations[stId];
+            document.getElementById('stationModalTitle').innerText = 'EDYTUJ STANOWISKO';
+            document.getElementById('stName').value = st.name || '';
+            document.getElementById('stType').value = st.type || 'stol';
+            document.getElementById('stWidth').value = st.widthM || '';
+            document.getElementById('stLength').value = st.lengthM || '';
+            document.getElementById('stCols').value = st.cols || 10;
+            document.getElementById('stRows').value = st.rows || 1;
+        } else {
+            document.getElementById('stationModalTitle').innerText = 'NOWE STANOWISKO';
+            document.getElementById('stName').value = '';
+            document.getElementById('stType').value = 'stol';
+            document.getElementById('stWidth').value = '';
+            document.getElementById('stLength').value = '';
+            document.getElementById('stCols').value = 10;
+            document.getElementById('stRows').value = 1;
+        }
+        document.getElementById('stationModal').style.display = 'flex';
+    }
+ 
+    function closeStationModal() { document.getElementById('stationModal').style.display = 'none'; }
+ 
+    function saveStation() {
+        const msgBox = document.getElementById('stationModalMsg');
+        const stId = document.getElementById('stationId').value;
+        const name = document.getElementById('stName').value.trim();
+        const type = document.getElementById('stType').value;
+        const widthM = parseFloat(document.getElementById('stWidth').value) || 0;
+        const lengthM = parseFloat(document.getElementById('stLength').value) || 0;
+        const cols = Math.min(60, Math.max(1, parseInt(document.getElementById('stCols').value) || 1));
+        const rows = Math.min(6, Math.max(1, parseInt(document.getElementById('stRows').value) || 1));
+ 
+        msgBox.style.display = 'none';
+        if (!name) { msgBox.style.display = 'block'; msgBox.className = 'msg-box msg-error'; msgBox.innerText = 'Podaj nazwę stanowiska!'; return; }
+ 
+        const id = stId || ('st_' + Date.now());
+        const existing = currentStations[id] || {};
+        const data = {
+            name, type, widthM, lengthM, cols, rows,
+            cells: existing.cells || {},
+            createdBy: existing.createdBy || currentUser.name,
+            createdAt: existing.createdAt || Date.now()
+        };
+ 
+        db.ref(`Stores/${myStore}/Wystawa/${currentTab}/${id}`).set(data).then(() => {
+            closeStationModal();
+        });
+    }
+ 
+    let pendingDeleteId = null;
+    function askDeleteStation(stId, name) {
+        pendingDeleteId = stId;
+        document.getElementById('confirmText').innerText = `Czy na pewno chcesz trwale usunąć stanowisko "${name}" wraz ze wszystkimi przypisanymi produktami?`;
+        document.getElementById('confirmModal').style.display = 'flex';
+    }
+    function closeConfirmModal() { document.getElementById('confirmModal').style.display = 'none'; pendingDeleteId = null; }
+    function confirmDeleteStation() {
+        if (pendingDeleteId) db.ref(`Stores/${myStore}/Wystawa/${currentTab}/${pendingDeleteId}`).remove();
+        closeConfirmModal();
+    }
+ 
+    // ==========================================
+    // MODAL: EDYCJA MIEJSCA (PRODUKT W KOMÓRCE)
+    // ==========================================
+    let editCellStationId = null, editCellR = null, editCellC = null;
+ 
+    function openCellModal(stId, r, c) {
+        editCellStationId = stId; editCellR = r; editCellC = c;
+        const st = currentStations[stId] || {};
+        const cell = (st.cells || {})[`${r}_${c}`] || {};
+        const canEdit = canEditCurrentTab();
+ 
+        document.getElementById('cellModalTitle').innerText = (st.rows > 1 ? `POZIOM ${r+1}, ` : '') + `MIEJSCE ${c+1}`;
+        document.getElementById('cellIndex').value = cell.index || '';
+        document.getElementById('cellName').value = cell.name || '';
+        document.getElementById('cellQty').value = cell.qty || 1;
+ 
+        ['cellIndex','cellName','cellQty'].forEach(id => document.getElementById(id).disabled = !canEdit);
+ 
+        document.getElementById('cellModalButtons').innerHTML = canEdit ? `
+            <button class="btn-modal-cancel" onclick="closeCellModal()">ANULUJ</button>
+            <button class="btn-modal-danger" onclick="clearCell()">WYCZYŚĆ</button>
+            <button class="btn-modal-save" onclick="saveCell()">ZAPISZ</button>
+        ` : `
+            <button class="btn-modal-save" style="flex:1;" onclick="closeCellModal()">ZAMKNIJ</button>
+        `;
+ 
+        document.getElementById('cellModal').style.display = 'flex';
+    }
+ 
+    function closeCellModal() { document.getElementById('cellModal').style.display = 'none'; }
+ 
+    function saveCell() {
+        const index = document.getElementById('cellIndex').value.trim();
+        const name = document.getElementById('cellName').value.trim();
+        const qty = Math.min(50, Math.max(1, parseInt(document.getElementById('cellQty').value) || 1));
+ 
+        if (!index && !name) { closeCellModal(); return; }
+ 
+        db.ref(`Stores/${myStore}/Wystawa/${currentTab}/${editCellStationId}/cells/${editCellR}_${editCellC}`).set({ index, name, qty }).then(() => {
+            closeCellModal();
+        });
+    }
+ 
+    function clearCell() {
+        db.ref(`Stores/${myStore}/Wystawa/${currentTab}/${editCellStationId}/cells/${editCellR}_${editCellC}`).remove().then(() => {
+            closeCellModal();
+        });
+    }
+ 
+    // ==========================================
+    // WYKRZYKNIK KSS W MENU
+    // ==========================================
+    if (isManagerOrKss) {
+        db.ref(`Stores/${myStore}/Inwentury`).on('value', snap => {
+            let allInwa = snap.val() || {};
+            let hasAwaiting = false;
+            Object.keys(allInwa).forEach(monthKey => {
+                Object.values(allInwa[monthKey] || {}).forEach(item => { if (item.status === 'awaiting_kss') hasAwaiting = true; });
+            });
+            let badge = document.getElementById('kssAlertBadge');
+            if (badge) badge.innerHTML = hasAwaiting ? `<span style="color:#f44; font-weight:900;">[!]</span>` : '';
+        });
+    }
+ 
+    // ==========================================
+    // AUTOWYLOGOWANIE PRZY BEZCZYNNOŚCI
+    // ==========================================
+    const minutyBezczynnosci = 5, sekundOstrzezenia = 30;
+    const limitCzasu = (minutyBezczynnosci * 60 - sekundOstrzezenia) * 1000;
+    let timerBezczynnosci, countdownInterval, ostrzezenieAktywne = false;
+    function resetujTimer() { if (ostrzezenieAktywne) return; clearTimeout(timerBezczynnosci); timerBezczynnosci = setTimeout(pokazOstrzezenie, limitCzasu); }
+    function pokazOstrzezenie() {
+        ostrzezenieAktywne = true; let s = sekundOstrzezenia;
+        document.getElementById('idleCountdown').innerText = s;
+        document.getElementById('idleWarningModal').style.display = 'flex';
+        countdownInterval = setInterval(() => { s--; document.getElementById('idleCountdown').innerText = s; if (s <= 0) { clearInterval(countdownInterval); wylogujZPowoduBezczynnosci(); } }, 1000);
+    }
+    function pozostanZalogowany() { ostrzezenieAktywne = false; clearInterval(countdownInterval); document.getElementById('idleWarningModal').style.display = 'none'; resetujTimer(); }
+    function wylogujZPowoduBezczynnosci() { localStorage.removeItem('currentUser'); sessionStorage.setItem('powodWylogowania', 'bezczynnosc'); window.location.href = 'login.html'; }
+    ['mousemove','keydown','click','scroll','touchstart'].forEach(a => document.addEventListener(a, resetujTimer, { passive: true }));
+    resetujTimer();
+ 
+    // START
+    renderTabs();
+    switchTab('IT');
+</script>
+</body>
+</html>

@@ -101,13 +101,11 @@
         .level-label { font-size: 0.65rem; color: #888; font-weight: 900; text-transform: uppercase; }
         .items-row { display: flex; align-items: stretch; gap: 6px; overflow-x: auto; padding-bottom: 8px; }
 
-        .item-tile { width: 82px; min-width: 82px; height: 82px; border: 1px solid #ffe800; border-radius: 8px; background: #151107; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 4px; cursor: pointer; transition: 0.2s; text-align: center; }
+        .item-tile { width: 82px; min-width: 82px; height: 82px; border: 1px solid #ffe800; border-radius: 8px; background: #151107; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 4px; cursor: pointer; transition: 0.2s; text-align: center; position: relative; }
         .item-tile:hover { background: #1c1608; transform: translateY(-2px); }
-        .cell-dots { display: flex; flex-wrap: wrap; justify-content: center; gap: 2px; max-width: 62px; margin-bottom: 3px; }
-        .dot { width: 6px; height: 6px; border-radius: 50%; background: #f44; }
-        .cell-idx { font-size: 0.55rem; color: #ffe800; font-weight: 900; line-height: 1.1; }
-        .cell-name { font-size: 0.5rem; color: #ccc; font-weight: 700; line-height: 1.1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 74px; }
-        .cell-qty-badge { position: relative; top: -2px; font-size: 0.55rem; color: #888; font-weight: 900; }
+        .cell-idx { font-size: 0.55rem; color: #ffe800; font-weight: 900; line-height: 1.2; margin-bottom: 4px; word-break: break-word;}
+        .cell-name { font-size: 0.5rem; color: #ccc; font-weight: 700; line-height: 1.2; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; word-break: break-word; }
+        .cell-note-badge { position: absolute; top: -6px; right: -6px; background: #f44; color: white; width: 16px; height: 16px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.65rem; font-weight: 900; box-shadow: 0 0 5px rgba(0,0,0,0.8); }
 
         .meter-marker { width: 34px; min-width: 34px; flex-shrink: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; cursor: default; }
         .meter-marker .bar { width: 3px; flex-grow: 1; background: #ffe800; border-radius: 2px; }
@@ -131,9 +129,9 @@
         .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 11000; align-items: center; justify-content: center; padding: 20px; backdrop-filter: blur(5px); }
         .modal-content { background: #0a0a0a; border: 2px solid #ffe800; padding: 25px; width: 100%; max-width: 420px; border-radius: 15px; box-shadow: 0 0 30px rgba(255, 232, 0, 0.15); }
         .modal-content h3 { color: #ffe800; text-align: center; margin-bottom: 18px; text-transform: uppercase; font-weight: 900; font-size: 1.1rem; }
-        .input-group { display: flex; flex-direction: column; gap: 5px; margin-bottom: 14px; }
+        .input-group { display: flex; flex-direction: column; gap: 5px; margin-bottom: 14px; min-width: 0; }
         .input-group label { font-size: 0.68rem; color: #888; font-weight: 800; text-transform: uppercase; }
-        .form-input, select.form-input { background: #111; border: 1px solid #333; color: #fff; padding: 11px; border-radius: 8px; font-size: 0.9rem; font-weight: bold; outline: none; }
+        .form-input, select.form-input { width: 100%; background: #111; border: 1px solid #333; color: #fff; padding: 11px; border-radius: 8px; font-size: 0.9rem; font-weight: bold; outline: none; }
         .form-input:focus { border-color: #ffe800; }
         .flex-row { display: flex; gap: 10px; }
         .flex-row .input-group { flex: 1; }
@@ -148,6 +146,8 @@
         #idleWarningModal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.92); z-index: 20000; align-items: center; justify-content: center; padding: 20px; }
         #idleWarningModal .modal-content { max-width: 380px; border-color: #f44; text-align: center; }
         #idleCountdown { color: #f44; font-size: 2.5rem; font-weight: 900; margin: 15px 0; }
+        
+        .magazyn-row { background:#111; border:1px solid #333; padding:10px; margin-bottom:8px; border-radius:8px; display:flex; justify-content:space-between; align-items:center; }
     </style>
 </head>
 <body>
@@ -198,9 +198,35 @@
     <div class="content-inner">
         <div class="top-bar">
             <h1>WYSTAWA — <span id="tabTitle">IT</span></h1>
-            <button class="btn-add" id="btnAddStation" onclick="openStationModal()">+ DODAJ STANOWISKO</button>
+            <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                <button class="btn-add" style="background:#3498db; color: white;" onclick="openMagazynModal()">📦 MAGAZYN</button>
+                <button class="btn-add" id="btnAddStation" onclick="openStationModal()">+ DODAJ STANOWISKO</button>
+            </div>
         </div>
         <div id="stationsContainer"></div>
+    </div>
+</div>
+
+<!-- MODAL: MAGAZYN -->
+<div class="modal" id="magazynModal">
+    <div class="modal-content" style="max-width: 550px;">
+        <h3>📦 MAGAZYN - <span id="magazynTabTitle">IT</span></h3>
+        <p style="text-align: center; color: #888; font-size: 0.75rem; margin-top:-10px; margin-bottom:15px;">Dodawaj towar z magazynu do listy, a następnie zweryfikuj czy wszystko jest wystawione.</p>
+        
+        <div style="display:flex; gap:10px; margin-bottom:15px; flex-wrap: wrap;">
+            <input type="text" id="magIndex" class="form-input" placeholder="Indeks" style="flex:2;">
+            <input type="text" id="magName" class="form-input" placeholder="Nazwa" style="flex:3;">
+            <input type="number" id="magQty" class="form-input" placeholder="Ilość" value="1" style="flex:1;">
+            <button class="btn-modal-save" style="padding: 10px 15px;" onclick="addMagazynItem()">DODAJ</button>
+        </div>
+        
+        <button class="btn-modal-danger" style="width:100%; margin-bottom: 15px; background: #27ae60;" onclick="verifyMagazyn()">🔍 SPRAWDŹ CO NIE JEST WYSTAWIONE</button>
+        
+        <div id="magazynList" style="max-height: 350px; overflow-y: auto; text-align: left; padding-right: 5px;">
+            <!-- Tu załaduje się lista z magazynu -->
+        </div>
+        
+        <button class="btn-modal-cancel" style="width:100%; margin-top:15px;" onclick="closeMagazynModal()">ZAMKNIJ</button>
     </div>
 </div>
 
@@ -216,7 +242,7 @@
         </div>
         <div class="input-group">
             <label>Typ</label>
-            <select class="form-input" id="stType" onchange="onTypeChange()">
+            <select class="form-input" id="stType">
                 <option value="stol">Stół (układ Dwustronny: Góra/Dół)</option>
                 <option value="marka">Regał / Metr marki (kilka poziomów)</option>
             </select>
@@ -239,10 +265,10 @@
     </div>
 </div>
 
-<!-- MODAL: EDYCJA / DODAWANIE PRODUKTU -->
+<!-- MODAL: EDYCJA / DODAWANIE PRODUKTU (BEZ ILOŚCI, Z UWAGAMI) -->
 <div class="modal" id="cellModal">
     <div class="modal-content" style="max-width: 380px;">
-        <h3 id="cellModalTitle">PRODUKT</h3>
+        <h3 id="cellModalTitle">PRODUKT NA WYSTAWIE</h3>
         <div class="input-group">
             <label>Indeks produktu</label>
             <input type="text" class="form-input" id="cellIndex" placeholder="np. SM-A546">
@@ -252,8 +278,8 @@
             <input type="text" class="form-input" id="cellName" placeholder="np. Samsung Galaxy A54">
         </div>
         <div class="input-group">
-            <label>Ilość sztuk w tym miejscu</label>
-            <input type="number" min="1" max="50" class="form-input" id="cellQty" value="1">
+            <label>Uwagi (opcjonalnie, np. "brak cenówki", "zablokowany")</label>
+            <input type="text" class="form-input" id="cellNotes" placeholder="Wpisz ewentualne uwagi...">
         </div>
         <div class="modal-buttons" id="cellModalButtons"></div>
     </div>
@@ -309,6 +335,7 @@
     ];
     let currentTab = 'IT';
     let allData = { IT: {}, RTV: {}, AGD_DUZE: {}, AGD_MALE: {} };
+    let magazynData = { IT: {}, RTV: {}, AGD_DUZE: {}, AGD_MALE: {} };
 
     function canEditTab(tabKey) {
         if (isManagerOrKss) return true;
@@ -338,33 +365,41 @@
     }
 
     tabDefs.forEach(t => {
+        // Nasłuchiwanie Wystawy
         db.ref(`Stores/${myStore}/Wystawa/${t.key}`).on('value', snap => {
             allData[t.key] = snap.val() || {};
             if (t.key === currentTab) renderStations();
         });
+        // Nasłuchiwanie Magazynu
+        db.ref(`Stores/${myStore}/Magazyn/${t.key}`).on('value', snap => {
+            magazynData[t.key] = snap.val() || {};
+            if (document.getElementById('magazynModal').style.display === 'flex' && t.key === currentTab) {
+                renderMagazynList();
+            }
+        });
     });
 
     // ==========================================
-    // RENDEROWANIE STANOWISK (Z UWZGLĘDNIENIEM NOWEGO UKŁADU GÓRA/DÓŁ)
+    // RENDEROWANIE STANOWISK
     // ==========================================
     function getLevels(st) {
         return (st.levels && st.levels.length) ? st.levels : [[]];
     }
 
-    // Funkcja pomocnicza generująca kafelek produktu
+    // Usunięta ilosc sztuk z renderowania kafla
     function createTileHtml(it, stId, li, ii, canEdit) {
-        const qty = Math.max(1, parseInt(it.qty) || 1);
-        const dotsCount = Math.min(qty, 12);
-        let dotsHtml = ''; for (let d = 0; d < dotsCount; d++) dotsHtml += '<div class="dot"></div>';
+        let notesBadge = '';
+        if (it.notes && it.notes.trim() !== '') {
+            notesBadge = `<div class="cell-note-badge" title="${it.notes.replace(/"/g, '&quot;')}">!</div>`;
+        }
+        
         return `<div class="item-tile" id="cell_${stId}_${li}_${ii}" onclick="openCellModal('${stId}', ${li}, ${ii})">
-            <div class="cell-dots">${dotsHtml}</div>
-            <div class="cell-idx">${(it.index || '').substring(0,10)}</div>
-            <div class="cell-name">${(it.name || '').substring(0,14)}</div>
-            <div class="cell-qty-badge">x${qty}</div>
+            ${notesBadge}
+            <div class="cell-idx">${(it.index || '').substring(0,12)}</div>
+            <div class="cell-name">${(it.name || '')}</div>
         </div>`;
     }
 
-    // Funkcja pomocnicza generująca wskaźnik metra
     function createMeterHtml(meterCount, stId, li, ii, canEdit) {
         const delX = canEdit ? `<span class="del-x" onclick="event.stopPropagation(); removeItem('${stId}', ${li}, ${ii})">✖</span>` : '';
         return `<div class="meter-marker">${delX}<div class="bar"></div><div class="lbl">${meterCount} M</div></div>`;
@@ -385,13 +420,12 @@
             const st = stations[stId];
             let levels = getLevels(st);
             
-            // Wymuszenie fizycznie 2 poziomów (0=Góra, 1=Dół) dla każdego stołu
             if (st.type === 'stol') {
                 while(levels.length < 2) levels.push([]);
             }
             
-            let totalProducts = 0, totalPieces = 0;
-            levels.forEach(lvl => (lvl || []).forEach(it => { if (it && it.kind === 'product') { totalProducts++; totalPieces += (parseInt(it.qty) || 1); } }));
+            let totalProducts = 0;
+            levels.forEach(lvl => (lvl || []).forEach(it => { if (it && it.kind === 'product') { totalProducts++; } }));
 
             const box = document.createElement('div');
             box.className = 'station';
@@ -408,13 +442,10 @@
 
             let levelsHtml = '';
 
-            // ROZGAŁĘZIENIE LOGIKI RENDEROWANIA DLA "STÓŁ" ORAZ "MARKA"
             if (st.type === 'stol') {
                 let tableGridHtml = '<div class="table-grid">';
-                
-                // Znajdujemy, który poziom ma więcej elementów, żeby wiedzieć ile kolumn narysować
                 let maxCols = Math.max((levels[0]||[]).length, (levels[1]||[]).length);
-                if (canEdit) maxCols++; // Zostawiamy jedną dodatkową kolumnę na przyciski z plusem
+                if (canEdit) maxCols++;
 
                 let topMeterCount = 0;
                 let bottomMeterCount = 0;
@@ -422,7 +453,6 @@
                 for (let i = 0; i < maxCols; i++) {
                     tableGridHtml += '<div class="table-col">';
                     
-                    // --- GÓRA STOŁU (Poziom 0) ---
                     let topItem = (levels[0]||[])[i];
                     if (topItem && topItem.kind === 'product') {
                         tableGridHtml += createTileHtml(topItem, stId, 0, i, canEdit);
@@ -435,7 +465,6 @@
                         tableGridHtml += `<div class="item-placeholder"></div>`;
                     }
 
-                    // --- DÓŁ STOŁU (Poziom 1) ---
                     let bottomItem = (levels[1]||[])[i];
                     if (bottomItem && bottomItem.kind === 'product') {
                         tableGridHtml += createTileHtml(bottomItem, stId, 1, i, canEdit);
@@ -448,10 +477,10 @@
                         tableGridHtml += `<div class="item-placeholder"></div>`;
                     }
 
-                    tableGridHtml += '</div>'; // Zamykamy kolumnę
+                    tableGridHtml += '</div>';
                 }
                 
-                tableGridHtml += '</div>'; // Zamykamy grida stołu
+                tableGridHtml += '</div>';
                 
                 levelsHtml = `
                     <div class="level-block">
@@ -464,7 +493,6 @@
                 `;
 
             } else {
-                // Logika dla typu MARKA (układ rzędowy)
                 levels.forEach((lvl, li) => {
                     const items = lvl || [];
                     let meterCount = 0;
@@ -495,7 +523,7 @@
                 <div class="station-header">
                     <div>
                         <div class="station-title">${st.name || 'Bez nazwy'}</div>
-                        <div class="station-meta">${st.widthM ? st.widthM + 'm' : '?'} x ${st.lengthM ? st.lengthM + 'm' : '?'} • ${st.type === 'marka' ? 'Regał marki' : 'Stół dwustronny'} • ${totalProducts} indeksów • ${totalPieces} szt. łącznie</div>
+                        <div class="station-meta">${st.widthM ? st.widthM + 'm' : '?'} x ${st.lengthM ? st.lengthM + 'm' : '?'} • ${st.type === 'marka' ? 'Regał marki' : 'Stół dwustronny'} • ${totalProducts} indeksów</div>
                     </div>
                     ${actionsHtml}
                 </div>
@@ -506,10 +534,128 @@
     }
 
     // ==========================================
+    // LOGIKA MAGAZYNU I WERYFIKACJI
+    // ==========================================
+    let isVerifiedView = false;
+    let missingIndexes = new Set();
+
+    function openMagazynModal() {
+        document.getElementById('magazynTabTitle').innerText = tabDefs.find(t => t.key === currentTab).label;
+        document.getElementById('magIndex').value = '';
+        document.getElementById('magName').value = '';
+        document.getElementById('magQty').value = '1';
+        isVerifiedView = false;
+        renderMagazynList();
+        document.getElementById('magazynModal').style.display = 'flex';
+    }
+
+    function closeMagazynModal() { 
+        document.getElementById('magazynModal').style.display = 'none'; 
+    }
+
+    function addMagazynItem() {
+        const idx = document.getElementById('magIndex').value.trim();
+        const nm = document.getElementById('magName').value.trim();
+        const q = parseInt(document.getElementById('magQty').value) || 1;
+        if (!idx) { alert("Podaj indeks!"); return; }
+
+        const id = 'mag_' + Date.now();
+        db.ref(`Stores/${myStore}/Magazyn/${currentTab}/${id}`).set({
+            index: idx, name: nm, qty: q, addedAt: Date.now()
+        });
+        
+        document.getElementById('magIndex').value = '';
+        document.getElementById('magName').value = '';
+        document.getElementById('magQty').value = '1';
+        isVerifiedView = false; 
+    }
+
+    function deleteMagazynItem(id) {
+        db.ref(`Stores/${myStore}/Magazyn/${currentTab}/${id}`).remove();
+    }
+
+    function verifyMagazyn() {
+        const stations = allData[currentTab] || {};
+        const exhibited = new Set();
+        Object.values(stations).forEach(st => {
+            getLevels(st).forEach(lvl => {
+                (lvl || []).forEach(it => {
+                    if (it && it.kind === 'product' && it.index) {
+                        exhibited.add(it.index.trim().toLowerCase());
+                    }
+                });
+            });
+        });
+
+        const magItems = magazynData[currentTab] || {};
+        missingIndexes = new Set();
+        Object.values(magItems).forEach(mi => {
+            if (mi.index && !exhibited.has(mi.index.trim().toLowerCase())) {
+                missingIndexes.add(mi.index.trim().toLowerCase());
+            }
+        });
+
+        isVerifiedView = true;
+        renderMagazynList();
+    }
+
+    function renderMagazynList() {
+        const container = document.getElementById('magazynList');
+        const items = magazynData[currentTab] || {};
+        const keys = Object.keys(items);
+        
+        if (keys.length === 0) {
+            container.innerHTML = '<div class="empty-msg">Magazyn jest obecnie pusty dla tego działu.</div>';
+            return;
+        }
+
+        // Sortowanie najpierw po tym, co brakuje na wystawie (jesli tryb weryfikacji), potem od najnowszych
+        keys.sort((a, b) => {
+            const itemA = items[a]; const itemB = items[b];
+            if (isVerifiedView) {
+                const aMissing = missingIndexes.has((itemA.index || '').trim().toLowerCase());
+                const bMissing = missingIndexes.has((itemB.index || '').trim().toLowerCase());
+                if (aMissing && !bMissing) return -1;
+                if (!aMissing && bMissing) return 1;
+            }
+            return (itemB.addedAt || 0) - (itemA.addedAt || 0);
+        });
+
+        let html = '';
+        keys.forEach(k => {
+            const item = items[k];
+            const idxLower = (item.index || '').trim().toLowerCase();
+            let isMissing = false;
+            let warningHtml = '';
+            
+            if (isVerifiedView) {
+                if (missingIndexes.has(idxLower)) {
+                    isMissing = true;
+                    warningHtml = '<div style="color:#f44; font-size:0.75rem; font-weight:900; margin-top: 4px;">⚠️ BRAK NA WYSTAWIE</div>';
+                } else {
+                    warningHtml = '<div style="color:#2ecc71; font-size:0.75rem; font-weight:900; margin-top: 4px;">✅ JEST NA WYSTAWIE</div>';
+                }
+            }
+
+            html += `
+            <div class="magazyn-row" style="${isMissing ? 'border-color: #f44; background: #220b0b;' : ''}">
+                <div>
+                    <div style="color:#ffe800; font-weight:900; font-size:0.95rem;">${item.index}</div>
+                    <div style="color:#ccc; font-size:0.8rem;">${item.name || 'Brak nazwy'}</div>
+                    ${warningHtml}
+                </div>
+                <div style="display:flex; align-items:center; gap:15px;">
+                    <span style="font-weight:900; font-size:0.9rem;">${item.qty} szt.</span>
+                    <button class="btn-mini danger" onclick="deleteMagazynItem('${k}')">USUŃ</button>
+                </div>
+            </div>`;
+        });
+        container.innerHTML = html;
+    }
+
+    // ==========================================
     // MODAL: DODAJ / EDYTUJ STANOWISKO
     // ==========================================
-    function onTypeChange() { /* rezerwa na przyszłe zależne pola */ }
-
     function openStationModal(stId = null) {
         if (!canEditCurrentTab()) return;
         document.getElementById('stationModalMsg').style.display = 'none';
@@ -548,7 +694,6 @@
         const id = stId || ('st_' + Date.now());
         const existing = (allData[currentTab] || {})[id] || {};
         
-        // Zapewniamy dwa poziomy od razu jeśli to stół
         const startLevels = existing.levels || (type === 'stol' ? [[], []] : [[]]);
         
         const data = {
@@ -598,7 +743,7 @@
     }
 
     // ==========================================
-    // MODAL: DODAWANIE / EDYCJA PRODUKTU W KOMÓRCE
+    // MODAL: DODAWANIE / EDYCJA PRODUKTU W KOMÓRCE (Z UWAGAMI ZAMIAST ILOŚCI)
     // ==========================================
     let editCtx = null; 
 
@@ -614,8 +759,8 @@
         document.getElementById('cellModalTitle').innerText = itemIdx === null ? 'NOWY PRODUKT' : 'EDYTUJ PRODUKT';
         document.getElementById('cellIndex').value = item ? (item.index || '') : '';
         document.getElementById('cellName').value = item ? (item.name || '') : '';
-        document.getElementById('cellQty').value = item ? (item.qty || 1) : 1;
-        ['cellIndex','cellName','cellQty'].forEach(id => document.getElementById(id).disabled = !canEdit);
+        document.getElementById('cellNotes').value = item ? (item.notes || '') : '';
+        ['cellIndex','cellName','cellNotes'].forEach(id => document.getElementById(id).disabled = !canEdit);
 
         let btns = '';
         if (canEdit) {
@@ -636,13 +781,14 @@
         if (!editCtx) return;
         const index = document.getElementById('cellIndex').value.trim();
         const name = document.getElementById('cellName').value.trim();
-        const qty = Math.min(50, Math.max(1, parseInt(document.getElementById('cellQty').value) || 1));
+        const notes = document.getElementById('cellNotes').value.trim();
+        
         if (!index && !name) { closeCellModal(); return; }
 
         const { tab, stationId, levelIdx, itemIdx } = editCtx;
         const st = (allData[tab] || {})[stationId]; if (!st) { closeCellModal(); return; }
         const levels = getLevels(st).map(l => (l || []).slice());
-        const newItem = { kind: 'product', index, name, qty };
+        const newItem = { kind: 'product', index, name, notes };
 
         if (itemIdx === null) { levels[levelIdx].push(newItem); }
         else { levels[levelIdx][itemIdx] = newItem; }

@@ -50,8 +50,6 @@
         .sidebar-header { color: #ffe800; font-weight: 900; font-size: 1rem; padding: 0 25px 15px 25px; letter-spacing: 2px; text-transform: uppercase; }
         .sidebar-link { display: block; color: white; padding: 15px 25px; text-decoration: none; font-weight: 700; font-size: 0.8rem; border-bottom: 1px solid #111; transition: 0.2s; }
         .sidebar-link:hover { background: #1a1a1a; color: #ffe800; padding-left: 35px; }
-        .sidebar-feedback { display: block; margin-top: auto; background: #111; color: #ffe800 !important; padding: 15px 25px; text-decoration: none !important; font-weight: 900; font-size: 0.8rem; border-top: 1px solid #222; border-bottom: 1px solid #222; transition: 0.3s; text-transform: uppercase; letter-spacing: 0.5px; }
-        .sidebar-feedback:hover { background: #ffe800 !important; color: #000 !important; padding-left: 35px; }
 
         .user-profile { padding: 15px 20px; border-top: 2px solid #1a1a1a; display: flex; align-items: center; gap: 15px; cursor: pointer; transition: 0.3s; background: #0f0f0f; }
         .user-profile:hover { background: #151515; }
@@ -65,47 +63,87 @@
         .overlay.active { display: block; }
 
         .top-controls { background: #111; border-bottom: 2px solid #ffe800; flex-shrink: 0; padding: 12px 15px; display: flex; flex-wrap: wrap; gap: 12px; align-items: center; justify-content: space-between; }
-        .dept-tabs { display: flex; gap: 10px; flex-wrap: wrap; }
-        .tab-btn { background: #151515; border: 1px solid #333; color: #fff; padding: 9px 18px; border-radius: 12px; font-weight: 900; cursor: pointer; transition: 0.3s; font-size: 0.75rem; }
-        .tab-btn.active { background: #ffe800; color: #000; border-color: #ffe800; }
-        .tab-btn:hover:not(.active) { border-color: #ffe800; color: #ffe800; }
-
+        
+        /* NOWOŚĆ: Ścieżka nawigacji (Breadcrumbs) */
+        .breadcrumbs { display: flex; gap: 10px; align-items: center; font-weight: 900; font-size: 0.9rem; }
+        .bc-link { cursor: pointer; color: #888; transition: 0.2s; }
+        .bc-link:hover { color: #ffe800; }
+        .bc-current { color: #ffe800; }
+        
         .search-bar { display: flex; align-items: center; gap: 8px; background: #000; border: 1px solid #333; border-radius: 20px; padding: 6px 6px 6px 14px; }
         .search-bar input { background: transparent; border: none; outline: none; color: #fff; font-weight: bold; font-size: 0.8rem; width: 150px; }
         .search-bar button { background: #ffe800; color: #000; border: none; padding: 8px 12px; border-radius: 16px; font-weight: 900; font-size: 0.65rem; cursor: pointer; text-transform: uppercase; }
-        .search-nav-btn { background: transparent; border: 1px solid #555; color: #ccc; width: 26px; height: 26px; border-radius: 50%; cursor: pointer; font-weight: 900; font-size: 0.8rem; }
-        .search-nav-btn:hover { border-color: #ffe800; color: #ffe800; }
-        .search-count { font-size: 0.65rem; color: #888; font-weight: 800; min-width: 55px; text-align: center; }
-        .search-clear { background: transparent; border: none; color: #f44; font-weight: 900; cursor: pointer; font-size: 0.9rem; padding: 0 4px; }
 
         .content { flex-grow: 1; overflow-y: auto; padding: 25px 20px 60px; }
         .content-inner { max-width: 1500px; margin: 0 auto; }
 
-        .top-bar { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; margin-bottom: 22px; }
-        .top-bar h1 { font-size: 1.4rem; font-weight: 900; text-transform: uppercase; } .top-bar h1 span { color: #ffe800; }
         .btn-add { background: #ffe800; color: #000; border: none; padding: 12px 20px; border-radius: 10px; font-weight: 900; cursor: pointer; text-transform: uppercase; font-size: 0.75rem; transition: 0.3s; }
         .btn-add:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(255,232,0,0.3); }
-
-        .station { background: #111; border: 1px solid #333; border-radius: 14px; padding: 20px; margin-bottom: 22px; }
-        .station-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 15px; flex-wrap: wrap; gap: 10px; }
-        .station-title { color: #ffe800; font-weight: 900; font-size: 1.05rem; text-transform: uppercase; }
-        .station-meta { color: #888; font-size: 0.7rem; font-weight: 700; margin-top: 4px; }
-        .station-actions { display: flex; gap: 8px; flex-wrap: wrap; }
         .btn-mini { background: transparent; border: 1px solid #555; color: #ccc; padding: 6px 10px; border-radius: 6px; font-size: 0.62rem; font-weight: 900; cursor: pointer; text-transform: uppercase; transition: 0.2s; white-space: nowrap; }
         .btn-mini:hover { border-color: #ffe800; color: #ffe800; }
         .btn-mini.danger:hover { border-color: #f44; color: #f44; }
 
-        .level-block { margin-bottom: 16px; }
-        .level-block:last-child { margin-bottom: 0; }
-        .level-top { display: flex; align-items: center; gap: 10px; margin-bottom: 6px; }
-        .level-label { font-size: 0.65rem; color: #888; font-weight: 900; text-transform: uppercase; }
-        .items-row { display: flex; align-items: stretch; gap: 6px; overflow-x: auto; padding-bottom: 8px; }
+        /* ==========================================
+           WIDOK MAPY SKLEPU (4 KWADRATY)
+           ========================================== */
+        #storeMapView { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; height: 100%; min-height: 500px; }
+        @media(max-width: 768px) { #storeMapView { grid-template-columns: 1fr; } }
+        .store-zone { 
+            background: #111; border: 2px solid #333; border-radius: 15px; display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; transition: 0.3s; 
+            box-shadow: inset 0 0 50px rgba(0,0,0,0.5);
+        }
+        .store-zone:hover { border-color: #ffe800; transform: scale(1.02); background: #1a1a1a; box-shadow: 0 10px 30px rgba(255,232,0,0.1); }
+        .store-zone h2 { font-size: 2rem; color: #ffe800; font-weight: 900; text-transform: uppercase; letter-spacing: 2px; }
+        .store-zone span { color: #888; font-weight: bold; font-size: 0.9rem; margin-top: 10px; }
 
-        .item-tile { width: 82px; min-width: 82px; height: 82px; border: 1px solid #ffe800; border-radius: 8px; background: #151107; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 4px; cursor: pointer; transition: 0.2s; text-align: center; position: relative; }
-        .item-tile:hover { background: #1c1608; transform: translateY(-2px); }
-        .cell-idx { font-size: 0.55rem; color: #ffe800; font-weight: 900; line-height: 1.2; margin-bottom: 4px; word-break: break-word;}
-        .cell-name { font-size: 0.5rem; color: #ccc; font-weight: 700; line-height: 1.2; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; word-break: break-word; }
-        .cell-note-badge { position: absolute; top: -6px; right: -6px; background: #f44; color: white; width: 16px; height: 16px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.65rem; font-weight: 900; box-shadow: 0 0 5px rgba(0,0,0,0.8); z-index: 10; }
+        /* ==========================================
+           WIDOK DZIAŁU (SIATKA KLOCKÓW)
+           ========================================== */
+        #deptMapView { display: none; flex-direction: column; height: 100%; }
+        .dept-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 15px; }
+        
+        .map-grid-container {
+            background: #0a0a0a; border: 2px solid #222; border-radius: 15px; flex-grow: 1; padding: 20px;
+            display: grid; grid-template-columns: repeat(5, 1fr); grid-template-rows: repeat(5, 1fr); gap: 15px;
+            min-height: 600px;
+            position: relative;
+        }
+        
+        /* Klocek na mapie */
+        .map-block {
+            background: linear-gradient(135deg, #ffd900, #bfa300);
+            border: 2px solid #fff;
+            border-radius: 10px;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            text-align: center; cursor: pointer; transition: 0.2s;
+            box-shadow: 5px 5px 15px rgba(0,0,0,0.8), inset 2px 2px 5px rgba(255,255,255,0.5);
+            padding: 10px;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+        }
+        .map-block:hover { transform: scale(1.05) translateY(-5px); box-shadow: 8px 8px 20px rgba(0,0,0,0.9), inset 2px 2px 5px rgba(255,255,255,0.7); }
+        .map-block h4 { color: #000; font-weight: 900; font-size: 0.85rem; text-transform: uppercase; margin-bottom: 5px; word-break: break-word; }
+        .map-block span { color: #222; font-weight: 800; font-size: 0.65rem; }
+
+        /* ==========================================
+           WIDOK SZCZEGÓŁÓW (MODAL ZE STOŁEM)
+           ========================================== */
+        #stationDetailModal .modal-content { max-width: 95vw; width: 1100px; max-height: 90vh; overflow-y: auto; background: #080808; border-color: #444; }
+        
+        .station-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 25px; flex-wrap: wrap; gap: 10px; border-bottom: 1px solid #222; padding-bottom: 15px; }
+        .station-title { color: #ffe800; font-weight: 900; font-size: 1.4rem; text-transform: uppercase; }
+        .station-meta { color: #888; font-size: 0.8rem; font-weight: 700; margin-top: 4px; }
+        
+        .level-block { margin-bottom: 16px; }
+        .level-top { display: flex; align-items: center; gap: 10px; margin-bottom: 6px; }
+        .level-label { font-size: 0.7rem; color: #888; font-weight: 900; text-transform: uppercase; }
+        .items-row { display: flex; align-items: stretch; gap: 8px; overflow-x: auto; padding-bottom: 8px; }
+
+        /* Kafle produktów */
+        .item-tile { width: 90px; min-width: 90px; height: 90px; border: 1px solid #ffe800; border-radius: 8px; background: #151107; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 4px; cursor: pointer; transition: 0.2s; text-align: center; position: relative; }
+        .item-tile:hover { background: #1c1608; transform: translateY(-2px); box-shadow: 0 5px 15px rgba(255,232,0,0.2); }
+        .cell-idx { font-size: 0.6rem; color: #ffe800; font-weight: 900; line-height: 1.2; margin-bottom: 4px; word-break: break-word;}
+        .cell-name { font-size: 0.55rem; color: #ccc; font-weight: 700; line-height: 1.2; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; word-break: break-word; }
+        .cell-note-badge { position: absolute; top: -6px; right: -6px; background: #f44; color: white; width: 18px; height: 18px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: 900; box-shadow: 0 0 5px rgba(0,0,0,0.8); z-index: 10; }
 
         .meter-marker { width: 34px; min-width: 34px; flex-shrink: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; cursor: default; }
         .meter-marker .bar { width: 3px; flex-grow: 1; background: #ffe800; border-radius: 2px; }
@@ -113,123 +151,45 @@
         .meter-marker .del-x { position: absolute; top: -6px; right: 2px; color: #f44; font-size: 0.7rem; font-weight: 900; cursor: pointer; display: none; }
         .meter-marker:hover .del-x { display: block; }
 
-        .add-tile { width: 82px; min-width: 82px; height: 82px; border: 1px dashed #444; border-radius: 8px; background: #0a0a0a; display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; transition: 0.2s; color: #555; font-size: 1.6rem; font-weight: 900; text-align: center;}
+        .add-tile { width: 90px; min-width: 90px; height: 90px; border: 1px dashed #444; border-radius: 8px; background: #0a0a0a; display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; transition: 0.2s; color: #555; font-size: 1.6rem; font-weight: 900; text-align: center;}
         .add-tile:hover { border-color: #ffe800; color: #ffe800; background: #151515; }
 
-        /* Klasy do widoku Stół (Góra/Dół) */
-        .table-grid { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 8px; }
-        .table-col { display: flex; flex-direction: column; gap: 6px; }
-        .item-placeholder { width: 82px; min-width: 82px; height: 82px; border: 1px dashed #222; border-radius: 8px; background: transparent; }
+        /* Siatka stołu prostego */
+        .table-grid { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 8px; }
+        .table-col { display: flex; flex-direction: column; gap: 8px; }
+        .item-placeholder { width: 90px; min-width: 90px; height: 90px; border: 1px dashed #222; border-radius: 8px; background: transparent; }
 
-        /* NOWOŚĆ: Klasy do widoku Izometrycznego 3D (Wyspa) */
-        .iso-wrapper {
-            perspective: 1200px;
-            padding: 30px 10px 60px 10px;
-            display: flex;
-            justify-content: flex-start;
-            overflow-x: auto;
-        }
+        /* Wyspa Izometryczna 3D */
+        .iso-wrapper { perspective: 1200px; padding: 40px 10px 80px 10px; display: flex; justify-content: flex-start; overflow-x: auto; }
         .iso-table {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-            background: #1a1a1a;
-            border: 4px solid #333;
-            padding: 30px;
-            border-radius: 20px;
-            /* Efekt izometryczny */
-            transform: rotateX(55deg) rotateZ(-35deg);
-            transform-style: preserve-3d;
-            box-shadow: -20px 25px 0px rgba(0,0,0,0.6), inset 0 0 50px rgba(0,0,0,0.8);
-            transition: transform 0.4s ease;
-            margin: 0 auto;
+            display: flex; flex-direction: column; gap: 15px; background: #1a1a1a; border: 4px solid #333; padding: 40px; border-radius: 20px;
+            transform: rotateX(55deg) rotateZ(-35deg); transform-style: preserve-3d;
+            box-shadow: -20px 25px 0px rgba(0,0,0,0.6), inset 0 0 50px rgba(0,0,0,0.8); transition: transform 0.4s ease; margin: 0 auto;
         }
-        .iso-table:hover {
-            transform: rotateX(50deg) rotateZ(-25deg);
-        }
-        .iso-row {
-            display: flex;
-            gap: 12px;
-            transform-style: preserve-3d;
-            position: relative;
-        }
-        .iso-row-label {
-            position: absolute;
-            left: -60px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: #555;
-            font-size: 0.6rem;
-            font-weight: 900;
-        }
-        .iso-cell {
-            width: 82px;
-            height: 82px;
-            background: rgba(255,255,255,0.02);
-            border: 2px dashed #444;
-            border-radius: 8px;
-            position: relative;
-            transform-style: preserve-3d;
-        }
+        .iso-table:hover { transform: rotateX(50deg) rotateZ(-25deg); }
+        .iso-row { display: flex; gap: 15px; transform-style: preserve-3d; position: relative; }
+        .iso-cell { width: 90px; height: 90px; background: rgba(255,255,255,0.02); border: 2px dashed #444; border-radius: 8px; position: relative; transform-style: preserve-3d; }
         .iso-item-tile {
-            position: absolute;
-            inset: -2px;
-            background: #151107;
-            border: 2px solid #ffe800;
-            border-radius: 8px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            padding: 4px;
-            cursor: pointer;
-            text-align: center;
-            /* Pop-up nad stół */
-            transform: translateZ(10px);
-            box-shadow: -5px 5px 10px rgba(0,0,0,0.6);
-            transition: 0.3s;
+            position: absolute; inset: -2px; background: #151107; border: 2px solid #ffe800; border-radius: 8px; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 4px; cursor: pointer; text-align: center;
+            transform: translateZ(10px); box-shadow: -5px 5px 10px rgba(0,0,0,0.6); transition: 0.3s;
         }
-        .iso-item-tile:hover {
-            background: #2a2200;
-            transform: translateZ(35px) scale(1.1);
-            box-shadow: -20px 20px 25px rgba(0,0,0,0.8);
-            z-index: 100;
-        }
+        .iso-item-tile:hover { background: #2a2200; transform: translateZ(40px) scale(1.1); box-shadow: -20px 20px 25px rgba(0,0,0,0.8); z-index: 100; }
         .iso-add-btn {
-            position: absolute;
-            inset: -2px;
-            background: rgba(255, 232, 0, 0.05);
-            border: 2px dashed #ffe800;
-            border-radius: 8px;
-            color: #ffe800;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 2rem;
-            font-weight: 900;
-            cursor: pointer;
-            transform: translateZ(5px);
-            transition: 0.2s;
+            position: absolute; inset: -2px; background: rgba(255, 232, 0, 0.05); border: 2px dashed #ffe800; border-radius: 8px; color: #ffe800; display: flex; align-items: center; justify-content: center; font-size: 2rem; font-weight: 900; cursor: pointer;
+            transform: translateZ(5px); transition: 0.2s;
         }
-        .iso-add-btn:hover {
-            background: rgba(255, 232, 0, 0.2);
-            transform: translateZ(20px);
-        }
+        .iso-add-btn:hover { background: rgba(255, 232, 0, 0.2); transform: translateZ(20px); }
 
-        .empty-msg { color: #666; font-size: 0.85rem; font-weight: bold; text-align: center; padding: 40px 10px; }
-
-        .search-hit { border: 2px solid #2ecc71 !important; box-shadow: 0 0 16px rgba(46,204,113,0.7); background: #0f1f13 !important; animation: searchPulse 1.2s ease-in-out infinite; }
-        @keyframes searchPulse { 0%,100% { box-shadow: 0 0 10px rgba(46,204,113,0.5); } 50% { box-shadow: 0 0 24px rgba(46,204,113,0.9); } }
-
+        /* Reszta okien */
         .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 11000; align-items: center; justify-content: center; padding: 20px; backdrop-filter: blur(5px); }
         .modal-content { background: #0a0a0a; border: 2px solid #ffe800; padding: 25px; width: 100%; max-width: 420px; border-radius: 15px; box-shadow: 0 0 30px rgba(255, 232, 0, 0.15); }
         .modal-content h3 { color: #ffe800; text-align: center; margin-bottom: 18px; text-transform: uppercase; font-weight: 900; font-size: 1.1rem; }
-        .input-group { display: flex; flex-direction: column; gap: 5px; margin-bottom: 14px; min-width: 0; width: 100%; }
+        .input-group { display: flex; flex-direction: column; gap: 5px; margin-bottom: 14px; width: 100%; }
         .input-group label { font-size: 0.68rem; color: #888; font-weight: 800; text-transform: uppercase; }
         .form-input, select.form-input { width: 100%; background: #111; border: 1px solid #333; color: #fff; padding: 11px; border-radius: 8px; font-size: 0.9rem; font-weight: bold; outline: none; }
         .form-input:focus { border-color: #ffe800; }
         .flex-row { display: flex; gap: 10px; width: 100%; }
-        .flex-row .input-group { flex: 1; width: auto; }
+        .flex-row .input-group { flex: 1; }
         .modal-buttons { display: flex; gap: 10px; margin-top: 18px; }
         .btn-modal-cancel { flex: 1; background: #333; color: #fff; border: none; padding: 12px; font-weight: 900; border-radius: 8px; cursor: pointer; text-transform: uppercase; font-size: 0.72rem; }
         .btn-modal-danger { flex: 1; background: #a00; color: #fff; border: none; padding: 12px; font-weight: 900; border-radius: 8px; cursor: pointer; text-transform: uppercase; font-size: 0.72rem; }
@@ -238,10 +198,6 @@
         .msg-box { padding: 10px; border-radius: 5px; font-size: 0.8rem; font-weight: bold; text-align: center; display: none; margin-bottom: 12px; }
         .msg-error { background: rgba(255, 68, 68, 0.2); border: 1px solid #f44; color: #f44; display: block; }
 
-        #idleWarningModal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.92); z-index: 20000; align-items: center; justify-content: center; padding: 20px; }
-        #idleWarningModal .modal-content { max-width: 380px; border-color: #f44; text-align: center; }
-        #idleCountdown { color: #f44; font-size: 2.5rem; font-weight: 900; margin: 15px 0; }
-        
         .magazyn-row { background:#111; border:1px solid #333; padding:10px; margin-bottom:8px; border-radius:8px; display:flex; justify-content:space-between; align-items:center; }
     </style>
 </head>
@@ -278,35 +234,76 @@
 <div class="overlay" id="overlay" onclick="toggleNav()"></div>
 
 <div class="top-controls">
-    <div class="dept-tabs" id="deptTabs"></div>
+    <div class="breadcrumbs">
+        <span class="bc-link" id="bcStore" onclick="showStoreMap()">MAPA SKLEPU</span>
+        <span id="bcSeparator" style="display:none; color:#444;">/</span>
+        <span class="bc-current" id="bcDept" style="display:none;">IT</span>
+    </div>
     <div class="search-bar">
-        <input type="text" id="searchInput" placeholder="🔍 Szukaj po indeksie / nazwie..." onkeydown="if(event.key==='Enter') runSearch();">
+        <input type="text" id="searchInput" placeholder="🔍 Szukaj..." onkeydown="if(event.key==='Enter') runSearch();">
         <button onclick="runSearch()">SZUKAJ</button>
-        <button class="search-nav-btn" onclick="prevMatch()" title="Poprzedni">‹</button>
-        <span class="search-count" id="searchCount"></span>
-        <button class="search-nav-btn" onclick="nextMatch()" title="Następny">›</button>
-        <span class="search-clear" onclick="clearSearch()" title="Wyczyść wyszukiwanie">✖</span>
     </div>
 </div>
 
 <div class="content">
-    <div class="content-inner">
-        <div class="top-bar">
-            <h1>WYSTAWA — <span id="tabTitle">IT</span></h1>
-            <div style="display: flex; gap: 10px; flex-wrap: wrap;">
-                <button class="btn-add" style="background:#3498db; color: white;" onclick="openMagazynModal()">📦 MAGAZYN</button>
-                <button class="btn-add" id="btnAddStation" onclick="openStationModal()">+ DODAJ STANOWISKO</button>
+    <div class="content-inner" style="height: 100%;">
+        
+        <!-- WIDOK 1: MAPA GŁÓWNA SKLEPU -->
+        <div id="storeMapView">
+            <div class="store-zone" onclick="openDeptMap('IT')">
+                <h2>IT</h2><span>Laptopy, Smartfony, Akcesoria</span>
+            </div>
+            <div class="store-zone" onclick="openDeptMap('RTV')">
+                <h2>RTV</h2><span>Telewizory, Audio</span>
+            </div>
+            <div class="store-zone" onclick="openDeptMap('AGD_DUZE')">
+                <h2>AGD Duże</h2><span>Pralki, Lodówki</span>
+            </div>
+            <div class="store-zone" onclick="openDeptMap('AGD_MALE')">
+                <h2>AGD Małe</h2><span>Ekspresy, Odkurzacze</span>
             </div>
         </div>
-        <div id="stationsContainer"></div>
+
+        <!-- WIDOK 2: MAPA DZIAŁU (SIATKA KLOCKÓW) -->
+        <div id="deptMapView">
+            <div class="dept-header">
+                <h1 style="font-size: 1.4rem; font-weight: 900; text-transform: uppercase;">PLAN DZIAŁU: <span id="deptTitleText" style="color: #ffe800;">IT</span></h1>
+                <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                    <button class="btn-add" style="background:#3498db; color: white;" onclick="openMagazynModal()">📦 MAGAZYN</button>
+                    <button class="btn-add" id="btnAddStation" onclick="openStationModal()">+ DODAJ STANOWISKO</button>
+                </div>
+            </div>
+            <div class="map-grid-container" id="mapGrid">
+                <!-- Tu wpadają klocki stołów -->
+            </div>
+        </div>
+
     </div>
 </div>
+
+<!-- ========================================================= -->
+<!-- MODAL: SZCZEGÓŁY STOŁU (WYSPA 3D LUB PŁASKA) -->
+<!-- ========================================================= -->
+<div class="modal" id="stationDetailModal">
+    <div class="modal-content">
+        <div id="stationDetailContainer">
+            <!-- Tutaj będzie renderowany cały wybrany stół (izometryczny 3d lub plaski) -->
+        </div>
+        <div style="margin-top: 25px; display:flex; justify-content:center;">
+            <button class="btn-modal-cancel" style="max-width:300px;" onclick="closeStationDetail()">ZAMKNIJ PODGLĄD</button>
+        </div>
+    </div>
+</div>
+
+<!-- ========================================================= -->
+<!-- POZOSTAŁE MODALE (MAGAZYN, DODAWANIE, EDYCJA) -->
+<!-- ========================================================= -->
 
 <!-- MODAL: MAGAZYN -->
 <div class="modal" id="magazynModal">
     <div class="modal-content" style="max-width: 550px;">
         <h3>📦 MAGAZYN - <span id="magazynTabTitle">IT</span></h3>
-        <p style="text-align: center; color: #888; font-size: 0.75rem; margin-top:-10px; margin-bottom:15px;">Dodawaj towar z magazynu do listy, a następnie zweryfikuj czy wszystko jest wystawione.</p>
+        <p style="text-align: center; color: #888; font-size: 0.75rem; margin-top:-10px; margin-bottom:15px;">Dodawaj towar z magazynu do listy, a następnie zweryfikuj czy wszystko jest wystawione na tej mapie.</p>
         
         <div style="display:flex; gap:10px; margin-bottom:15px; flex-wrap: wrap;">
             <input type="text" id="magIndex" class="form-input" placeholder="Indeks" style="flex:2;">
@@ -317,26 +314,24 @@
         
         <button class="btn-modal-danger" style="width:100%; margin-bottom: 15px; background: #27ae60;" onclick="verifyMagazyn()">🔍 SPRAWDŹ CO NIE JEST WYSTAWIONE</button>
         
-        <div id="magazynList" style="max-height: 350px; overflow-y: auto; text-align: left; padding-right: 5px;">
-            <!-- Tu załaduje się lista z magazynu -->
-        </div>
+        <div id="magazynList" style="max-height: 350px; overflow-y: auto; text-align: left; padding-right: 5px;"></div>
         
         <button class="btn-modal-cancel" style="width:100%; margin-top:15px;" onclick="closeMagazynModal()">ZAMKNIJ</button>
     </div>
 </div>
 
-<!-- MODAL: DODAJ / EDYTUJ STANOWISKO -->
+<!-- MODAL: DODAJ / EDYTUJ STANOWISKO (Dodano współrzędne mapy) -->
 <div class="modal" id="stationModal">
     <div class="modal-content">
         <h3 id="stationModalTitle">NOWE STANOWISKO</h3>
         <input type="hidden" id="stationId">
         <div id="stationModalMsg" class="msg-box"></div>
         <div class="input-group">
-            <label>Nazwa (np. "Stół IT - wejście", "Metr Samsung")</label>
+            <label>Nazwa na mapie (np. "Wyspa Samsung", "Regał Huawei")</label>
             <input type="text" class="form-input" id="stName" placeholder="Wpisz nazwę stanowiska">
         </div>
         <div class="input-group">
-            <label>Typ</label>
+            <label>Typ Ekspo</label>
             <select class="form-input" id="stType">
                 <option value="stol">Stół prosty (układ Dwustronny: Góra/Dół)</option>
                 <option value="wyspa3d">Wyspa ekspozycyjna (Rzut 3D: Tył/Środek/Przód)</option>
@@ -345,23 +340,22 @@
         </div>
         <div class="flex-row">
             <div class="input-group">
-                <label>Szerokość (m) - opcjonalnie</label>
-                <input type="number" step="0.1" class="form-input" id="stWidth" placeholder="np. 1.5">
+                <label>Wiersz na mapie (1-5)</label>
+                <input type="number" min="1" max="5" class="form-input" id="stRow" value="1">
             </div>
             <div class="input-group">
-                <label>Długość (m) - opcjonalnie</label>
-                <input type="number" step="0.1" class="form-input" id="stLength" placeholder="np. 15">
+                <label>Kolumna na mapie (1-5)</label>
+                <input type="number" min="1" max="5" class="form-input" id="stCol" value="1">
             </div>
         </div>
-        <span class="hint">Nie musisz z góry określać ile produktów zmieści się na stole - stanowisko rozrasta się automatycznie w miarę dodawania kolejnych indeksów.</span>
         <div class="modal-buttons">
             <button class="btn-modal-cancel" onclick="closeStationModal()">ANULUJ</button>
-            <button class="btn-modal-save" onclick="saveStation()">ZAPISZ</button>
+            <button class="btn-modal-save" onclick="saveStation()">UMIEŚĆ NA MAPIE</button>
         </div>
     </div>
 </div>
 
-<!-- MODAL: EDYCJA / DODAWANIE PRODUKTU (BEZ ILOŚCI, Z UWAGAMI) -->
+<!-- MODAL: EDYCJA / DODAWANIE PRODUKTU W ŚRODKU STOŁU -->
 <div class="modal" id="cellModal">
     <div class="modal-content" style="max-width: 380px;">
         <h3 id="cellModalTitle">PRODUKT NA WYSTAWIE</h3>
@@ -381,47 +375,36 @@
     </div>
 </div>
 
-<!-- MODAL: POTWIERDZENIE USUNIĘCIA STANOWISKA -->
+<!-- MODAL: POTWIERDZENIE USUNIĘCIA -->
 <div class="modal" id="confirmModal">
     <div class="modal-content" style="max-width: 380px; border-color:#f44;">
         <h3 style="color:#f44;">USUŃ STANOWISKO</h3>
         <p style="color:#ccc; font-size:0.85rem; text-align:center; margin-bottom:15px;" id="confirmText"></p>
         <div class="modal-buttons">
             <button class="btn-modal-cancel" onclick="closeConfirmModal()">ANULUJ</button>
-            <button class="btn-modal-danger" style="flex:2;" onclick="confirmDeleteStation()">USUŃ TRWALE</button>
+            <button class="btn-modal-danger" style="flex:2;" onclick="confirmDeleteStation()">USUŃ TRWALE Z MAPY</button>
         </div>
     </div>
 </div>
 
-<div id="idleWarningModal">
-    <div class="modal-content">
-        <h2 style="color:#f44; font-weight:900; text-transform:uppercase;">Nadal tam jesteś?</h2>
-        <p style="color:#ccc; font-size:0.85rem; margin-top:10px;">Z powodu braku aktywności zostaniesz wylogowany za:</p>
-        <div id="idleCountdown">30</div>
-        <button class="btn-modal-save" style="width:100%;" onclick="pozostanZalogowany()">ZOSTAŃ ZALOGOWANY</button>
-    </div>
-</div>
-
 <script>
-    // NAGŁÓWEK / SIDEBAR / SESJA
+    // PODSTAWY & SESJA
     let finalDept = currentUser.dept; if (currentUser.isKss && currentUser.dept !== 'ME') finalDept = 'KSS';
     document.getElementById('sideName').innerText = `${currentUser.name} (${finalDept})`;
     const sideAvatarHtml = currentUser.avatar ? `<img src="${currentUser.avatar}" style="width:100%; height:100%; object-fit:cover; border-radius:50%;">` : currentUser.charId.charAt(0);
     document.getElementById('sideAvatar').innerHTML = sideAvatarHtml;
+    
     if (!isManagerOrKss) {
         if (document.getElementById('navInwaKSS')) document.getElementById('navInwaKSS').style.display = 'none';
         if (document.getElementById('navKierownik')) document.getElementById('navKierownik').style.display = 'none';
     }
     document.getElementById('headerStore').innerText = myStore;
-    db.ref(`Stores/${myStore}/Setup`).once('value').then(snap => {
-        const setup = snap.val();
-        if (setup) document.getElementById('headerStore').innerText = `${setup.sNumber} ${setup.city}`;
-    });
+    
     function toggleNav() { document.getElementById('sidebar').classList.toggle('active'); document.getElementById('overlay').classList.toggle('active'); }
     function logout() { localStorage.removeItem('currentUser'); window.location.href = 'login.html'; }
 
     // ==========================================
-    // ZAKŁADKI DZIAŁÓW + DANE 
+    // LOGIKA MAPY I DANYCH
     // ==========================================
     const tabDefs = [
         { key: 'IT', label: 'IT', dept: 'IT' },
@@ -429,41 +412,21 @@
         { key: 'AGD_DUZE', label: 'AGD - DUŻE', dept: 'AGD' },
         { key: 'AGD_MALE', label: 'AGD - MAŁE', dept: 'AGD' }
     ];
-    let currentTab = 'IT';
+    let currentTab = null; 
+    let activeStationId = null; 
     let allData = { IT: {}, RTV: {}, AGD_DUZE: {}, AGD_MALE: {} };
     let magazynData = { IT: {}, RTV: {}, AGD_DUZE: {}, AGD_MALE: {} };
 
-    function canEditTab(tabKey) {
-        if (isManagerOrKss) return true;
-        const def = tabDefs.find(t => t.key === tabKey);
-        return def && currentUser.dept === def.dept;
-    }
-    function canEditCurrentTab() { return canEditTab(currentTab); }
-
-    function renderTabs() {
-        const container = document.getElementById('deptTabs');
-        container.innerHTML = '';
-        tabDefs.forEach(t => {
-            const b = document.createElement('button');
-            b.className = 'tab-btn' + (t.key === currentTab ? ' active' : '');
-            b.innerText = t.label;
-            b.onclick = () => switchTab(t.key);
-            container.appendChild(b);
-        });
-    }
-
-    function switchTab(key) {
-        currentTab = key;
-        document.getElementById('tabTitle').innerText = tabDefs.find(t => t.key === key).label;
-        renderTabs();
-        document.getElementById('btnAddStation').style.display = canEditCurrentTab() ? 'block' : 'none';
-        renderStations();
-    }
-
+    // Uruchomienie nasłuchu na wszystkie działy do wyszukiwarki
     tabDefs.forEach(t => {
         db.ref(`Stores/${myStore}/Wystawa/${t.key}`).on('value', snap => {
             allData[t.key] = snap.val() || {};
-            if (t.key === currentTab) renderStations();
+            if (currentTab === t.key && document.getElementById('deptMapView').style.display === 'flex') {
+                renderMapGrid();
+            }
+            if (currentTab === t.key && activeStationId) {
+                renderSingleStation(activeStationId);
+            }
         });
         db.ref(`Stores/${myStore}/Magazyn/${t.key}`).on('value', snap => {
             magazynData[t.key] = snap.val() || {};
@@ -473,19 +436,95 @@
         });
     });
 
-    // ==========================================
-    // RENDEROWANIE STANOWISK (W TYM NOWE 3D)
-    // ==========================================
-    function getLevels(st) {
-        return (st.levels && st.levels.length) ? st.levels : [[]];
+    function canEditCurrentTab() {
+        if (isManagerOrKss) return true;
+        const def = tabDefs.find(t => t.key === currentTab);
+        return def && currentUser.dept === def.dept;
     }
 
-    // Uniwersalna funkcja generująca kafelek (płaski)
+    // --- NAWIGACJA MIĘDZY WIDOKAMI ---
+    function showStoreMap() {
+        currentTab = null;
+        document.getElementById('storeMapView').style.display = 'grid';
+        document.getElementById('deptMapView').style.display = 'none';
+        document.getElementById('bcStore').className = 'bc-current';
+        document.getElementById('bcSeparator').style.display = 'none';
+        document.getElementById('bcDept').style.display = 'none';
+    }
+
+    function openDeptMap(deptKey) {
+        currentTab = deptKey;
+        const label = tabDefs.find(t => t.key === deptKey).label;
+        
+        document.getElementById('storeMapView').style.display = 'none';
+        document.getElementById('deptMapView').style.display = 'flex';
+        
+        document.getElementById('bcStore').className = 'bc-link';
+        document.getElementById('bcSeparator').style.display = 'inline';
+        document.getElementById('bcDept').style.display = 'inline';
+        document.getElementById('bcDept').innerText = label;
+        document.getElementById('deptTitleText').innerText = label;
+        
+        document.getElementById('btnAddStation').style.display = canEditCurrentTab() ? 'block' : 'none';
+        
+        renderMapGrid();
+    }
+
+    // ==========================================
+    // RENDEROWANIE SIATKI DZIAŁU (GRID MAP)
+    // ==========================================
+    function renderMapGrid() {
+        const container = document.getElementById('mapGrid');
+        container.innerHTML = '';
+        
+        const stations = allData[currentTab] || {};
+        
+        Object.keys(stations).forEach(stId => {
+            const st = stations[stId];
+            const row = st.gridRow || 1;
+            const col = st.gridCol || 1;
+            
+            // Policz indeksy w srodku
+            let totalProducts = 0;
+            (st.levels || []).forEach(lvl => (lvl || []).forEach(it => { if (it && it.kind === 'product') totalProducts++; }));
+            
+            let typName = st.type === 'wyspa3d' ? 'Wyspa 3D' : (st.type === 'marka' ? 'Regał' : 'Stół prosty');
+
+            const block = document.createElement('div');
+            block.className = 'map-block';
+            block.style.gridRow = row;
+            block.style.gridColumn = col;
+            
+            block.innerHTML = `
+                <h4>${st.name || 'Bez nazwy'}</h4>
+                <span>${typName}</span>
+                <span style="color:#666; font-size:0.55rem; margin-top:5px;">Indeksów: ${totalProducts}</span>
+            `;
+            
+            block.onclick = () => openStationDetail(stId);
+            container.appendChild(block);
+        });
+    }
+
+    // ==========================================
+    // WIDOK SZCZEGÓŁÓW POJEDYNCZEGO STOŁU (DRILL-DOWN)
+    // ==========================================
+    function openStationDetail(stId) {
+        activeStationId = stId;
+        renderSingleStation(stId);
+        document.getElementById('stationDetailModal').style.display = 'flex';
+    }
+
+    function closeStationDetail() {
+        document.getElementById('stationDetailModal').style.display = 'none';
+        activeStationId = null;
+    }
+
+    function getLevels(st) { return (st.levels && st.levels.length) ? st.levels : [[]]; }
+
     function createTileHtml(it, stId, li, ii, canEdit) {
         let notesBadge = '';
-        if (it.notes && it.notes.trim() !== '') {
-            notesBadge = `<div class="cell-note-badge" title="${it.notes.replace(/"/g, '&quot;')}">!</div>`;
-        }
+        if (it.notes && it.notes.trim() !== '') notesBadge = `<div class="cell-note-badge" title="${it.notes.replace(/"/g, '&quot;')}">!</div>`;
         return `<div class="item-tile" id="cell_${stId}_${li}_${ii}" onclick="openCellModal('${stId}', ${li}, ${ii})">
             ${notesBadge}
             <div class="cell-idx">${(it.index || '').substring(0,12)}</div>
@@ -498,188 +537,307 @@
         return `<div class="meter-marker">${delX}<div class="bar"></div><div class="lbl">${meterCount} M</div></div>`;
     }
 
-    function renderStations() {
-        const container = document.getElementById('stationsContainer');
-        const stations = allData[currentTab] || {};
-        const ids = Object.keys(stations);
-        if (ids.length === 0) {
-            container.innerHTML = '<div class="empty-msg">Brak jeszcze żadnych stanowisk w tym dziale.<br>Kliknij "+ DODAJ STANOWISKO", aby dodać pierwszy stół, regał lub metr marki.</div>';
-            return;
-        }
+    // Generuje tylko JEDEN stół do środka Modala
+    function renderSingleStation(stId) {
+        const container = document.getElementById('stationDetailContainer');
+        const st = (allData[currentTab] || {})[stId];
+        
+        if (!st) { container.innerHTML = ''; return; }
+        
         const canEdit = canEditCurrentTab();
-        container.innerHTML = '';
+        let levels = getLevels(st);
+        
+        if (st.type === 'stol') { while(levels.length < 2) levels.push([]); } 
+        else if (st.type === 'wyspa3d') { while(levels.length < 3) levels.push([]); }
+        
+        let actionsHtml = '';
+        if (canEdit) {
+            actionsHtml = `
+                <div style="display:flex; gap:8px; flex-wrap:wrap;">
+                    ${st.type === 'marka' ? `<button class="btn-mini" onclick="addLevel('${stId}')">+ POZIOM DO REGAŁU</button>` : ''}
+                    <button class="btn-mini" onclick="openStationModal('${stId}')">EDYTUJ NAZWĘ / POZYCJĘ MAPY</button>
+                    <button class="btn-mini danger" onclick="askDeleteStation('${stId}', '${(st.name||'').replace(/'/g,"")}')">USUŃ Z MAPY</button>
+                </div>`;
+        }
 
-        ids.forEach(stId => {
-            const st = stations[stId];
-            let levels = getLevels(st);
-            
-            // Wymuszanie poprawnej liczby poziomów dla stołów
-            if (st.type === 'stol') {
-                while(levels.length < 2) levels.push([]);
-            } else if (st.type === 'wyspa3d') {
-                while(levels.length < 3) levels.push([]);
-            }
-            
-            let totalProducts = 0;
-            levels.forEach(lvl => (lvl || []).forEach(it => { if (it && it.kind === 'product') { totalProducts++; } }));
+        let levelsHtml = '';
 
-            const box = document.createElement('div');
-            box.className = 'station';
+        if (st.type === 'wyspa3d') {
+            let tableGridHtml = '<div class="iso-wrapper"><div class="iso-table">';
+            let maxCols = Math.max((levels[0]||[]).length, (levels[1]||[]).length, (levels[2]||[]).length);
+            if (canEdit) maxCols++;
 
-            let actionsHtml = '';
-            if (canEdit) {
-                actionsHtml = `
-                    <div class="station-actions">
-                        ${st.type === 'marka' ? `<button class="btn-mini" onclick="addLevel('${stId}')">+ POZIOM</button>` : ''}
-                        <button class="btn-mini" onclick="openStationModal('${stId}')">EDYTUJ</button>
-                        <button class="btn-mini danger" onclick="askDeleteStation('${stId}', '${(st.name||'').replace(/'/g,"")}')">USUŃ</button>
-                    </div>`;
-            }
-
-            let levelsHtml = '';
-
-            // --- NOWOŚĆ: WYSPA EKSPOZYCYJNA W CSS 3D ---
-            if (st.type === 'wyspa3d') {
-                let tableGridHtml = '<div class="iso-wrapper"><div class="iso-table">';
-                const rowLabels = ['TYŁ', 'ŚRODEK', 'PRZÓD'];
-                
-                let maxCols = Math.max((levels[0]||[]).length, (levels[1]||[]).length, (levels[2]||[]).length);
-                if (canEdit) maxCols++;
-
-                for (let r = 0; r < 3; r++) {
-                    tableGridHtml += '<div class="iso-row">';
+            for (let r = 0; r < 3; r++) {
+                tableGridHtml += '<div class="iso-row">';
+                for (let c = 0; c < maxCols; c++) {
+                    tableGridHtml += '<div class="iso-cell">';
+                    let item = (levels[r]||[])[c];
                     
-                    for (let c = 0; c < maxCols; c++) {
-                        tableGridHtml += '<div class="iso-cell">';
-                        let item = (levels[r]||[])[c];
-                        
-                        if (item && item.kind === 'product') {
-                            let notesBadge = '';
-                            if (item.notes && item.notes.trim() !== '') {
-                                notesBadge = `<div class="cell-note-badge" title="${item.notes.replace(/"/g, '&quot;')}">!</div>`;
-                            }
-                            tableGridHtml += `
-                                <div class="iso-item-tile" id="cell_${stId}_${r}_${c}" onclick="openCellModal('${stId}', ${r}, ${c})">
-                                    ${notesBadge}
-                                    <div class="cell-idx">${(item.index || '').substring(0,12)}</div>
-                                    <div class="cell-name">${(item.name || '')}</div>
-                                </div>`;
-                        } else if (item && item.kind === 'meter') {
-                            // Ignorujemy metry na wyspach 3D żeby nie psuć widoku, ew. można dodać płaski znacznik
-                            tableGridHtml += `<div class="iso-item-tile" style="background:#555" onclick="removeItem('${stId}', ${r}, ${c})"><div class="cell-idx">METR</div><div class="cell-name" style="color:#f44">Klinij by usunąć</div></div>`;
-                        } else if (canEdit && c === (levels[r]||[]).length) {
-                            tableGridHtml += `<div class="iso-add-btn" onclick="openCellModal('${stId}', ${r}, null)">+</div>`;
-                        }
-                        
-                        tableGridHtml += '</div>';
+                    if (item && item.kind === 'product') {
+                        let notesBadge = '';
+                        if (item.notes && item.notes.trim() !== '') notesBadge = `<div class="cell-note-badge" title="${item.notes.replace(/"/g, '&quot;')}">!</div>`;
+                        tableGridHtml += `
+                            <div class="iso-item-tile" id="cell_${stId}_${r}_${c}" onclick="openCellModal('${stId}', ${r}, ${c})">
+                                ${notesBadge}
+                                <div class="cell-idx">${(item.index || '').substring(0,12)}</div>
+                                <div class="cell-name">${(item.name || '')}</div>
+                            </div>`;
+                    } else if (item && item.kind === 'meter') {
+                        tableGridHtml += `<div class="iso-item-tile" style="background:#555" onclick="removeItem('${stId}', ${r}, ${c})"><div class="cell-idx">METR</div></div>`;
+                    } else if (canEdit && c === (levels[r]||[]).length) {
+                        tableGridHtml += `<div class="iso-add-btn" onclick="openCellModal('${stId}', ${r}, null)">+</div>`;
                     }
                     tableGridHtml += '</div>';
                 }
-                tableGridHtml += '</div></div>';
-                
-                levelsHtml = `
-                    <div class="level-block">
-                        <div class="level-top">
-                            <span class="level-label">WYSPA EKSPOZYCYJNA (RZUT 3D)</span>
-                        </div>
-                        <div style="font-size: 0.65rem; color: #888; text-align:center; font-weight:bold;">Kolejność rzędów od góry: Tył (Standy), Środek, Przód. Najedź na kafelek aby go powiększyć.</div>
-                        ${tableGridHtml}
-                    </div>
-                `;
-
-            } else if (st.type === 'stol') {
-                // Klasyczny Stół 2D Góra/Dół
-                let tableGridHtml = '<div class="table-grid">';
-                let maxCols = Math.max((levels[0]||[]).length, (levels[1]||[]).length);
-                if (canEdit) maxCols++;
-
-                let topMeterCount = 0;
-                let bottomMeterCount = 0;
-
-                for (let i = 0; i < maxCols; i++) {
-                    tableGridHtml += '<div class="table-col">';
-                    
-                    let topItem = (levels[0]||[])[i];
-                    if (topItem && topItem.kind === 'product') {
-                        tableGridHtml += createTileHtml(topItem, stId, 0, i, canEdit);
-                    } else if (topItem && topItem.kind === 'meter') {
-                        topMeterCount++;
-                        tableGridHtml += createMeterHtml(topMeterCount, stId, 0, i, canEdit);
-                    } else if (canEdit && i === (levels[0]||[]).length) {
-                        tableGridHtml += `<div class="add-tile" style="font-size:0.75rem;" onclick="openCellModal('${stId}', 0, null)">+ GÓRA</div>`;
-                    } else {
-                        tableGridHtml += `<div class="item-placeholder"></div>`;
-                    }
-
-                    let bottomItem = (levels[1]||[])[i];
-                    if (bottomItem && bottomItem.kind === 'product') {
-                        tableGridHtml += createTileHtml(bottomItem, stId, 1, i, canEdit);
-                    } else if (bottomItem && bottomItem.kind === 'meter') {
-                        bottomMeterCount++;
-                        tableGridHtml += createMeterHtml(bottomMeterCount, stId, 1, i, canEdit);
-                    } else if (canEdit && i === (levels[1]||[]).length) {
-                        tableGridHtml += `<div class="add-tile" style="font-size:0.75rem;" onclick="openCellModal('${stId}', 1, null)">+ DÓŁ</div>`;
-                    } else {
-                        tableGridHtml += `<div class="item-placeholder"></div>`;
-                    }
-
-                    tableGridHtml += '</div>';
-                }
-                
                 tableGridHtml += '</div>';
-                
-                levelsHtml = `
-                    <div class="level-block">
-                        <div class="level-top">
-                            <span class="level-label">STÓŁ (GÓRA / DÓŁ)</span>
-                            ${canEdit ? `<button class="btn-mini" onclick="addMeter('${stId}', 0)">+ ZNACZNIK (GÓRA)</button> <button class="btn-mini" onclick="addMeter('${stId}', 1)">+ ZNACZNIK (DÓŁ)</button>` : ''}
-                        </div>
-                        ${tableGridHtml}
-                    </div>
-                `;
-
-            } else {
-                // Typ Marka
-                levels.forEach((lvl, li) => {
-                    const items = lvl || [];
-                    let meterCount = 0;
-                    let itemsHtml = '';
-                    items.forEach((it, ii) => {
-                        if (!it) return;
-                        if (it.kind === 'meter') {
-                            meterCount++;
-                            itemsHtml += createMeterHtml(meterCount, stId, li, ii, canEdit);
-                        } else {
-                            itemsHtml += createTileHtml(it, stId, li, ii, canEdit);
-                        }
-                    });
-                    const addTile = canEdit ? `<div class="add-tile" onclick="openCellModal('${stId}', ${li}, null)">+</div>` : '';
-                    const meterBtn = canEdit ? `<button class="btn-mini" onclick="addMeter('${stId}', ${li})">+ ZNACZNIK METRA</button>` : '';
-                    levelsHtml += `
-                        <div class="level-block">
-                            <div class="level-top">
-                                ${levels.length > 1 ? `<span class="level-label">POZIOM ${li + 1}</span>` : ''}
-                                ${meterBtn}
-                            </div>
-                            <div class="items-row">${itemsHtml}${addTile}</div>
-                        </div>`;
-                });
             }
-
-            let typName = st.type === 'wyspa3d' ? 'Wyspa (3D)' : (st.type === 'marka' ? 'Regał marki' : 'Stół dwustronny');
-
-            box.innerHTML = `
-                <div class="station-header">
-                    <div>
-                        <div class="station-title">${st.name || 'Bez nazwy'}</div>
-                        <div class="station-meta">${st.widthM ? st.widthM + 'm' : '?'} x ${st.lengthM ? st.lengthM + 'm' : '?'} • ${typName} • ${totalProducts} indeksów</div>
-                    </div>
-                    ${actionsHtml}
+            tableGridHtml += '</div></div>';
+            
+            levelsHtml = `
+                <div class="level-block">
+                    <div style="font-size: 0.8rem; color: #888; text-align:center; font-weight:bold; margin-bottom: 20px; border-bottom:1px solid #333; padding-bottom:10px;">UKŁAD: Tył (Standy) -> Środek -> Przód. Najedź na kafelek aby go powiększyć.</div>
+                    ${tableGridHtml}
                 </div>
-                ${levelsHtml}
             `;
-            container.appendChild(box);
+
+        } else if (st.type === 'stol') {
+            let tableGridHtml = '<div class="table-grid">';
+            let maxCols = Math.max((levels[0]||[]).length, (levels[1]||[]).length);
+            if (canEdit) maxCols++;
+
+            let topMeterCount = 0; let bottomMeterCount = 0;
+
+            for (let i = 0; i < maxCols; i++) {
+                tableGridHtml += '<div class="table-col">';
+                
+                let topItem = (levels[0]||[])[i];
+                if (topItem && topItem.kind === 'product') tableGridHtml += createTileHtml(topItem, stId, 0, i, canEdit);
+                else if (topItem && topItem.kind === 'meter') { topMeterCount++; tableGridHtml += createMeterHtml(topMeterCount, stId, 0, i, canEdit); }
+                else if (canEdit && i === (levels[0]||[]).length) tableGridHtml += `<div class="add-tile" style="font-size:0.75rem;" onclick="openCellModal('${stId}', 0, null)">+ GÓRA</div>`;
+                else tableGridHtml += `<div class="item-placeholder"></div>`;
+
+                let bottomItem = (levels[1]||[])[i];
+                if (bottomItem && bottomItem.kind === 'product') tableGridHtml += createTileHtml(bottomItem, stId, 1, i, canEdit);
+                else if (bottomItem && bottomItem.kind === 'meter') { bottomMeterCount++; tableGridHtml += createMeterHtml(bottomMeterCount, stId, 1, i, canEdit); }
+                else if (canEdit && i === (levels[1]||[]).length) tableGridHtml += `<div class="add-tile" style="font-size:0.75rem;" onclick="openCellModal('${stId}', 1, null)">+ DÓŁ</div>`;
+                else tableGridHtml += `<div class="item-placeholder"></div>`;
+
+                tableGridHtml += '</div>';
+            }
+            tableGridHtml += '</div>';
+            
+            levelsHtml = `
+                <div class="level-block">
+                    <div class="level-top" style="margin-bottom:15px; border-bottom:1px solid #333; padding-bottom:10px;">
+                        ${canEdit ? `<button class="btn-mini" onclick="addMeter('${stId}', 0)">+ ZNACZNIK (GÓRA)</button> <button class="btn-mini" onclick="addMeter('${stId}', 1)">+ ZNACZNIK (DÓŁ)</button>` : ''}
+                    </div>
+                    ${tableGridHtml}
+                </div>
+            `;
+
+        } else {
+            // Regał
+            levels.forEach((lvl, li) => {
+                const items = lvl || [];
+                let meterCount = 0;
+                let itemsHtml = '';
+                items.forEach((it, ii) => {
+                    if (!it) return;
+                    if (it.kind === 'meter') { meterCount++; itemsHtml += createMeterHtml(meterCount, stId, li, ii, canEdit); }
+                    else { itemsHtml += createTileHtml(it, stId, li, ii, canEdit); }
+                });
+                const addTile = canEdit ? `<div class="add-tile" onclick="openCellModal('${stId}', ${li}, null)">+</div>` : '';
+                const meterBtn = canEdit ? `<button class="btn-mini" onclick="addMeter('${stId}', ${li})">+ ZNACZNIK METRA</button>` : '';
+                levelsHtml += `
+                    <div class="level-block" style="border-bottom:1px solid #222; padding-bottom:15px; margin-bottom:15px;">
+                        <div class="level-top">
+                            <span class="level-label" style="color:#fff;">POZIOM ${li + 1}</span>
+                            ${meterBtn}
+                        </div>
+                        <div class="items-row">${itemsHtml}${addTile}</div>
+                    </div>`;
+            });
+        }
+
+        container.innerHTML = `
+            <div class="station-header">
+                <div>
+                    <div class="station-title">${st.name || 'Bez nazwy'}</div>
+                    <div class="station-meta">Lokalizacja na mapie: Wiersz ${st.gridRow||1}, Kolumna ${st.gridCol||1}</div>
+                </div>
+                ${actionsHtml}
+            </div>
+            ${levelsHtml}
+        `;
+    }
+
+
+    // ==========================================
+    // TWORZENIE / EDYCJA STOŁU (Z POZYCJAMI XY)
+    // ==========================================
+    function openStationModal(stId = null) {
+        if (!canEditCurrentTab()) return;
+        document.getElementById('stationModalMsg').style.display = 'none';
+        document.getElementById('stationId').value = stId || '';
+
+        const st = stId ? (allData[currentTab] || {})[stId] : null;
+        if (st) {
+            document.getElementById('stationModalTitle').innerText = 'EDYTUJ STANOWISKO';
+            document.getElementById('stName').value = st.name || '';
+            document.getElementById('stType').value = st.type || 'stol';
+            document.getElementById('stRow').value = st.gridRow || 1;
+            document.getElementById('stCol').value = st.gridCol || 1;
+        } else {
+            document.getElementById('stationModalTitle').innerText = 'UMIEŚĆ NA MAPIE';
+            document.getElementById('stName').value = '';
+            document.getElementById('stType').value = 'stol';
+            document.getElementById('stRow').value = 1;
+            document.getElementById('stCol').value = 1;
+        }
+        
+        // Zamykamy modal detali, żeby nie nakładać okien na siebie jeśli edytujemy z poziomu stołu
+        if(document.getElementById('stationDetailModal').style.display === 'flex') {
+            document.getElementById('stationDetailModal').style.display = 'none';
+        }
+
+        document.getElementById('stationModal').style.display = 'flex';
+    }
+
+    function closeStationModal() { 
+        document.getElementById('stationModal').style.display = 'none'; 
+        // Wznawiamy modal detali jeśli edytowaliśmy istniejący
+        if(activeStationId) document.getElementById('stationDetailModal').style.display = 'flex';
+    }
+
+    function saveStation() {
+        const msgBox = document.getElementById('stationModalMsg');
+        const stId = document.getElementById('stationId').value;
+        const name = document.getElementById('stName').value.trim();
+        const type = document.getElementById('stType').value;
+        const gridRow = parseInt(document.getElementById('stRow').value) || 1;
+        const gridCol = parseInt(document.getElementById('stCol').value) || 1;
+
+        msgBox.style.display = 'none';
+        if (!name) { msgBox.style.display = 'block'; msgBox.className = 'msg-box msg-error'; msgBox.innerText = 'Podaj nazwę stanowiska!'; return; }
+
+        const id = stId || ('st_' + Date.now());
+        const existing = (allData[currentTab] || {})[id] || {};
+        
+        let startLevels = existing.levels;
+        if (!startLevels) {
+            if (type === 'wyspa3d') startLevels = [[], [], []];
+            else if (type === 'stol') startLevels = [[], []];
+            else startLevels = [[]];
+        }
+        
+        const data = {
+            name, type, gridRow, gridCol,
+            levels: startLevels,
+            createdBy: existing.createdBy || currentUser.name,
+            createdAt: existing.createdAt || Date.now()
+        };
+
+        db.ref(`Stores/${myStore}/Wystawa/${currentTab}/${id}`).set(data).then(() => {
+            document.getElementById('stationModal').style.display = 'none';
+            if (activeStationId) document.getElementById('stationDetailModal').style.display = 'flex';
         });
+    }
+
+    let pendingDeleteId = null;
+    function askDeleteStation(stId, name) {
+        pendingDeleteId = stId;
+        document.getElementById('stationDetailModal').style.display = 'none';
+        document.getElementById('confirmText').innerText = `Czy na pewno chcesz usunąć z mapy "${name}"?`;
+        document.getElementById('confirmModal').style.display = 'flex';
+    }
+    function closeConfirmModal() { 
+        document.getElementById('confirmModal').style.display = 'none'; 
+        pendingDeleteId = null; 
+        if(activeStationId) document.getElementById('stationDetailModal').style.display = 'flex';
+    }
+    function confirmDeleteStation() {
+        if (pendingDeleteId) db.ref(`Stores/${myStore}/Wystawa/${currentTab}/${pendingDeleteId}`).remove();
+        document.getElementById('confirmModal').style.display = 'none';
+        activeStationId = null;
+    }
+
+    // ==========================================
+    // DODAWANIE DO KOMÓREK STOŁU
+    // ==========================================
+    let editCtx = null; 
+    function openCellModal(stId, levelIdx, itemIdx) {
+        const st = (allData[currentTab] || {})[stId] || {};
+        const levels = getLevels(st);
+        const item = (itemIdx !== null && levels[levelIdx]) ? levels[levelIdx][itemIdx] : null;
+        const canEdit = canEditCurrentTab();
+
+        editCtx = { tab: currentTab, stationId: stId, levelIdx, itemIdx };
+
+        document.getElementById('cellModalTitle').innerText = itemIdx === null ? 'NOWY PRODUKT' : 'EDYTUJ PRODUKT';
+        document.getElementById('cellIndex').value = item ? (item.index || '') : '';
+        document.getElementById('cellName').value = item ? (item.name || '') : '';
+        document.getElementById('cellNotes').value = item ? (item.notes || '') : '';
+        ['cellIndex','cellName','cellNotes'].forEach(id => document.getElementById(id).disabled = !canEdit);
+
+        let btns = '';
+        if (canEdit) {
+            btns = `<button class="btn-modal-cancel" onclick="closeCellModal()">ANULUJ</button>`;
+            if (itemIdx !== null) btns += `<button class="btn-modal-danger" onclick="removeItem('${stId}', ${levelIdx}, ${itemIdx}); closeCellModal();">USUŃ</button>`;
+            btns += `<button class="btn-modal-save" onclick="saveCell()">ZAPISZ</button>`;
+        } else {
+            btns = `<button class="btn-modal-save" style="flex:1;" onclick="closeCellModal()">ZAMKNIJ</button>`;
+        }
+        document.getElementById('cellModalButtons').innerHTML = btns;
+
+        document.getElementById('stationDetailModal').style.display = 'none';
+        document.getElementById('cellModal').style.display = 'flex';
+    }
+
+    function closeCellModal() { 
+        document.getElementById('cellModal').style.display = 'none'; 
+        editCtx = null; 
+        if(activeStationId) document.getElementById('stationDetailModal').style.display = 'flex';
+    }
+
+    function saveCell() {
+        if (!editCtx) return;
+        const index = document.getElementById('cellIndex').value.trim();
+        const name = document.getElementById('cellName').value.trim();
+        const notes = document.getElementById('cellNotes').value.trim();
+        
+        if (!index && !name) { closeCellModal(); return; }
+
+        const { tab, stationId, levelIdx, itemIdx } = editCtx;
+        const st = (allData[tab] || {})[stationId]; if (!st) { closeCellModal(); return; }
+        const levels = getLevels(st).map(l => (l || []).slice());
+        const newItem = { kind: 'product', index, name, notes };
+
+        if (itemIdx === null) { levels[levelIdx].push(newItem); }
+        else { levels[levelIdx][itemIdx] = newItem; }
+
+        db.ref(`Stores/${myStore}/Wystawa/${tab}/${stationId}/levels`).set(levels).then(closeCellModal);
+    }
+
+    function addLevel(stId) {
+        if (!canEditCurrentTab()) return;
+        const st = (allData[currentTab] || {})[stId]; if (!st) return;
+        const levels = getLevels(st).map(l => (l || []).slice());
+        levels.push([]);
+        db.ref(`Stores/${myStore}/Wystawa/${currentTab}/${stId}/levels`).set(levels);
+    }
+    function addMeter(stId, levelIdx) {
+        if (!canEditCurrentTab()) return;
+        const st = (allData[currentTab] || {})[stId]; if (!st) return;
+        const levels = getLevels(st).map(l => (l || []).slice());
+        levels[levelIdx].push({ kind: 'meter' });
+        db.ref(`Stores/${myStore}/Wystawa/${currentTab}/${stId}/levels`).set(levels);
+    }
+    function removeItem(stId, levelIdx, itemIdx) {
+        if (!canEditCurrentTab()) return;
+        const st = (allData[currentTab] || {})[stId]; if (!st) return;
+        const levels = getLevels(st).map(l => (l || []).slice());
+        levels[levelIdx].splice(itemIdx, 1);
+        db.ref(`Stores/${myStore}/Wystawa/${currentTab}/${stId}/levels`).set(levels);
     }
 
     // ==========================================
@@ -698,9 +856,7 @@
         document.getElementById('magazynModal').style.display = 'flex';
     }
 
-    function closeMagazynModal() { 
-        document.getElementById('magazynModal').style.display = 'none'; 
-    }
+    function closeMagazynModal() { document.getElementById('magazynModal').style.display = 'none'; }
 
     function addMagazynItem() {
         const idx = document.getElementById('magIndex').value.trim();
@@ -709,9 +865,7 @@
         if (!idx) { alert("Podaj indeks!"); return; }
 
         const id = 'mag_' + Date.now();
-        db.ref(`Stores/${myStore}/Magazyn/${currentTab}/${id}`).set({
-            index: idx, name: nm, qty: q, addedAt: Date.now()
-        });
+        db.ref(`Stores/${myStore}/Magazyn/${currentTab}/${id}`).set({ index: idx, name: nm, qty: q, addedAt: Date.now() });
         
         document.getElementById('magIndex').value = '';
         document.getElementById('magName').value = '';
@@ -719,9 +873,7 @@
         isVerifiedView = false; 
     }
 
-    function deleteMagazynItem(id) {
-        db.ref(`Stores/${myStore}/Magazyn/${currentTab}/${id}`).remove();
-    }
+    function deleteMagazynItem(id) { db.ref(`Stores/${myStore}/Magazyn/${currentTab}/${id}`).remove(); }
 
     function verifyMagazyn() {
         const stations = allData[currentTab] || {};
@@ -729,9 +881,7 @@
         Object.values(stations).forEach(st => {
             getLevels(st).forEach(lvl => {
                 (lvl || []).forEach(it => {
-                    if (it && it.kind === 'product' && it.index) {
-                        exhibited.add(it.index.trim().toLowerCase());
-                    }
+                    if (it && it.kind === 'product' && it.index) { exhibited.add(it.index.trim().toLowerCase()); }
                 });
             });
         });
@@ -773,15 +923,14 @@
         keys.forEach(k => {
             const item = items[k];
             const idxLower = (item.index || '').trim().toLowerCase();
-            let isMissing = false;
-            let warningHtml = '';
+            let isMissing = false; let warningHtml = '';
             
             if (isVerifiedView) {
                 if (missingIndexes.has(idxLower)) {
                     isMissing = true;
-                    warningHtml = '<div style="color:#f44; font-size:0.75rem; font-weight:900; margin-top: 4px;">⚠️ BRAK NA WYSTAWIE</div>';
+                    warningHtml = '<div style="color:#f44; font-size:0.75rem; font-weight:900; margin-top: 4px;">⚠️ BRAK NA MAPIE DZIAŁU</div>';
                 } else {
-                    warningHtml = '<div style="color:#2ecc71; font-size:0.75rem; font-weight:900; margin-top: 4px;">✅ JEST NA WYSTAWIE</div>';
+                    warningHtml = '<div style="color:#2ecc71; font-size:0.75rem; font-weight:900; margin-top: 4px;">✅ JEST WYSTAWIONE</div>';
                 }
             }
 
@@ -802,247 +951,48 @@
     }
 
     // ==========================================
-    // MODAL: DODAJ / EDYTUJ STANOWISKO
-    // ==========================================
-    function openStationModal(stId = null) {
-        if (!canEditCurrentTab()) return;
-        document.getElementById('stationModalMsg').style.display = 'none';
-        document.getElementById('stationId').value = stId || '';
-
-        const st = stId ? (allData[currentTab] || {})[stId] : null;
-        if (st) {
-            document.getElementById('stationModalTitle').innerText = 'EDYTUJ STANOWISKO';
-            document.getElementById('stName').value = st.name || '';
-            document.getElementById('stType').value = st.type || 'stol';
-            document.getElementById('stWidth').value = st.widthM || '';
-            document.getElementById('stLength').value = st.lengthM || '';
-        } else {
-            document.getElementById('stationModalTitle').innerText = 'NOWE STANOWISKO';
-            document.getElementById('stName').value = '';
-            document.getElementById('stType').value = 'stol';
-            document.getElementById('stWidth').value = '';
-            document.getElementById('stLength').value = '';
-        }
-        document.getElementById('stationModal').style.display = 'flex';
-    }
-
-    function closeStationModal() { document.getElementById('stationModal').style.display = 'none'; }
-
-    function saveStation() {
-        const msgBox = document.getElementById('stationModalMsg');
-        const stId = document.getElementById('stationId').value;
-        const name = document.getElementById('stName').value.trim();
-        const type = document.getElementById('stType').value;
-        const widthM = parseFloat(document.getElementById('stWidth').value) || 0;
-        const lengthM = parseFloat(document.getElementById('stLength').value) || 0;
-
-        msgBox.style.display = 'none';
-        if (!name) { msgBox.style.display = 'block'; msgBox.className = 'msg-box msg-error'; msgBox.innerText = 'Podaj nazwę stanowiska!'; return; }
-
-        const id = stId || ('st_' + Date.now());
-        const existing = (allData[currentTab] || {})[id] || {};
-        
-        let startLevels = existing.levels;
-        if (!startLevels) {
-            if (type === 'wyspa3d') startLevels = [[], [], []];
-            else if (type === 'stol') startLevels = [[], []];
-            else startLevels = [[]];
-        }
-        
-        const data = {
-            name, type, widthM, lengthM,
-            levels: startLevels,
-            createdBy: existing.createdBy || currentUser.name,
-            createdAt: existing.createdAt || Date.now()
-        };
-
-        db.ref(`Stores/${myStore}/Wystawa/${currentTab}/${id}`).set(data).then(closeStationModal);
-    }
-
-    let pendingDeleteId = null;
-    function askDeleteStation(stId, name) {
-        pendingDeleteId = stId;
-        document.getElementById('confirmText').innerText = `Czy na pewno chcesz trwale usunąć stanowisko "${name}" wraz ze wszystkimi przypisanymi produktami?`;
-        document.getElementById('confirmModal').style.display = 'flex';
-    }
-    function closeConfirmModal() { document.getElementById('confirmModal').style.display = 'none'; pendingDeleteId = null; }
-    function confirmDeleteStation() {
-        if (pendingDeleteId) db.ref(`Stores/${myStore}/Wystawa/${currentTab}/${pendingDeleteId}`).remove();
-        closeConfirmModal();
-    }
-
-    function addLevel(stId) {
-        if (!canEditCurrentTab()) return;
-        const st = (allData[currentTab] || {})[stId]; if (!st) return;
-        const levels = getLevels(st).map(l => (l || []).slice());
-        levels.push([]);
-        db.ref(`Stores/${myStore}/Wystawa/${currentTab}/${stId}/levels`).set(levels);
-    }
-
-    function addMeter(stId, levelIdx) {
-        if (!canEditCurrentTab()) return;
-        const st = (allData[currentTab] || {})[stId]; if (!st) return;
-        const levels = getLevels(st).map(l => (l || []).slice());
-        levels[levelIdx].push({ kind: 'meter' });
-        db.ref(`Stores/${myStore}/Wystawa/${currentTab}/${stId}/levels`).set(levels);
-    }
-
-    function removeItem(stId, levelIdx, itemIdx) {
-        if (!canEditCurrentTab()) return;
-        const st = (allData[currentTab] || {})[stId]; if (!st) return;
-        const levels = getLevels(st).map(l => (l || []).slice());
-        levels[levelIdx].splice(itemIdx, 1);
-        db.ref(`Stores/${myStore}/Wystawa/${currentTab}/${stId}/levels`).set(levels);
-    }
-
-    // ==========================================
-    // MODAL: DODAWANIE / EDYCJA PRODUKTU W KOMÓRCE
-    // ==========================================
-    let editCtx = null; 
-
-    function openCellModal(stId, levelIdx, itemIdx) {
-        const tab = currentTab;
-        const st = (allData[tab] || {})[stId] || {};
-        const levels = getLevels(st);
-        const item = (itemIdx !== null && levels[levelIdx]) ? levels[levelIdx][itemIdx] : null;
-        const canEdit = canEditTab(tab);
-
-        editCtx = { tab, stationId: stId, levelIdx, itemIdx };
-
-        document.getElementById('cellModalTitle').innerText = itemIdx === null ? 'NOWY PRODUKT' : 'EDYTUJ PRODUKT';
-        document.getElementById('cellIndex').value = item ? (item.index || '') : '';
-        document.getElementById('cellName').value = item ? (item.name || '') : '';
-        document.getElementById('cellNotes').value = item ? (item.notes || '') : '';
-        ['cellIndex','cellName','cellNotes'].forEach(id => document.getElementById(id).disabled = !canEdit);
-
-        let btns = '';
-        if (canEdit) {
-            btns = `<button class="btn-modal-cancel" onclick="closeCellModal()">ANULUJ</button>`;
-            if (itemIdx !== null) btns += `<button class="btn-modal-danger" onclick="removeItem('${stId}', ${levelIdx}, ${itemIdx}); closeCellModal();">USUŃ</button>`;
-            btns += `<button class="btn-modal-save" onclick="saveCell()">ZAPISZ</button>`;
-        } else {
-            btns = `<button class="btn-modal-save" style="flex:1;" onclick="closeCellModal()">ZAMKNIJ</button>`;
-        }
-        document.getElementById('cellModalButtons').innerHTML = btns;
-
-        document.getElementById('cellModal').style.display = 'flex';
-    }
-
-    function closeCellModal() { document.getElementById('cellModal').style.display = 'none'; editCtx = null; }
-
-    function saveCell() {
-        if (!editCtx) return;
-        const index = document.getElementById('cellIndex').value.trim();
-        const name = document.getElementById('cellName').value.trim();
-        const notes = document.getElementById('cellNotes').value.trim();
-        
-        if (!index && !name) { closeCellModal(); return; }
-
-        const { tab, stationId, levelIdx, itemIdx } = editCtx;
-        const st = (allData[tab] || {})[stationId]; if (!st) { closeCellModal(); return; }
-        const levels = getLevels(st).map(l => (l || []).slice());
-        const newItem = { kind: 'product', index, name, notes };
-
-        if (itemIdx === null) { levels[levelIdx].push(newItem); }
-        else { levels[levelIdx][itemIdx] = newItem; }
-
-        db.ref(`Stores/${myStore}/Wystawa/${tab}/${stationId}/levels`).set(levels).then(closeCellModal);
-    }
-
-    // ==========================================
     // WYSZUKIWARKA
     // ==========================================
-    let searchMatches = [];
-    let searchPos = -1;
-
     function runSearch() {
         const q = document.getElementById('searchInput').value.trim().toLowerCase();
-        clearHighlight();
-        searchMatches = [];
-        searchPos = -1;
-        if (!q) { document.getElementById('searchCount').innerText = ''; return; }
+        if (!q) return;
 
-        tabDefs.forEach(t => {
+        let foundTab = null;
+        let foundStationId = null;
+
+        for(let t of tabDefs) {
             const stations = allData[t.key] || {};
-            Object.keys(stations).forEach(stId => {
+            for(let stId of Object.keys(stations)) {
                 const st = stations[stId];
-                getLevels(st).forEach((lvl, li) => {
-                    (lvl || []).forEach((item, ii) => {
+                for(let lvl of getLevels(st)) {
+                    for(let item of (lvl || [])) {
                         if (item && item.kind === 'product') {
                             const idx = (item.index || '').toLowerCase();
                             const nm = (item.name || '').toLowerCase();
                             if (idx.includes(q) || nm.includes(q)) {
-                                searchMatches.push({ tab: t.key, stationId: stId, levelIdx: li, itemIdx: ii });
+                                foundTab = t.key;
+                                foundStationId = stId;
+                                break;
                             }
                         }
-                    });
-                });
-            });
-        });
+                    }
+                    if(foundTab) break;
+                }
+                if(foundTab) break;
+            }
+            if(foundTab) break;
+        }
 
-        if (searchMatches.length > 0) { goToMatch(0); }
-        else { document.getElementById('searchCount').innerText = 'Brak wyników'; }
+        if (foundTab && foundStationId) {
+            document.getElementById('searchInput').value = '';
+            if (currentTab !== foundTab) openDeptMap(foundTab);
+            setTimeout(() => { openStationDetail(foundStationId); }, 200);
+        } else {
+            alert('Brak wyników w całym sklepie.');
+        }
     }
 
-    function goToMatch(i) {
-        if (!searchMatches.length) return;
-        searchPos = (i + searchMatches.length) % searchMatches.length;
-        const m = searchMatches[searchPos];
-        if (m.tab !== currentTab) { switchTab(m.tab); } else { renderStations(); }
-        document.getElementById('searchCount').innerText = `${searchPos + 1}/${searchMatches.length}`;
-        setTimeout(() => {
-            clearHighlight();
-            const el = document.getElementById(`cell_${m.stationId}_${m.levelIdx}_${m.itemIdx}`);
-            if (el) { el.classList.add('search-hit'); el.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' }); }
-        }, 60);
-    }
-
-    function nextMatch() { if (searchMatches.length) goToMatch(searchPos + 1); }
-    function prevMatch() { if (searchMatches.length) goToMatch(searchPos - 1); }
-    function clearHighlight() { document.querySelectorAll('.search-hit').forEach(e => e.classList.remove('search-hit')); }
-    function clearSearch() {
-        document.getElementById('searchInput').value = '';
-        searchMatches = []; searchPos = -1;
-        document.getElementById('searchCount').innerText = '';
-        clearHighlight();
-    }
-
-    // ==========================================
-    // WYKRZYKNIK KSS W MENU
-    // ==========================================
-    if (isManagerOrKss) {
-        db.ref(`Stores/${myStore}/Inwentury`).on('value', snap => {
-            let allInwa = snap.val() || {};
-            let hasAwaiting = false;
-            Object.keys(allInwa).forEach(monthKey => {
-                Object.values(allInwa[monthKey] || {}).forEach(item => { if (item.status === 'awaiting_kss') hasAwaiting = true; });
-            });
-            let badge = document.getElementById('kssAlertBadge');
-            if (badge) badge.innerHTML = hasAwaiting ? `<span style="color:#f44; font-weight:900;">[!]</span>` : '';
-        });
-    }
-
-    // ==========================================
-    // AUTOWYLOGOWANIE PRZY BEZCZYNNOŚCI
-    // ==========================================
-    const minutyBezczynnosci = 5, sekundOstrzezenia = 30;
-    const limitCzasu = (minutyBezczynnosci * 60 - sekundOstrzezenia) * 1000;
-    let timerBezczynnosci, countdownInterval, ostrzezenieAktywne = false;
-    function resetujTimer() { if (ostrzezenieAktywne) return; clearTimeout(timerBezczynnosci); timerBezczynnosci = setTimeout(pokazOstrzezenie, limitCzasu); }
-    function pokazOstrzezenie() {
-        ostrzezenieAktywne = true; let s = sekundOstrzezenia;
-        document.getElementById('idleCountdown').innerText = s;
-        document.getElementById('idleWarningModal').style.display = 'flex';
-        countdownInterval = setInterval(() => { s--; document.getElementById('idleCountdown').innerText = s; if (s <= 0) { clearInterval(countdownInterval); wylogujZPowoduBezczynnosci(); } }, 1000);
-    }
-    function pozostanZalogowany() { ostrzezenieAktywne = false; clearInterval(countdownInterval); document.getElementById('idleWarningModal').style.display = 'none'; resetujTimer(); }
-    function wylogujZPowoduBezczynnosci() { localStorage.removeItem('currentUser'); sessionStorage.setItem('powodWylogowania', 'bezczynnosc'); window.location.href = 'login.html'; }
-    ['mousemove','keydown','click','scroll','touchstart'].forEach(a => document.addEventListener(a, resetujTimer, { passive: true }));
-    resetujTimer();
-
-    // START
-    renderTabs();
-    document.getElementById('btnAddStation').style.display = canEditCurrentTab() ? 'block' : 'none';
+    showStoreMap(); // Startowa funkcja
 </script>
 </body>
 </html>

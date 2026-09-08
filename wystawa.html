@@ -105,7 +105,7 @@
         .item-tile:hover { background: #1c1608; transform: translateY(-2px); }
         .cell-idx { font-size: 0.55rem; color: #ffe800; font-weight: 900; line-height: 1.2; margin-bottom: 4px; word-break: break-word;}
         .cell-name { font-size: 0.5rem; color: #ccc; font-weight: 700; line-height: 1.2; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; word-break: break-word; }
-        .cell-note-badge { position: absolute; top: -6px; right: -6px; background: #f44; color: white; width: 16px; height: 16px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.65rem; font-weight: 900; box-shadow: 0 0 5px rgba(0,0,0,0.8); }
+        .cell-note-badge { position: absolute; top: -6px; right: -6px; background: #f44; color: white; width: 16px; height: 16px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.65rem; font-weight: 900; box-shadow: 0 0 5px rgba(0,0,0,0.8); z-index: 10; }
 
         .meter-marker { width: 34px; min-width: 34px; flex-shrink: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; cursor: default; }
         .meter-marker .bar { width: 3px; flex-grow: 1; background: #ffe800; border-radius: 2px; }
@@ -113,13 +113,108 @@
         .meter-marker .del-x { position: absolute; top: -6px; right: 2px; color: #f44; font-size: 0.7rem; font-weight: 900; cursor: pointer; display: none; }
         .meter-marker:hover .del-x { display: block; }
 
-        .add-tile { width: 82px; min-width: 82px; height: 82px; border: 1px dashed #444; border-radius: 8px; background: #0a0a0a; display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; transition: 0.2s; color: #555; font-size: 1.6rem; font-weight: 900; }
+        .add-tile { width: 82px; min-width: 82px; height: 82px; border: 1px dashed #444; border-radius: 8px; background: #0a0a0a; display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; transition: 0.2s; color: #555; font-size: 1.6rem; font-weight: 900; text-align: center;}
         .add-tile:hover { border-color: #ffe800; color: #ffe800; background: #151515; }
 
-        /* Klasy do nowego widoku dwustronnego (Góra/Dół) */
+        /* Klasy do widoku Stół (Góra/Dół) */
         .table-grid { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 8px; }
         .table-col { display: flex; flex-direction: column; gap: 6px; }
         .item-placeholder { width: 82px; min-width: 82px; height: 82px; border: 1px dashed #222; border-radius: 8px; background: transparent; }
+
+        /* NOWOŚĆ: Klasy do widoku Izometrycznego 3D (Wyspa) */
+        .iso-wrapper {
+            perspective: 1200px;
+            padding: 30px 10px 60px 10px;
+            display: flex;
+            justify-content: flex-start;
+            overflow-x: auto;
+        }
+        .iso-table {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            background: #1a1a1a;
+            border: 4px solid #333;
+            padding: 30px;
+            border-radius: 20px;
+            /* Efekt izometryczny */
+            transform: rotateX(55deg) rotateZ(-35deg);
+            transform-style: preserve-3d;
+            box-shadow: -20px 25px 0px rgba(0,0,0,0.6), inset 0 0 50px rgba(0,0,0,0.8);
+            transition: transform 0.4s ease;
+            margin: 0 auto;
+        }
+        .iso-table:hover {
+            transform: rotateX(50deg) rotateZ(-25deg);
+        }
+        .iso-row {
+            display: flex;
+            gap: 12px;
+            transform-style: preserve-3d;
+            position: relative;
+        }
+        .iso-row-label {
+            position: absolute;
+            left: -60px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #555;
+            font-size: 0.6rem;
+            font-weight: 900;
+        }
+        .iso-cell {
+            width: 82px;
+            height: 82px;
+            background: rgba(255,255,255,0.02);
+            border: 2px dashed #444;
+            border-radius: 8px;
+            position: relative;
+            transform-style: preserve-3d;
+        }
+        .iso-item-tile {
+            position: absolute;
+            inset: -2px;
+            background: #151107;
+            border: 2px solid #ffe800;
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 4px;
+            cursor: pointer;
+            text-align: center;
+            /* Pop-up nad stół */
+            transform: translateZ(10px);
+            box-shadow: -5px 5px 10px rgba(0,0,0,0.6);
+            transition: 0.3s;
+        }
+        .iso-item-tile:hover {
+            background: #2a2200;
+            transform: translateZ(35px) scale(1.1);
+            box-shadow: -20px 20px 25px rgba(0,0,0,0.8);
+            z-index: 100;
+        }
+        .iso-add-btn {
+            position: absolute;
+            inset: -2px;
+            background: rgba(255, 232, 0, 0.05);
+            border: 2px dashed #ffe800;
+            border-radius: 8px;
+            color: #ffe800;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            font-weight: 900;
+            cursor: pointer;
+            transform: translateZ(5px);
+            transition: 0.2s;
+        }
+        .iso-add-btn:hover {
+            background: rgba(255, 232, 0, 0.2);
+            transform: translateZ(20px);
+        }
 
         .empty-msg { color: #666; font-size: 0.85rem; font-weight: bold; text-align: center; padding: 40px 10px; }
 
@@ -129,12 +224,12 @@
         .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 11000; align-items: center; justify-content: center; padding: 20px; backdrop-filter: blur(5px); }
         .modal-content { background: #0a0a0a; border: 2px solid #ffe800; padding: 25px; width: 100%; max-width: 420px; border-radius: 15px; box-shadow: 0 0 30px rgba(255, 232, 0, 0.15); }
         .modal-content h3 { color: #ffe800; text-align: center; margin-bottom: 18px; text-transform: uppercase; font-weight: 900; font-size: 1.1rem; }
-        .input-group { display: flex; flex-direction: column; gap: 5px; margin-bottom: 14px; min-width: 0; }
+        .input-group { display: flex; flex-direction: column; gap: 5px; margin-bottom: 14px; min-width: 0; width: 100%; }
         .input-group label { font-size: 0.68rem; color: #888; font-weight: 800; text-transform: uppercase; }
         .form-input, select.form-input { width: 100%; background: #111; border: 1px solid #333; color: #fff; padding: 11px; border-radius: 8px; font-size: 0.9rem; font-weight: bold; outline: none; }
         .form-input:focus { border-color: #ffe800; }
-        .flex-row { display: flex; gap: 10px; }
-        .flex-row .input-group { flex: 1; }
+        .flex-row { display: flex; gap: 10px; width: 100%; }
+        .flex-row .input-group { flex: 1; width: auto; }
         .modal-buttons { display: flex; gap: 10px; margin-top: 18px; }
         .btn-modal-cancel { flex: 1; background: #333; color: #fff; border: none; padding: 12px; font-weight: 900; border-radius: 8px; cursor: pointer; text-transform: uppercase; font-size: 0.72rem; }
         .btn-modal-danger { flex: 1; background: #a00; color: #fff; border: none; padding: 12px; font-weight: 900; border-radius: 8px; cursor: pointer; text-transform: uppercase; font-size: 0.72rem; }
@@ -243,8 +338,9 @@
         <div class="input-group">
             <label>Typ</label>
             <select class="form-input" id="stType">
-                <option value="stol">Stół (układ Dwustronny: Góra/Dół)</option>
-                <option value="marka">Regał / Metr marki (kilka poziomów)</option>
+                <option value="stol">Stół prosty (układ Dwustronny: Góra/Dół)</option>
+                <option value="wyspa3d">Wyspa ekspozycyjna (Rzut 3D: Tył/Środek/Przód)</option>
+                <option value="marka">Regał / Metr marki (kaskada poziomów)</option>
             </select>
         </div>
         <div class="flex-row">
@@ -257,7 +353,7 @@
                 <input type="number" step="0.1" class="form-input" id="stLength" placeholder="np. 15">
             </div>
         </div>
-        <span class="hint">Nie musisz z góry określać ile produktów zmieści się na stole - stanowisko rozrasta się automatycznie w miarę dodawania kolejnych indeksów. W dowolnym momencie możesz też dodać znacznik metra.</span>
+        <span class="hint">Nie musisz z góry określać ile produktów zmieści się na stole - stanowisko rozrasta się automatycznie w miarę dodawania kolejnych indeksów.</span>
         <div class="modal-buttons">
             <button class="btn-modal-cancel" onclick="closeStationModal()">ANULUJ</button>
             <button class="btn-modal-save" onclick="saveStation()">ZAPISZ</button>
@@ -365,12 +461,10 @@
     }
 
     tabDefs.forEach(t => {
-        // Nasłuchiwanie Wystawy
         db.ref(`Stores/${myStore}/Wystawa/${t.key}`).on('value', snap => {
             allData[t.key] = snap.val() || {};
             if (t.key === currentTab) renderStations();
         });
-        // Nasłuchiwanie Magazynu
         db.ref(`Stores/${myStore}/Magazyn/${t.key}`).on('value', snap => {
             magazynData[t.key] = snap.val() || {};
             if (document.getElementById('magazynModal').style.display === 'flex' && t.key === currentTab) {
@@ -380,19 +474,18 @@
     });
 
     // ==========================================
-    // RENDEROWANIE STANOWISK
+    // RENDEROWANIE STANOWISK (W TYM NOWE 3D)
     // ==========================================
     function getLevels(st) {
         return (st.levels && st.levels.length) ? st.levels : [[]];
     }
 
-    // Usunięta ilosc sztuk z renderowania kafla
+    // Uniwersalna funkcja generująca kafelek (płaski)
     function createTileHtml(it, stId, li, ii, canEdit) {
         let notesBadge = '';
         if (it.notes && it.notes.trim() !== '') {
             notesBadge = `<div class="cell-note-badge" title="${it.notes.replace(/"/g, '&quot;')}">!</div>`;
         }
-        
         return `<div class="item-tile" id="cell_${stId}_${li}_${ii}" onclick="openCellModal('${stId}', ${li}, ${ii})">
             ${notesBadge}
             <div class="cell-idx">${(it.index || '').substring(0,12)}</div>
@@ -420,8 +513,11 @@
             const st = stations[stId];
             let levels = getLevels(st);
             
+            // Wymuszanie poprawnej liczby poziomów dla stołów
             if (st.type === 'stol') {
                 while(levels.length < 2) levels.push([]);
+            } else if (st.type === 'wyspa3d') {
+                while(levels.length < 3) levels.push([]);
             }
             
             let totalProducts = 0;
@@ -434,7 +530,7 @@
             if (canEdit) {
                 actionsHtml = `
                     <div class="station-actions">
-                        ${st.type !== 'stol' ? `<button class="btn-mini" onclick="addLevel('${stId}')">+ POZIOM</button>` : ''}
+                        ${st.type === 'marka' ? `<button class="btn-mini" onclick="addLevel('${stId}')">+ POZIOM</button>` : ''}
                         <button class="btn-mini" onclick="openStationModal('${stId}')">EDYTUJ</button>
                         <button class="btn-mini danger" onclick="askDeleteStation('${stId}', '${(st.name||'').replace(/'/g,"")}')">USUŃ</button>
                     </div>`;
@@ -442,7 +538,57 @@
 
             let levelsHtml = '';
 
-            if (st.type === 'stol') {
+            // --- NOWOŚĆ: WYSPA EKSPOZYCYJNA W CSS 3D ---
+            if (st.type === 'wyspa3d') {
+                let tableGridHtml = '<div class="iso-wrapper"><div class="iso-table">';
+                const rowLabels = ['TYŁ', 'ŚRODEK', 'PRZÓD'];
+                
+                let maxCols = Math.max((levels[0]||[]).length, (levels[1]||[]).length, (levels[2]||[]).length);
+                if (canEdit) maxCols++;
+
+                for (let r = 0; r < 3; r++) {
+                    tableGridHtml += '<div class="iso-row">';
+                    
+                    for (let c = 0; c < maxCols; c++) {
+                        tableGridHtml += '<div class="iso-cell">';
+                        let item = (levels[r]||[])[c];
+                        
+                        if (item && item.kind === 'product') {
+                            let notesBadge = '';
+                            if (item.notes && item.notes.trim() !== '') {
+                                notesBadge = `<div class="cell-note-badge" title="${item.notes.replace(/"/g, '&quot;')}">!</div>`;
+                            }
+                            tableGridHtml += `
+                                <div class="iso-item-tile" id="cell_${stId}_${r}_${c}" onclick="openCellModal('${stId}', ${r}, ${c})">
+                                    ${notesBadge}
+                                    <div class="cell-idx">${(item.index || '').substring(0,12)}</div>
+                                    <div class="cell-name">${(item.name || '')}</div>
+                                </div>`;
+                        } else if (item && item.kind === 'meter') {
+                            // Ignorujemy metry na wyspach 3D żeby nie psuć widoku, ew. można dodać płaski znacznik
+                            tableGridHtml += `<div class="iso-item-tile" style="background:#555" onclick="removeItem('${stId}', ${r}, ${c})"><div class="cell-idx">METR</div><div class="cell-name" style="color:#f44">Klinij by usunąć</div></div>`;
+                        } else if (canEdit && c === (levels[r]||[]).length) {
+                            tableGridHtml += `<div class="iso-add-btn" onclick="openCellModal('${stId}', ${r}, null)">+</div>`;
+                        }
+                        
+                        tableGridHtml += '</div>';
+                    }
+                    tableGridHtml += '</div>';
+                }
+                tableGridHtml += '</div></div>';
+                
+                levelsHtml = `
+                    <div class="level-block">
+                        <div class="level-top">
+                            <span class="level-label">WYSPA EKSPOZYCYJNA (RZUT 3D)</span>
+                        </div>
+                        <div style="font-size: 0.65rem; color: #888; text-align:center; font-weight:bold;">Kolejność rzędów od góry: Tył (Standy), Środek, Przód. Najedź na kafelek aby go powiększyć.</div>
+                        ${tableGridHtml}
+                    </div>
+                `;
+
+            } else if (st.type === 'stol') {
+                // Klasyczny Stół 2D Góra/Dół
                 let tableGridHtml = '<div class="table-grid">';
                 let maxCols = Math.max((levels[0]||[]).length, (levels[1]||[]).length);
                 if (canEdit) maxCols++;
@@ -493,6 +639,7 @@
                 `;
 
             } else {
+                // Typ Marka
                 levels.forEach((lvl, li) => {
                     const items = lvl || [];
                     let meterCount = 0;
@@ -519,11 +666,13 @@
                 });
             }
 
+            let typName = st.type === 'wyspa3d' ? 'Wyspa (3D)' : (st.type === 'marka' ? 'Regał marki' : 'Stół dwustronny');
+
             box.innerHTML = `
                 <div class="station-header">
                     <div>
                         <div class="station-title">${st.name || 'Bez nazwy'}</div>
-                        <div class="station-meta">${st.widthM ? st.widthM + 'm' : '?'} x ${st.lengthM ? st.lengthM + 'm' : '?'} • ${st.type === 'marka' ? 'Regał marki' : 'Stół dwustronny'} • ${totalProducts} indeksów</div>
+                        <div class="station-meta">${st.widthM ? st.widthM + 'm' : '?'} x ${st.lengthM ? st.lengthM + 'm' : '?'} • ${typName} • ${totalProducts} indeksów</div>
                     </div>
                     ${actionsHtml}
                 </div>
@@ -609,7 +758,6 @@
             return;
         }
 
-        // Sortowanie najpierw po tym, co brakuje na wystawie (jesli tryb weryfikacji), potem od najnowszych
         keys.sort((a, b) => {
             const itemA = items[a]; const itemB = items[b];
             if (isVerifiedView) {
@@ -694,7 +842,12 @@
         const id = stId || ('st_' + Date.now());
         const existing = (allData[currentTab] || {})[id] || {};
         
-        const startLevels = existing.levels || (type === 'stol' ? [[], []] : [[]]);
+        let startLevels = existing.levels;
+        if (!startLevels) {
+            if (type === 'wyspa3d') startLevels = [[], [], []];
+            else if (type === 'stol') startLevels = [[], []];
+            else startLevels = [[]];
+        }
         
         const data = {
             name, type, widthM, lengthM,
@@ -743,7 +896,7 @@
     }
 
     // ==========================================
-    // MODAL: DODAWANIE / EDYCJA PRODUKTU W KOMÓRCE (Z UWAGAMI ZAMIAST ILOŚCI)
+    // MODAL: DODAWANIE / EDYCJA PRODUKTU W KOMÓRCE
     // ==========================================
     let editCtx = null; 
 
@@ -797,7 +950,7 @@
     }
 
     // ==========================================
-    // WYSZUKIWARKA PO INDEKSIE / NAZWIE 
+    // WYSZUKIWARKA
     // ==========================================
     let searchMatches = [];
     let searchPos = -1;

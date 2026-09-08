@@ -115,8 +115,13 @@
         .meter-marker .del-x { position: absolute; top: -6px; right: 2px; color: #f44; font-size: 0.7rem; font-weight: 900; cursor: pointer; display: none; }
         .meter-marker:hover .del-x { display: block; }
 
-        .add-tile { width: 82px; min-width: 82px; height: 82px; border: 1px dashed #444; border-radius: 8px; background: #0a0a0a; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: 0.2s; color: #555; font-size: 1.6rem; font-weight: 900; }
+        .add-tile { width: 82px; min-width: 82px; height: 82px; border: 1px dashed #444; border-radius: 8px; background: #0a0a0a; display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; transition: 0.2s; color: #555; font-size: 1.6rem; font-weight: 900; }
         .add-tile:hover { border-color: #ffe800; color: #ffe800; background: #151515; }
+
+        /* Klasy do nowego widoku dwustronnego (Góra/Dół) */
+        .table-grid { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 8px; }
+        .table-col { display: flex; flex-direction: column; gap: 6px; }
+        .item-placeholder { width: 82px; min-width: 82px; height: 82px; border: 1px dashed #222; border-radius: 8px; background: transparent; }
 
         .empty-msg { color: #666; font-size: 0.85rem; font-weight: bold; text-align: center; padding: 40px 10px; }
 
@@ -212,8 +217,8 @@
         <div class="input-group">
             <label>Typ</label>
             <select class="form-input" id="stType" onchange="onTypeChange()">
-                <option value="stol">Stół / Regał</option>
-                <option value="marka">Metr marki (kilka poziomów)</option>
+                <option value="stol">Stół (układ Dwustronny: Góra/Dół)</option>
+                <option value="marka">Regał / Metr marki (kilka poziomów)</option>
             </select>
         </div>
         <div class="flex-row">
@@ -226,7 +231,7 @@
                 <input type="number" step="0.1" class="form-input" id="stLength" placeholder="np. 15">
             </div>
         </div>
-        <span class="hint">Nie musisz z góry określać ile produktów zmieści się na stole - stanowisko rozrasta się automatycznie w miarę dodawania kolejnych indeksów. W dowolnym momencie możesz też dodać znacznik metra lub kolejny poziom (np. dla regału marki).</span>
+        <span class="hint">Nie musisz z góry określać ile produktów zmieści się na stole - stanowisko rozrasta się automatycznie w miarę dodawania kolejnych indeksów. W dowolnym momencie możesz też dodać znacznik metra.</span>
         <div class="modal-buttons">
             <button class="btn-modal-cancel" onclick="closeStationModal()">ANULUJ</button>
             <button class="btn-modal-save" onclick="saveStation()">ZAPISZ</button>
@@ -294,8 +299,7 @@
     function logout() { localStorage.removeItem('currentUser'); window.location.href = 'login.html'; }
 
     // ==========================================
-    // ZAKŁADKI DZIAŁÓW + DANE (wszystkie 4 działy nasłuchiwane naraz, żeby wyszukiwarka
-    // mogła przeszukiwać całą wystawę bez dodatkowego pobierania danych)
+    // ZAKŁADKI DZIAŁÓW + DANE 
     // ==========================================
     const tabDefs = [
         { key: 'IT', label: 'IT', dept: 'IT' },
@@ -341,10 +345,29 @@
     });
 
     // ==========================================
-    // RENDEROWANIE STANOWISK (poziomy jako rozrastające się rzędy produktów)
+    // RENDEROWANIE STANOWISK (Z UWZGLĘDNIENIEM NOWEGO UKŁADU GÓRA/DÓŁ)
     // ==========================================
     function getLevels(st) {
         return (st.levels && st.levels.length) ? st.levels : [[]];
+    }
+
+    // Funkcja pomocnicza generująca kafelek produktu
+    function createTileHtml(it, stId, li, ii, canEdit) {
+        const qty = Math.max(1, parseInt(it.qty) || 1);
+        const dotsCount = Math.min(qty, 12);
+        let dotsHtml = ''; for (let d = 0; d < dotsCount; d++) dotsHtml += '<div class="dot"></div>';
+        return `<div class="item-tile" id="cell_${stId}_${li}_${ii}" onclick="openCellModal('${stId}', ${li}, ${ii})">
+            <div class="cell-dots">${dotsHtml}</div>
+            <div class="cell-idx">${(it.index || '').substring(0,10)}</div>
+            <div class="cell-name">${(it.name || '').substring(0,14)}</div>
+            <div class="cell-qty-badge">x${qty}</div>
+        </div>`;
+    }
+
+    // Funkcja pomocnicza generująca wskaźnik metra
+    function createMeterHtml(meterCount, stId, li, ii, canEdit) {
+        const delX = canEdit ? `<span class="del-x" onclick="event.stopPropagation(); removeItem('${stId}', ${li}, ${ii})">✖</span>` : '';
+        return `<div class="meter-marker">${delX}<div class="bar"></div><div class="lbl">${meterCount} M</div></div>`;
     }
 
     function renderStations() {
@@ -360,7 +383,13 @@
 
         ids.forEach(stId => {
             const st = stations[stId];
-            const levels = getLevels(st);
+            let levels = getLevels(st);
+            
+            // Wymuszenie fizycznie 2 poziomów (0=Góra, 1=Dół) dla każdego stołu
+            if (st.type === 'stol') {
+                while(levels.length < 2) levels.push([]);
+            }
+            
             let totalProducts = 0, totalPieces = 0;
             levels.forEach(lvl => (lvl || []).forEach(it => { if (it && it.kind === 'product') { totalProducts++; totalPieces += (parseInt(it.qty) || 1); } }));
 
@@ -371,52 +400,102 @@
             if (canEdit) {
                 actionsHtml = `
                     <div class="station-actions">
-                        <button class="btn-mini" onclick="addLevel('${stId}')">+ POZIOM</button>
+                        ${st.type !== 'stol' ? `<button class="btn-mini" onclick="addLevel('${stId}')">+ POZIOM</button>` : ''}
                         <button class="btn-mini" onclick="openStationModal('${stId}')">EDYTUJ</button>
                         <button class="btn-mini danger" onclick="askDeleteStation('${stId}', '${(st.name||'').replace(/'/g,"")}')">USUŃ</button>
                     </div>`;
             }
 
             let levelsHtml = '';
-            levels.forEach((lvl, li) => {
-                const items = lvl || [];
-                let meterCount = 0;
-                let itemsHtml = '';
-                items.forEach((it, ii) => {
-                    if (!it) return;
-                    if (it.kind === 'meter') {
-                        meterCount++;
-                        const delX = canEdit ? `<span class="del-x" onclick="event.stopPropagation(); removeItem('${stId}', ${li}, ${ii})">✖</span>` : '';
-                        itemsHtml += `<div class="meter-marker">${delX}<div class="bar"></div><div class="lbl">${meterCount} M</div></div>`;
+
+            // ROZGAŁĘZIENIE LOGIKI RENDEROWANIA DLA "STÓŁ" ORAZ "MARKA"
+            if (st.type === 'stol') {
+                let tableGridHtml = '<div class="table-grid">';
+                
+                // Znajdujemy, który poziom ma więcej elementów, żeby wiedzieć ile kolumn narysować
+                let maxCols = Math.max((levels[0]||[]).length, (levels[1]||[]).length);
+                if (canEdit) maxCols++; // Zostawiamy jedną dodatkową kolumnę na przyciski z plusem
+
+                let topMeterCount = 0;
+                let bottomMeterCount = 0;
+
+                for (let i = 0; i < maxCols; i++) {
+                    tableGridHtml += '<div class="table-col">';
+                    
+                    // --- GÓRA STOŁU (Poziom 0) ---
+                    let topItem = (levels[0]||[])[i];
+                    if (topItem && topItem.kind === 'product') {
+                        tableGridHtml += createTileHtml(topItem, stId, 0, i, canEdit);
+                    } else if (topItem && topItem.kind === 'meter') {
+                        topMeterCount++;
+                        tableGridHtml += createMeterHtml(topMeterCount, stId, 0, i, canEdit);
+                    } else if (canEdit && i === (levels[0]||[]).length) {
+                        tableGridHtml += `<div class="add-tile" style="font-size:0.75rem;" onclick="openCellModal('${stId}', 0, null)">+ GÓRA</div>`;
                     } else {
-                        const qty = Math.max(1, parseInt(it.qty) || 1);
-                        const dotsCount = Math.min(qty, 12);
-                        let dotsHtml = ''; for (let i = 0; i < dotsCount; i++) dotsHtml += '<div class="dot"></div>';
-                        itemsHtml += `<div class="item-tile" id="cell_${stId}_${li}_${ii}" onclick="openCellModal('${stId}', ${li}, ${ii})">
-                            <div class="cell-dots">${dotsHtml}</div>
-                            <div class="cell-idx">${(it.index || '').substring(0,10)}</div>
-                            <div class="cell-name">${(it.name || '').substring(0,14)}</div>
-                            <div class="cell-qty-badge">x${qty}</div>
-                        </div>`;
+                        tableGridHtml += `<div class="item-placeholder"></div>`;
                     }
-                });
-                const addTile = canEdit ? `<div class="add-tile" onclick="openCellModal('${stId}', ${li}, null)">+</div>` : '';
-                const meterBtn = canEdit ? `<button class="btn-mini" onclick="addMeter('${stId}', ${li})">+ ZNACZNIK METRA</button>` : '';
-                levelsHtml += `
+
+                    // --- DÓŁ STOŁU (Poziom 1) ---
+                    let bottomItem = (levels[1]||[])[i];
+                    if (bottomItem && bottomItem.kind === 'product') {
+                        tableGridHtml += createTileHtml(bottomItem, stId, 1, i, canEdit);
+                    } else if (bottomItem && bottomItem.kind === 'meter') {
+                        bottomMeterCount++;
+                        tableGridHtml += createMeterHtml(bottomMeterCount, stId, 1, i, canEdit);
+                    } else if (canEdit && i === (levels[1]||[]).length) {
+                        tableGridHtml += `<div class="add-tile" style="font-size:0.75rem;" onclick="openCellModal('${stId}', 1, null)">+ DÓŁ</div>`;
+                    } else {
+                        tableGridHtml += `<div class="item-placeholder"></div>`;
+                    }
+
+                    tableGridHtml += '</div>'; // Zamykamy kolumnę
+                }
+                
+                tableGridHtml += '</div>'; // Zamykamy grida stołu
+                
+                levelsHtml = `
                     <div class="level-block">
                         <div class="level-top">
-                            ${levels.length > 1 ? `<span class="level-label">POZIOM ${li + 1}</span>` : ''}
-                            ${meterBtn}
+                            <span class="level-label">STÓŁ (GÓRA / DÓŁ)</span>
+                            ${canEdit ? `<button class="btn-mini" onclick="addMeter('${stId}', 0)">+ ZNACZNIK (GÓRA)</button> <button class="btn-mini" onclick="addMeter('${stId}', 1)">+ ZNACZNIK (DÓŁ)</button>` : ''}
                         </div>
-                        <div class="items-row">${itemsHtml}${addTile}</div>
-                    </div>`;
-            });
+                        ${tableGridHtml}
+                    </div>
+                `;
+
+            } else {
+                // Logika dla typu MARKA (układ rzędowy)
+                levels.forEach((lvl, li) => {
+                    const items = lvl || [];
+                    let meterCount = 0;
+                    let itemsHtml = '';
+                    items.forEach((it, ii) => {
+                        if (!it) return;
+                        if (it.kind === 'meter') {
+                            meterCount++;
+                            itemsHtml += createMeterHtml(meterCount, stId, li, ii, canEdit);
+                        } else {
+                            itemsHtml += createTileHtml(it, stId, li, ii, canEdit);
+                        }
+                    });
+                    const addTile = canEdit ? `<div class="add-tile" onclick="openCellModal('${stId}', ${li}, null)">+</div>` : '';
+                    const meterBtn = canEdit ? `<button class="btn-mini" onclick="addMeter('${stId}', ${li})">+ ZNACZNIK METRA</button>` : '';
+                    levelsHtml += `
+                        <div class="level-block">
+                            <div class="level-top">
+                                ${levels.length > 1 ? `<span class="level-label">POZIOM ${li + 1}</span>` : ''}
+                                ${meterBtn}
+                            </div>
+                            <div class="items-row">${itemsHtml}${addTile}</div>
+                        </div>`;
+                });
+            }
 
             box.innerHTML = `
                 <div class="station-header">
                     <div>
                         <div class="station-title">${st.name || 'Bez nazwy'}</div>
-                        <div class="station-meta">${st.widthM ? st.widthM + 'm' : '?'} x ${st.lengthM ? st.lengthM + 'm' : '?'} • ${st.type === 'marka' ? 'Metr marki' : 'Stół / Regał'} • ${totalProducts} indeksów • ${totalPieces} szt. łącznie</div>
+                        <div class="station-meta">${st.widthM ? st.widthM + 'm' : '?'} x ${st.lengthM ? st.lengthM + 'm' : '?'} • ${st.type === 'marka' ? 'Regał marki' : 'Stół dwustronny'} • ${totalProducts} indeksów • ${totalPieces} szt. łącznie</div>
                     </div>
                     ${actionsHtml}
                 </div>
@@ -468,7 +547,10 @@
 
         const id = stId || ('st_' + Date.now());
         const existing = (allData[currentTab] || {})[id] || {};
-        const startLevels = existing.levels || (type === 'marka' ? [[], []] : [[]]);
+        
+        // Zapewniamy dwa poziomy od razu jeśli to stół
+        const startLevels = existing.levels || (type === 'stol' ? [[], []] : [[]]);
+        
         const data = {
             name, type, widthM, lengthM,
             levels: startLevels,
@@ -518,7 +600,7 @@
     // ==========================================
     // MODAL: DODAWANIE / EDYCJA PRODUKTU W KOMÓRCE
     // ==========================================
-    let editCtx = null; // {tab, stationId, levelIdx, itemIdx (null = nowy)}
+    let editCtx = null; 
 
     function openCellModal(stId, levelIdx, itemIdx) {
         const tab = currentTab;
@@ -569,7 +651,7 @@
     }
 
     // ==========================================
-    // WYSZUKIWARKA PO INDEKSIE / NAZWIE (przeszukuje wszystkie 4 działy naraz)
+    // WYSZUKIWARKA PO INDEKSIE / NAZWIE 
     // ==========================================
     let searchMatches = [];
     let searchPos = -1;
